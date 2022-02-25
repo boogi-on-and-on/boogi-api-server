@@ -19,7 +19,7 @@ public class BusinessException extends RuntimeException {
     }
 
     public BusinessException(String message, ErrorInfo errorInfo) {
-        super(message); //console...
+        super(message);
         this.errorInfo = errorInfo;
         errorInfo.setMessage(message);
     }

@@ -1,39 +1,44 @@
-package boogi.apiserver.domain.member.domain;
+package boogi.apiserver.domain.report.domain;
 
+import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.model.TimeBaseEntity;
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
-@Table(name = "MEMBER")
+@Table(name = "REPORT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
-public class Member extends TimeBaseEntity {
-
+public class Report extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(name = "report_id")
     private Long id;
+
+    @JoinColumn(name = "post_id")
+    @ManyToOne(fetch = LAZY)
+    private Post post;
 
     @JoinColumn(name = "community_id")
     @ManyToOne(fetch = LAZY)
     private Community community;
 
+    @JoinColumn(name = "comment_id")
+    @ManyToOne(fetch = LAZY)
+    private Comment comment;
+
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = LAZY)
     private User user;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "member_type")
-    private MemberType memberType;
+    private String content;
 
-    @Column(name = "banned_at")
-    private LocalDateTime bannedAt;
+    private String reason;
 }

@@ -1,8 +1,8 @@
-package boogi.apiserver.domain.member.domain;
+package boogi.apiserver.domain.post.post.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,29 +11,32 @@ import java.time.LocalDateTime;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
-@Table(name = "MEMBER")
+@Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
-public class Member extends TimeBaseEntity {
-
+public class Post extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(name = "post_id")
     private Long id;
 
     @JoinColumn(name = "community_id")
     @ManyToOne(fetch = LAZY)
     private Community community;
 
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     @ManyToOne(fetch = LAZY)
-    private User user;
+    private Member member;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "member_type")
-    private MemberType memberType;
+    private String content;
 
-    @Column(name = "banned_at")
-    private LocalDateTime bannedAt;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "like_count")
+    private int likeCount;
+
+    @Column(name = "comment_count")
+    private int commentCount;
 }
