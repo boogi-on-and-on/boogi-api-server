@@ -6,7 +6,6 @@ import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
-
 import java.io.Serializable;
 
 import static javax.persistence.FetchType.LAZY;

@@ -1,6 +1,7 @@
 package boogi.apiserver.global.error.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorInfo {
@@ -10,6 +11,9 @@ public enum ErrorInfo {
     INTERNAL_SERVER_ERROR("알 수없는 오류가 발생했습니다.", "COMMON_002", 500),
     INVALID_INPUT_ERROR("invalid input", "COMMON_003", 200),
     BAD_REQUEST("잘못된 요청입니다.", "COMMON_004", 400),
+
+    // SESSION_ERROR
+    SESSION_NOT_FOUND_EXCEPTION("로그인 정보를 찾을 수 없습니다.", "COMMON_005", HttpStatus.UNAUTHORIZED.value()),
 
     // MEMBER_ERROR
     MEMBER_NOT_FOUND("해당 멤버가 없습니다.", "MEMBER_001", 400);

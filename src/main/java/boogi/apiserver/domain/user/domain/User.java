@@ -2,7 +2,10 @@ package boogi.apiserver.domain.user.domain;
 
 import boogi.apiserver.domain.Installation.domain.Installation;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;

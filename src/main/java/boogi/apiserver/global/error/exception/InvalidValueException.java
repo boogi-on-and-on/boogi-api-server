@@ -13,4 +13,8 @@ public class InvalidValueException extends BusinessException {
         super(message, errorInfo);
     }
 
+    public InvalidValueException(ErrorInfo errorInfo){
+        super(errorInfo);
+    }
+
 }

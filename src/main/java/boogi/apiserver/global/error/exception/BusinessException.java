@@ -1,7 +1,6 @@
 package boogi.apiserver.global.error.exception;
 
 import lombok.Getter;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @Getter
 public class BusinessException extends RuntimeException {

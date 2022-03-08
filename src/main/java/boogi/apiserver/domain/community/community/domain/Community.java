@@ -1,7 +1,10 @@
 package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

@@ -2,7 +2,10 @@ package boogi.apiserver.domain.hashtag.community.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
