@@ -3,10 +3,7 @@ package boogi.apiserver.domain.member.domain;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,6 +15,8 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Member extends TimeBaseEntity {
 
     @Id

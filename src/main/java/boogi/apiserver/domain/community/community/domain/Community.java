@@ -1,10 +1,7 @@
 package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Community extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

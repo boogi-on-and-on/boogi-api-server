@@ -2,10 +2,7 @@ package boogi.apiserver.domain.user.domain;
 
 import boogi.apiserver.domain.Installation.domain.Installation;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,6 +13,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User extends TimeBaseEntity {
 
     @Id
