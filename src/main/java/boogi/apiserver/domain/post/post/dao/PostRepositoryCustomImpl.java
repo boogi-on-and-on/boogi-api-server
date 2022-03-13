@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.post.dao;
 
 import boogi.apiserver.domain.hashtag.post.domain.QPostHashtag;
 import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -13,6 +14,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
@@ -30,7 +32,10 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     @Override
     public Page<Post> getUserPostPage(Pageable pageable, Long userId) {
-        List<Long> memberIds = memberRepository.findMemberIdsByUserId(userId);
+        List<Long> memberIds = memberRepository.findByUserId(userId)
+                .stream()
+                .map(Member::getId)
+                .collect(Collectors.toList());
 
         // TODO: 자신의 프로필 조회한 경우?
         // TODO: DTO로 변환하기

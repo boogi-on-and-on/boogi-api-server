@@ -1,13 +1,21 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.user.application.UserService;
+import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.member.application.MemberCoreService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.user.application.UserCoreService;
+import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +28,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -31,7 +41,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserApiControllerTest {
 
     @MockBean
-    private UserService userService;
+    private MemberQueryService memberQueryService;
+
+    @MockBean
+    private UserQueryService userQueryService;
 
     private MockMvc mvc;
 
@@ -53,19 +66,18 @@ class UserApiControllerTest {
     @Test
     void 유저_프로필_개인정보_조회() throws Exception {
         // given
-        User user =
-                User.builder()
-                        .id(1L)
-                        .username("김선도")
-                        .department("컴퓨터공학부")
-                        .tagNumber("#0001")
-                        .introduce("반갑습니다")
-                        .build();
+        UserDetailInfoResponse response = UserDetailInfoResponse.builder()
+                .id("1")
+                .username("김선도")
+                .tagNum("#0001")
+                .introduce("반갑습니다")
+                .department("컴퓨터공학부")
+                .build();
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        given(userService.getUserInfo(anyLong())).willReturn(user);
+        given(userQueryService.getUserDetailInfo(anyLong())).willReturn(response);
 
         // when, then
         mvc.perform(
@@ -81,4 +93,36 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.department").value("컴퓨터공학부"))
                 .andExpect(jsonPath("$.profileImageUrl").doesNotExist());
     }
+
+    @Test
+    void 유저_가입한_커뮤니티_조회() throws Exception {
+        //given
+        UserJoinedCommunity dto1 = UserJoinedCommunity.builder()
+                .id("1")
+                .name("커뮤니티1")
+                .build();
+
+        UserJoinedCommunity dto2 = UserJoinedCommunity.builder()
+                .id("2")
+                .name("커뮤니티2")
+                .build();
+
+        given(memberQueryService.getJoinedMemberInfo(anyLong()))
+                .willReturn(List.of(dto1, dto2));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        // when, then
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/users/communities/joined")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.communities.length()").value(2))
+                .andExpect(jsonPath("$.communities[0].name").isString())
+                .andExpect(jsonPath("$.communities[0].id").isString());
+    }
+
 }

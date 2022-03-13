@@ -39,4 +39,19 @@ public class Community extends TimeBaseEntity {
 
     @Column(name = "auto_approval")
     private boolean autoApproval;
+
+    private Community(String name, String description, boolean isPrivate, boolean autoApproval) {
+        this.communityName = name;
+        this.description = description;
+        this.isPrivate = isPrivate;
+        this.autoApproval = autoApproval;
+    }
+
+    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval) {
+        return new Community(name, description, isPrivate, autoApproval);
+    }
+
+    public void addMemberCount() {
+        this.memberCount++;
+    }
 }

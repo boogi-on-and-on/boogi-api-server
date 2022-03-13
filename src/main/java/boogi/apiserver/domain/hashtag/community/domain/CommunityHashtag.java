@@ -10,7 +10,8 @@ import javax.persistence.*;
 @Table(name = "COMMUNITY_HASHTAG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommunityHashtag extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +23,13 @@ public class CommunityHashtag extends TimeBaseEntity {
     private Community community;
 
     private String tag;
+
+    private CommunityHashtag(String tag, Community community) {
+        this.community = community;
+        this.tag = tag;
+    }
+
+    public static CommunityHashtag of(String tag, Community community) {
+        return new CommunityHashtag(tag, community);
+    }
 }

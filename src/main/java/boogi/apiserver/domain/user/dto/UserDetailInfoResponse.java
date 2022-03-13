@@ -2,10 +2,14 @@ package boogi.apiserver.domain.user.dto;
 
 import boogi.apiserver.domain.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class UserDetailInfoDto {
+@Builder
+@AllArgsConstructor
+public class UserDetailInfoResponse {
     private String id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -16,7 +20,7 @@ public class UserDetailInfoDto {
     private String introduce;
     private String department;
 
-    private UserDetailInfoDto(User user) {
+    private UserDetailInfoResponse(User user) {
         this.id = user.getId().toString();
         this.profileImageUrl = user.getProfileImageUrl();
         this.username = user.getUsername();
@@ -25,7 +29,7 @@ public class UserDetailInfoDto {
         this.department = user.getDepartment();
     }
 
-    public static UserDetailInfoDto of(User user) {
-        return new UserDetailInfoDto(user);
+    public static UserDetailInfoResponse of(User user) {
+        return new UserDetailInfoResponse(user);
     }
 }

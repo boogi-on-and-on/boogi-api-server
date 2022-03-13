@@ -3,6 +3,7 @@ package boogi.apiserver.domain.comment.dao;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.domain.QComment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.domain.Member;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
@@ -28,7 +30,11 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
     @Override
     public Page<Comment> getUserCommentPage(Pageable pageable, Long userId) {
-        List<Long> memberIds = memberRepository.findMemberIdsByUserId(userId);
+        List<Long> memberIds = memberRepository.findByUserId(userId)
+                .stream()
+                .map(Member::getId)
+                .collect(Collectors.toList());
+
 
         List<Comment> comments =
                 queryFactory

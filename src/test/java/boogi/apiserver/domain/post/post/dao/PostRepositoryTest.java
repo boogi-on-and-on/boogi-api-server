@@ -128,7 +128,6 @@ class PostRepositoryTest {
         assertThat(first.getHashtags().size()).isEqualTo(2);
 
         assertThat(postPage.getTotalElements()).isEqualTo(3); // 전체 데이터 수
-        assertThat(postPage.getSize()).isEqualTo(2); //조회된 데이터 수
         assertThat(postPage.hasNext()).isTrue(); //다음 페이지가 있는지
 
         assertThat(emf.getPersistenceUnitUtil().isLoaded(first.getHashtags().get(0))).isTrue();
