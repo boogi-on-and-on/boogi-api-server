@@ -2,9 +2,7 @@ package boogi.apiserver.domain.hashtag.post.domain;
 
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,6 +10,8 @@ import javax.persistence.*;
 @Table(name = "POST_HASHTAG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostHashtag extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

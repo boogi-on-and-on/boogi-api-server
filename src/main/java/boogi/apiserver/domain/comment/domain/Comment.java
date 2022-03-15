@@ -3,10 +3,7 @@ package boogi.apiserver.domain.comment.domain;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,6 +15,8 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Comment extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +37,7 @@ public class Comment extends TimeBaseEntity {
 
     private String content;
 
-    private boolean child;
+    private Boolean child;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

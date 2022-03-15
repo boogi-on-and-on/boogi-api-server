@@ -1,15 +1,15 @@
 package boogi.apiserver.domain.post.post.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -18,6 +18,8 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Post extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +40,11 @@ public class Post extends TimeBaseEntity {
     private LocalDateTime deletedAt;
 
     @Column(name = "like_count")
-    private int likeCount;
+    private Integer likeCount;
 
     @Column(name = "comment_count")
-    private int commentCount;
+    private Integer commentCount;
+
+    @OneToMany(mappedBy = "post")
+    List<PostHashtag> hashtags = new ArrayList<>();
 }

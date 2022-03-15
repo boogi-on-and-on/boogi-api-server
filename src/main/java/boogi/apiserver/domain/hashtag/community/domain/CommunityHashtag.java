@@ -2,10 +2,7 @@ package boogi.apiserver.domain.hashtag.community.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,7 +10,8 @@ import javax.persistence.*;
 @Table(name = "COMMUNITY_HASHTAG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommunityHashtag extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +23,13 @@ public class CommunityHashtag extends TimeBaseEntity {
     private Community community;
 
     private String tag;
+
+    private CommunityHashtag(String tag, Community community) {
+        this.community = community;
+        this.tag = tag;
+    }
+
+    public static CommunityHashtag of(String tag, Community community) {
+        return new CommunityHashtag(tag, community);
+    }
 }
