@@ -1,12 +1,7 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.user.application.UserCoreService;
 import boogi.apiserver.domain.user.application.UserQueryService;
-import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
@@ -15,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

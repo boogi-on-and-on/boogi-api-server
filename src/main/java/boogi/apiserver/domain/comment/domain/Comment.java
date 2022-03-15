@@ -37,7 +37,7 @@ public class Comment extends TimeBaseEntity {
 
     private String content;
 
-    private boolean child;
+    private Boolean child;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

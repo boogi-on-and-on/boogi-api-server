@@ -7,13 +7,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PostServiceTest {
+class PostQueryServiceTest {
 
     @Mock
     PostRepository postRepository;
 
     @InjectMocks
-    PostService postService;
+    PostQueryService postQueryService;
 
+    //todo: Page 객체 직접 생성해서 테스트하기
 
 }

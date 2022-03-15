@@ -1,8 +1,8 @@
-package boogi.apiserver.domain.post.post.api;
+package boogi.apiserver.domain.comment.api;
 
-import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.dto.UserPostPage;
-import boogi.apiserver.domain.post.post.dto.UserPostsDto;
+import boogi.apiserver.domain.comment.application.CommentQueryService;
+import boogi.apiserver.domain.comment.dto.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.UserCommentPage;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,22 +32,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = PostApiController.class)
-class PostApiControllerTest {
+@WebMvcTest(controllers = CommentApiController.class)
+class CommentApiControllerTest {
 
     @MockBean
-    private PostQueryService postQueryService;
+    CommentQueryService commentQueryService;
 
-    private MockMvc mvc;
+    MockMvc mvc;
 
     @Autowired
     ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    private WebApplicationContext ctx;
+    WebApplicationContext ctx;
 
     @BeforeEach
-    private void setup() {
+    void setup() {
         mvc =
                 MockMvcBuilders.webAppContextSetup(ctx)
                         .addFilter(new CharacterEncodingFilter("UTF-8", true))
@@ -55,40 +56,39 @@ class PostApiControllerTest {
     }
 
     @Test
-    void 유저_게시글_페이지네이션() throws Exception {
-        UserPostsDto postsDto = UserPostsDto.builder()
-                .id("1")
-                .content("게시글 내용1")
-                .community(UserPostsDto.CommunityDto.builder()
-                        .id("1")
-                        .name("커뮤니티1")
-                        .build())
+    void 유저_댓글_페이지네이션() throws Exception {
+        UserCommentDto commentDto = UserCommentDto.builder()
+                .postId("1")
+                .content("댓글1")
+                .at(LocalDateTime.now().toString())
                 .build();
 
-        UserPostPage pageInfo = UserPostPage.builder()
+        UserCommentPage page = UserCommentPage.builder()
+                .comments(List.of(commentDto))
                 .nextPage(1)
-                .posts(List.of(postsDto))
                 .hasNext(false)
-                .totalCount(20).build();
+                .totalCount(20)
+                .build();
 
-        given(postQueryService.getUserPosts(any(), anyLong())).willReturn(pageInfo);
+        given(commentQueryService.getUserComments(any(), anyLong()))
+                .willReturn(page);
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/user/1")
+                        MockMvcRequestBuilders.get("/api/comments/user/1")
                                 .queryParam("page", "0")
                                 .queryParam("size", "1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
-                .andExpect(status().isOk())
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.nextPage").value(1))
                 .andExpect(jsonPath("$.totalCount").value(20))
                 .andExpect(jsonPath("$.hasNext").value(false))
-                .andExpect(jsonPath("$.posts[0].community.id").value("1"))
-                .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
-                .andExpect(jsonPath("$.posts.size()").value(1));
+                .andExpect(jsonPath("$.comments[0].content").value("댓글1"))
+                .andExpect(jsonPath("$.comments[0].postId").value("1"))
+                .andExpect(jsonPath("$.comments.size()").value(1));
     }
 }

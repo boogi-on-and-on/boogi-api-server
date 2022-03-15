@@ -3,6 +3,8 @@ package boogi.apiserver.domain.comment.dao;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,9 @@ class CommentRepositoryTest {
     private MemberRepository memberRepository;
 
     @Autowired
+    PostRepository postRepository;
+
+    @Autowired
     private EntityManager em;
 
     @Test
@@ -43,18 +48,26 @@ class CommentRepositoryTest {
                 .build();
         memberRepository.save(member);
 
+        Post post = Post.builder()
+                .member(member)
+                .build();
+        postRepository.save(post);
+
         Comment comment1 = Comment.builder()
                 .member(member)
+                .post(post)
                 .build();
         comment1.setCreatedAt(LocalDateTime.now().minusHours(3));
 
         Comment comment2 = Comment.builder()
                 .member(member)
+                .post(post)
                 .build();
         comment2.setCreatedAt(LocalDateTime.now().minusHours(2));
 
         Comment comment3 = Comment.builder()
                 .member(member)
+                .post(post)
                 .build();
         comment3.setCreatedAt(LocalDateTime.now().minusHours(1));
 
