@@ -9,6 +9,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,6 +22,7 @@ import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -131,5 +133,66 @@ class PostRepositoryTest {
         assertThat(postPage.hasNext()).isTrue(); //다음 페이지가 있는지
 
         assertThat(emf.getPersistenceUnitUtil().isLoaded(first.getHashtags().get(0))).isTrue();
+    }
+
+    @Test
+    void getHotPosts() {
+        //given
+        Community community1 = Community.builder().build();
+        Community community2 = Community.builder()
+                .isPrivate(true)
+                .build();
+        communityRepository.saveAll(List.of(community1, community2));
+
+        Post post1 = Post.builder()
+                .community(community1)
+                .content("게시글1")
+                .likeCount(10)
+                .commentCount(1)
+                .build();
+        post1.setCreatedAt(LocalDateTime.now().minusDays(10));
+
+        Post post2 = Post.builder()
+                .community(community2)
+                .content("게시글2_리스팅안됨")
+                .likeCount(100)
+                .commentCount(1)
+                .build();
+        post2.setCreatedAt(LocalDateTime.now());
+
+
+        Post post3 = Post.builder()
+                .community(community1)
+                .content("게시글3")
+                .likeCount(2)
+                .commentCount(1)
+                .build();
+        post3.setCreatedAt(LocalDateTime.now());
+
+        Post post4 = Post.builder()
+                .community(community1)
+                .content("게시글4")
+                .likeCount(2)
+                .commentCount(10)
+                .build();
+        post4.setCreatedAt(LocalDateTime.now());
+
+        postRepository.saveAll(List.of(post1, post2, post3, post4));
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Post> posts = postRepository.getHotPosts();
+
+        //then
+        assertThat(posts.size()).isEqualTo(2);
+        assertThat(posts.stream().anyMatch(p -> p.getCreatedAt().isBefore(LocalDateTime.now().minusDays(4)))).isFalse();
+
+        Post first = posts.get(0);
+        Post second = posts.get(1);
+
+        assertThat(first.getId()).isEqualTo(post4.getId());
+        assertThat(second.getId()).isEqualTo(post3.getId());
     }
 }

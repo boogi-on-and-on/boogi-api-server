@@ -55,7 +55,7 @@ public class UserApiController {
         ));
     }
 
-    @GetMapping("/communities/joined")
+//    @GetMapping("/communities/joined")
     public ResponseEntity<Object> getUserJoinedCommunitiesInfo(@Session Long userId) {
         List<UserJoinedCommunity> communities = memberQueryService.getJoinedMemberInfo(userId);
 

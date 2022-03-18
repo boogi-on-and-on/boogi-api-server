@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dto.HotPost;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
 import boogi.apiserver.domain.post.post.dto.UserPostsDto;
 import boogi.apiserver.global.constant.HeaderConst;
@@ -90,5 +91,48 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.posts[0].community.id").value("1"))
                 .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
                 .andExpect(jsonPath("$.posts.size()").value(1));
+    }
+
+    @Test
+    void 핫한게시물() throws Exception {
+        HotPost hotPost1 = HotPost.builder()
+                .id("1")
+                .content("내용")
+                .commentCount("1")
+                .likeCount("1")
+                .build();
+
+        HotPost hotPost2 = HotPost.builder()
+                .id("2")
+                .content("내용")
+                .commentCount("2")
+                .likeCount("2")
+                .build();
+
+        HotPost hotPost3 = HotPost.builder()
+                .id("3")
+                .content("내용")
+                .commentCount("3")
+                .likeCount("3")
+                .build();
+
+        given(postQueryService.getHotPosts())
+                .willReturn(List.of(hotPost1, hotPost2, hotPost3));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/posts/hot")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
+                .andExpect(jsonPath("$.hots.size()").value(3))
+                .andExpect(jsonPath("$.hots[0].id").isString())
+                .andExpect(jsonPath("$.hots[0].content").isString())
+                .andExpect(jsonPath("$.hots[0].commentCount").isString())
+                .andExpect(jsonPath("$.hots[0].likeCount").isString());
+
+
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,5 +56,19 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         JPAQuery<Post> countQuery = queryFactory.selectFrom(post).where(post.member.id.in(memberIds));
 
         return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchCount);
+    }
+
+    @Override
+    public List<Post> getHotPosts() {
+        return queryFactory.selectFrom(post)
+                .where(
+                        post.createdAt.after(LocalDateTime.now().minusDays(4)),
+                        post.canceledAt.isNull(),
+                        post.community.isPrivate.isFalse()
+                )
+                .join(post.community)
+                .orderBy(post.likeCount.desc(), post.commentCount.desc())
+                .limit(3)
+                .fetch();
     }
 }

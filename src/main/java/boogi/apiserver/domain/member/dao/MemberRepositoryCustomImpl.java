@@ -22,7 +22,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public List<Member> findByUserId(Long userId) {
         return queryFactory.select(member)
                 .from(member)
-                .where(member.user.id.eq(userId))
+                .where(member.user.id.eq(userId), member.canceledAt.isNull())
                 .fetch();
     }
 
