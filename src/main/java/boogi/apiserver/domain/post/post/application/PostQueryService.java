@@ -3,6 +3,7 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.HotPost;
+import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,13 @@ public class PostQueryService {
         return postRepository.getHotPosts()
                 .stream()
                 .map(HotPost::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<LatestPostOfUserJoinedCommunity> getPostsOfUserJoinedCommunity(Long userId) {
+        List<Post> latestPostsOfCommunity = postRepository.getLatestPostOfCommunity(userId);
+        return latestPostsOfCommunity.stream()
+                .map(LatestPostOfUserJoinedCommunity::of)
                 .collect(Collectors.toList());
     }
 }

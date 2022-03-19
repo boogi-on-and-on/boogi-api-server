@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.application.UserValidationService;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
@@ -23,6 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -40,6 +43,9 @@ class UserApiControllerTest {
 
     @MockBean
     private UserQueryService userQueryService;
+
+    @MockBean
+    private PostQueryService postQueryService;
 
     @MockBean
     private UserValidationService userValidationService;
@@ -92,7 +98,7 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.user.profileImageUrl").doesNotExist());
     }
 
-//    @Test
+    //    @Test
     void 유저_가입한_커뮤니티_조회() throws Exception {
         //given
         UserJoinedCommunity dto1 = UserJoinedCommunity.builder()
@@ -121,6 +127,44 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.communities.length()").value(2))
                 .andExpect(jsonPath("$.communities[0].name").isString())
                 .andExpect(jsonPath("$.communities[0].id").isString());
+    }
+
+    @Test
+    void 유저가_가입한_커뮤니티_최신글_조회() throws Exception {
+        LatestPostOfUserJoinedCommunity post = LatestPostOfUserJoinedCommunity.builder()
+                .id("1")
+                .name("커뮤니티1")
+                .post(LatestPostOfUserJoinedCommunity.PostDto.builder()
+                        .id("2")
+                        .content("글")
+                        .likeCount("111")
+                        .commentCount("222")
+                        .at(LocalDateTime.now().toString())
+                        .hashtags(List.of("해시테그"))
+                        .build())
+                .build();
+
+        given(postQueryService.getPostsOfUserJoinedCommunity(anyLong()))
+                .willReturn(List.of(post));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        // when, then
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/users/communities/joined")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.communities[0].id").value("1"))
+                .andExpect(jsonPath("$.communities[0].name").value("커뮤니티1"))
+                .andExpect(jsonPath("$.communities[0].post.id").value("2"))
+                .andExpect(jsonPath("$.communities[0].post.content").value("글"))
+                .andExpect(jsonPath("$.communities[0].post.likeCount").value("111"))
+                .andExpect(jsonPath("$.communities[0].post.commentCount").value("222"))
+                .andExpect(jsonPath("$.communities[0].post.hashtags").isArray());
+
     }
 
 }
