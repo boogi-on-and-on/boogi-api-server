@@ -11,4 +11,6 @@ public interface PostRepositoryCustom {
     Page<Post> getUserPostPage(Pageable pageable, Long userId);
 
     List<Post> getHotPosts();
+
+    List<Post> getLatestPostOfCommunity(Long userId);
 }

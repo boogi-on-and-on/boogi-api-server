@@ -27,7 +27,6 @@ public class PostQueryService {
     }
 
     public List<HotPost> getHotPosts() {
-        System.out.println("postRepository.getHotPosts().size() = " + postRepository.getHotPosts().size());
         return postRepository.getHotPosts()
                 .stream()
                 .map(HotPost::of)

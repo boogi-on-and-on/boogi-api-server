@@ -9,7 +9,6 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,7 +21,6 @@ import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -194,5 +192,68 @@ class PostRepositoryTest {
 
         assertThat(first.getId()).isEqualTo(post4.getId());
         assertThat(second.getId()).isEqualTo(post3.getId());
+    }
+
+    @Test
+    void 가입한_커뮤니티의_최근_글() {
+        User user = User.builder().build();
+        userRepository.save(user);
+
+        Community community1 = Community.builder().build();
+        Community community2 = Community.builder().build();
+        communityRepository.saveAll(List.of(community1, community2));
+
+        Member secondCreatedMember = Member.builder()
+                .user(user)
+                .community(community1)
+                .build();
+        secondCreatedMember.setCreatedAt(LocalDateTime.now());
+
+        Member firstCreatedMember = Member.builder()
+                .user(user)
+                .community(community2)
+                .build();
+        firstCreatedMember.setCreatedAt(LocalDateTime.now().minusDays(1));
+        memberRepository.saveAll(List.of(secondCreatedMember, firstCreatedMember));
+
+        Post post1OfCommunity1 = Post.builder()
+                .content("p1-c1")
+                .member(secondCreatedMember)
+                .community(community1)
+                .build();
+        // id가 auto_increment를 보장하기 위해서 saveAll이 아닌, 개별적 save이용
+        // 엔티티의 save 순서에 유의해야함.
+        postRepository.save(post1OfCommunity1);
+
+        Post post2OfCommunity1 = Post.builder()
+                .content("p2-c1")
+                .member(firstCreatedMember)
+                .community(community1)
+                .build();
+        postRepository.save(post2OfCommunity1);
+
+        Post post1OfCommunity2 = Post.builder()
+                .content("p1-c2")
+                .member(secondCreatedMember)
+                .community(community2)
+                .build();
+        postRepository.save(post1OfCommunity2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Post> posts = postRepository.getLatestPostOfCommunity(user.getId());
+
+        //then
+        assertThat(posts.size()).isEqualTo(2);
+
+        Post first = posts.get(0);
+        Post second = posts.get(1);
+        assertThat(first.getMember().getId()).isEqualTo(firstCreatedMember.getId());
+        assertThat(second.getMember().getId()).isEqualTo(secondCreatedMember.getId());
+
+        assertThat(first.getContent()).isEqualTo("p2-c1");
+        assertThat(second.getContent()).isEqualTo("p1-c2");
     }
 }

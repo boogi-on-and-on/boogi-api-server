@@ -100,6 +100,7 @@ class PostApiControllerTest {
                 .content("내용")
                 .commentCount("1")
                 .likeCount("1")
+                .hashtags(List.of("hashtag1"))
                 .build();
 
         HotPost hotPost2 = HotPost.builder()
@@ -131,7 +132,8 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.hots[0].id").isString())
                 .andExpect(jsonPath("$.hots[0].content").isString())
                 .andExpect(jsonPath("$.hots[0].commentCount").isString())
-                .andExpect(jsonPath("$.hots[0].likeCount").isString());
+                .andExpect(jsonPath("$.hots[0].likeCount").isString())
+                .andExpect(jsonPath("$.hots[0].hashtags").isArray());
 
 
     }
