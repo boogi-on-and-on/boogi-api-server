@@ -96,24 +96,27 @@ class PostApiControllerTest {
     @Test
     void 핫한게시물() throws Exception {
         HotPost hotPost1 = HotPost.builder()
-                .id("1")
+                .postId("1")
                 .content("내용")
                 .commentCount("1")
                 .likeCount("1")
+                .communityId("1")
                 .hashtags(List.of("hashtag1"))
                 .build();
 
         HotPost hotPost2 = HotPost.builder()
-                .id("2")
+                .postId("2")
                 .content("내용")
                 .commentCount("2")
                 .likeCount("2")
+                .communityId("2")
                 .build();
 
         HotPost hotPost3 = HotPost.builder()
-                .id("3")
+                .postId("3")
                 .content("내용")
                 .commentCount("3")
+                .communityId("3")
                 .likeCount("3")
                 .build();
 
@@ -129,10 +132,11 @@ class PostApiControllerTest {
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
                 .andExpect(jsonPath("$.hots.size()").value(3))
-                .andExpect(jsonPath("$.hots[0].id").isString())
+                .andExpect(jsonPath("$.hots[0].postId").isString())
                 .andExpect(jsonPath("$.hots[0].content").isString())
                 .andExpect(jsonPath("$.hots[0].commentCount").isString())
                 .andExpect(jsonPath("$.hots[0].likeCount").isString())
+                .andExpect(jsonPath("$.hots[0].communityId").isString())
                 .andExpect(jsonPath("$.hots[0].hashtags").isArray());
 
 

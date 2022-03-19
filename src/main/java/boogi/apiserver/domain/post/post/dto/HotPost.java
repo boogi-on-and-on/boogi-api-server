@@ -14,19 +14,21 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 public class HotPost {
-    private String id;
+    private String postId;
     private String likeCount;
     private String commentCount;
     private String content;
+    private String communityId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
 
     private HotPost(Post post) {
-        this.id = post.getId().toString();
+        this.postId = post.getId().toString();
         this.likeCount = post.getLikeCount().toString();
         this.commentCount = post.getCommentCount().toString();
         this.content = post.getContent();
+        this.communityId = post.getCommunity().getId().toString();
 
         List<PostHashtag> hashtags = post.getHashtags();
         if (hashtags != null && hashtags.size() != 0) {
