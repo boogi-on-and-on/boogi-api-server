@@ -26,7 +26,7 @@ public class CommunityApiController {
 
     @PostMapping
     public ResponseEntity<Object> createCommunity(@RequestBody @Validated CreateCommunityRequest request, @Session Long userId) {
-        Community community = Community.of(request.getName(), request.getDescription(), request.isPrivate(), request.isAutoApproval());
+        Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(), request.getAutoApproval());
         Long communityId = communityCoreService.createCommunity(community, request.getHashtags(), userId).getId();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
