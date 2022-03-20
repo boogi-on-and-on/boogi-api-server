@@ -4,7 +4,6 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
-import boogi.apiserver.domain.user.application.UserValidationService;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
@@ -46,9 +45,6 @@ class UserApiControllerTest {
 
     @MockBean
     private PostQueryService postQueryService;
-
-    @MockBean
-    private UserValidationService userValidationService;
 
     private MockMvc mvc;
 

@@ -1,9 +1,16 @@
 package boogi.apiserver.domain.community.community.api;
 
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.notice.application.NoticeQueryService;
+import boogi.apiserver.domain.notice.domain.Notice;
+import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +45,18 @@ class CommunityApiControllerTest {
 
     @MockBean
     CommunityCoreService communityCoreService;
+
+    @MockBean
+    CommunityQueryService communityQueryService;
+
+    @MockBean
+    NoticeQueryService noticeQueryService;
+
+    @MockBean
+    MemberQueryService memberQueryService;
+
+    @MockBean
+    PostQueryService postQueryService;
 
     MockMvc mvc;
 
@@ -117,5 +137,36 @@ class CommunityApiControllerTest {
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 )
                 .andExpect(jsonPath("$.message").value("이미 해당 커뮤니티 이름이 존재합니다."));
+    }
+
+    @Test
+    void 커뮤니티_상세조회_가입한_경우() throws Exception {
+        Member member = Member.builder().build();
+        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                .willReturn(member);
+
+        Community community = Community.builder()
+                .id(1L)
+                .communityName("커뮤니티1")
+                .description("반가워")
+                .isPrivate(false)
+                .hashtags(List.of(CommunityHashtag.builder().tag("테그1").build()))
+                .build();
+        community.setCreatedAt(LocalDateTime.now());
+
+        given(communityQueryService.getCommunityWithHashTag(anyLong()))
+                .willReturn(community);
+
+        given(noticeQueryService.getCommunityLatestNotice(anyLong()))
+                .willReturn(List.of(Notice.builder()
+                        .id(1L)
+                        .title("노티스")
+                        .content("노티스 내용")
+                        .build()));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        //when
     }
 }

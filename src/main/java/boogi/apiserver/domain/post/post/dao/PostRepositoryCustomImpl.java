@@ -76,7 +76,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Post> getLatestPostOfCommunity(Long userId) {
+    public List<Post> getLatestPostOfUserJoinedCommunities(Long userId) {
         List<Long> memberJoinedCommunityIds = memberRepository.findByUserId(userId)
                 .stream()
                 .map(m -> m.getCommunity().getId())
@@ -100,5 +100,17 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         posts.stream().map(p -> p.getHashtags().size() > 0).findFirst();
 
         return posts;
+    }
+
+    @Override
+    public List<Post> getLatestPostOfCommunity(Long communityId) {
+        return queryFactory.selectFrom(post)
+                .where(
+                        post.community.id.eq(communityId),
+                        post.canceledAt.isNull()
+                )
+                .orderBy(post.createdAt.desc())
+                .limit(5)
+                .fetch();
     }
 }

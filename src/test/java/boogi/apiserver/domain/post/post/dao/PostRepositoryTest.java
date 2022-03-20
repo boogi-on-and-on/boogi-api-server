@@ -243,7 +243,7 @@ class PostRepositoryTest {
         em.clear();
 
         //when
-        List<Post> posts = postRepository.getLatestPostOfCommunity(user.getId());
+        List<Post> posts = postRepository.getLatestPostOfUserJoinedCommunities(user.getId());
 
         //then
         assertThat(posts.size()).isEqualTo(2);
@@ -255,5 +255,40 @@ class PostRepositoryTest {
 
         assertThat(first.getContent()).isEqualTo("p2-c1");
         assertThat(second.getContent()).isEqualTo("p1-c2");
+    }
+
+    @Test
+    void getLatestPostOfCommunity() {
+        //given
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        Post p0 = Post.builder().community(community).build();
+        p0.setCreatedAt(LocalDateTime.now().minusDays(1));
+
+        Post p1 = Post.builder().community(community).build();
+        p1.setCreatedAt(LocalDateTime.now().minusDays(2));
+
+        Post p2 = Post.builder().community(community).build();
+        p2.setCreatedAt(LocalDateTime.now().minusDays(3));
+
+        Post p3 = Post.builder().community(community).build();
+        p3.setCreatedAt(LocalDateTime.now().minusDays(4));
+
+        Post p4 = Post.builder().community(community).build();
+        p4.setCreatedAt(LocalDateTime.now().minusDays(5));
+        p4.setCanceledAt(LocalDateTime.now());
+
+        postRepository.saveAll(List.of(p0, p1, p2, p3, p4));
+
+        //when
+        List<Post> posts = postRepository.getLatestPostOfCommunity(community.getId());
+
+        //then
+        assertThat(posts.size()).isEqualTo(4);
+        assertThat(posts.get(0)).isEqualTo(p0);
+        assertThat(posts.get(1)).isEqualTo(p1);
+        assertThat(posts.get(2)).isEqualTo(p2);
+        assertThat(posts.get(3)).isEqualTo(p3);
     }
 }

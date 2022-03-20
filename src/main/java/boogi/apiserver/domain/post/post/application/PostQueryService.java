@@ -35,9 +35,13 @@ public class PostQueryService {
     }
 
     public List<LatestPostOfUserJoinedCommunity> getPostsOfUserJoinedCommunity(Long userId) {
-        List<Post> latestPostsOfCommunity = postRepository.getLatestPostOfCommunity(userId);
+        List<Post> latestPostsOfCommunity = postRepository.getLatestPostOfUserJoinedCommunities(userId);
         return latestPostsOfCommunity.stream()
                 .map(LatestPostOfUserJoinedCommunity::of)
                 .collect(Collectors.toList());
+    }
+
+    public List<Post> getLatestPostOfCommunity(Long communityId) {
+        return postRepository.getLatestPostOfCommunity(communityId);
     }
 }

@@ -12,5 +12,7 @@ public interface PostRepositoryCustom {
 
     List<Post> getHotPosts();
 
-    List<Post> getLatestPostOfCommunity(Long userId);
+    List<Post> getLatestPostOfUserJoinedCommunities(Long userId);
+
+    List<Post> getLatestPostOfCommunity(Long communityId);
 }

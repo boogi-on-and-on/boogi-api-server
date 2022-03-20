@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.hashtag.community.application;
 
+import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -16,15 +18,21 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CommunityHashtagCoreService {
 
+    private final CommunityRepository communityRepository;
     private final CommunityHashtagRepository communityHashtagRepository;
+
     private final CommunityValidationService communityValidationService;
+
+    private final CommunityQueryService communityQueryService;
 
     @Transactional
     public List<CommunityHashtag> addTags(Long CommunityId, List<String> tags) {
         if (tags == null || tags.size() == 0) {
             return null;
         }
-        Community community = communityValidationService.getCommunity(CommunityId);
+
+        Community community = communityQueryService.getCommunity(CommunityId);
+
         List<CommunityHashtag> communityHashtags = tags.stream()
                 .map(ht -> CommunityHashtag.of(ht, community))
                 .collect(Collectors.toList());

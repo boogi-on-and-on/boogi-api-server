@@ -48,7 +48,7 @@ class PostQueryServiceTest {
         post.setCreatedAt(LocalDateTime.now());
 
         //when
-        given(postRepository.getLatestPostOfCommunity(anyLong()))
+        given(postRepository.getLatestPostOfUserJoinedCommunities(anyLong()))
                 .willReturn(List.of(post));
 
         //then
@@ -59,6 +59,5 @@ class PostQueryServiceTest {
         assertThat(dto.getId()).isEqualTo("1");
         assertThat(dto.getName()).isEqualTo("커뮤니티1");
         assertThat(dto.getPost().getId()).isEqualTo("2");
-
     }
 }

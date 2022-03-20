@@ -4,7 +4,6 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
-import boogi.apiserver.domain.user.application.UserValidationService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
@@ -29,11 +28,9 @@ public class UserApiController {
     private final MemberQueryService memberQueryService;
     private final PostQueryService postQueryService;
 
-    private final UserValidationService userValidationService;
-
     @PostMapping("/token/{email}")
     public ResponseEntity<Object> issueToken(HttpServletRequest request, @PathVariable String email) {
-        User user = userValidationService.getUserByEmail(email);
+        User user = userQueryService.getUserByEmail(email);
 
         HttpSession preSession = request.getSession(false);
         if (preSession != null) {

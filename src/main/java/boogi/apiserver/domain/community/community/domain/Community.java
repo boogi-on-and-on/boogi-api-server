@@ -1,10 +1,13 @@
 package boogi.apiserver.domain.community.community.domain;
 
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "COMMUNITY")
@@ -39,6 +42,10 @@ public class Community extends TimeBaseEntity {
 
     @Column(name = "auto_approval")
     private boolean autoApproval;
+
+    //todo: 생성메서드 만들어서 커뮤니티 생성.
+    @OneToMany(mappedBy = "community")
+    private List<CommunityHashtag> hashtags = new ArrayList<>();
 
     private Community(String name, String description, boolean isPrivate, boolean autoApproval) {
         this.communityName = name;

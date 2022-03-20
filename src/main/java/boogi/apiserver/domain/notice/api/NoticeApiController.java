@@ -29,7 +29,7 @@ public class NoticeApiController {
         if (communityId == null) {
             latestNotice = noticeQueryService.getAppLatestNotice();
         } else {
-            latestNotice = noticeQueryService.getCommunityLatestNotice(communityId);
+            latestNotice = noticeQueryService.DEFRECATED_getCommunityLatestNotice(communityId);
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
