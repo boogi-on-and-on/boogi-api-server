@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NoticeDto {
 
-    protected String id;
+    protected Long id;
     protected String title;
     protected String createdAt;
 
     protected NoticeDto(Notice notice) {
-        this.id = notice.getId().toString();
+        this.id = notice.getId();
         this.title = notice.getTitle();
         this.createdAt = notice.getCreatedAt().toString();
     }

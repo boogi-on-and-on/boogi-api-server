@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 public class HotPost {
-    private String postId;
+    private Long postId;
     private String likeCount;
     private String commentCount;
     private String content;
@@ -24,7 +24,7 @@ public class HotPost {
     private List<String> hashtags;
 
     private HotPost(Post post) {
-        this.postId = post.getId().toString();
+        this.postId = post.getId();
         this.likeCount = post.getLikeCount().toString();
         this.commentCount = post.getCommentCount().toString();
         this.content = post.getContent();

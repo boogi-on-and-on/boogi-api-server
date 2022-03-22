@@ -42,7 +42,7 @@ class UserQueryServiceTest {
         UserDetailInfoResponse dto = userQueryService.getUserDetailInfo(user.getId());
 
         //then
-        assertThat(dto.getId()).isEqualTo(user.getId().toString());
+        assertThat(dto.getId()).isEqualTo(user.getId());
         assertThat(dto.getUsername()).isEqualTo("김선도");
         assertThat(dto.getTagNum()).isEqualTo(user.getTagNumber());
     }

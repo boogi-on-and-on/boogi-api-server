@@ -56,8 +56,8 @@ class PostQueryServiceTest {
 
         LatestPostOfUserJoinedCommunity dto = postDtos.get(0);
 
-        assertThat(dto.getId()).isEqualTo("1");
+        assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getName()).isEqualTo("커뮤니티1");
-        assertThat(dto.getPost().getId()).isEqualTo("2");
+        assertThat(dto.getPost().getId()).isEqualTo(2L);
     }
 }

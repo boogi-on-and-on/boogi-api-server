@@ -43,7 +43,7 @@ class NoticeQueryServiceTest {
 
         //then
         NoticeDto dto = noticeDtos.get(0);
-        assertThat(dto.getId()).isEqualTo("1");
+        assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getTitle()).isEqualTo("제목");
         assertThat(dto.getCreatedAt()).isEqualTo(notice.getCreatedAt().toString());
     }
@@ -67,7 +67,7 @@ class NoticeQueryServiceTest {
         //then
         NoticeDetailDto dto = dtos.get(0);
 
-        assertThat(dto.getId()).isEqualTo("1");
+        assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getTitle()).isEqualTo("제목");
         assertThat(dto.getContent()).isEqualTo("내용");
         assertThat(dto.getCreatedAt()).isEqualTo(notice.getCreatedAt().toString());

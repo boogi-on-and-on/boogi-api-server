@@ -18,7 +18,7 @@ public class UserPostsDto {
     private String content;
     private CommunityDto community;
     private String at;
-    private String id;
+    private Long id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
@@ -38,7 +38,7 @@ public class UserPostsDto {
 
     private UserPostsDto(Post post) {
         this.content = post.getContent();
-        this.id = post.getId().toString();
+        this.id = post.getId();
         this.community = new CommunityDto(post.getCommunity());
         this.at = post.getCreatedAt().toString(); //TODO: 시간 유틸함수 만들기
         List<PostHashtag> hashtags = post.getHashtags();

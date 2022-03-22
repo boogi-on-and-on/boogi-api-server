@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LatestPostOfUserJoinedCommunity {
     private String name;
-    private String id;
+    private Long id;
     private PostDto post;
 
     @Builder
     @AllArgsConstructor
     @Data
     public static class PostDto {
-        private String id;
+        private Long id;
         private String at;
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -34,7 +34,7 @@ public class LatestPostOfUserJoinedCommunity {
         private String commentCount;
 
         private PostDto(Post post) {
-            this.id = post.getId().toString();
+            this.id = post.getId();
             this.at = post.getCreatedAt().toString();
             if (post.getHashtags().size() > 0) {
                 this.hashtags = post.getHashtags().stream().map(PostHashtag::getTag).collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class LatestPostOfUserJoinedCommunity {
     private LatestPostOfUserJoinedCommunity(Post post) {
         Community community = post.getCommunity();
         this.name = community.getCommunityName();
-        this.id = community.getId().toString();
+        this.id = community.getId();
         this.post = new PostDto(post);
     }
 

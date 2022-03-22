@@ -72,7 +72,7 @@ class MemberQueryServiceTest {
     }
 
     private UserJoinedCommunity findUserJoinedCommunityById(List<UserJoinedCommunity> dtos, Long id) {
-        return dtos.stream().filter(d -> d.getId().equals(id.toString())).findFirst().get();
+        return dtos.stream().filter(d -> d.getId().equals(id)).findFirst().get();
     }
 
     @Test

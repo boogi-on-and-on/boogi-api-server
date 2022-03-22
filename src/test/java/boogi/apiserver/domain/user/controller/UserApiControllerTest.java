@@ -67,7 +67,7 @@ class UserApiControllerTest {
     void 유저_프로필_개인정보_조회() throws Exception {
         // given
         UserDetailInfoResponse response = UserDetailInfoResponse.builder()
-                .id("1")
+                .id(1L)
                 .username("김선도")
                 .tagNum("#0001")
                 .introduce("반갑습니다")
@@ -98,12 +98,12 @@ class UserApiControllerTest {
     void 유저_가입한_커뮤니티_조회() throws Exception {
         //given
         UserJoinedCommunity dto1 = UserJoinedCommunity.builder()
-                .id("1")
+                .id(1L)
                 .name("커뮤니티1")
                 .build();
 
         UserJoinedCommunity dto2 = UserJoinedCommunity.builder()
-                .id("2")
+                .id(2L)
                 .name("커뮤니티2")
                 .build();
 
@@ -128,10 +128,10 @@ class UserApiControllerTest {
     @Test
     void 유저가_가입한_커뮤니티_최신글_조회() throws Exception {
         LatestPostOfUserJoinedCommunity post = LatestPostOfUserJoinedCommunity.builder()
-                .id("1")
+                .id(1L)
                 .name("커뮤니티1")
                 .post(LatestPostOfUserJoinedCommunity.PostDto.builder()
-                        .id("2")
+                        .id(2L)
                         .content("글")
                         .likeCount("111")
                         .commentCount("222")

@@ -9,12 +9,12 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class LatestPostOfCommunityDto {
-    private String id;
+    private Long id;
     private String content;
     private String createdAt;
 
     private LatestPostOfCommunityDto(Post post) {
-        this.id = post.getId().toString();
+        this.id = post.getId();
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt().toString();
     }
