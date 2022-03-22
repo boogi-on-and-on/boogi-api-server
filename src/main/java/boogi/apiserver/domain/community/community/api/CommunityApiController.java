@@ -5,12 +5,15 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfCommunityDto;
+import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +36,13 @@ public class CommunityApiController {
 
     private final CommunityCoreService communityCoreService;
 
+    private final MemberValidationService memberValidationService;
+
     private final CommunityQueryService communityQueryService;
     private final NoticeQueryService noticeQueryService;
     private final PostQueryService postQueryService;
     private final MemberQueryService memberQueryService;
+    private final JoinRequestQueryService joinRequestQueryService;
 
     @PostMapping
     public ResponseEntity<Object> createCommunity(@RequestBody @Validated CreateCommunityRequest request, @Session Long userId) {
@@ -74,5 +80,22 @@ public class CommunityApiController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{communityId}/users/request")
+    public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
+        memberValidationService.hasSupervisorAuth(userId, communityId);
+
+        List<Map<String, Object>> requests = joinRequestQueryService.getAllRequests(communityId)
+                .stream()
+                .map(r -> Map.of(
+                        "user", UserBasicProfileDto.of(r.getUser()),
+                        "id", r.getId())
+                )
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "requests", requests
+        ));
     }
 }

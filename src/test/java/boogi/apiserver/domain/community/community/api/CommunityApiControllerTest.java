@@ -5,13 +5,18 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
+import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +53,9 @@ class CommunityApiControllerTest {
     CommunityCoreService communityCoreService;
 
     @MockBean
+    MemberValidationService memberValidationService;
+
+    @MockBean
     CommunityQueryService communityQueryService;
 
     @MockBean
@@ -58,6 +66,9 @@ class CommunityApiControllerTest {
 
     @MockBean
     PostQueryService postQueryService;
+
+    @MockBean
+    JoinRequestQueryService joinRequestQueryService;
 
     MockMvc mvc;
 
@@ -242,5 +253,55 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.notices").isArray())
                 .andExpect(jsonPath("$.community").isMap())
                 .andExpect(jsonPath("$.posts").doesNotExist());
+    }
+
+    @Test
+    void 가입요청_조회_권한_없을때() throws Exception {
+
+        given(memberValidationService.hasSupervisorAuth(anyLong(), anyLong()))
+                .willThrow(new NotAuthorizedMemberException());
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1/users/request")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                )
+                .andExpect(jsonPath("$.code").value("MEMBER_002"));
+    }
+
+    @Test
+    void 가입요청_조회_성공() throws Exception {
+
+        JoinRequest request = JoinRequest.builder()
+                .id(2L)
+                .user(User.builder()
+                        .id(1L)
+                        .tagNumber("#0001")
+                        .username("홍길동")
+                        .build())
+                .build();
+
+        given(joinRequestQueryService.getAllRequests(anyLong()))
+                .willReturn(List.of(request));
+
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1/users/request")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                )
+                .andExpect(jsonPath("$.requests[0].id").value(2))
+                .andExpect(jsonPath("$.requests[0].user.tagNum").value("#0001"))
+                .andExpect(jsonPath("$.requests[0].user.id").value(1))
+                .andExpect(jsonPath("$.requests[0].user.name").value("홍길동"))
+                .andExpect(jsonPath("$.requests[0].user.profileImageUrl").doesNotExist());
     }
 }

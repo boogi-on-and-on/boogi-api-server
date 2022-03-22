@@ -16,7 +16,8 @@ public enum ErrorInfo {
     SESSION_NOT_FOUND_EXCEPTION("로그인 정보를 찾을 수 없습니다.", "COMMON_005", HttpStatus.UNAUTHORIZED.value()),
 
     // MEMBER_ERROR
-    MEMBER_NOT_FOUND("해당 멤버가 없습니다.", "MEMBER_001", 400);
+    MEMBER_NOT_FOUND("해당 멤버가 없습니다.", "MEMBER_001", 400),
+    MEMBER_NOT_FORBIDDEN("권한이 없습니다.", "MEMBER_002", HttpStatus.FORBIDDEN.value());
 
     private String message;
     private String code;
