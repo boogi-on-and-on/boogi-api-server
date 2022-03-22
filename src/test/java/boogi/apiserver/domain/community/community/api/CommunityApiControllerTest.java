@@ -11,6 +11,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -140,7 +141,7 @@ class CommunityApiControllerTest {
     }
 
     @Test
-    void 커뮤니티_상세조회_가입한_경우() throws Exception {
+    void 커뮤니티_상세조회_글목록_보여주는_경우() throws Exception {
         Member member = Member.builder().build();
         given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                 .willReturn(member);
@@ -151,22 +152,95 @@ class CommunityApiControllerTest {
                 .description("반가워")
                 .isPrivate(false)
                 .hashtags(List.of(CommunityHashtag.builder().tag("테그1").build()))
+                .memberCount(3)
                 .build();
         community.setCreatedAt(LocalDateTime.now());
 
         given(communityQueryService.getCommunityWithHashTag(anyLong()))
                 .willReturn(community);
 
+        Notice notice = Notice.builder()
+                .id(1L)
+                .title("노티스")
+                .build();
+        notice.setCreatedAt(LocalDateTime.now());
+
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
-                .willReturn(List.of(Notice.builder()
-                        .id(1L)
-                        .title("노티스")
-                        .content("노티스 내용")
-                        .build()));
+                .willReturn(List.of(notice));
+
+        Post post = Post.builder()
+                .id(4L)
+                .content("글")
+                .build();
+        post.setCreatedAt(LocalDateTime.now());
+
+        given(postQueryService.getLatestPostOfCommunity(anyLong()))
+                .willReturn(List.of(post));
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         //when
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+
+                )
+                .andExpect(jsonPath("$.isJoined").value(true))
+                .andExpect(jsonPath("$.community.isPrivated").value(false))
+                .andExpect(jsonPath("$.community.name").value("커뮤니티1"))
+                .andExpect(jsonPath("$.community.introduce").value("반가워"))
+                .andExpect(jsonPath("$.community.hashtags[0]").value("테그1"))
+                .andExpect(jsonPath("$.community.memberCount").value("3"))
+                .andExpect(jsonPath("$.posts[0].id").value(4))
+                .andExpect(jsonPath("$.posts[0].content").value("글"))
+                .andExpect(jsonPath("$.notices[0].id").value(1))
+                .andExpect(jsonPath("$.notices[0].title").value("노티스"));
+    }
+
+    @Test
+    void 커뮤니티_상세조회_글목록_안보여주는_경우() throws Exception {
+        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                .willReturn(null);
+
+        Community community = Community.builder()
+                .id(1L)
+                .communityName("커뮤니티1")
+                .description("반가워")
+                .isPrivate(true)
+                .hashtags(List.of(CommunityHashtag.builder().tag("테그1").build()))
+                .memberCount(3)
+                .build();
+        community.setCreatedAt(LocalDateTime.now());
+
+        given(communityQueryService.getCommunityWithHashTag(anyLong()))
+                .willReturn(community);
+
+        Notice notice = Notice.builder()
+                .id(1L)
+                .title("노티스")
+                .build();
+        notice.setCreatedAt(LocalDateTime.now());
+
+        given(noticeQueryService.getCommunityLatestNotice(anyLong()))
+                .willReturn(List.of(notice));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        //when
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+
+                )
+                .andExpect(jsonPath("$.isJoined").value(false))
+                .andExpect(jsonPath("$.notices").isArray())
+                .andExpect(jsonPath("$.community").isMap())
+                .andExpect(jsonPath("$.posts").doesNotExist());
     }
 }

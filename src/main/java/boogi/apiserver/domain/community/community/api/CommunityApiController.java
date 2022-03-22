@@ -3,7 +3,7 @@ package boogi.apiserver.domain.community.community.api;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoWithMemberDto;
+import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -52,7 +52,7 @@ public class CommunityApiController {
     public ResponseEntity<Object> getCommunityDetailInfo(@Session Long userId, @PathVariable Long communityId) {
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
         Community community = communityQueryService.getCommunityWithHashTag(communityId);
-        CommunityDetailInfoWithMemberDto communityDetailInfoWithMember = CommunityDetailInfoWithMemberDto.of(member, community);
+        CommunityDetailInfoDto communityDetailInfoWithMember = CommunityDetailInfoDto.of(community);
 
         List<NoticeDto> communityNotices = noticeQueryService.getCommunityLatestNotice(communityId)
                 .stream()
@@ -60,6 +60,7 @@ public class CommunityApiController {
                 .collect(Collectors.toList());
 
         HashMap<String, Object> response = new HashMap<>(Map.of(
+                "isJoined", member != null,
                 "community", communityDetailInfoWithMember,
                 "notices", communityNotices));
 

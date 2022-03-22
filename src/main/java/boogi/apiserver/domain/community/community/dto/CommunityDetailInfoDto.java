@@ -2,7 +2,6 @@ package boogi.apiserver.domain.community.community.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
-import boogi.apiserver.domain.member.domain.Member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +13,7 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 @AllArgsConstructor
-public class CommunityDetailInfoWithMemberDto {
-    private Boolean isJoined;
+public class CommunityDetailInfoDto {
     private Boolean isPrivated;
     private String name;
     private String introduce;
@@ -25,14 +23,14 @@ public class CommunityDetailInfoWithMemberDto {
     private String memberCount;
     private String createdAt;
 
-    private CommunityDetailInfoWithMemberDto(Member member, Community community, List<CommunityHashtag> hashtags) {
-        this.isJoined = member != null;
+    private CommunityDetailInfoDto(Community community, List<CommunityHashtag> hashtags) {
         this.isPrivated = community.isPrivate();
         this.name = community.getCommunityName();
         this.introduce = community.getDescription();
 
-        if (hashtags.getClass().isArray() && hashtags.size() > 0) {
+        if (hashtags != null && hashtags.size() > 0) {
             this.hashtags = hashtags.stream()
+                    .filter(h -> h.getCanceledAt() == null)
                     .map(CommunityHashtag::getTag)
                     .collect(Collectors.toList());
         }
@@ -40,7 +38,7 @@ public class CommunityDetailInfoWithMemberDto {
         this.createdAt = community.getCreatedAt().toString();
     }
 
-    public static CommunityDetailInfoWithMemberDto of(Member member, Community community) {
-        return new CommunityDetailInfoWithMemberDto(member, community, community.getHashtags());
+    public static CommunityDetailInfoDto of(Community community) {
+        return new CommunityDetailInfoDto(community, community.getHashtags());
     }
 }
