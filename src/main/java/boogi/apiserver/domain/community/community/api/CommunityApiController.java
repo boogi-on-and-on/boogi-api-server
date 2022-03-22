@@ -5,6 +5,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/communities")
 public class CommunityApiController {
 
+    private final JoinRequestCoreService joinRequestCoreService;
     private final CommunityCoreService communityCoreService;
 
     private final MemberValidationService memberValidationService;
@@ -84,6 +86,7 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/users/request")
     public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
+        // aop 이용해서 권한 체크하기?
         memberValidationService.hasSupervisorAuth(userId, communityId);
 
         List<Map<String, Object>> requests = joinRequestQueryService.getAllRequests(communityId)
@@ -96,6 +99,14 @@ public class CommunityApiController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "requests", requests
+        ));
+    }
+
+    @PostMapping("/{communityId}/users/request")
+    public ResponseEntity<Object> joinRequest(@Session Long userId, @PathVariable Long communityId) {
+        Long requestId = joinRequestCoreService.request(userId, communityId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "requestId", requestId
         ));
     }
 }

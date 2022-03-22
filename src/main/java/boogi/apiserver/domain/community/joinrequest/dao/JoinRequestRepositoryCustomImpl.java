@@ -35,4 +35,16 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
                 .fetch();
     }
 
+    @Override
+    public JoinRequest getLatestJoinRequest(Long userId, Long communityId) {
+        return queryFactory.selectFrom(joinRequest)
+                .where(
+                        joinRequest.user.id.eq(userId),
+                        joinRequest.community.id.eq(communityId),
+                        joinRequest.canceledAt.isNull()
+                )
+                .orderBy(joinRequest.createdAt.desc())
+                .limit(1)
+                .fetchOne();
+    }
 }

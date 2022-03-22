@@ -5,6 +5,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -48,6 +49,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = CommunityApiController.class)
 class CommunityApiControllerTest {
+
+    @MockBean
+    JoinRequestCoreService joinRequestCoreService;
 
     @MockBean
     CommunityCoreService communityCoreService;
@@ -303,5 +307,22 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.requests[0].user.id").value(1))
                 .andExpect(jsonPath("$.requests[0].user.name").value("홍길동"))
                 .andExpect(jsonPath("$.requests[0].user.profileImageUrl").doesNotExist());
+    }
+
+    @Test
+    void 가입요청_성공() throws Exception {
+
+        given(joinRequestCoreService.request(anyLong(), anyLong()))
+                .willReturn(1L);
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/communities/1/users/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        ).andExpect(jsonPath("$.requestId").value(1));
+
     }
 }

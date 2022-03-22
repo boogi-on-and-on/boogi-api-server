@@ -7,4 +7,6 @@ import java.util.List;
 public interface JoinRequestRepositoryCustom {
 
     List<JoinRequest> getAllRequests(Long communityId);
+
+    JoinRequest getLatestJoinRequest(Long userId, Long communityId);
 }
