@@ -4,6 +4,8 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,5 +29,9 @@ public class MemberQueryService {
         List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
 
         return members.size() >= 1 ? members.get(0) : null;
+    }
+
+    public Page<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
+        return memberRepository.findJoinedMembers(pageable, communityId);
     }
 }

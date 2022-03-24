@@ -3,11 +3,14 @@ package boogi.apiserver.domain.member.dao;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -89,5 +92,58 @@ class MemberRepositoryTest {
 
         assertThat(members.size()).isEqualTo(1);
         assertThat(members.get(0).getId()).isEqualTo(member2.getId());
+    }
+
+    @Test
+    void findJoinedMembers() {
+        //given
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        User user = User.builder().build();
+        userRepository.save(user);
+
+        Member manager = Member.builder()
+                .memberType(MemberType.MANAGER)
+                .community(community)
+                .user(user)
+                .build();
+        Member submanager1 = Member.builder()
+                .memberType(MemberType.SUB_MANAGER)
+                .community(community)
+                .user(user)
+                .build();
+        submanager1.setCreatedAt(LocalDateTime.now());
+
+        Member submanager2 = Member.builder()
+                .memberType(MemberType.SUB_MANAGER)
+                .community(community)
+                .user(user)
+                .build();
+        submanager2.setCreatedAt(LocalDateTime.now().minusDays(1));
+
+        Member normalMember = Member.builder()
+                .memberType(MemberType.NORMAL)
+                .community(community)
+                .user(user)
+                .build();
+        memberRepository.saveAll(List.of(normalMember, submanager1, submanager2, manager));
+
+        em.flush();
+        em.clear();
+
+
+        //when
+        PageRequest pageable = PageRequest.of(0, 4);
+        Page<Member> page = memberRepository.findJoinedMembers(pageable, user.getId());
+        List<Member> members = page.getContent();
+
+        //then
+        assertThat(members.size()).isEqualTo(4);
+        assertThat(members.get(0).getId()).isEqualTo(manager.getId());
+        assertThat(members.get(1).getId()).isEqualTo(submanager2.getId());
+        assertThat(members.get(2).getId()).isEqualTo(submanager1.getId());
+        assertThat(members.get(3).getId()).isEqualTo(normalMember.getId());
+
     }
 }

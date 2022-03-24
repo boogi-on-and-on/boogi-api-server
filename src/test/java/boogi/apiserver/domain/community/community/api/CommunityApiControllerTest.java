@@ -341,4 +341,6 @@ class CommunityApiControllerTest {
                         .content(mapper.writeValueAsString(Map.of("requestId", "2")))
         ).andExpect(status().isOk());
     }
+
+    //todo: pagnation controller 테스트 방법 (CommunityApiController.getMembers())
 }

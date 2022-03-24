@@ -10,6 +10,7 @@ import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQuery
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -18,6 +19,8 @@ import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -82,6 +85,12 @@ public class CommunityApiController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{communityId}/members")
+    public ResponseEntity<JoinedMembersPageDto> getMembers(@PathVariable Long communityId, Pageable pageable) {
+        Page<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+        return ResponseEntity.status(HttpStatus.OK).body(JoinedMembersPageDto.of(members));
     }
 
     @GetMapping("/{communityId}/requests")
