@@ -3,6 +3,7 @@ package boogi.apiserver.domain.member.application;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,5 +51,17 @@ class MemberValidationServiceTest {
 
         //then
         assertThat(member).isNull();
+    }
+
+    @Test
+    void 멤버의_해당_커뮤니티_가입여부(){
+        //given
+        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                .willReturn(List.of(Member.builder().build()));
+
+        assertThatThrownBy(() -> {
+            //when
+            memberValidationService.checkMemberJoinedCommunity(anyLong(), anyLong() + 1);
+        }).isInstanceOf(NotJoinedMemberException.class);
     }
 }

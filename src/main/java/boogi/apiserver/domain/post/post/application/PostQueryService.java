@@ -5,6 +5,8 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.HotPost;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
+import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,15 @@ public class PostQueryService {
         return latestPostsOfCommunity.stream()
                 .map(LatestPostOfUserJoinedCommunity::of)
                 .collect(Collectors.toList());
+    }
+
+    public Post getPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(InvalidValueException::new);
+        if (post.getCanceledAt() != null) {
+            throw new EntityNotFoundException();
+        }
+
+        return post;
     }
 
     public List<Post> getLatestPostOfCommunity(Long communityId) {
