@@ -39,6 +39,10 @@ public class Member extends TimeBaseEntity {
     @Column(name = "banned_at")
     private LocalDateTime bannedAt;
 
+    public void ban() {
+        this.bannedAt = LocalDateTime.now();
+    }
+
     private Member(Community community, User user, MemberType type) {
         this.community = community;
         this.user = user;

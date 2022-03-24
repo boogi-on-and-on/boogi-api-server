@@ -31,7 +31,10 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public List<Member> findByUserId(Long userId) {
         return queryFactory.select(member)
                 .from(member)
-                .where(member.user.id.eq(userId), member.canceledAt.isNull())
+                .where(member.user.id.eq(userId),
+                        member.canceledAt.isNull(),
+                        member.bannedAt.isNull()
+                )
                 .fetch();
     }
 
@@ -72,7 +75,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(
                         member.community.id.eq(communityId),
                         member.canceledAt.isNull(),
-                        member.user.canceledAt.isNull()
+                        member.user.canceledAt.isNull(),
+                        member.bannedAt.isNull()
                 )
                 .innerJoin(member.user, user).fetchJoin()
                 .orderBy(
@@ -88,6 +92,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(
                         member.community.id.eq(communityId),
                         member.canceledAt.isNull(),
+                        member.bannedAt.isNull(),
                         member.user.canceledAt.isNull()
                 )
                 .join(member.user, user);

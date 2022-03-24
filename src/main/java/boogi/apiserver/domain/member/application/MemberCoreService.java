@@ -7,9 +7,12 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class MemberCoreService {
 
     private final MemberValidationService memberValidationService;
 
+    private final MemberQueryService memberQueryService;
     private final CommunityQueryService communityQueryService;
     private final UserQueryService userQueryService;
 
@@ -33,5 +37,16 @@ public class MemberCoreService {
         memberRepository.save(member);
 
         return member;
+    }
+
+    @Transactional
+    public void banMember(Long memberId) {
+        Member member = memberQueryService.getMember(memberId);
+
+        if (Objects.nonNull(member.getBannedAt())) {
+            throw new InvalidValueException("이미 차단된 멤버입니다.");
+        }
+
+        member.ban();
     }
 }

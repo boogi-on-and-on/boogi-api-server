@@ -7,6 +7,7 @@ import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
+import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -40,6 +41,7 @@ public class CommunityApiController {
 
     private final JoinRequestCoreService joinRequestCoreService;
     private final CommunityCoreService communityCoreService;
+    private final MemberCoreService memberCoreService;
 
     private final MemberValidationService memberValidationService;
 
@@ -91,6 +93,19 @@ public class CommunityApiController {
     public ResponseEntity<JoinedMembersPageDto> getMembers(@PathVariable Long communityId, Pageable pageable) {
         Page<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
         return ResponseEntity.status(HttpStatus.OK).body(JoinedMembersPageDto.of(members));
+    }
+
+    @PostMapping("/{communityId}/members/ban")
+    public ResponseEntity<Object> banMember(@Session Long userId,
+                                            @PathVariable Long communityId,
+                                            @RequestBody HashMap<String, Long> body) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasSupervisorAuth(userId, communityId);
+
+        Long banMemberId = body.get("memberId");
+        memberCoreService.banMember(banMemberId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/{communityId}/requests")

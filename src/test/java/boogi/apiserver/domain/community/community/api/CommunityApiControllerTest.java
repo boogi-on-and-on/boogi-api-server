@@ -9,6 +9,7 @@ import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreS
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -56,6 +57,9 @@ class CommunityApiControllerTest {
 
     @MockBean
     CommunityCoreService communityCoreService;
+
+    @MockBean
+    MemberCoreService memberCoreService;
 
     @MockBean
     MemberValidationService memberValidationService;
@@ -270,7 +274,7 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/request")
+                        MockMvcRequestBuilders.get("/api/communities/1/requests")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
@@ -298,7 +302,7 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/request")
+                        MockMvcRequestBuilders.get("/api/communities/1/requests")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
@@ -319,7 +323,7 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                MockMvcRequestBuilders.post("/api/communities/1/request")
+                MockMvcRequestBuilders.post("/api/communities/1/requests")
                         .contentType(MediaType.APPLICATION_JSON)
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
