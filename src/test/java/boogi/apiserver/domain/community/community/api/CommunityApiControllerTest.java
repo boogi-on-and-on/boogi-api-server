@@ -38,6 +38,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -269,7 +270,7 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/users/request")
+                        MockMvcRequestBuilders.get("/api/communities/1/request")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
@@ -297,7 +298,7 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/users/request")
+                        MockMvcRequestBuilders.get("/api/communities/1/request")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
@@ -318,11 +319,26 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                MockMvcRequestBuilders.post("/api/communities/1/users/request")
+                MockMvcRequestBuilders.post("/api/communities/1/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         ).andExpect(jsonPath("$.requestId").value(1));
 
+    }
+
+    @Test
+    void 가입_컨펌하기() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/communities/1/requests/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .session(session)
+                        .content(mapper.writeValueAsString(Map.of("requestId", "2")))
+        ).andExpect(status().isOk());
     }
 }

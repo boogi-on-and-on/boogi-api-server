@@ -84,7 +84,7 @@ public class CommunityApiController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/{communityId}/users/request")
+    @GetMapping("/{communityId}/requests")
     public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
         // aop 이용해서 권한 체크하기?
         memberValidationService.hasSupervisorAuth(userId, communityId);
@@ -102,11 +102,41 @@ public class CommunityApiController {
         ));
     }
 
-    @PostMapping("/{communityId}/users/request")
+    @PostMapping("/{communityId}/requests")
     public ResponseEntity<Object> joinRequest(@Session Long userId, @PathVariable Long communityId) {
         Long requestId = joinRequestCoreService.request(userId, communityId);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "requestId", requestId
         ));
+    }
+
+    @PostMapping("/{communityId}/requests/confirm")
+    public ResponseEntity<Object> confirmRequest(@Session Long managerUserId,
+                                                 @PathVariable Long communityId,
+                                                 @RequestBody HashMap<String, Long> body
+    ) {
+        Long requestId = body.get("requestId");
+
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasSupervisorAuth(managerUserId, communityId);
+
+        joinRequestCoreService.confirmUser(managerUserId, requestId, communityId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/{communityId}/requests/reject")
+    public ResponseEntity<Object> rejectRequest(@Session Long managerUserId,
+                                                @PathVariable Long communityId,
+                                                @RequestBody HashMap<String, Long> body
+    ) {
+        Long requestId = body.get("requestId");
+
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasSupervisorAuth(managerUserId, communityId);
+
+        joinRequestCoreService.rejectUser(managerUserId, requestId, communityId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

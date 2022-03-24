@@ -47,6 +47,19 @@ public class JoinRequest extends TimeBaseEntity {
         this.community = community;
     }
 
+    public void reject(Member manager, User user) {
+        this.acceptor = manager;
+        this.user = user;
+        this.status = JoinRequestStatus.REJECT;
+    }
+
+    public void confirm(Member manager, User user, Member confirmedMember) {
+        this.acceptor = manager;
+        this.user = user;
+        this.confirmedMember = confirmedMember;
+        this.status = JoinRequestStatus.CONFIRM;
+    }
+
     public static JoinRequest of(User user, Community community) {
         return new JoinRequest(user, community);
     }
