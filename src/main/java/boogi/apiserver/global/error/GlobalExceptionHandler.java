@@ -37,7 +37,8 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST, e.getMessage());
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST,
+                e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
