@@ -12,7 +12,7 @@ public class PagnationDto {
     protected int totalCount;
     protected boolean hasNext;
 
-    protected PagnationDto(Page page) {
+    public PagnationDto(Page page) {
         this.nextPage = page.getNumber() + 1;
         this.totalCount = (int) page.getTotalElements();
         this.hasNext = page.hasNext();

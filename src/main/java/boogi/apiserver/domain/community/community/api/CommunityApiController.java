@@ -15,9 +15,12 @@ import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfCommunityDto;
+import boogi.apiserver.domain.post.post.dto.PostOfCommunity;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
+import boogi.apiserver.global.dto.PagnationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -87,6 +90,28 @@ public class CommunityApiController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{communityId}/posts")
+    public ResponseEntity<Object> getPosts(@PathVariable Long communityId,
+                                           @Session Long userId,
+                                           Pageable pageable
+    ) {
+        Community community = communityQueryService.getCommunity(communityId);
+        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+
+        Page<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
+        List<PostOfCommunity> posts = postPage.getContent()
+                .stream()
+                .map(p -> new PostOfCommunity(p, userId))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "communityName", community.getCommunityName(),
+                "memberType", member.getMemberType(),
+                "posts", posts,
+                "pageInfo", new PagnationDto(postPage)
+        ));
     }
 
     @GetMapping("/{communityId}/members")

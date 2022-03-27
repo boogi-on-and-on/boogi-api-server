@@ -13,6 +13,7 @@ import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
@@ -29,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
@@ -347,4 +350,63 @@ class CommunityApiControllerTest {
     }
 
     //todo: pagnation controller 테스트 방법 (CommunityApiController.getMembers())
+
+
+    @Test
+    void 커뮤니티_게시글_목록() throws Exception {
+        Community community = Community.builder()
+                .communityName("커뮤니티1")
+                .build();
+        given(communityQueryService.getCommunity(anyLong()))
+                .willReturn(community);
+
+        User user = User.builder().id(2L)
+                .username("홍길동")
+                .tagNumber("#0001")
+                .build();
+
+        Member member = Member.builder()
+                .memberType(MemberType.MANAGER)
+                .user(user)
+                .build();
+        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                .willReturn(member);
+
+        Post post = Post.builder()
+                .id(1L)
+                .content("내용1")
+                .likeCount(2)
+                .commentCount(3)
+                .community(community)
+                .member(member)
+                .build();
+
+        post.setCreatedAt(LocalDateTime.now());
+
+        PageImpl<Post> page = new PageImpl(List.of(post), Pageable.ofSize(1), 1);
+        given(postQueryService.getPostsOfCommunity(any(), anyLong()))
+                .willReturn(page);
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1/posts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .session(session)
+                                .queryParam("page", "0")
+                                .queryParam("size", "3")
+
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
+                .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
+                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
+                .andExpect(jsonPath("$.posts.size()").value(1))
+                .andExpect(jsonPath("$.posts[0].id").value(1L))
+                .andExpect(jsonPath("$.posts[0].content").value("내용1"))
+                .andExpect(jsonPath("$.posts[0].user.id").value(2L))
+                .andExpect(jsonPath("$.posts[0].user.name").value("홍길동"))
+                .andExpect(jsonPath("$.posts[0].user.tagNum").value("#0001"));
+    }
 }
