@@ -56,4 +56,26 @@ public class CommunityCoreService {
 
         community.shutdown();
     }
+
+    @Transactional
+    public void changeScope(Long communityId, Boolean isSecret) {
+        Community community = communityQueryService.getCommunity(communityId);
+
+        if (isSecret) {
+            community.toPrivate();
+        } else {
+            community.toPublic();
+        }
+    }
+
+    @Transactional
+    public void changeApproval(Long communityId, Boolean isAuto) {
+        Community community = communityQueryService.getCommunity(communityId);
+
+        if (isAuto) {
+            community.openAutoApproval();
+        } else {
+            community.closeAutoApproval();
+        }
+    }
 }

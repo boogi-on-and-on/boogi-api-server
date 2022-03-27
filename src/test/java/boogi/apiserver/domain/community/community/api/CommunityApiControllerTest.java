@@ -3,6 +3,7 @@ package boogi.apiserver.domain.community.community.api;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.CommunitySettingRequest;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.dto.DelegateMemberRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
@@ -478,6 +479,26 @@ class CommunityApiControllerTest {
 
         mvc.perform(
                 MockMvcRequestBuilders.post("/api/communities/1/members/delegate")
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void 커뮤니티_설정() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        CommunitySettingRequest request = CommunitySettingRequest.builder()
+                .isAutoApproval(true)
+                .isSecret(true)
+                .build();
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/communities/1/settings")
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                         .contentType(MediaType.APPLICATION_JSON)

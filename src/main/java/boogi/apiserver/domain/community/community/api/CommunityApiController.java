@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.application.CommunityCoreServi
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoDto;
+import boogi.apiserver.domain.community.community.dto.CommunitySettingRequest;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.dto.DelegateMemberRequest;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
@@ -101,6 +102,26 @@ public class CommunityApiController {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         communityCoreService.shutdown(communityId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/{communityId}/settings")
+    public ResponseEntity<Object> setting(@PathVariable Long communityId,
+                                          @Session Long userId,
+                                          @RequestBody CommunitySettingRequest request
+    ) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
+
+        Boolean isAuto = request.getIsAutoApproval();
+        Boolean isSecret = request.getIsSecret();
+        if (Objects.nonNull(isAuto)) {
+            communityCoreService.changeApproval(communityId, isAuto);
+        }
+        if (Objects.nonNull(isSecret)) {
+            communityCoreService.changeScope(communityId, isSecret);
+        }
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

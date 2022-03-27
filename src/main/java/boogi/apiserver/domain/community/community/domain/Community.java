@@ -47,6 +47,23 @@ public class Community extends TimeBaseEntity {
     @OneToMany(mappedBy = "community")
     private List<CommunityHashtag> hashtags = new ArrayList<>();
 
+
+    public void toPublic() {
+        this.isPrivate = false;
+    }
+
+    public void toPrivate() {
+        this.isPrivate = true;
+    }
+
+    public void openAutoApproval() {
+        this.autoApproval = true;
+    }
+
+    public void closeAutoApproval() {
+        this.autoApproval = false;
+    }
+
     public void shutdown() {
         this.deletedAt = LocalDateTime.now();
     }
