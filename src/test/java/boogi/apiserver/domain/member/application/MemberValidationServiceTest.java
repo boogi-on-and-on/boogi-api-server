@@ -61,7 +61,7 @@ class MemberValidationServiceTest {
                 .willReturn(List.of());
 
         assertThatThrownBy(() -> {
-            memberValidationService.hasSupervisorAuth(anyLong(), anyLong());
+            memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
         }).isInstanceOf(InvalidValueException.class);
     }
 
@@ -76,22 +76,38 @@ class MemberValidationServiceTest {
                 .willReturn(List.of(member));
 
         assertThatThrownBy(() -> {
-            memberValidationService.hasSupervisorAuth(anyLong(), anyLong());
+            memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
         }).isInstanceOf(NotAuthorizedMemberException.class);
     }
 
     @Test
-    void 멤버의_권한이_있는경우() {
+    void 부매니저권한이_있는경우() {
         Member member = Member
                 .builder()
-                .memberType(MemberType.SUB_MANAGER)
+                .memberType(MemberType.MANAGER)
                 .build();
 
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                 .willReturn(List.of(member));
 
-        boolean isSupervisor = memberValidationService.hasSupervisorAuth(anyLong(), anyLong());
+        boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
+
+        assertThat(isSupervisor).isTrue();
+    }
+
+    @Test
+    void 매니저권한이_있는경우() {
+        Member member = Member
+                .builder()
+                .memberType(MemberType.MANAGER)
+                .build();
+
+
+        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                .willReturn(List.of(member));
+
+        boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 
         assertThat(isSupervisor).isTrue();
     }

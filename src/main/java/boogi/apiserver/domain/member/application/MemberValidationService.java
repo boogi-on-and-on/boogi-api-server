@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -28,18 +28,29 @@ public class MemberValidationService {
         return null;
     }
 
-    public boolean hasSupervisorAuth(Long userId, Long communityId) {
+    public boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
         List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
         if (members.size() == 0) {
             throw new InvalidValueException("가입하지 않은 멤버입니다.");
         }
         Member member = members.get(0);
 
-        boolean isSupervisor = Arrays.asList(MemberType.MANAGER, MemberType.SUB_MANAGER)
-                .stream()
-                .anyMatch(type -> member.getMemberType().equals(type));
+        Boolean hasAuth;
+        switch (memberType) {
+            case MANAGER:
+                hasAuth = member.getMemberType().equals(MemberType.MANAGER);
+                break;
+            case SUB_MANAGER:
+                hasAuth = Stream.of(MemberType.MANAGER, MemberType.SUB_MANAGER)
+                        .anyMatch(type -> member.getMemberType().equals(type));
+                break;
+            case NORMAL:
+            default:
+                hasAuth = false;
+                break;
+        }
 
-        if (!isSupervisor) {
+        if (!hasAuth) {
             throw new NotAuthorizedMemberException();
         }
         return true;

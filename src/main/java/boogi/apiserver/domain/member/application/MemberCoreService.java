@@ -60,4 +60,11 @@ public class MemberCoreService {
 
         member.release();
     }
+
+    @Transactional
+    public void delegeteMember(Long memberId, MemberType type) {
+        Member member = memberQueryService.getMember(memberId);
+
+        member.delegate(type);
+    }
 }

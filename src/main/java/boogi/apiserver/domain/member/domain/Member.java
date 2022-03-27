@@ -47,6 +47,10 @@ public class Member extends TimeBaseEntity {
         this.bannedAt = null;
     }
 
+    public void delegate(MemberType memberType) {
+        this.memberType = memberType;
+    }
+
     private Member(Community community, User user, MemberType type) {
         this.community = community;
         this.user = user;

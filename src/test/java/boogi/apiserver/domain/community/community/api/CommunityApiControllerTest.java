@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.application.CommunityCoreServi
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
+import boogi.apiserver.domain.community.community.dto.DelegateMemberRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
@@ -271,7 +272,7 @@ class CommunityApiControllerTest {
     @Test
     void 가입요청_조회_권한_없을때() throws Exception {
 
-        given(memberValidationService.hasSupervisorAuth(anyLong(), anyLong()))
+        given(memberValidationService.hasAuth(anyLong(), anyLong(), any()))
                 .willThrow(new NotAuthorizedMemberException());
 
         MockHttpSession session = new MockHttpSession();
@@ -462,6 +463,25 @@ class CommunityApiControllerTest {
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(Map.of("memberId", "1")))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void 멤버_권한주기() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        DelegateMemberRequest request = DelegateMemberRequest.builder()
+                .memberId(1L)
+                .type(MemberType.MANAGER)
+                .build();
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/communities/1/members/delegate")
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request))
         ).andExpect(status().isOk());
     }
 }
