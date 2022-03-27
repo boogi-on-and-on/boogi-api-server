@@ -49,4 +49,15 @@ public class MemberCoreService {
 
         member.ban();
     }
+
+    @Transactional
+    public void releaseMember(Long memberId) {
+        Member member = memberQueryService.getMember(memberId);
+
+        if (Objects.isNull(member.getBannedAt())) {
+            throw new InvalidValueException("차단되지 않은 멤버입니다.");
+        }
+
+        member.release();
+    }
 }

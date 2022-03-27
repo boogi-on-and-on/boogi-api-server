@@ -43,6 +43,10 @@ public class Member extends TimeBaseEntity {
         this.bannedAt = LocalDateTime.now();
     }
 
+    public void release() {
+        this.bannedAt = null;
+    }
+
     private Member(Community community, User user, MemberType type) {
         this.community = community;
         this.user = user;

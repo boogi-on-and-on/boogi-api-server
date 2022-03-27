@@ -84,4 +84,21 @@ class MemberCoreServiceTest {
                 .hasMessage("이미 차단된 멤버입니다.");
 
     }
+
+    @Test
+    void 멤버_차단안된_멤버를_차단시도() {
+        //given
+        Member member = Member.builder()
+                .id(1L)
+                .build();
+
+        given(memberQueryService.getMember(anyLong()))
+                .willReturn(member);
+
+        //then
+        assertThatThrownBy(() -> {
+            //when
+            memberCoreService.releaseMember(member.getId());
+        }).isInstanceOf(InvalidValueException.class);
+    }
 }

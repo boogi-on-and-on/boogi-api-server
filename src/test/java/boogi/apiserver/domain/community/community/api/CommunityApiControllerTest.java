@@ -50,8 +50,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = CommunityApiController.class)
@@ -450,5 +449,19 @@ class CommunityApiControllerTest {
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.banned[0].memberId").value(1L))
                 .andExpect(jsonPath("$.banned[0].user.id").value(2L));
+    }
+
+    @Test
+    void 멤버_차단해제() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/communities/1/members/release")
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(Map.of("memberId", "1")))
+        ).andExpect(status().isOk());
     }
 }

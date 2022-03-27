@@ -154,6 +154,20 @@ public class CommunityApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PostMapping("/{communityId}/members/release")
+    public ResponseEntity<Object> releaseBannedMember(@Session Long userId,
+                                                      @PathVariable Long communityId,
+                                                      @RequestBody HashMap<String, Long> request
+    ) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasSupervisorAuth(userId, communityId);
+
+        Long memberId = request.get("memberId");
+        memberCoreService.releaseMember(memberId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @GetMapping("/{communityId}/requests")
     public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
         // aop 이용해서 권한 체크하기?
