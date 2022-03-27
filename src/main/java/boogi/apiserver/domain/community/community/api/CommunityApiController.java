@@ -11,6 +11,7 @@ import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
@@ -127,6 +128,17 @@ public class CommunityApiController {
     public ResponseEntity<JoinedMembersPageDto> getMembers(@PathVariable Long communityId, Pageable pageable) {
         Page<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
         return ResponseEntity.status(HttpStatus.OK).body(JoinedMembersPageDto.of(members));
+    }
+
+    @GetMapping("/{communityId}/members/banned")
+    public ResponseEntity<Object> getBannedMembers(@Session Long userId, @PathVariable Long communityId) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasSupervisorAuth(userId, communityId);
+
+        List<BannedMemberDto> bannedMembers = memberQueryService.getBannedMembers(communityId);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "banned", bannedMembers
+        ));
     }
 
     @PostMapping("/{communityId}/members/ban")

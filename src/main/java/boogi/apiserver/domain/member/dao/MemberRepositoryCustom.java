@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.member.dao;
 
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,4 +17,6 @@ public interface MemberRepositoryCustom {
     Page<Member> findJoinedMembers(Pageable pageable, Long communityId);
 
     Member findAnyMemberExceptManager(Long communityId);
+
+    List<BannedMemberDto> findBannedMembers(Long communityId);
 }

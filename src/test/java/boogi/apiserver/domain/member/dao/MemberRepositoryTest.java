@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,7 @@ class MemberRepositoryTest {
     //  클래스 단위 이상으로 테스트하면, 밑에서 검증에 실패한다.
     //  각 테스트는 독립적인것 같은데?
 
-//    @Test
+    //    @Test
     void findJoinedMember() {
         //given
         Community community = Community.builder().build();
@@ -160,5 +161,42 @@ class MemberRepositoryTest {
 
         //then
         assertThat(member).isEqualTo(normalUser);
+    }
+
+    @Test
+    void findBannedMembers() {
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        User user1 = User.builder()
+                .username("홍길동")
+                .tagNumber("#0001")
+                .build();
+
+        User user2 = User.builder()
+                .username("가나다")
+                .tagNumber("#0001")
+                .build();
+        userRepository.saveAll(List.of(user1, user2));
+
+        Member m1 = Member.builder()
+                .user(user1)
+                .community(community)
+                .bannedAt(LocalDateTime.now())
+                .build();
+
+        Member m2 = Member.builder()
+                .user(user2)
+                .community(community)
+                .build();
+
+        memberRepository.saveAll(List.of(m1, m2));
+
+        List<BannedMemberDto> bannedMemberDtos = memberRepository.findBannedMembers(community.getId());
+
+        assertThat(bannedMemberDtos.size()).isEqualTo(1);
+        BannedMemberDto first = bannedMemberDtos.get(0);
+        assertThat(first.getMemberId()).isEqualTo(m1.getId());
+        assertThat(first.getUser().getId()).isEqualTo(m1.getUser().getId());
     }
 }

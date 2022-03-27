@@ -14,12 +14,14 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -421,5 +423,32 @@ class CommunityApiControllerTest {
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         ).andExpect(status().isOk());
+    }
+
+    @Test
+    void 차단된_멤버() throws Exception {
+        BannedMemberDto dto = BannedMemberDto.builder()
+                .memberId(1L)
+                .user(UserBasicProfileDto.builder()
+                        .id(2L)
+                        .name("홍길동")
+                        .tagNum("#0001")
+                        .build())
+                .build();
+
+        given(memberQueryService.getBannedMembers(anyLong()))
+                .willReturn(List.<BannedMemberDto>of(dto));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1/members/banned")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.banned[0].memberId").value(1L))
+                .andExpect(jsonPath("$.banned[0].user.id").value(2L));
     }
 }

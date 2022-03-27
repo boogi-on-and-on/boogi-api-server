@@ -4,6 +4,8 @@ import boogi.apiserver.domain.community.community.domain.QCommunity;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.domain.QMember;
+import boogi.apiserver.domain.member.dto.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.QBannedMemberDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -111,5 +113,20 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         this.member.canceledAt.isNull()
                 ).limit(1)
                 .fetchOne();
+    }
+
+    @Override
+    public List<BannedMemberDto> findBannedMembers(Long communityId) {
+        return queryFactory
+                .select(new QBannedMemberDto(member.id, member.user))
+                .from(member)
+                .where(
+                        member.community.id.eq(communityId),
+                        member.bannedAt.isNotNull(),
+                        member.canceledAt.isNull()
+                )
+                .join(member.user, user)
+                .orderBy(member.bannedAt.desc())
+                .fetch();
     }
 }

@@ -2,6 +2,7 @@ package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -44,5 +45,9 @@ public class MemberQueryService {
 
     public Page<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
         return memberRepository.findJoinedMembers(pageable, communityId);
+    }
+
+    public List<BannedMemberDto> getBannedMembers(Long communityId) {
+        return memberRepository.findBannedMembers(communityId);
     }
 }
