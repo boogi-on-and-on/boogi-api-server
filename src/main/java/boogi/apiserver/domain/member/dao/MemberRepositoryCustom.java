@@ -14,4 +14,6 @@ public interface MemberRepositoryCustom {
     List<Member> findByUserIdAndCommunityId(Long userId, Long communityId);
 
     Page<Member> findJoinedMembers(Pageable pageable, Long communityId);
+
+    Member findAnyMemberExceptManager(Long communityId);
 }

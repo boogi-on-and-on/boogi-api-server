@@ -409,4 +409,17 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.posts[0].user.name").value("홍길동"))
                 .andExpect(jsonPath("$.posts[0].user.tagNum").value("#0001"));
     }
+
+    @Test
+    void 커뮤니티_폐쇄() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                MockMvcRequestBuilders.delete("/api/communities/1")
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        ).andExpect(status().isOk());
+    }
 }

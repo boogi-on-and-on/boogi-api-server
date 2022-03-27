@@ -92,6 +92,15 @@ public class CommunityApiController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @DeleteMapping("/{communityId}")
+    public ResponseEntity<Object> shutdown(@PathVariable Long communityId, @Session Long userId) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasSupervisorAuth(userId, communityId);
+
+        communityCoreService.shutdown(communityId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @GetMapping("/{communityId}/posts")
     public ResponseEntity<Object> getPosts(@PathVariable Long communityId,
                                            @Session Long userId,

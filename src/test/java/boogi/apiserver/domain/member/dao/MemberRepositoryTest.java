@@ -138,4 +138,27 @@ class MemberRepositoryTest {
         assertThat(members.get(3).getId()).isEqualTo(normalMember.getId());
 
     }
+
+    @Test
+    void findAnyMemberExceptManager() {
+        //given
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        Member manager = Member.builder()
+                .community(community)
+                .memberType(MemberType.MANAGER)
+                .build();
+        Member normalUser = Member.builder()
+                .community(community)
+                .memberType(MemberType.NORMAL)
+                .build();
+        memberRepository.saveAll(List.of(manager, normalUser));
+
+        //when
+        Member member = memberRepository.findAnyMemberExceptManager(community.getId());
+
+        //then
+        assertThat(member).isEqualTo(normalUser);
+    }
 }

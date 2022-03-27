@@ -18,7 +18,6 @@ public class CommunityQueryService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
 
-    private final CommunityValidationService communityValidationService;
 
     public Community getCommunity(Long communityId) {
         Community community = communityRepository.findById(communityId).orElseThrow(InvalidValueException::new);

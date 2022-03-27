@@ -100,4 +100,16 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return PageableExecutionUtils.getPage(members, pageable, countQuery::fetchCount);
     }
 
+    @Override
+    public Member findAnyMemberExceptManager(Long communityId) {
+        return queryFactory
+                .selectFrom(this.member)
+                .where(
+                        this.member.community.id.eq(communityId),
+                        this.member.memberType.ne(MemberType.MANAGER),
+                        this.member.bannedAt.isNull(),
+                        this.member.canceledAt.isNull()
+                ).limit(1)
+                .fetchOne();
+    }
 }
