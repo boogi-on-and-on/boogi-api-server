@@ -3,10 +3,7 @@ package boogi.apiserver.domain.community.community.api;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.CommunityDetailInfoDto;
-import boogi.apiserver.domain.community.community.dto.CommunitySettingRequest;
-import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
-import boogi.apiserver.domain.community.community.dto.DelegateMemberRequest;
+import boogi.apiserver.domain.community.community.dto.*;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.member.application.MemberCoreService;
@@ -94,6 +91,19 @@ public class CommunityApiController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/{communityId}")
+    public ResponseEntity<Object> updateCommunityInfo(@PathVariable Long communityId,
+                                         @Session Long userId,
+                                         @RequestBody @Validated CommunityUpdateRequest request) {
+
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
+
+        communityCoreService.update(communityId, request.getDescription(), request.getHashtags());
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("/{communityId}")

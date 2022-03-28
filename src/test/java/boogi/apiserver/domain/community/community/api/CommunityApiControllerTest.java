@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.application.CommunityCoreServi
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.CommunitySettingRequest;
+import boogi.apiserver.domain.community.community.dto.CommunityUpdateRequest;
 import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.dto.DelegateMemberRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
@@ -499,6 +500,90 @@ class CommunityApiControllerTest {
 
         mvc.perform(
                 MockMvcRequestBuilders.post("/api/communities/1/settings")
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void 커뮤니티_업데이트_소개란_없는경우() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                .hashtags(List.of("t1"))
+                .build();
+
+        mvc.perform(
+                        MockMvcRequestBuilders.patch("/api/communities/1")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                ).andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.code").value("COMMON_004"))
+                .andExpect(jsonPath("$.message").value("커뮤니티 소개란을 입력해주세요."));
+    }
+
+    @Test
+    void 커뮤니티_업데이트_소개란_10글자_미만() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                .description("@13")
+                .hashtags(List.of("t1"))
+                .build();
+
+        mvc.perform(
+                        MockMvcRequestBuilders.patch("/api/communities/1")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                ).andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.code").value("COMMON_004"))
+                .andExpect(jsonPath("$.message").value( "10글자 이상 소개란을 입력해주세요."));
+    }
+
+    @Test
+    void 커뮤니티_업데이트_해시테그_5개_초과() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                .description("@1fasdfadsfasdf3")
+                .hashtags(List.of("t1", "t2", "t3", "t4", "t5", "t6"))
+                .build();
+
+        mvc.perform(
+                        MockMvcRequestBuilders.patch("/api/communities/1")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                ).andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.code").value("COMMON_004"))
+                .andExpect(jsonPath("$.message").value("해시테그는 5개까지만 입력가능합니다."));
+    }
+
+    @Test
+    void 커뮤니티_업데이트_성공() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                .description("@1fasdfadsfasdf3")
+                .hashtags(List.of("t1", "t2", "t3", "t4"))
+                .build();
+
+        mvc.perform(
+                MockMvcRequestBuilders.patch("/api/communities/1")
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                         .contentType(MediaType.APPLICATION_JSON)

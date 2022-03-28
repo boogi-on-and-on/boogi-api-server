@@ -3,6 +3,8 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagCoreService;
+import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -14,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ import java.util.Objects;
 public class CommunityCoreService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
+    private final CommunityHashtagRepository communityHashtagRepository;
 
     private final CommunityHashtagCoreService communityHashtagCoreService;
     private final MemberCoreService memberCoreService;
@@ -77,5 +82,40 @@ public class CommunityCoreService {
         } else {
             community.closeAutoApproval();
         }
+    }
+
+    @Transactional
+    public void update(Long communityId, String description, List<String> newTags) {
+        Community community = communityQueryService.getCommunity(communityId);
+
+        community.updateDescription(description);
+
+        List<CommunityHashtag> prevHashtags = community.getHashtags(); //LAZY INIT
+
+        if (Objects.isNull(newTags) || newTags.size() == 0) {
+            if (prevHashtags.size() != 0) {
+                communityHashtagRepository.deleteAllInBatch(prevHashtags);
+            }
+        } else {
+            if (!isSameHashtags(prevHashtags, newTags)) {
+                communityHashtagRepository.deleteAllInBatch(prevHashtags);
+
+                List<CommunityHashtag> newHashtags = newTags.stream()
+                        .map(t -> CommunityHashtag.of(t, community))
+                        .collect(Collectors.toList());
+                communityHashtagRepository.saveAll(newHashtags);
+            }
+        }
+    }
+
+    public boolean isSameHashtags(List<CommunityHashtag> prevHashtags, List<String> newTags) {
+        List<String> prevTags = prevHashtags.stream()
+                .map(CommunityHashtag::getTag)
+                .collect(Collectors.toList());
+
+        prevTags.sort(Comparator.naturalOrder());
+        newTags.sort(Comparator.naturalOrder());
+
+        return String.join("", prevTags).equals(String.join("", newTags));
     }
 }
