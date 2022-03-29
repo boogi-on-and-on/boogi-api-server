@@ -6,7 +6,9 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
-import com.querydsl.jpa.JPAExpressions;
+import boogi.apiserver.domain.post.post.dto.PostDetail;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,12 @@ import org.springframework.data.support.PageableExecutionUtils;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static boogi.apiserver.domain.community.community.domain.QCommunity.*;
+import static boogi.apiserver.domain.user.domain.QUser.*;
+import static com.querydsl.jpa.JPAExpressions.*;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
@@ -86,8 +93,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         List<Post> posts = queryFactory.selectFrom(post)
                 .where(
-                        post.id.in(JPAExpressions
-                                .select(_post.id.max()) //가장 최근일 수록 id가 최대인 점을 이용
+                        post.id.in(select(_post.id.max()) //가장 최근일 수록 id가 최대인 점을 이용
                                 .from(_post)
                                 .where(
                                         _post.community.id.in(memberJoinedCommunityIds))
@@ -112,5 +118,24 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .orderBy(post.createdAt.desc())
                 .limit(5)
                 .fetch();
+    }
+
+    //TODO: member, user canceledAt, deletedAt validation 추가
+    @Override
+    public Optional<PostDetail> getPostDetailByPostId(Long postId) {
+        Tuple result = queryFactory.select(Projections.constructor(PostDetail.class, post), post.canceledAt, post.deletedAt)
+                .from(post)
+                .leftJoin(post.member, member).fetchJoin()
+                .join(member.user, user).fetchJoin()
+                .join(post.community, community).fetchJoin()
+                .where(post.id.eq(postId))
+                .fetchOne();
+
+        PostDetail postDetail = result.get(0, PostDetail.class);
+
+        if (result.get(1, LocalDateTime.class) == null && result.get(2, LocalDateTime.class) == null) {
+            return Optional.ofNullable(postDetail);
+        }
+        return Optional.empty();
     }
 }

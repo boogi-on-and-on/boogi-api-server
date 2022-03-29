@@ -8,6 +8,8 @@ import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.PostDetail;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,5 +40,21 @@ public class PostCoreService {
         postHashtagCoreService.addTags(newPost.getId(), tags);
 
         return newPost;
+    }
+
+    public PostDetail getPostDetail(Long postId, Long userId) {
+        PostDetail postDetail = postRepository.getPostDetailByPostId(postId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        Long postedCommunityId = postDetail.getCommunity().getId();
+        if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId)) {
+            memberValidationService.checkMemberJoinedCommunity(userId, postedCommunityId);
+        }
+
+        Long postUserId = postDetail.getUser().getId();
+        postDetail.setMe(
+                postUserId.equals(userId) ? Boolean.TRUE : Boolean.FALSE);
+
+        return postDetail;
     }
 }

@@ -5,6 +5,7 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.CreatePost;
 import boogi.apiserver.domain.post.post.dto.HotPost;
+import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +36,13 @@ public class PostApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", newPost.getId()
         ));
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDetail> getPostDetail(@PathVariable Long postId, @Session Long userId) {
+        PostDetail postDetail = postCoreService.getPostDetail(postId, userId);
+
+        return ResponseEntity.ok().body(postDetail);
     }
 
     @GetMapping(value = "/user/{userId}")

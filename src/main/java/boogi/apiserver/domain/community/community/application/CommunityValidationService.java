@@ -25,4 +25,9 @@ public class CommunityValidationService {
         return communityRepository.findById(communityId)
                 .orElseThrow(EntityNotFoundException::new);
     }
+
+    public boolean checkOnlyPrivateCommunity(Long communityId) {
+        Community findCommunity = checkExistsCommunity(communityId);
+        return findCommunity.isPrivate() ? true : false;
+    }
 }
