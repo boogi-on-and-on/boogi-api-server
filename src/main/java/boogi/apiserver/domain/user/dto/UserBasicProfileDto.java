@@ -1,0 +1,34 @@
+package boogi.apiserver.domain.user.dto;
+
+import boogi.apiserver.domain.user.domain.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserBasicProfileDto {
+    //todo: UserBasicProfileDto를 상속받아서 재사용하는 형태로 다른 dto 수정
+
+    private Long id;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String profileImageUrl;
+    private String tagNum;
+    private String name;
+
+    private UserBasicProfileDto(User user) {
+        this.id = user.getId();
+        this.profileImageUrl = user.getProfileImageUrl();
+        this.tagNum = user.getTagNumber();
+        this.name = user.getUsername();
+    }
+
+    public static UserBasicProfileDto of(User user) {
+        return new UserBasicProfileDto(user);
+    }
+}

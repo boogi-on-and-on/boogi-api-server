@@ -55,4 +55,8 @@ public class PostQueryService {
     public List<Post> getLatestPostOfCommunity(Long communityId) {
         return postRepository.getLatestPostOfCommunity(communityId);
     }
+
+    public Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
+        return postRepository.getPostsOfCommunity(pageable, communityId);
+    }
 }

@@ -6,17 +6,18 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class CommunityQueryService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
 
-    private final CommunityValidationService communityValidationService;
 
     public Community getCommunity(Long communityId) {
         Community community = communityRepository.findById(communityId).orElseThrow(InvalidValueException::new);
@@ -29,7 +30,7 @@ public class CommunityQueryService {
 
     public Community getCommunityWithHashTag(Long communityId) {
         Community community = this.getCommunity(communityId);
-        community.getHashtags(); // LAZY INIT
+        community.getHashtags().size(); //LAZY INIT
 
         return community;
     }

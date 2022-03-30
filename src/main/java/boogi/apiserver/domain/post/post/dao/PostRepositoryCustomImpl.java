@@ -7,6 +7,7 @@ import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
+import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -22,9 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static boogi.apiserver.domain.community.community.domain.QCommunity.*;
-import static boogi.apiserver.domain.user.domain.QUser.*;
-import static com.querydsl.jpa.JPAExpressions.*;
+import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
+import static com.querydsl.jpa.JPAExpressions.select;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
@@ -36,6 +36,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     private final QPost post = QPost.post;
     private final QPostHashtag postHashtag = QPostHashtag.postHashtag;
     private final QMember member = QMember.member;
+    private final QUser user = QUser.user;
 
     public PostRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -137,5 +138,33 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
             return Optional.ofNullable(postDetail);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
+        List<Post> posts = queryFactory.selectFrom(post)
+                .where(
+                        post.community.id.eq(communityId),
+                        post.canceledAt.isNull(),
+                        post.deletedAt.isNull()
+                )
+                .join(post.member, member).fetchJoin()
+                .join(member.user, user).fetchJoin()
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        //LAZY INIT
+        posts.stream().map(p -> p.getHashtags() != null && p.getHashtags().size() > 0).findFirst();
+
+        JPAQuery<Long> countQuery = queryFactory.select(this.post.count())
+                .from(this.post)
+                .where(
+                        this.post.community.id.eq(communityId),
+                        this.post.canceledAt.isNull(),
+                        this.post.deletedAt.isNull());
+
+        return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchOne);
     }
 }
