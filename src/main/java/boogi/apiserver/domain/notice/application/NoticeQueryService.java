@@ -2,6 +2,7 @@ package boogi.apiserver.domain.notice.application;
 
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
+import boogi.apiserver.domain.notice.dto.CommunityNoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.NoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,14 @@ public class NoticeQueryService {
 
     public List<Notice> getCommunityLatestNotice(Long communityId) {
         return noticeRepository.getLatestNotice(communityId);
+    }
+
+    public List<CommunityNoticeDetailDto> getCommunityNotice(Long communityId) {
+        return noticeRepository.getAllNotices(communityId)
+                .stream()
+                .map(n->CommunityNoticeDetailDto.of(n, n.getMember().getUser()))
+                .collect(Collectors.toList());
+
     }
 
     private List<NoticeDto> transformToLatestNotice(List<Notice> notices) {

@@ -3,6 +3,7 @@ package boogi.apiserver.domain.member.application;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ class MemberQueryServiceTest {
 
     @InjectMocks
     MemberQueryService memberQueryService;
-    private Object Assertions;
 
     @Test
     void 특정유저가_가입한_멤버_목록_조회() {
@@ -101,5 +101,21 @@ class MemberQueryServiceTest {
 
         //then
         assertThat(memberOfTheCommunity).isEqualTo(null);
+    }
+
+    @Test
+    void 특정유저_권한같은지_체크() {
+        Member member = Member.builder()
+                .memberType(MemberType.MANAGER)
+                .build();
+
+        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                .willReturn(List.of(member));
+
+        Boolean hasAuth = memberQueryService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
+
+        assertThat(hasAuth).isTrue();
+
+
     }
 }
