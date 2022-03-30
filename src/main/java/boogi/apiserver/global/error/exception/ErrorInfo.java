@@ -17,12 +17,9 @@ public enum ErrorInfo {
 
     // MEMBER_ERROR
     MEMBER_NOT_FOUND("해당 멤버가 없습니다.", "MEMBER_001", 400),
-<<<<<<< HEAD
-    MEMBER_NOT_JOINED_COMMUNITY("해당 커뮤니티에 가입되지 않았습니다", "MEMBER_003", HttpStatus.FORBIDDEN.value());
+    MEMBER_NOT_JOINED_COMMUNITY("해당 커뮤니티에 가입되지 않았습니다", "MEMBER_003", HttpStatus.FORBIDDEN.value()),
 
-=======
     MEMBER_NOT_FORBIDDEN("권한이 없습니다.", "MEMBER_002", HttpStatus.FORBIDDEN.value());
->>>>>>> feature-community
 
     private String message;
     private String code;

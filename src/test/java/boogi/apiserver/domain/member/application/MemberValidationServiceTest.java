@@ -60,7 +60,7 @@ class MemberValidationServiceTest {
     void 멤버의_해당_커뮤니티_가입여부() {
         //given
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(Member.builder().build()));
+                .willReturn(List.of());
 
         assertThatThrownBy(() -> {
             //when

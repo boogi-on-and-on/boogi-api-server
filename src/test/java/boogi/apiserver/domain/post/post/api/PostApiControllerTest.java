@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.post.api;
 
+import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.HotPost;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
@@ -37,6 +38,9 @@ class PostApiControllerTest {
 
     @MockBean
     private PostQueryService postQueryService;
+
+    @MockBean
+    PostCoreService postCoreService;
 
     private MockMvc mvc;
 
