@@ -1,11 +1,11 @@
 package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
-import boogi.apiserver.domain.user.application.UserValidationService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
-import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +26,11 @@ import java.util.Map;
 public class UserApiController {
     private final UserQueryService userQueryService;
     private final MemberQueryService memberQueryService;
-
-    private final UserValidationService userValidationService;
+    private final PostQueryService postQueryService;
 
     @PostMapping("/token/{email}")
     public ResponseEntity<Object> issueToken(HttpServletRequest request, @PathVariable String email) {
-        User user = userValidationService.getUserByEmail(email);
+        User user = userQueryService.getUserByEmail(email);
 
         HttpSession preSession = request.getSession(false);
         if (preSession != null) {
@@ -55,9 +54,9 @@ public class UserApiController {
         ));
     }
 
-//    @GetMapping("/communities/joined")
+    @GetMapping("/communities/joined")
     public ResponseEntity<Object> getUserJoinedCommunitiesInfo(@Session Long userId) {
-        List<UserJoinedCommunity> communities = memberQueryService.getJoinedMemberInfo(userId);
+        List<LatestPostOfUserJoinedCommunity> communities = postQueryService.getPostsOfUserJoinedCommunity(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "communities", communities

@@ -1,10 +1,12 @@
 package boogi.apiserver.domain.post.post.dao;
 
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.PostDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepositoryCustom {
 
@@ -12,5 +14,11 @@ public interface PostRepositoryCustom {
 
     List<Post> getHotPosts();
 
-    List<Post> getLatestPostOfCommunity(Long userId);
+    List<Post> getLatestPostOfUserJoinedCommunities(Long userId);
+
+    List<Post> getLatestPostOfCommunity(Long communityId);
+
+    Optional<PostDetail> getPostDetailByPostId(Long postId);
+
+    Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
 }

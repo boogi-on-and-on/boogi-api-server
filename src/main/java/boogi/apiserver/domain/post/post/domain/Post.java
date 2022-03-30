@@ -47,4 +47,32 @@ public class Post extends TimeBaseEntity {
 
     @OneToMany(mappedBy = "post")
     List<PostHashtag> hashtags = new ArrayList<>();
+
+    private Post(Community community, Member member, String content) {
+        this.community = community;
+        this.member = member;
+        this.content = content;
+        this.commentCount = 0;
+        this.likeCount = 0;
+    }
+
+    public static Post of(Community community, Member member, String content) {
+        return new Post(community, member, content);
+    }
+
+    public void addLikeCount() {
+        this.likeCount++;
+    }
+
+    public void removeLikeCount() {
+        this.likeCount--;
+    }
+
+    public void addCommentCount() {
+        this.commentCount++;
+    }
+
+    public void removeCommentCount() {
+        this.commentCount--;
+    }
 }

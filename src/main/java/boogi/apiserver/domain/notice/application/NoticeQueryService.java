@@ -30,12 +30,14 @@ public class NoticeQueryService {
                 .collect(Collectors.toList());
     }
 
-    public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
+    public List<NoticeDto> DEFRECATED_getCommunityLatestNotice(Long communityId) {
         List<Notice> latestNotice = noticeRepository.getLatestNotice(communityId);
         return transformToLatestNotice(latestNotice);
     }
 
-    //todo: 커뮤니티 공지사항 리스트 구현
+    public List<Notice> getCommunityLatestNotice(Long communityId) {
+        return noticeRepository.getLatestNotice(communityId);
+    }
 
     private List<NoticeDto> transformToLatestNotice(List<Notice> notices) {
         return notices.stream()

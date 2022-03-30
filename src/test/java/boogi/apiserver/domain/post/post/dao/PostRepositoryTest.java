@@ -243,7 +243,7 @@ class PostRepositoryTest {
         em.clear();
 
         //when
-        List<Post> posts = postRepository.getLatestPostOfCommunity(user.getId());
+        List<Post> posts = postRepository.getLatestPostOfUserJoinedCommunities(user.getId());
 
         //then
         assertThat(posts.size()).isEqualTo(2);
@@ -255,5 +255,109 @@ class PostRepositoryTest {
 
         assertThat(first.getContent()).isEqualTo("p2-c1");
         assertThat(second.getContent()).isEqualTo("p1-c2");
+    }
+
+    @Test
+    void getLatestPostOfCommunity() {
+        //given
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        Post p0 = Post.builder().community(community).build();
+        p0.setCreatedAt(LocalDateTime.now().minusDays(1));
+
+        Post p1 = Post.builder().community(community).build();
+        p1.setCreatedAt(LocalDateTime.now().minusDays(2));
+
+        Post p2 = Post.builder().community(community).build();
+        p2.setCreatedAt(LocalDateTime.now().minusDays(3));
+
+        Post p3 = Post.builder().community(community).build();
+        p3.setCreatedAt(LocalDateTime.now().minusDays(4));
+
+        Post p4 = Post.builder().community(community).build();
+        p4.setCreatedAt(LocalDateTime.now().minusDays(5));
+        p4.setCanceledAt(LocalDateTime.now());
+
+        postRepository.saveAll(List.of(p0, p1, p2, p3, p4));
+
+        //when
+        List<Post> posts = postRepository.getLatestPostOfCommunity(community.getId());
+
+        //then
+        assertThat(posts.size()).isEqualTo(4);
+        assertThat(posts.get(0)).isEqualTo(p0);
+        assertThat(posts.get(1)).isEqualTo(p1);
+        assertThat(posts.get(2)).isEqualTo(p2);
+        assertThat(posts.get(3)).isEqualTo(p3);
+    }
+
+    @Test
+    void getPostsOfCommunity() {
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        User user1 = User.builder().build();
+        User user2 = User.builder().build();
+
+        userRepository.saveAll(List.of(user1, user2));
+
+        Member member1 = Member.builder()
+                .community(community)
+                .user(user1)
+                .build();
+        Member member2 = Member.builder()
+                .community(community)
+                .user(user2)
+                .build();
+        memberRepository.saveAll(List.of(member1, member2));
+
+        Post post1 = Post.builder()
+                .community(community)
+                .member(member1)
+                .build();
+        post1.setCreatedAt(LocalDateTime.now());
+        Post post2 = Post.builder()
+                .community(community)
+                .member(member2)
+                .build();
+        post2.setCreatedAt(LocalDateTime.now().minusDays(1));
+
+        Post post3 = Post.builder()
+                .community(community)
+                .member(member2)
+                .build();
+        post3.setCreatedAt(LocalDateTime.now().minusDays(2));
+
+        postRepository.saveAll(List.of(post1, post2, post3));
+
+        PostHashtag p1_t1 = PostHashtag.builder()
+                .post(post2)
+                .tag("post2태그1")
+                .build();
+        PostHashtag p1_t2 = PostHashtag.builder()
+                .post(post2)
+                .tag("post2태그2")
+                .build();
+        postHashtagRepository.saveAll(List.of(p1_t1, p1_t2));
+
+        em.flush();
+        em.clear();
+
+        PageRequest page = PageRequest.of(0, 10);
+        Page<Post> postPage = postRepository.getPostsOfCommunity(page, community.getId());
+
+        List<Post> posts = postPage.getContent();
+        Post first = posts.get(0);
+        Post second = posts.get(1);
+        Post third = posts.get(2);
+
+        assertThat(posts.size()).isEqualTo(3);
+        assertThat(first.getId()).isEqualTo(post1.getId());
+        assertThat(second.getId()).isEqualTo(post2.getId());
+        assertThat(third.getId()).isEqualTo(post3.getId());
+
+        assertThat(second.getHashtags().size()).isEqualTo(2);
+        assertThat(emf.getPersistenceUnitUtil().isLoaded(second.getHashtags().get(0))).isTrue();
     }
 }

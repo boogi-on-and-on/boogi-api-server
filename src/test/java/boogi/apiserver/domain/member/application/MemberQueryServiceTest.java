@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
@@ -72,6 +72,34 @@ class MemberQueryServiceTest {
     }
 
     private UserJoinedCommunity findUserJoinedCommunityById(List<UserJoinedCommunity> dtos, Long id) {
-        return dtos.stream().filter(d -> d.getId().equals(id.toString())).findFirst().get();
+        return dtos.stream().filter(d -> d.getId().equals(id)).findFirst().get();
+    }
+
+    @Test
+    void 특정유저의_멤버가입_정보_있는경우() {
+        //given
+        Member member = Member.builder().build();
+
+        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                .willReturn(List.of(member));
+
+        //when
+        Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+
+        //then
+        assertThat(memberOfTheCommunity).isEqualTo(member);
+    }
+
+    @Test
+    void 특정유저의_멤버가입_정보_없는경우() {
+        //given
+        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                .willReturn(List.of());
+
+        //when
+        Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+
+        //then
+        assertThat(memberOfTheCommunity).isEqualTo(null);
     }
 }

@@ -58,7 +58,7 @@ class PostApiControllerTest {
     @Test
     void 유저_게시글_페이지네이션() throws Exception {
         UserPostsDto postsDto = UserPostsDto.builder()
-                .id("1")
+                .id(1L)
                 .content("게시글 내용1")
                 .community(UserPostsDto.CommunityDto.builder()
                         .id("1")
@@ -96,7 +96,7 @@ class PostApiControllerTest {
     @Test
     void 핫한게시물() throws Exception {
         HotPost hotPost1 = HotPost.builder()
-                .postId("1")
+                .postId(1L)
                 .content("내용")
                 .commentCount("1")
                 .likeCount("1")
@@ -105,7 +105,7 @@ class PostApiControllerTest {
                 .build();
 
         HotPost hotPost2 = HotPost.builder()
-                .postId("2")
+                .postId(2L)
                 .content("내용")
                 .commentCount("2")
                 .likeCount("2")
@@ -113,7 +113,7 @@ class PostApiControllerTest {
                 .build();
 
         HotPost hotPost3 = HotPost.builder()
-                .postId("3")
+                .postId(3L)
                 .content("내용")
                 .commentCount("3")
                 .communityId("3")
@@ -132,7 +132,7 @@ class PostApiControllerTest {
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
                 .andExpect(jsonPath("$.hots.size()").value(3))
-                .andExpect(jsonPath("$.hots[0].postId").isString())
+                .andExpect(jsonPath("$.hots[0].postId").isNumber())
                 .andExpect(jsonPath("$.hots[0].content").isString())
                 .andExpect(jsonPath("$.hots[0].commentCount").isString())
                 .andExpect(jsonPath("$.hots[0].likeCount").isString())

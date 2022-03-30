@@ -4,10 +4,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -18,6 +15,8 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class JoinRequest extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,4 +41,26 @@ public class JoinRequest extends TimeBaseEntity {
 
     @Enumerated(EnumType.STRING)
     private JoinRequestStatus status = JoinRequestStatus.PENDING;
+
+    private JoinRequest(User user, Community community) {
+        this.user = user;
+        this.community = community;
+    }
+
+    public void reject(Member manager, User user) {
+        this.acceptor = manager;
+        this.user = user;
+        this.status = JoinRequestStatus.REJECT;
+    }
+
+    public void confirm(Member manager, User user, Member confirmedMember) {
+        this.acceptor = manager;
+        this.user = user;
+        this.confirmedMember = confirmedMember;
+        this.status = JoinRequestStatus.CONFIRM;
+    }
+
+    public static JoinRequest of(User user, Community community) {
+        return new JoinRequest(user, community);
+    }
 }

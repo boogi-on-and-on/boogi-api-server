@@ -30,11 +30,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Bean Validation 등에 실패한 경우
+     * Bean Validation에 실패한 경우
+     * Bean Validation의 default 메시지를 리턴
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, UnexpectedTypeException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<BasicErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
+
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST,
+                e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Bean Validation 등에 실패한 경우
+     */
+    @ExceptionHandler({UnexpectedTypeException.class, HttpMessageNotReadableException.class})
+    protected ResponseEntity<BasicErrorResponse> handleBeanValidationException(Exception e) {
+        log.error("handleBeanValidationException", e);
 
         final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);

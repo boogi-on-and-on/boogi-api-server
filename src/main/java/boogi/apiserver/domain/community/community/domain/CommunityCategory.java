@@ -1,5 +1,5 @@
 package boogi.apiserver.domain.community.community.domain;
 
 public enum CommunityCategory {
-    CLUB, ACADEMIC
+    CLUB, ACADEMIC, INTEREST, ETC
 }

@@ -3,7 +3,10 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.HotPost;
+import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
+import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,5 +34,29 @@ public class PostQueryService {
                 .stream()
                 .map(HotPost::of)
                 .collect(Collectors.toList());
+    }
+
+    public List<LatestPostOfUserJoinedCommunity> getPostsOfUserJoinedCommunity(Long userId) {
+        List<Post> latestPostsOfCommunity = postRepository.getLatestPostOfUserJoinedCommunities(userId);
+        return latestPostsOfCommunity.stream()
+                .map(LatestPostOfUserJoinedCommunity::of)
+                .collect(Collectors.toList());
+    }
+
+    public Post getPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(InvalidValueException::new);
+        if (post.getCanceledAt() != null) {
+            throw new EntityNotFoundException();
+        }
+
+        return post;
+    }
+
+    public List<Post> getLatestPostOfCommunity(Long communityId) {
+        return postRepository.getLatestPostOfCommunity(communityId);
+    }
+
+    public Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
+        return postRepository.getPostsOfCommunity(pageable, communityId);
     }
 }

@@ -10,11 +10,11 @@ import lombok.Data;
 @Data
 public class UserJoinedCommunity {
     private String name;
-    private String id;
+    private Long id;
 
     public static UserJoinedCommunity of(Community community) {
         return UserJoinedCommunity.builder()
-                .id(community.getId().toString())
+                .id(community.getId())
                 .name(community.getCommunityName())
                 .build();
     }

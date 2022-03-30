@@ -75,7 +75,7 @@ class NoticeApiControllerTest {
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN")
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.notices[0].id").isString())
+                .andExpect(jsonPath("$.notices[0].id").isNumber())
                 .andExpect(jsonPath("$.notices[0].title").isString())
                 .andExpect(jsonPath("$.notices[0].createdAt").isString())
                 .andExpect(jsonPath("$.notices[0].content").isString());

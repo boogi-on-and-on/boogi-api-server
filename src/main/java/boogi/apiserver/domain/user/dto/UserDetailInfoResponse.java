@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class UserDetailInfoResponse {
-    private String id;
+    private Long id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String profileImageUrl;
@@ -21,7 +21,7 @@ public class UserDetailInfoResponse {
     private String department;
 
     private UserDetailInfoResponse(User user) {
-        this.id = user.getId().toString();
+        this.id = user.getId();
         this.profileImageUrl = user.getProfileImageUrl();
         this.username = user.getUsername();
         this.tagNum = user.getTagNumber();
