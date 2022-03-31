@@ -60,6 +60,10 @@ public class Post extends TimeBaseEntity {
         return new Post(community, member, content);
     }
 
+    public void deletePost() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
     public void addLikeCount() {
         this.likeCount++;
     }

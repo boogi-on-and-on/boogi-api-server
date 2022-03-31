@@ -167,4 +167,18 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchOne);
     }
+
+    @Override
+    public Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId) {
+        Post result = queryFactory.selectFrom(this.post)
+                .join(this.post.community, community).fetchJoin()
+                .join(this.post.member, member).fetchJoin()
+                .where(
+                        this.post.id.eq(postId),
+                        this.post.canceledAt.isNull(),
+                        this.post.deletedAt.isNull())
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
 }

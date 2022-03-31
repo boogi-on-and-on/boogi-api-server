@@ -34,4 +34,9 @@ public class PostHashtagCoreService {
 
         return postHashtagRepository.saveAll(postHashtags);
     }
+
+    @Transactional
+    public void removeTagsByPostId(Long postId) {
+        postHashtagRepository.deleteAllByPostId(postId);
+    }
 }

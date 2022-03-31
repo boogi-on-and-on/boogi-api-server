@@ -45,6 +45,13 @@ public class PostApiController {
         return ResponseEntity.ok().body(postDetail);
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Object> deletePost(@PathVariable Long postId, @Session Long userId) {
+        postCoreService.deletePost(postId, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity<UserPostPage> getUserPostsInfo(@PathVariable Long userId, Pageable pageable) {
         UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, userId);
