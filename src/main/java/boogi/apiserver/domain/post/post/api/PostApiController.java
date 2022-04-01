@@ -1,5 +1,7 @@
 package boogi.apiserver.domain.post.post.api;
 
+import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -28,6 +30,8 @@ public class PostApiController {
 
     private final PostCoreService postCoreService;
     private final PostQueryService postQueryService;
+
+    private final LikeCoreService likeCoreService;
 
     @PostMapping("/")
     public ResponseEntity<Object> createPost(@Validated @RequestBody CreatePost createPost, @Session Long userId) {
@@ -62,8 +66,18 @@ public class PostApiController {
     @GetMapping("/hot")
     public ResponseEntity<Object> getHotPosts() {
         List<HotPost> hotPosts = postQueryService.getHotPosts();
+
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "hots", hotPosts
+        ));
+    }
+
+    @PostMapping("/{postId}/likes")
+    public ResponseEntity<Object> doLikeAtPost(@PathVariable Long postId, @Session Long userId) {
+        Like newLike = likeCoreService.doLikeAtPost(postId, userId);
+
+        return ResponseEntity.ok().body(Map.of(
+                "id", newLike.getId()
         ));
     }
 }
