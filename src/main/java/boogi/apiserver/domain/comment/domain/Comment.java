@@ -41,4 +41,20 @@ public class Comment extends TimeBaseEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    private Comment(Post post, Member member, Comment parent, String content) {
+        this.post = post;
+        this.member = member;
+        this.parent = parent;
+        this.content = content;
+        this.child = null;
+    }
+
+    public static Comment of(Post post, Member member, Comment parent, String content) {
+        return new Comment(post, member, parent, content);
+    }
+
+    public void setChild(Boolean isChild) {
+        this.child = isChild;
+    }
 }
