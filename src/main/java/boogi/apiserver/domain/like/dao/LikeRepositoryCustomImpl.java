@@ -37,7 +37,7 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
     public void deleteAllCommentLikeByCommentId(Long commentId) {
         queryFactory.delete(like)
                 .where(
-                        like.post.id.eq(commentId)
+                        like.comment.id.eq(commentId)
                 ).execute();
     }
 
