@@ -1,9 +1,12 @@
 package boogi.apiserver.domain.post.post.application;
 
 
+import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
+import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -29,11 +32,13 @@ public class PostCoreService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     private final CommunityValidationService communityValidationService;
     private final MemberValidationService memberValidationService;
 
     private final PostHashtagCoreService postHashtagCoreService;
+    private final LikeCoreService likeCoreService;
 
 
     //TODO: 이미지 업로드 추가
@@ -85,12 +90,18 @@ public class PostCoreService {
         Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
+        Long findPostId = findPost.getId();
         Long postedCommunityId = findPost.getCommunity().getId();
         MemberType postMemberType = findPost.getMember().getMemberType();
+
         if (memberValidationService.hasAuth(userId, postedCommunityId, postMemberType)) {
-            postHashtagCoreService.removeTagsByPostId(findPost.getId());
-            // TODO: 댓글 soft delete -> comment 구현 후 추가
-            // TODO: 좋아요 hard delete -> Like 구현 후 추가
+            postHashtagCoreService.removeTagsByPostId(findPostId);
+
+            List<Comment> findComments = commentRepository.findAllByPostId(postId);
+            findComments.stream().forEach(c -> c.deleteComment());
+
+            likeCoreService.removeAllPostLikes(findPostId);
+
             findPost.deletePost();
         }
     }
