@@ -57,4 +57,8 @@ public class Comment extends TimeBaseEntity {
     public void setChild(Boolean isChild) {
         this.child = isChild;
     }
+
+    public void deleteComment() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }

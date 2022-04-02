@@ -1,12 +1,14 @@
 package boogi.apiserver.domain.like.application;
 
+import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,8 @@ import java.util.List;
 public class LikeCoreService {
 
     private final LikeRepository likeRepository;
-
-    private final PostQueryService postQueryService;
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
 
     private final LikeValidationService likeValidationService;
     private final MemberValidationService memberValidationService;
@@ -38,7 +40,8 @@ public class LikeCoreService {
 
     @Transactional
     public Like doLikeAtPost(Long postId, Long userId) {
-        Post findPost = postQueryService.getPost(postId);
+        Post findPost = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않습니다"));
 
         Member member = memberValidationService.checkMemberJoinedCommunity(userId, findPost.getCommunity().getId());
 
@@ -47,13 +50,24 @@ public class LikeCoreService {
         }
 
         Like newLike = Like.postOf(findPost, member);
+        findPost.addLikeCount();
         return likeRepository.save(newLike);
     }
 
     @Transactional
     public Like doLikeAtComment(Long commentId, Long userId) {
-        // TODO: Comment 구현 후 추가
-        throw new RuntimeException("구현안함");
+        Comment findComment = commentRepository.findCommentWithMemberByCommentId(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
+
+        Long communityId = findComment.getMember().getCommunity().getId();
+        Member joinedMember = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+
+        if (likeValidationService.checkOnlyAlreadyDoCommentLike(commentId, joinedMember.getId())) {
+            throw new AlreadyDoLikeException("이미 해당 댓글에 좋아요를 한 상태입니다");
+        }
+
+        Like newLike = Like.commentOf(findComment, joinedMember);
+        return likeRepository.save(newLike);
     }
 
     @Transactional
@@ -66,6 +80,11 @@ public class LikeCoreService {
             throw new NotAuthorizedMemberException("요청한 유저가 좋아요를 한 유저와 다릅니다");
         }
 
+        Long postId = findLike.getPost().getId();
+        if (postId != null) {
+            postRepository.findById(postId).ifPresent(
+                    (findPost) -> findPost.removeLikeCount());
+        }
         likeRepository.delete(findLike);
     }
 
