@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
 import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -79,5 +80,12 @@ public class PostApiController {
         return ResponseEntity.ok().body(Map.of(
                 "id", newLike.getId()
         ));
+    }
+
+    @GetMapping("/{postId}/likes")
+    public ResponseEntity<Object> getLikeMembersAtPost(@PathVariable Long postId, @Session Long userId, Pageable pageable) {
+        LikeMembersAtPost likeMembersAtPost = likeCoreService.getLikeMembersAtPost(postId, userId, pageable);
+
+        return ResponseEntity.ok().body(likeMembersAtPost);
     }
 }

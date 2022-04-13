@@ -1,7 +1,11 @@
 package boogi.apiserver.domain.like.dao;
 
 import boogi.apiserver.domain.like.domain.Like;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -89,5 +93,27 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
     @Override
     public Optional<Like> findCommentLikeByCommentIdAndMemberId(Long commentId, Long memberId) {
         throw new RuntimeException("구현 안함");
+    }
+
+    @Override
+    public Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable) {
+        List<Like> result = queryFactory.selectFrom(like)
+                .where(
+                        like.post.id.eq(postId)
+                )
+                .join(like.member, member).fetchJoin()
+                .orderBy(
+                        like.createdAt.asc()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Like> countQuery = queryFactory.selectFrom(like)
+                .where(
+                        like.post.id.eq(postId)
+                );
+
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
     }
 }

@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.like.dao;
 
 import boogi.apiserver.domain.like.domain.Like;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +24,6 @@ public interface LikeRepositoryCustom {
     Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId);
 
     Optional<Like> findCommentLikeByCommentIdAndMemberId(Long commentId, Long memberId);
+
+    Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable);
 }
