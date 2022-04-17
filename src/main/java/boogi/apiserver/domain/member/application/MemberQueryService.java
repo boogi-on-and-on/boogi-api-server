@@ -2,6 +2,7 @@ package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
@@ -41,6 +42,11 @@ public class MemberQueryService {
         List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
 
         return members.size() >= 1 ? members.get(0) : null;
+    }
+
+    public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
+        Member member = this.getMemberOfTheCommunity(userId, communityId);
+        return member.getMemberType().equals(memberType);
     }
 
     public Page<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {

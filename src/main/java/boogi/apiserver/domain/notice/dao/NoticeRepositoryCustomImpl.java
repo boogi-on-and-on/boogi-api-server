@@ -3,6 +3,7 @@ package boogi.apiserver.domain.notice.dao;
 import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.domain.QNotice;
+import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -15,6 +16,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
 
     private final QNotice notice = QNotice.notice;
     private final QMember member = QMember.member;
+    private final QUser user = QUser.user;
 
     public NoticeRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -43,7 +45,8 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                         notice.community.id.eq(communityId),
                         notice.canceledAt.isNull()
                 )
-                .join(notice.member, member)
+                .join(notice.member, member).fetchJoin()
+                .join(member.user, user).fetchJoin()
                 .orderBy(notice.createdAt.desc())
                 .fetch();
     }

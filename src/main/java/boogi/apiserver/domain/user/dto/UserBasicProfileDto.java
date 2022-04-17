@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserBasicProfileDto {
-    //todo: UserBasicProfileDto를 상속받아서 재사용하는 형태로 다른 dto 수정
-
     private Long id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
