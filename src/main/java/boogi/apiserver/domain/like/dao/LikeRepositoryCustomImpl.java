@@ -116,4 +116,26 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
 
         return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
     }
+
+    @Override
+    public Page<Like> findCommentLikeWithMemberByCommentId(Long commentId, Pageable pageable) {
+        List<Like> result = queryFactory.selectFrom(like)
+                .where(
+                        like.comment.id.eq(commentId)
+                )
+                .join(like.member, member).fetchJoin()
+                .orderBy(
+                        like.createdAt.asc()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Like> countQuery = queryFactory.selectFrom(like)
+                .where(
+                        like.post.id.eq(commentId)
+                );
+
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+    }
 }

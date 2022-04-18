@@ -3,15 +3,27 @@ package boogi.apiserver.domain.comment.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.CreateComment;
+import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
+import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.dao.LikeRepository;
+import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberValidationService;
+import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -21,8 +33,12 @@ public class CommentCoreService {
 
     private final PostQueryService postQueryService;
 
+    private final MemberRepository memberRepository;
     private final MemberValidationService memberValidationService;
 
+    private final CommunityValidationService communityValidationService;
+
+    private final LikeRepository likeRepository;
     private final LikeCoreService likeCoreService;
 
     private final CommentRepository commentRepository;
@@ -62,5 +78,26 @@ public class CommentCoreService {
             }
             findComment.deleteComment();
         }
+    }
+
+    public LikeMembersAtComment getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {
+        Comment findComment = commentRepository.findById(commentId).orElseThrow(
+                () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
+
+        Long commentedCommunityId = findComment.getPost().getCommunity().getId();
+        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
+        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
+
+        if (communityValidationService.checkOnlyPrivateCommunity(commentedCommunityId) && member == null) {
+            throw new NotJoinedMemberException();
+        }
+
+        Page<Like> likePage = likeRepository.findCommentLikeWithMemberByCommentId(findComment.getId(), pageable);
+
+        List<User> users = likePage.getContent().stream()
+                .map(like -> like.getMember().getUser())
+                .collect(Collectors.toList());
+
+        return new LikeMembersAtComment(users, likePage);
     }
 }

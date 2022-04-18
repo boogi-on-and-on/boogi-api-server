@@ -26,4 +26,6 @@ public interface LikeRepositoryCustom {
     Optional<Like> findCommentLikeByCommentIdAndMemberId(Long commentId, Long memberId);
 
     Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable);
+
+    Page<Like> findCommentLikeWithMemberByCommentId(Long commentId, Pageable pageable);
 }
