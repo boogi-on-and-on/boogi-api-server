@@ -2,6 +2,8 @@ package boogi.apiserver.domain.post.post.dao;
 
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
+import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,4 +23,6 @@ public interface PostRepositoryCustom {
     Optional<PostDetail> getPostDetailByPostId(Long postId);
 
     Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
+
+    Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request);
 }

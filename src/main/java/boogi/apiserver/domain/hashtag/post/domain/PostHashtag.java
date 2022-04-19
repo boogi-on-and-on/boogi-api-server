@@ -27,6 +27,7 @@ public class PostHashtag extends TimeBaseEntity {
     private PostHashtag(Post post, String tag) {
         this.post = post;
         this.tag = tag;
+        post.getHashtags().add(this);
     }
 
     public static PostHashtag of(String tag, Post post) {

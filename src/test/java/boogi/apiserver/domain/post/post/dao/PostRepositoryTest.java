@@ -7,6 +7,9 @@ import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.request_enum.PostListingOrder;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -359,5 +363,70 @@ class PostRepositoryTest {
 
         assertThat(second.getHashtags().size()).isEqualTo(2);
         assertThat(emf.getPersistenceUnitUtil().isLoaded(second.getHashtags().get(0))).isTrue();
+    }
+
+    @Test
+    void getSearchedPosts() {
+        //given
+        Community community = Community.builder()
+                .communityName("안녕")
+                .build();
+        communityRepository.save(community);
+
+        User user = User.builder()
+                .username("김")
+                .tagNumber("#0001")
+                .department("컴공")
+                .build();
+        userRepository.save(user);
+
+        Member member = Member.builder()
+                .user(user)
+                .build();
+        memberRepository.save(member);
+
+        Post p1 = Post.builder()
+                .community(community)
+                .member(member)
+                .commentCount(1)
+                .likeCount(3)
+                .hashtags(new ArrayList<>())
+                .build();
+        p1.setCreatedAt(LocalDateTime.now());
+
+        Post p2 = Post.builder()
+                .community(community)
+                .member(member)
+                .hashtags(new ArrayList<>())
+                .build();
+        postRepository.saveAll(List.of(p1, p2));
+
+        PostHashtag p1_ht1 = PostHashtag.of("헤헤", p1);
+        PostHashtag p1_ht2 = PostHashtag.of("ㅋㅋ", p1);
+        PostHashtag p2_ht1 = PostHashtag.of("호호", p2);
+        postHashtagRepository.saveAll(List.of(p1_ht1, p1_ht2, p2_ht1));
+
+        PostQueryRequest request = PostQueryRequest.builder()
+                .keyword("헤헤")
+                .order(PostListingOrder.OLDER)
+                .build();
+
+        em.flush();
+        em.clear();
+
+        //when
+        Page<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 1), request);
+
+        //then
+        List<SearchPostDto> posts = postPage.getContent();
+        long count = postPage.getTotalElements();
+
+        SearchPostDto first = posts.get(0);
+        assertThat(first.getId()).isEqualTo(p1.getId());
+
+        assertThat(first.getHashtags())
+                .containsExactlyInAnyOrderElementsOf(List.of("ㅋㅋ", "헤헤"));
+
+        assertThat(count).isEqualTo(1);
     }
 }

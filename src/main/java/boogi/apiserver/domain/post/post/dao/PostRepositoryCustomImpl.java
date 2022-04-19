@@ -7,9 +7,14 @@ import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
+import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +104,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                                 .where(
                                         _post.community.id.in(memberJoinedCommunityIds))
                                 .groupBy(_post.community.id)))
-                .join(post.member, member)
+                .innerJoin(post.member, member)
                 .orderBy(post.member.createdAt.asc())
                 .fetch();
 
@@ -166,5 +171,52 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         this.post.deletedAt.isNull());
 
         return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request) {
+        Predicate[] where = {
+                post.community.isPrivate.ne(true),
+                post.community.deletedAt.isNull(),
+                post.deletedAt.isNull(),
+                post.hashtags.contains(JPAExpressions.selectFrom(postHashtag)
+                        .where(postHashtag.tag.eq(request.getKeyword())))
+        };
+
+        List<Post> posts = queryFactory.selectFrom(post)
+                .where(where)
+                .innerJoin(post.community).fetchJoin()
+                .innerJoin(post.member, member).fetchJoin()
+                .innerJoin(member.user, user).fetchJoin()
+                .orderBy(getPostSearchOrder(request))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        //PostHashTag LAZY INIT
+        posts.stream().anyMatch(p -> p.getHashtags().size() > 0);
+
+        List<SearchPostDto> postDtos = posts.stream()
+                .map(SearchPostDto::new)
+                .collect(Collectors.toList());
+
+        JPAQuery<Long> countQuery = queryFactory.select(post.count())
+                .from(post)
+                .where(where)
+                .innerJoin(post.community);
+
+        return PageableExecutionUtils.getPage(postDtos, pageable, countQuery::fetchOne);
+    }
+
+    private OrderSpecifier getPostSearchOrder(PostQueryRequest request) {
+        switch (request.getOrder()) {
+            case NEWER:
+                return post.createdAt.desc();
+            case OLDER:
+                return post.createdAt.asc();
+            case LIKE_UPPER:
+                return post.likeCount.desc();
+        }
+        return null;
     }
 }

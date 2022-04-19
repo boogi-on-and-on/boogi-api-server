@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +37,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<BasicErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
+
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST,
+                e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Bean validation 실패
+     */
+    @ExceptionHandler(BindException.class)
+    protected ResponseEntity<BasicErrorResponse> handleBindException(BindException e) {
+        log.error("handleBindException", e);
 
         final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST,
                 e.getBindingResult().getAllErrors().get(0).getDefaultMessage());

@@ -3,13 +3,12 @@ package boogi.apiserver.domain.post.post.api;
 import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.CreatePost;
-import boogi.apiserver.domain.post.post.dto.HotPost;
-import boogi.apiserver.domain.post.post.dto.PostDetail;
-import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.*;
 import boogi.apiserver.global.argument_resolver.session.Session;
+import boogi.apiserver.global.dto.PagnationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +56,18 @@ public class PostApiController {
         List<HotPost> hotPosts = postQueryService.getHotPosts();
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "hots", hotPosts
+        ));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request, Pageable pageable) {
+        Page<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request);
+        PagnationDto pageInfo = PagnationDto.of(page);
+        List<SearchPostDto> dtos = page.getContent();
+
+        return ResponseEntity.ok(Map.of(
+                "posts", dtos,
+                "pageInfo", pageInfo
         ));
     }
 }

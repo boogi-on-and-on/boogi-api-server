@@ -2,9 +2,7 @@ package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.HotPost;
-import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
-import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.*;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
@@ -58,5 +56,9 @@ public class PostQueryService {
 
     public Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
         return postRepository.getPostsOfCommunity(pageable, communityId);
+    }
+
+    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request) {
+        return postRepository.getSearchedPosts(pageable, request);
     }
 }
