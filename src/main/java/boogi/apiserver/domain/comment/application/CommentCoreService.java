@@ -74,10 +74,6 @@ public class CommentCoreService {
         if (memberValidationService.hasAuth(userId, joinedCommunityId, findComment.getMember().getMemberType())) {
             likeCoreService.removeAllCommentLikes(findComment.getId());
 
-            Post post = findComment.getPost();
-            if (post.getId() != null) {
-                post.removeCommentCount();
-            }
             findComment.deleteComment();
         }
     }
