@@ -1,5 +1,7 @@
 package boogi.apiserver.domain.post.post.api;
 
+import boogi.apiserver.domain.comment.application.CommentCoreService;
+import boogi.apiserver.domain.comment.dto.CommentsAtPost;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
@@ -33,6 +35,8 @@ public class PostApiController {
     private final PostQueryService postQueryService;
 
     private final LikeCoreService likeCoreService;
+
+    private final CommentCoreService commentCoreService;
 
     @PostMapping("/")
     public ResponseEntity<Object> createPost(@Validated @RequestBody CreatePost createPost, @Session Long userId) {
@@ -87,5 +91,12 @@ public class PostApiController {
         LikeMembersAtPost likeMembersAtPost = likeCoreService.getLikeMembersAtPost(postId, userId, pageable);
 
         return ResponseEntity.ok().body(likeMembersAtPost);
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<Object> getCommentsAtPost(@PathVariable Long postId, @Session Long userId, Pageable pageable) {
+        CommentsAtPost commentsAtPost = commentCoreService.getCommentsAtPost(postId, userId, pageable);
+
+        return ResponseEntity.ok().body(commentsAtPost);
     }
 }

@@ -14,6 +14,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.comment.dto.CommentsAtPost;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -70,8 +74,6 @@ public class CommentCoreService {
         if (memberValidationService.hasAuth(userId, joinedCommunityId, findComment.getMember().getMemberType())) {
             likeCoreService.removeAllCommentLikes(findComment.getId());
 
-            // TODO: 댓글 삭제시 대댓글도 삭제할지 여부 정하기
-
             Post post = findComment.getPost();
             if (post.getId() != null) {
                 post.removeCommentCount();
@@ -99,5 +101,71 @@ public class CommentCoreService {
                 .collect(Collectors.toList());
 
         return new LikeMembersAtComment(users, likePage);
+    }
+
+
+    public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
+        Post findPost = postQueryService.getPost(postId);
+
+        Long postedCommunityId = findPost.getCommunity().getId();
+        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
+        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
+
+        if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId) && member == null) {
+            throw new NotJoinedMemberException();
+        }
+
+        Page<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
+
+        List<Comment> parentComments = commentPage.getContent().stream()
+                .map(c -> (c.getDeletedAt() == null && c.getCanceledAt() == null) ?
+                        c : Comment.deletedOf(c.getId()))
+                .collect(Collectors.toList());
+
+        List<Long> parentCommentIds = parentComments.stream()
+                .map(c -> c.getId())
+                .collect(Collectors.toList());
+
+        List<Comment> childComments = commentRepository.findChildCommentsWithMemberByParentCommentIds(parentCommentIds);
+
+        List<Long> commentIds = childComments.stream()
+                .map(c -> c.getId())
+                .collect(Collectors.toList());
+        commentIds.addAll(parentCommentIds);
+
+        Long joinedMemberId = member.getId();
+        Map<Long, Like> commentLikes = likeRepository.findCommentLikesByCommentIdsAndMemberId(commentIds, joinedMemberId).stream()
+                .collect(Collectors.toMap(c -> c.getComment().getId(), c -> c));
+
+        Map<Long, List<CommentsAtPost.ChildCommentInfo>> childCommentInfos = childComments.stream()
+                .map(c -> createChildCommentInfo(joinedMemberId, commentLikes, c))
+                .collect(Collectors.groupingBy(c -> c.getParentId(), HashMap::new, Collectors.toCollection(ArrayList::new)));
+
+        List<CommentsAtPost.ParentCommentInfo> commentInfos = parentComments.stream()
+                .map(c -> createParentCommentInfo(joinedMemberId, commentLikes, childCommentInfos, c))
+                .collect(Collectors.toList());
+
+        return CommentsAtPost.of(commentInfos, commentPage);
+    }
+
+    private CommentsAtPost.ChildCommentInfo createChildCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Comment c) {
+        Like like = commentLikes.get(c.getId());
+        Long likeId = (like == null) ? null : like.getId();
+        Member commentedMember = c.getMember();
+        Long commentedMemberId = (commentedMember == null) ? null : commentedMember.getId();
+        Boolean me = (commentedMember != null && commentedMemberId.equals(joinedMemberId))
+                ? Boolean.TRUE : Boolean.FALSE;
+        Long parentId = c.getParent().getId();
+        return CommentsAtPost.ChildCommentInfo.toDto(c, likeId, me, parentId);
+    }
+
+    private CommentsAtPost.ParentCommentInfo createParentCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Map<Long, List<CommentsAtPost.ChildCommentInfo>> childCommentInfos, Comment c) {
+        Like like = commentLikes.get(c.getId());
+        Long likeId = (like == null) ? null : like.getId();
+        Member commentedMember = c.getMember();
+        Long commentedMemberId = (commentedMember == null) ? null : commentedMember.getId();
+        Boolean me = (commentedMember != null && commentedMemberId.equals(joinedMemberId))
+                ? Boolean.TRUE : Boolean.FALSE;
+        return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()));
     }
 }

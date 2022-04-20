@@ -9,6 +9,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static boogi.apiserver.domain.like.domain.QLike.*;
@@ -91,8 +92,12 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
     }
 
     @Override
-    public Optional<Like> findCommentLikeByCommentIdAndMemberId(Long commentId, Long memberId) {
-        throw new RuntimeException("구현 안함");
+    public List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentIds, Long memberId) {
+        return queryFactory.selectFrom(like)
+                .where(
+                        like.member.id.eq(memberId),
+                        like.comment.id.in(commentIds)
+                ).fetch();
     }
 
     @Override

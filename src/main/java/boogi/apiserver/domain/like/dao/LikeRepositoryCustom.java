@@ -23,7 +23,7 @@ public interface LikeRepositoryCustom {
 
     Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId);
 
-    Optional<Like> findCommentLikeByCommentIdAndMemberId(Long commentId, Long memberId);
+    List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentId, Long memberId);
 
     Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable);
 

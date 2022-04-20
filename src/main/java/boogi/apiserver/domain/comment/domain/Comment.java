@@ -50,8 +50,17 @@ public class Comment extends TimeBaseEntity {
         this.child = null;
     }
 
+    private Comment(Long id, String content) {
+        this.id = id;
+        this.content = content;
+    }
+
     public static Comment of(Post post, Member member, Comment parent, String content) {
         return new Comment(post, member, parent, content);
+    }
+
+    public static Comment deletedOf(Long id) {
+        return new Comment(id, "삭제된 댓글입니다");
     }
 
     public void setChild(Boolean isChild) {
