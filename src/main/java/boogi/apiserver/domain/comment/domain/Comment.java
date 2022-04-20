@@ -41,4 +41,36 @@ public class Comment extends TimeBaseEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    private Comment(Post post, Member member, Comment parent, String content) {
+        this.post = post;
+        this.member = member;
+        this.parent = parent;
+        this.content = content;
+        this.child = null;
+    }
+
+    private Comment(Long id, String content) {
+        this.id = id;
+        this.content = content;
+    }
+
+    public static Comment of(Post post, Member member, Comment parent, String content) {
+        return new Comment(post, member, parent, content);
+    }
+
+    public static Comment deletedOf(Long id) {
+        return new Comment(id, "삭제된 댓글입니다");
+    }
+
+    public void setChild(Boolean isChild) {
+        this.child = isChild;
+    }
+
+    public void deleteComment() {
+        this.deletedAt = LocalDateTime.now();
+        if (post.getId() != null) {
+            post.removeCommentCount();
+        }
+    }
 }

@@ -27,6 +27,8 @@ public class PostDetail {
 
     private CommunityPostDetail community;
 
+    private Long likeId;
+
     @NotNull
     private LocalDateTime createdAt;
 
@@ -98,6 +100,7 @@ public class PostDetail {
         this.user = UserPostDetail.toDto(post.getMember().getUser());
         this.member = MemberPostDetail.toDto(post.getMember());
         this.community = CommunityPostDetail.toDto(post.getCommunity());
+        this.likeId = null;
         this.createdAt = post.getCreatedAt();
         this.content = post.getContent();
         this.hashtags = post.getHashtags().stream()
@@ -106,6 +109,10 @@ public class PostDetail {
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
         this.me = null;
+    }
+
+    public void setLikeId(Long likeId) {
+        this.likeId = likeId;
     }
 
     public void setMe(Boolean me) {

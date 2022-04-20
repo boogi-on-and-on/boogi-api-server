@@ -35,4 +35,18 @@ public class Like extends TimeBaseEntity {
     @JoinColumn(name = "comment_id")
     @ManyToOne(fetch = LAZY)
     private Comment comment;
+
+    private Like(Post post, Comment comment, Member member){
+        this.post = post;
+        this.member = member;
+        this.comment = comment;
+    }
+
+    public static Like postOf(Post post, Member member){
+        return new Like(post, null, member);
+    }
+
+    public static Like commentOf(Comment comment, Member member){
+        return new Like(null, comment, member);
+    }
 }
