@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.community.community.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CommunityDetailInfoDto {
     private Boolean isPrivated;
+    private String category;
     private String name;
     private String introduce;
 
@@ -36,6 +38,7 @@ public class CommunityDetailInfoDto {
         }
         this.memberCount = String.valueOf(community.getMemberCount());
         this.createdAt = community.getCreatedAt().toString();
+        this.category = community.getCategory().toString();
     }
 
     public static CommunityDetailInfoDto of(Community community) {
