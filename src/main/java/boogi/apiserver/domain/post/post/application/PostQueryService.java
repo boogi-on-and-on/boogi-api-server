@@ -58,7 +58,7 @@ public class PostQueryService {
         return postRepository.getPostsOfCommunity(pageable, communityId);
     }
 
-    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request) {
-        return postRepository.getSearchedPosts(pageable, request);
+    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
+        return postRepository.getSearchedPosts(pageable, request, userId);
     }
 }

@@ -172,7 +172,7 @@ class PostApiControllerTest {
 
 
         PageImpl page = new PageImpl(List.of(dto), Pageable.ofSize(1), 1);
-        given(postQueryService.getSearchedPosts(any(), any()))
+        given(postQueryService.getSearchedPosts(any(), any(), anyLong()))
                 .willReturn(page);
 
         MockHttpSession session = new MockHttpSession();

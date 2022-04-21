@@ -60,8 +60,10 @@ public class PostApiController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request, Pageable pageable) {
-        Page<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request);
+    public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request,
+                                              Pageable pageable,
+                                              @Session Long userId) {
+        Page<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
         PagnationDto pageInfo = PagnationDto.of(page);
         List<SearchPostDto> dtos = page.getContent();
 

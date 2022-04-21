@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.post.dao;
 
+import boogi.apiserver.domain.community.community.domain.QCommunity;
 import boogi.apiserver.domain.hashtag.post.domain.QPostHashtag;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -42,6 +43,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     private final QPostHashtag postHashtag = QPostHashtag.postHashtag;
     private final QMember member = QMember.member;
     private final QUser user = QUser.user;
+    private final QCommunity community = QCommunity.community;
 
     public PostRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -174,13 +176,25 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request) {
+    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
+        List<Long> memberIds = queryFactory.select(member.id)
+                .from(member)
+                .where(member.user.id.eq(userId),
+                        member.bannedAt.isNull(),
+                        member.createdAt.isNull()
+                ).fetch();
+
+        QPost _post = new QPost("postSub");
         Predicate[] where = {
-                post.community.isPrivate.ne(true),
+                post.community.isPrivate.ne(true).or(post.member.id.in(memberIds)),
                 post.community.deletedAt.isNull(),
                 post.deletedAt.isNull(),
-                post.hashtags.contains(JPAExpressions.selectFrom(postHashtag)
-                        .where(postHashtag.tag.eq(request.getKeyword())))
+                post.id.in(
+                        JPAExpressions.select(_post.id)
+                                .from(_post)
+                                .where(postHashtag.tag.eq(request.getKeyword()))
+                                .innerJoin(_post.hashtags, postHashtag)
+                )
         };
 
         List<Post> posts = queryFactory.selectFrom(post)
