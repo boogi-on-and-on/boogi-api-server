@@ -95,8 +95,8 @@ public class CommunityApiController {
 
     @PatchMapping("/{communityId}")
     public ResponseEntity<Object> updateCommunityInfo(@PathVariable Long communityId,
-                                         @Session Long userId,
-                                         @RequestBody @Validated CommunityUpdateRequest request) {
+                                                      @Session Long userId,
+                                                      @RequestBody @Validated CommunityUpdateRequest request) {
 
         // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
@@ -269,5 +269,16 @@ public class CommunityApiController {
         joinRequestCoreService.rejectUser(managerUserId, requestId, communityId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchCommunities(@ModelAttribute @Validated CommunityQueryRequest request,
+                                                    Pageable pageable) {
+        Page<SearchCommunityDto> page = communityQueryService.getSearchedCommunities(pageable, request);
+
+        return ResponseEntity.ok(Map.of(
+                "communities", page.getContent(),
+                "pageInfo", PagnationDto.of(page)
+        ));
     }
 }

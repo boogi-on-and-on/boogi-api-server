@@ -2,11 +2,15 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,5 +37,9 @@ public class CommunityQueryService {
         community.getHashtags().size(); //LAZY INIT
 
         return community;
+    }
+
+    public Page<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest request) {
+        return communityRepository.getSearchedCommunities(pageable, request);
     }
 }

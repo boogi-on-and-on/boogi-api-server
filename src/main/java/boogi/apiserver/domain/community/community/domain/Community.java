@@ -48,10 +48,6 @@ public class Community extends TimeBaseEntity {
     @OneToMany(mappedBy = "community")
     private List<CommunityHashtag> hashtags = new ArrayList<>();
 
-    public void addHashtag(CommunityHashtag communityHashtag) {
-        this.hashtags.add(communityHashtag);
-    }
-
     public void updateDescription(String description) {
         if (description.length() < 10) {
             throw new InvalidValueException("10글자 이상의 소개란 입력이 필요합니다.");

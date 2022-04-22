@@ -3,10 +3,7 @@ package boogi.apiserver.domain.community.community.api;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.CommunitySettingRequest;
-import boogi.apiserver.domain.community.community.dto.CommunityUpdateRequest;
-import boogi.apiserver.domain.community.community.dto.CreateCommunityRequest;
-import boogi.apiserver.domain.community.community.dto.DelegateMemberRequest;
+import boogi.apiserver.domain.community.community.dto.*;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
@@ -548,7 +545,7 @@ class CommunityApiControllerTest {
                                 .content(mapper.writeValueAsString(request))
                 ).andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.code").value("COMMON_004"))
-                .andExpect(jsonPath("$.message").value( "10글자 이상 소개란을 입력해주세요."));
+                .andExpect(jsonPath("$.message").value("10글자 이상 소개란을 입력해주세요."));
     }
 
     @Test
@@ -590,5 +587,37 @@ class CommunityApiControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
         ).andExpect(status().isOk());
+    }
+
+    @Test
+    void 커뮤니티_검색하기() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        SearchCommunityDto dto = SearchCommunityDto.builder()
+                .category("INTEREST")
+                .createdAt(LocalDateTime.now().toString())
+                .id(1L)
+                .hashtags(List.of("안녕", "헤헤"))
+                .memberCount(23)
+                .isPrivate(false)
+                .name("커뮤니티1")
+                .build();
+
+        given(communityQueryService.getSearchedCommunities(any(), any()))
+                .willReturn(new PageImpl<>(List.of(dto), Pageable.ofSize(1), 1));
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/search")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .queryParam("isPrivate", "FALSE")
+                                .queryParam("order", "NEWER")
+                                .queryParam("category", "INTEREST")
+                                .queryParam("keyword", "안녕")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.communities[0]").isMap());
     }
 }
