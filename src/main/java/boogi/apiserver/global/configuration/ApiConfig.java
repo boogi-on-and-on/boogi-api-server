@@ -1,9 +1,11 @@
 package boogi.apiserver.global.configuration;
 
 import boogi.apiserver.global.argument_resolver.session.SessionArgumentResolver;
+import boogi.apiserver.global.converter.StringToBooleanConverter;
 import boogi.apiserver.global.interceptor.SessionValidationInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.session.web.http.CookieHttpSessionIdResolver;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
@@ -16,6 +18,11 @@ import java.util.List;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new StringToBooleanConverter());
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

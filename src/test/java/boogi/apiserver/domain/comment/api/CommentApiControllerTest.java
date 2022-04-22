@@ -1,8 +1,10 @@
 package boogi.apiserver.domain.comment.api;
 
+import boogi.apiserver.domain.comment.application.CommentCoreService;
 import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.UserCommentPage;
+import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +39,12 @@ class CommentApiControllerTest {
 
     @MockBean
     CommentQueryService commentQueryService;
+
+    @MockBean
+    CommentCoreService commentCoreService;
+
+    @MockBean
+    LikeCoreService likeCoreService;
 
     MockMvc mvc;
 

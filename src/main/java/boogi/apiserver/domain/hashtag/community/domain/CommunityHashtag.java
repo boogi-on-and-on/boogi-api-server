@@ -26,8 +26,8 @@ public class CommunityHashtag extends TimeBaseEntity {
 
     private CommunityHashtag(String tag, Community community) {
         this.community = community;
-        this.community.addHashtag(this);
         this.tag = tag;
+        community.getHashtags().add(this);
     }
 
     public static CommunityHashtag of(String tag, Community community) {

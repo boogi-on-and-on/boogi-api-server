@@ -8,13 +8,12 @@ import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
 import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.CreatePost;
-import boogi.apiserver.domain.post.post.dto.HotPost;
-import boogi.apiserver.domain.post.post.dto.PostDetail;
-import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.*;
 import boogi.apiserver.global.argument_resolver.session.Session;
+import boogi.apiserver.global.dto.PagnationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,5 +97,19 @@ public class PostApiController {
         CommentsAtPost commentsAtPost = commentCoreService.getCommentsAtPost(postId, userId, pageable);
 
         return ResponseEntity.ok().body(commentsAtPost);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request,
+                                              Pageable pageable,
+                                              @Session Long userId) {
+        Page<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
+        PagnationDto pageInfo = PagnationDto.of(page);
+        List<SearchPostDto> dtos = page.getContent();
+
+        return ResponseEntity.ok(Map.of(
+                "posts", dtos,
+                "pageInfo", pageInfo
+        ));
     }
 }
