@@ -5,6 +5,7 @@ import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ALARM")
@@ -25,4 +26,8 @@ public class Alarm extends TimeBaseEntity {
 
     private String head;
     private String body;
+
+    public void delete() {
+        setCanceledAt(LocalDateTime.now());
+    }
 }

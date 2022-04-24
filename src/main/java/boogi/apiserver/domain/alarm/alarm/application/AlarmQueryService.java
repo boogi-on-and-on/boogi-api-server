@@ -1,7 +1,10 @@
 package boogi.apiserver.domain.alarm.alarm.application;
 
 import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
+import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.dto.AlarmListDto;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
+import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,14 @@ import java.util.stream.Collectors;
 public class AlarmQueryService {
 
     private final AlarmRepository alarmRepository;
+
+    public Alarm getAlarm(Long alarmId) {
+        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(InvalidValueException::new);
+        if (alarm.getCanceledAt() != null) {
+            throw new EntityNotFoundException();
+        }
+        return alarm;
+    }
 
     public List<AlarmListDto> getAlarms(Long userId) {
         return alarmRepository.getAlarms(userId).stream()
