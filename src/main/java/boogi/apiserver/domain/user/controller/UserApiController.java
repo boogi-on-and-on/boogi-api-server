@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,8 @@ public class UserApiController {
     private final MemberQueryService memberQueryService;
     private final PostQueryService postQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
+
+    private final MessageBlockCoreService messageBlockCoreService;
 
     @PostMapping("/token/{email}")
     public ResponseEntity<Object> issueToken(HttpServletRequest request, @PathVariable String email) {
@@ -73,5 +77,13 @@ public class UserApiController {
         return ResponseEntity.ok(Map.of(
                 "blocked", blockedUserDtos
         ));
+    }
+
+    @PostMapping("/messages/unblock")
+    public ResponseEntity<Void> releaseUser(@Session Long userId, HashMap<String, String> request) {
+        Long blockedUserId = Long.getLong(request.get("blockedUserId"));
+        messageBlockCoreService.releaseUser(userId, blockedUserId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

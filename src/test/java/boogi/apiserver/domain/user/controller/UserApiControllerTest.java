@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -28,12 +29,12 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = UserApiController.class)
@@ -50,6 +51,9 @@ class UserApiControllerTest {
 
     @MockBean
     MessageBlockQueryService messageBlockQueryService;
+
+    @MockBean
+    MessageBlockCoreService messageBlockCoreService;
 
     private MockMvc mvc;
 
@@ -170,8 +174,6 @@ class UserApiControllerTest {
 
     @Test
     void 차단한_유저_목록() throws Exception {
-
-
         MessageBlockedUserDto dto = MessageBlockedUserDto.builder()
                 .userId(1L)
                 .nameTag("가나다#0001")
@@ -193,4 +195,18 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.blocked[0].nameTag").value("가나다#0001"));
     }
 
+    @Test
+    void 유저_차단_해제() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.post("/api/users/messages/unblock")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .content(mapper.writeValueAsString(Map.of("blockedUserId", 1L)))
+                )
+                .andExpect(status().isOk());
+    }
 }

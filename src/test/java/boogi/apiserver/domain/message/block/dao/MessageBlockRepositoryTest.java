@@ -59,4 +59,24 @@ class MessageBlockRepositoryTest {
         assertThat(first.getUserId()).isEqualTo(u1.getId());
         assertThat(first.getNameTag()).isEqualTo(u1.getUsername() + u1.getTagNumber());
     }
+
+    @Test
+    void getMessageBlockByUserId() {
+        //given
+        User user = User.builder().build();
+        User blockedUser = User.builder().build();
+        userRepository.saveAll(List.of(user, blockedUser));
+
+        MessageBlock block = MessageBlock.builder()
+                .user(user)
+                .blockedUser(blockedUser)
+                .build();
+        messageBlockRepository.save(block);
+
+        //when
+        MessageBlock findBlock = messageBlockRepository.getMessageBlockByUserId(user.getId(), blockedUser.getId());
+
+        //then
+        assertThat(findBlock).isEqualTo(block);
+    }
 }

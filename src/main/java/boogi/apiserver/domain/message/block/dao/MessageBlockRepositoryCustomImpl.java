@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.message.block.dao;
 
+import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.domain.QMessageBlock;
 import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.message.block.dto.QMessageBlockedUserDto;
@@ -35,5 +36,16 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
                         messageBlock.user.canceledAt.isNull()
                 ).innerJoin(messageBlock.user, user)
                 .fetch();
+    }
+
+    @Override
+    public MessageBlock getMessageBlockByUserId(Long userId, Long blockedUserId) {
+        return queryFactory.selectFrom(messageBlock)
+                .where(
+                        messageBlock.user.id.eq(userId),
+                        messageBlock.blockedUser.id.eq(blockedUserId),
+                        messageBlock.canceledAt.isNull()
+                )
+                .fetchOne();
     }
 }
