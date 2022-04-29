@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
+import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -27,6 +29,7 @@ public class UserApiController {
     private final UserQueryService userQueryService;
     private final MemberQueryService memberQueryService;
     private final PostQueryService postQueryService;
+    private final MessageBlockQueryService messageBlockQueryService;
 
     @PostMapping("/token/{email}")
     public ResponseEntity<Object> issueToken(HttpServletRequest request, @PathVariable String email) {
@@ -60,6 +63,15 @@ public class UserApiController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "communities", communities
+        ));
+    }
+
+    @GetMapping("/messages/blocked")
+    public ResponseEntity<Object> getBlockedUsers(@Session Long userId) {
+        List<MessageBlockedUserDto> blockedUserDtos = messageBlockQueryService.getBlockedMembers(userId);
+
+        return ResponseEntity.ok(Map.of(
+                "blocked", blockedUserDtos
         ));
     }
 }

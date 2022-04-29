@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
+import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -45,6 +47,9 @@ class UserApiControllerTest {
 
     @MockBean
     private PostQueryService postQueryService;
+
+    @MockBean
+    MessageBlockQueryService messageBlockQueryService;
 
     private MockMvc mvc;
 
@@ -161,6 +166,31 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.communities[0].post.commentCount").value("222"))
                 .andExpect(jsonPath("$.communities[0].post.hashtags").isArray());
 
+    }
+
+    @Test
+    void 차단한_유저_목록() throws Exception {
+
+
+        MessageBlockedUserDto dto = MessageBlockedUserDto.builder()
+                .userId(1L)
+                .nameTag("가나다#0001")
+                .build();
+
+        given(messageBlockQueryService.getBlockedMembers(anyLong()))
+                .willReturn(List.of(dto));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/users/messages/blocked")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.blocked[0].userId").value(1L))
+                .andExpect(jsonPath("$.blocked[0].nameTag").value("가나다#0001"));
     }
 
 }
