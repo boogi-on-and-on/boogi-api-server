@@ -24,21 +24,26 @@ public class AlarmConfig extends TimeBaseEntity {
     private User user;
 
     @Column(name = "message_alarm")
+    @Setter
     private Boolean message;
 
     @Column(name = "notice_alarm")
+    @Setter
     private Boolean notice;
 
     @Column(name = "join_request_alarm")
+    @Setter
     private Boolean joinRequest;
 
     @Column(name = "comment_alarm")
+    @Setter
     private Boolean comment;
 
     @Column(name = "mention_alarm")
+    @Setter
     private Boolean mention;
 
-    public AlarmConfig(User user) {
+    private AlarmConfig(User user) {
         this.user = user;
         this.message = true;
         this.notice = true;

@@ -3,6 +3,7 @@ package boogi.apiserver.domain.user.controller;
 import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingInfo;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
@@ -102,7 +103,16 @@ public class UserApiController {
 
     @GetMapping("/config/notifications")
     public ResponseEntity<Object> getAlarmConfig(@Session Long userId) {
-        AlarmConfig alarmConfig = alarmConfigCoreService.findOrCreateAlarm(userId);
+        AlarmConfig alarmConfig = alarmConfigCoreService.findOrElseCreateAlarmConfig(userId);
+
+        return ResponseEntity.ok(Map.of(
+                "alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)
+        ));
+    }
+
+    @PostMapping("/config/notifications")
+    public ResponseEntity<Object> configureAlarm(@Session Long userId, @RequestBody AlarmConfigSettingRequest request) {
+        AlarmConfig alarmConfig = alarmConfigCoreService.configureAlarm(userId, request);
 
         return ResponseEntity.ok(Map.of(
                 "alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)

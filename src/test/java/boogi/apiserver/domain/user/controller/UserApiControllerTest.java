@@ -250,7 +250,7 @@ class UserApiControllerTest {
                 .build();
 
 
-        given(alarmConfigCoreService.findOrCreateAlarm(anyLong()))
+        given(alarmConfigCoreService.findOrElseCreateAlarmConfig(anyLong()))
                 .willReturn(alarmConfig);
 
         mvc.perform(
