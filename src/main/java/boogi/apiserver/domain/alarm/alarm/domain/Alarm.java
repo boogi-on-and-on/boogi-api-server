@@ -2,18 +2,18 @@ package boogi.apiserver.domain.alarm.alarm.domain;
 
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ALARM")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Alarm extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,4 +26,8 @@ public class Alarm extends TimeBaseEntity {
 
     private String head;
     private String body;
+
+    public void delete() {
+        setCanceledAt(LocalDateTime.now());
+    }
 }
