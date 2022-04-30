@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +21,9 @@ class MessageBlockRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    EntityManager em;
 
     @Test
     void getBlockedUsers() {
@@ -78,5 +82,61 @@ class MessageBlockRepositoryTest {
 
         //then
         assertThat(findBlock).isEqualTo(block);
+    }
+
+    @Test
+    void getMessageBlocksByUserIds() {
+        //given
+        User user = User.builder().build();
+        User blockedUser1 = User.builder().build();
+        User blockedUser2 = User.builder().build();
+        userRepository.saveAll(List.of(user, blockedUser1, blockedUser2));
+
+        MessageBlock block1 = MessageBlock.builder()
+                .user(user)
+                .blockedUser(blockedUser1)
+                .build();
+        MessageBlock block2 = MessageBlock.builder()
+                .user(user)
+                .blockedUser(blockedUser2)
+                .build();
+        messageBlockRepository.saveAll(List.of(block1, block2));
+
+        //when
+        List<MessageBlock> blocks = messageBlockRepository.getMessageBlocksByUserIds(user.getId(), List.of(blockedUser1.getId(), blockedUser2.getId()));
+
+        //then
+        assertThat(blocks).containsExactlyInAnyOrderElementsOf(List.of(block1, block2));
+    }
+
+    @Test
+    void updateBulkBlockedStatus() {
+        //given
+        User blockedUser1 = User.builder().build();
+        User blockedUser2 = User.builder().build();
+        userRepository.saveAll(List.of(blockedUser1, blockedUser2));
+
+        MessageBlock block1 = MessageBlock.builder()
+                .blocked(false)
+                .blockedUser(blockedUser1)
+                .build();
+        MessageBlock block2 = MessageBlock.builder()
+                .blocked(null)
+                .blockedUser(blockedUser2)
+                .build();
+        messageBlockRepository.saveAll(List.of(block1, block2));
+
+        //when
+        messageBlockRepository.updateBulkBlockedStatus(List.of(block1.getId(), block2.getId()));
+
+        em.flush();
+        em.clear();
+
+        //then
+        MessageBlock b1 = messageBlockRepository.findById(block1.getId()).get();
+        MessageBlock b2 = messageBlockRepository.findById(block1.getId()).get();
+
+        assertThat(b1.getBlocked()).isEqualTo(true);
+        assertThat(b2.getBlocked()).isEqualTo(true);
     }
 }

@@ -34,7 +34,7 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
                         messageBlock.blocked.eq(true),
                         messageBlock.canceledAt.isNull(),
                         messageBlock.user.canceledAt.isNull()
-                ).innerJoin(messageBlock.user, user)
+                )
                 .fetch();
     }
 
@@ -47,5 +47,24 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
                         messageBlock.canceledAt.isNull()
                 )
                 .fetchOne();
+    }
+
+    @Override
+    public List<MessageBlock> getMessageBlocksByUserIds(Long userId, List<Long> blockedUserIds) {
+        return queryFactory.selectFrom(messageBlock)
+                .where(
+                        messageBlock.user.id.eq(userId),
+                        messageBlock.blockedUser.id.in(blockedUserIds),
+                        messageBlock.canceledAt.isNull()
+                )
+                .fetch();
+    }
+
+    @Override
+    public void updateBulkBlockedStatus(List<Long> blockUserIds) {
+        queryFactory.update(messageBlock)
+                .set(messageBlock.blocked, true)
+                .where(messageBlock.blockedUser.id.in(blockUserIds))
+                .execute();
     }
 }

@@ -9,4 +9,8 @@ public interface MessageBlockRepositoryCustom {
     List<MessageBlockedUserDto> getBlockedUsers(Long userId);
 
     MessageBlock getMessageBlockByUserId(Long userId, Long blockedUserId);
+
+    List<MessageBlock> getMessageBlocksByUserIds(Long userId, List<Long> blockedUserIds);
+
+    void updateBulkBlockedStatus(List<Long> blockUserIds);
 }

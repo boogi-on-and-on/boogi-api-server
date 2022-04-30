@@ -33,4 +33,18 @@ public class MessageBlock extends TimeBaseEntity {
     public void release() {
         this.blocked = false;
     }
+
+    public void block() {
+        this.blocked = true;
+    }
+
+    private MessageBlock(User user, User blockedUser) {
+        this.user = user;
+        this.blockedUser = blockedUser;
+        this.blocked = true;
+    }
+
+    public static MessageBlock of(User user, User blockedUser) {
+        return new MessageBlock(user, blockedUser);
+    }
 }

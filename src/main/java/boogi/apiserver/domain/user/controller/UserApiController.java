@@ -8,6 +8,7 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.dto.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -80,9 +82,16 @@ public class UserApiController {
     }
 
     @PostMapping("/messages/unblock")
-    public ResponseEntity<Void> releaseUser(@Session Long userId, HashMap<String, String> request) {
+    public ResponseEntity<Void> releaseUser(@Session Long userId, @RequestBody HashMap<String, String> request) {
         Long blockedUserId = Long.getLong(request.get("blockedUserId"));
         messageBlockCoreService.releaseUser(userId, blockedUserId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/messages/block")
+    public ResponseEntity<Void> blockUsers(@Session Long userId, @Validated @RequestBody BlockMessageUsersRequest request) {
+        messageBlockCoreService.blockUsers(userId, request.getBlockUserIds());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

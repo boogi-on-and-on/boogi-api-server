@@ -7,6 +7,7 @@ import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dto.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
@@ -208,5 +209,24 @@ class UserApiControllerTest {
                                 .content(mapper.writeValueAsString(Map.of("blockedUserId", 1L)))
                 )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void 유저_차단_실패() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        BlockMessageUsersRequest request = BlockMessageUsersRequest.builder()
+                .blockUserIds(List.of())
+                .build();
+
+        mvc.perform(
+                        MockMvcRequestBuilders.post("/api/users/messages/block")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .content(mapper.writeValueAsString(request))
+                ).andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").value("메시지 차단할 유저를 1명이상 선택해주세요"));
     }
 }
