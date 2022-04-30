@@ -1,5 +1,8 @@
 package boogi.apiserver.domain.user.controller;
 
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
+import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
@@ -36,6 +39,7 @@ public class UserApiController {
     private final MessageBlockQueryService messageBlockQueryService;
 
     private final MessageBlockCoreService messageBlockCoreService;
+    private final AlarmConfigCoreService alarmConfigCoreService;
 
     @PostMapping("/token/{email}")
     public ResponseEntity<Object> issueToken(HttpServletRequest request, @PathVariable String email) {
@@ -94,5 +98,14 @@ public class UserApiController {
         messageBlockCoreService.blockUsers(userId, request.getBlockUserIds());
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/config/notifications")
+    public ResponseEntity<Object> getAlarmConfig(@Session Long userId) {
+        AlarmConfig alarmConfig = alarmConfigCoreService.findOrCreateAlarm(userId);
+
+        return ResponseEntity.ok(Map.of(
+                "alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)
+        ));
     }
 }

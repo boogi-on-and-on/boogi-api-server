@@ -127,14 +127,14 @@ class MessageBlockRepositoryTest {
         messageBlockRepository.saveAll(List.of(block1, block2));
 
         //when
-        messageBlockRepository.updateBulkBlockedStatus(List.of(block1.getId(), block2.getId()));
+        messageBlockRepository.updateBulkBlockedStatus(List.of(block1.getBlockedUser().getId(), block2.getBlockedUser().getId()));
 
         em.flush();
         em.clear();
 
         //then
         MessageBlock b1 = messageBlockRepository.findById(block1.getId()).get();
-        MessageBlock b2 = messageBlockRepository.findById(block1.getId()).get();
+        MessageBlock b2 = messageBlockRepository.findById(block2.getId()).get();
 
         assertThat(b1.getBlocked()).isEqualTo(true);
         assertThat(b2.getBlocked()).isEqualTo(true);

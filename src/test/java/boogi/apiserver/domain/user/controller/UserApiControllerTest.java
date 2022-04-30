@@ -1,5 +1,7 @@
 package boogi.apiserver.domain.user.controller;
 
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
+import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
@@ -35,7 +37,8 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = UserApiController.class)
@@ -55,6 +58,9 @@ class UserApiControllerTest {
 
     @MockBean
     MessageBlockCoreService messageBlockCoreService;
+
+    @MockBean
+    private AlarmConfigCoreService alarmConfigCoreService;
 
     private MockMvc mvc;
 
@@ -228,5 +234,35 @@ class UserApiControllerTest {
                                 .content(mapper.writeValueAsString(request))
                 ).andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.message").value("메시지 차단할 유저를 1명이상 선택해주세요"));
+    }
+
+    @Test
+    void 유저_알림_조회() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        AlarmConfig alarmConfig = AlarmConfig.builder()
+                .message(null)
+                .notice(true)
+                .joinRequest(true)
+                .comment(false)
+                .mention(true)
+                .build();
+
+
+        given(alarmConfigCoreService.findOrCreateAlarm(anyLong()))
+                .willReturn(alarmConfig);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/users/config/notifications")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.alarmInfo.personal.message").value(false))
+                .andExpect(jsonPath("$.alarmInfo.community.notice").value(true))
+                .andExpect(jsonPath("$.alarmInfo.community.join").value(true))
+                .andExpect(jsonPath("$.alarmInfo.post.comment").value(false))
+                .andExpect(jsonPath("$.alarmInfo.post.mention").value(true));
+
     }
 }
