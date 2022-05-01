@@ -115,10 +115,22 @@ public class CommunityApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @GetMapping("/{communityId}/settings")
+    public ResponseEntity<Object> getSettingInfo(@PathVariable Long communityId, @Session Long userId) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
+
+        Community community = communityQueryService.getCommunity(communityId);
+
+        return ResponseEntity.ok(Map.of(
+                "settingInfo", CommunitySettingInfo.of(community)
+        ));
+    }
+
     @PostMapping("/{communityId}/settings")
-    public ResponseEntity<Object> setting(@PathVariable Long communityId,
-                                          @Session Long userId,
-                                          @RequestBody CommunitySettingRequest request
+    public ResponseEntity<Void> setting(@PathVariable Long communityId,
+                                        @Session Long userId,
+                                        @RequestBody CommunitySettingRequest request
     ) {
         // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
