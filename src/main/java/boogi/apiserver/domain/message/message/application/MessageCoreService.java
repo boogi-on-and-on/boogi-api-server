@@ -3,12 +3,15 @@ package boogi.apiserver.domain.message.message.application;
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
 import boogi.apiserver.domain.message.message.dao.MessageRepository;
 import boogi.apiserver.domain.message.message.domain.Message;
+import boogi.apiserver.domain.message.message.dto.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.MessageRoomResponse;
 import boogi.apiserver.domain.message.message.dto.SendMessage;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,5 +88,12 @@ public class MessageCoreService {
                 .collect(Collectors.toList());
 
         return MessageRoomResponse.of(messageRooms);
+    }
+
+    public MessageResponse getMessagesByOpponentId(Long opponentId, Long userId, Pageable pageable) {
+        User opponentUser = userQueryService.getUser(opponentId);
+        Page<Message> messages = messageRepository.findMessagesByOpponentIdAndMyId(opponentId, userId, pageable);
+
+        return MessageResponse.of(opponentUser, messages, userId);
     }
 }
