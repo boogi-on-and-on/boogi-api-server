@@ -3,6 +3,7 @@ package boogi.apiserver.global.configuration;
 import boogi.apiserver.global.argument_resolver.session.SessionArgumentResolver;
 import boogi.apiserver.global.converter.StringToBooleanConverter;
 import boogi.apiserver.global.interceptor.SessionValidationInterceptor;
+import boogi.apiserver.global.webclient.HttpInvocation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -56,5 +57,9 @@ public class ApiConfig implements WebMvcConfigurer {
         return HeaderHttpSessionIdResolver.xAuthToken();
     }
 
+    @Bean
+    public HttpInvocation httpInvocation() {
+        return new HttpInvocation();
+    }
 
 }
