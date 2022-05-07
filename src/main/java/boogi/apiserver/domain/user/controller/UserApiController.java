@@ -52,6 +52,7 @@ public class UserApiController {
         }
 
         HttpSession session = request.getSession();
+        session.setMaxInactiveInterval(60 * 60 * 24 * 30 * 3); // 3개월
         session.setAttribute(SessionInfoConst.USER_ID, user.getId());
 
         return ResponseEntity.status(HttpStatus.OK).build();
