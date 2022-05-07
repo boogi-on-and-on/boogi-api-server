@@ -29,4 +29,6 @@ public class Message extends TimeBaseEntity {
     private User receiver;
 
     private String content;
+
+    private Boolean blocked_message;
 }
