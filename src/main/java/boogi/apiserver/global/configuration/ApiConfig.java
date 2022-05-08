@@ -57,9 +57,4 @@ public class ApiConfig implements WebMvcConfigurer {
         return HeaderHttpSessionIdResolver.xAuthToken();
     }
 
-    @Bean
-    public HttpInvocation httpInvocation() {
-        return new HttpInvocation();
-    }
-
 }
