@@ -69,7 +69,8 @@ public class Post extends TimeBaseEntity {
     }
 
     public void removeLikeCount() {
-        this.likeCount--;
+        if (this.likeCount > 0)
+            this.likeCount--;
     }
 
     public void addCommentCount() {
@@ -77,6 +78,7 @@ public class Post extends TimeBaseEntity {
     }
 
     public void removeCommentCount() {
-        this.commentCount--;
+        if (this.commentCount > 0)
+            this.commentCount--;
     }
 }

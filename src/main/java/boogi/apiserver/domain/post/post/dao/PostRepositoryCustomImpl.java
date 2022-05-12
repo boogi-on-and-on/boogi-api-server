@@ -11,7 +11,6 @@ import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
 import static com.querydsl.jpa.JPAExpressions.select;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
