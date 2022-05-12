@@ -25,5 +25,5 @@ public class CreatePost {
 
     private List<String> hashtags;
 
-    // TODO: 이미지 업로드 추가
+    private List<String> postMediaIds;
 }

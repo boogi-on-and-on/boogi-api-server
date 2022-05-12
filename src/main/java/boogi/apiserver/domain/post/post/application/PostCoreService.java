@@ -17,6 +17,8 @@ import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
+import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,19 +42,23 @@ public class PostCoreService {
     private final PostHashtagCoreService postHashtagCoreService;
     private final LikeCoreService likeCoreService;
 
+    private final PostMediaQueryService postMediaQueryService;
 
-    //TODO: 이미지 업로드 추가
     @Transactional
-    public Post createPost(Long userId, Long communityId, String content, List<String> tags) {
+    public Post createPost(Long userId, Long communityId, String content, List<String> tags, List<String> postMediaIds) {
         Community community = communityValidationService.checkExistsCommunity(communityId);
         Member member = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
 
-        Post newPost = Post.of(community, member, content);
-        postRepository.save(newPost);
+        List<PostMedia> findPostMedias = postMediaQueryService.getPostMediasByUUID(postMediaIds);
 
-        postHashtagCoreService.addTags(newPost.getId(), tags);
+        Post savedPost = postRepository.save(Post.of(community, member, content));
 
-        return newPost;
+        postHashtagCoreService.addTags(savedPost.getId(), tags);
+
+        findPostMedias.stream()
+                .forEach(pm -> pm.mapPost(savedPost));
+
+        return savedPost;
     }
 
     public PostDetail getPostDetail(Long postId, Long userId) {

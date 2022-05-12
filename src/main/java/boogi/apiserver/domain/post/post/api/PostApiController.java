@@ -39,7 +39,12 @@ public class PostApiController {
 
     @PostMapping("/")
     public ResponseEntity<Object> createPost(@Validated @RequestBody CreatePost createPost, @Session Long userId) {
-        Post newPost = postCoreService.createPost(userId, createPost.getCommunityId(), createPost.getContent(), createPost.getHashtags());
+        Post newPost = postCoreService.createPost(
+                userId,
+                createPost.getCommunityId(),
+                createPost.getContent(),
+                createPost.getHashtags(),
+                createPost.getPostMediaIds());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", newPost.getId()
