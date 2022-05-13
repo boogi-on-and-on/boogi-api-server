@@ -42,7 +42,7 @@ public class PostMedia extends TimeBaseEntity {
         this.post = post;
     }
 
-    public void deletePostMedia(){
+    public void deletePostMedia() {
         this.deletedAt = LocalDateTime.now();
     }
 }
