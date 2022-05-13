@@ -128,20 +128,20 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     //TODO: member, user canceledAt, deletedAt validation 추가
     @Override
-    public Optional<PostDetail> getPostDetailByPostId(Long postId) {
-        PostDetail postDetail = queryFactory.select(Projections.constructor(PostDetail.class, post))
-                .from(post)
-                .leftJoin(post.member, member).fetchJoin()
+    public Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId) {
+        Post findPost = queryFactory.selectFrom(this.post)
+                .join(this.post.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()
-                .join(post.community, community).fetchJoin()
+                .join(this.post.community, community).fetchJoin()
                 .where(
-                        post.id.eq(postId),
-                        post.canceledAt.isNull(),
-                        post.deletedAt.isNull()
-                )
-                .fetchOne();
+                        this.post.id.eq(postId),
+                        this.post.canceledAt.isNull(),
+                        this.post.deletedAt.isNull(),
+                        this.post.community.deletedAt.isNull(),
+                        this.post.community.canceledAt.isNull()
+                ).fetchOne();
 
-        return Optional.ofNullable(postDetail);
+        return Optional.ofNullable(findPost);
     }
 
     @Override

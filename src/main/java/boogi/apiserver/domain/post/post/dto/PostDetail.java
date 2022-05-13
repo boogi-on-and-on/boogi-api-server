@@ -4,6 +4,8 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.postmedia.domain.MediaType;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +28,8 @@ public class PostDetail {
     private MemberPostDetail member;
 
     private CommunityPostDetail community;
+
+    private List<PostMediaDetail> postMedias;
 
     private Long likeId;
 
@@ -95,11 +99,30 @@ public class PostDetail {
         }
     }
 
-    public PostDetail(Post post) {
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class PostMediaDetail {
+
+        private MediaType type;
+        private String url;
+
+        private static PostMediaDetail toDto(PostMedia postMedia) {
+            return PostMediaDetail.builder()
+                    .type(postMedia.getMediaType())
+                    .url(postMedia.getMediaURL())
+                    .build();
+        }
+    }
+
+    public PostDetail(Post post, List<PostMedia> postMedias) {
         this.id = post.getId();
         this.user = UserPostDetail.toDto(post.getMember().getUser());
         this.member = MemberPostDetail.toDto(post.getMember());
         this.community = CommunityPostDetail.toDto(post.getCommunity());
+        this.postMedias = postMedias.stream()
+                .map(pm -> PostMediaDetail.toDto(pm))
+                .collect(Collectors.toList());
         this.likeId = null;
         this.createdAt = post.getCreatedAt();
         this.content = post.getContent();

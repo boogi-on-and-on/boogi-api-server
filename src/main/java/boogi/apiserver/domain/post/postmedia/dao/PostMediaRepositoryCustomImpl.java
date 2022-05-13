@@ -20,7 +20,18 @@ public class PostMediaRepositoryCustomImpl implements PostMediaRepositoryCustom 
         return queryFactory.selectFrom(postMedia)
                 .where(
                         postMedia.uuid.in(postMediaIds),
-                        postMedia.post.isNull()
+                        postMedia.post.isNull(),
+                        postMedia.deletedAt.isNull()
+                ).fetch();
+    }
+
+    @Override
+    public List<PostMedia> findByPostId(Long postId) {
+        return queryFactory.selectFrom(postMedia)
+                .where(
+                        postMedia.post.id.eq(postId),
+                        postMedia.deletedAt.isNull(),
+                        postMedia.canceledAt.isNull()
                 ).fetch();
     }
 }

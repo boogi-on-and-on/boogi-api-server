@@ -18,6 +18,7 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
+import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class PostCoreService {
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
+    private final PostMediaRepository postMediaRepository;
 
     private final CommunityValidationService communityValidationService;
     private final MemberValidationService memberValidationService;
@@ -62,16 +64,20 @@ public class PostCoreService {
     }
 
     public PostDetail getPostDetail(Long postId, Long userId) {
-        PostDetail postDetail = postRepository.getPostDetailByPostId(postId)
-                .orElseThrow(EntityNotFoundException::new);
+        Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
 
-        Long postedCommunityId = postDetail.getCommunity().getId();
+        Long postedCommunityId = findPost.getCommunity().getId();
         List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
         Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
 
         if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId) && member == null) {
             throw new NotJoinedMemberException();
         }
+
+        List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
+
+        PostDetail postDetail = new PostDetail(findPost, findPostMedias);
 
         Long findLikeId;
         if (member == null) {   // public 커뮤니티에서 비가입 상태로 글 요청
@@ -107,6 +113,9 @@ public class PostCoreService {
             findComments.stream().forEach(c -> c.deleteComment());
 
             likeCoreService.removeAllPostLikes(findPostId);
+
+            postMediaRepository.findByPostId(postId).stream()
+                    .forEach(pm -> pm.deletePostMedia());
 
             findPost.deletePost();
         }
