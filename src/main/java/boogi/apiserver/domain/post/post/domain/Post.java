@@ -62,6 +62,7 @@ public class Post extends TimeBaseEntity {
 
     public void deletePost() {
         this.deletedAt = LocalDateTime.now();
+        this.likeCount = 0;
     }
 
     public void addLikeCount() {
