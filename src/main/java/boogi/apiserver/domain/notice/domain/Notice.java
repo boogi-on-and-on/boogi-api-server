@@ -32,4 +32,16 @@ public class Notice extends TimeBaseEntity {
     private String title;
 
     private String content;
+
+    private Notice(String content, String title, Member member, Community community) {
+        this.title = title;
+        this.content = content;
+        this.member = member;
+        this.community = community;
+    }
+
+    public static Notice of(String content, String title, Member member, Community community) {
+        return new Notice(content, title, member, community);
+    }
+
 }

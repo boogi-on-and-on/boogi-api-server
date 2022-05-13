@@ -2,10 +2,13 @@ package boogi.apiserver.domain.notice.api;
 
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.notice.application.NoticeCoreService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.NoticeCreateRequest;
 import boogi.apiserver.domain.notice.dto.NoticeDetailDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
@@ -45,6 +48,12 @@ class NoticeApiControllerTest {
 
     @MockBean
     MemberQueryService memberQueryService;
+
+    @MockBean
+    NoticeCoreService noticeCoreService;
+
+    @MockBean
+    MemberValidationService memberValidationService;
 
     private MockMvc mvc;
 
@@ -88,6 +97,33 @@ class NoticeApiControllerTest {
                 .andExpect(jsonPath("$.notices[0].title").isString())
                 .andExpect(jsonPath("$.notices[0].createdAt").isString())
                 .andExpect(jsonPath("$.notices[0].content").isString());
+    }
+
+    @Test
+    void 앱_공지사항_생성() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        NoticeCreateRequest request = NoticeCreateRequest.builder()
+                .content("내용")
+                .title("제목")
+                .communityId(1L)
+                .build();
+
+        Notice notice = Notice.builder()
+                .id(1L)
+                .build();
+        given(noticeCoreService.create(any(), anyLong(), anyLong()))
+                .willReturn(notice);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.post("/api/notices")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(request))
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
     }
 
     @Test
