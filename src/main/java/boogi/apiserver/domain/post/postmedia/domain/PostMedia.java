@@ -1,9 +1,12 @@
 package boogi.apiserver.domain.post.postmedia.domain;
 
+import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
 import lombok.*;
 
 import javax.persistence.*;
+
+import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.*;
 
@@ -11,7 +14,7 @@ import static javax.persistence.FetchType.*;
 @Table(name = "POST_MEDIA")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class PostMedia {
+public class PostMedia extends TimeBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +35,14 @@ public class PostMedia {
     @Column(name = "media_url")
     private String mediaURL;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     public void mapPost(Post post) {
         this.post = post;
+    }
+
+    public void deletePostMedia(){
+        this.deletedAt = LocalDateTime.now();
     }
 }
