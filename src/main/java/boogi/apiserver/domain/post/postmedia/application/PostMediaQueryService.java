@@ -17,11 +17,11 @@ public class PostMediaQueryService {
 
     private final PostMediaRepository postMediaRepository;
 
-    public List<PostMedia> getPostMediasByUUID(List<String> postMediaIds) {
+    public List<PostMedia> getUnmappedPostMediasByUUID(List<String> postMediaIds) {
         if (postMediaIds == null || postMediaIds.isEmpty())
             return new ArrayList<>();
 
-        List<PostMedia> findPostMedias = postMediaRepository.findByIds(postMediaIds);
+        List<PostMedia> findPostMedias = postMediaRepository.findUnmappedPostMediasByIds(postMediaIds);
 
         if (postMediaIds.size() != findPostMedias.size()) {
             throw new InvalidValueException("잘못된 요청입니다");

@@ -16,7 +16,7 @@ public class PostMediaRepositoryCustomImpl implements PostMediaRepositoryCustom 
     }
 
     @Override
-    public List<PostMedia> findByIds(List<String> postMediaIds) {
+    public List<PostMedia> findUnmappedPostMediasByIds(List<String> postMediaIds) {
         return queryFactory.selectFrom(postMedia)
                 .where(
                         postMedia.uuid.in(postMediaIds),
