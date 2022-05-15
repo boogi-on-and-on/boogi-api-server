@@ -6,6 +6,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
+import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
@@ -13,10 +14,12 @@ import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
+import boogi.apiserver.domain.post.post.dto.UpdatePost;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,7 +55,7 @@ public class PostCoreService {
         Community community = communityValidationService.checkExistsCommunity(communityId);
         Member member = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
 
-        List<PostMedia> findPostMedias = postMediaQueryService.getPostMediasByUUID(postMediaIds);
+        List<PostMedia> findPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(postMediaIds);
 
         Post savedPost = postRepository.save(Post.of(community, member, content));
 
@@ -95,6 +99,50 @@ public class PostCoreService {
                 postUserId.equals(userId) ? Boolean.TRUE : Boolean.FALSE);
 
         return postDetail;
+    }
+
+    @Transactional
+    public Post updatePost(UpdatePost updatePost, Long postId, Long userId) {
+        Post findPost = postRepository.findById(postId).orElseThrow(() -> {
+            throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
+        });
+
+        Community postedCommunity = communityValidationService.checkExistsCommunity(findPost.getCommunity().getId());
+
+        Long postedCommunityId = postedCommunity.getId();
+        MemberType postMemberType = findPost.getMember().getMemberType();
+        Long postedUserId = findPost.getMember().getUser().getId();
+
+        if (postedUserId.equals(userId) == false &&
+                memberValidationService.hasAuth(userId, postedCommunityId, postMemberType) == false) {
+            throw new NotAuthorizedMemberException();
+        }
+
+        postHashtagCoreService.removeTagsByPostId(postId);
+        List<PostHashtag> newPostHashtags = postHashtagCoreService.addTags(postId, updatePost.getHashtags());
+
+        findPost.updatePost(updatePost.getContent(), newPostHashtags);
+
+        List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
+        List<String> newPostMediaIds = updatePost.getPostMediaIds();
+
+        List<PostMedia> diffPostMedias = new ArrayList<>();
+
+        for (PostMedia postMedia : findPostMedias) {
+            String uid = postMedia.getUuid();
+            if (newPostMediaIds.contains(uid)) {
+                newPostMediaIds.remove(uid);
+            } else {
+                diffPostMedias.add(postMedia);
+            }
+        }
+        postMediaRepository.deleteAll(diffPostMedias);
+
+        List<PostMedia> newPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(newPostMediaIds);
+        newPostMedias.stream()
+                .forEach(pm -> pm.mapPost(findPost));
+
+        return findPost;
     }
 
     @Transactional

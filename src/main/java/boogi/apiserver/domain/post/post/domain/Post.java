@@ -82,4 +82,9 @@ public class Post extends TimeBaseEntity {
         if (this.commentCount > 0)
             this.commentCount--;
     }
+
+    public void updatePost(String content, List<PostHashtag> hashtags) {
+        this.content = content;
+        this.hashtags = hashtags;
+    }
 }

@@ -58,6 +58,17 @@ public class PostApiController {
         return ResponseEntity.ok().body(postDetail);
     }
 
+    @PatchMapping("/{postId}")
+    public ResponseEntity<Object> updatePost(@Validated @RequestBody UpdatePost updatePost,
+                                             @PathVariable Long postId,
+                                             @Session Long userId) {
+        Post updatedPost = postCoreService.updatePost(updatePost, postId, userId);
+
+        return ResponseEntity.ok().body(Map.of(
+                "id", updatedPost.getId()
+        ));
+    }
+
     @DeleteMapping("/{postId}")
     public ResponseEntity<Object> deletePost(@PathVariable Long postId, @Session Long userId) {
         postCoreService.deletePost(postId, userId);
