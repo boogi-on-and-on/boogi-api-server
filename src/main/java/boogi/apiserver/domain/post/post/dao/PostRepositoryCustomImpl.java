@@ -188,6 +188,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         return Optional.ofNullable(result);
     }
 
+    @Override
     public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         List<Long> memberIds = queryFactory.select(member.id)
                 .from(member)
@@ -244,5 +245,17 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 return post.likeCount.desc();
         }
         return null;
+    }
+
+    @Override
+    public Optional<Post> findPostById(Long postId) {
+        Post findPost = queryFactory.selectFrom(this.post)
+                .where(
+                        this.post.id.eq(postId),
+                        this.post.deletedAt.isNull(),
+                        this.post.canceledAt.isNull()
+                ).fetchOne();
+
+        return Optional.ofNullable(findPost);
     }
 }

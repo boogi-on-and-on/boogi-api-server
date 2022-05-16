@@ -12,6 +12,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom {
     private final JPAQueryFactory queryFactory;
@@ -140,5 +142,17 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
         return communities.stream()
                 .map(SearchCommunityDto::of)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Community> findCommunityById(Long communityId) {
+        Community findCommunity = queryFactory.selectFrom(QCommunity.community)
+                .where(
+                        QCommunity.community.id.eq(communityId),
+                        QCommunity.community.deletedAt.isNull(),
+                        QCommunity.community.canceledAt.isNull()
+                ).fetchOne();
+
+        return Optional.ofNullable(findCommunity);
     }
 }
