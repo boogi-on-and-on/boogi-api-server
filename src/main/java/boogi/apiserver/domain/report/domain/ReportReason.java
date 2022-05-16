@@ -1,5 +1,7 @@
 package boogi.apiserver.domain.report.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum ReportReason {
     SEXUAL("음란물"),
     SWEAR("욕설"),
@@ -13,5 +15,10 @@ public enum ReportReason {
 
     ReportReason(String description) {
         this.description = description;
+    }
+
+    @JsonCreator
+    public static ReportReason from(String s) {
+        return ReportReason.valueOf(s.toUpperCase());
     }
 }

@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.report.api;
 
+import boogi.apiserver.domain.report.application.ReportService;
 import boogi.apiserver.domain.report.dto.CreateReport;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/reports")
 public class ReportApiController {
 
+    private final ReportService reportService;
+
     @PostMapping("/")
-    public ResponseEntity<Object> createReport(@Validated @RequestBody CreateReport createReport, @Session Long userId){
-        throw new RuntimeException("구현해야함");
+    public ResponseEntity<Object> createReport(@Validated @RequestBody CreateReport createReport, @Session Long userId) {
+        reportService.createReport(createReport, userId);
 
         return ResponseEntity.ok().build();
     }
