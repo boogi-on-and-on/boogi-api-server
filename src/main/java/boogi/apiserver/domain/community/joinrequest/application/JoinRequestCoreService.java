@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
+import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -15,7 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,25 +73,50 @@ public class JoinRequestCoreService {
 
         Member newMember = memberCoreService.joinMember(userId, communityId, MemberType.NORMAL);
 
-        joinRequest.confirm(manager, user, newMember);
+        joinRequest.confirm(manager, newMember);
     }
 
     @Transactional
-    public void rejectUser(Long managerUserId, Long requestId, Long communityId) {
-        JoinRequest joinRequest = joinRequestQueryService.getJoinRequest(requestId);
-        isValidJoinRequestEntity(joinRequest, communityId);
+    public void confirmUserInBatch(Long managerUserId, List<Long> requestIds, Long communityId) {
+        List<JoinRequest> joinRequests = joinRequestRepository.getRequestsByIds(requestIds);
+        joinRequests.forEach(joinRequest -> {
+            isValidJoinRequestEntity(joinRequest, communityId);
+            isPendingJoinRequest(joinRequest);
+        });
+        List<Long> userIds = joinRequests.stream()
+                .map(r -> r.getUser().getId())
+                .collect(Collectors.toList());
+
+        List<Member> members = memberCoreService.joinMemberInBatch(userIds, communityId, MemberType.NORMAL);
+        Map<Long, Member> memberMap = members.stream()
+                .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 
         Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
+        joinRequests
+                .forEach(r -> r.confirm(manager, memberMap.get(r.getUser().getId())));
+    }
 
-        Long userId = joinRequest.getUser().getId();
-        User user = userQueryService.getUser(userId);
+    @Transactional
+    public void rejectUserInBatch(Long managerUserId, List<Long> requestIds, Long communityId) {
+        Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
+        joinRequestRepository.getRequestsByIds(requestIds)
+                .forEach(joinRequest -> {
+                    isValidJoinRequestEntity(joinRequest, communityId);
+                    isPendingJoinRequest(joinRequest);
 
-        joinRequest.reject(manager, user);
+                    joinRequest.reject(manager);
+                });
+    }
+
+    private void isPendingJoinRequest(JoinRequest joinRequest) {
+        if (!joinRequest.getStatus().equals(JoinRequestStatus.PENDING)) {
+            throw new InvalidValueException("승인 대기중인 요청이 아닙니다.");
+        }
     }
 
     private void isValidJoinRequestEntity(JoinRequest joinRequest, Long communityId) {
         if (!joinRequest.getCommunity().getId().equals(communityId)) {
-            throw new InvalidValueException();
+            throw new InvalidValueException("해당 커뮤니티에서 처리할 수 없는 요청입니다.");
         }
     }
 }

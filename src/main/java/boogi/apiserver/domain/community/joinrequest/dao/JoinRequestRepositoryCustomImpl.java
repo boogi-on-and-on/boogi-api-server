@@ -47,4 +47,12 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
                 .limit(1)
                 .fetchOne();
     }
+
+    @Override
+    public List<JoinRequest> getRequestsByIds(List<Long> requestIds) {
+        return queryFactory.selectFrom(joinRequest)
+                .where(joinRequest.id.in(requestIds))
+                .fetch();
+    }
+
 }

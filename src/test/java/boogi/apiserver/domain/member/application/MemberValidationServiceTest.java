@@ -6,6 +6,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
+import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -122,5 +123,19 @@ class MemberValidationServiceTest {
         boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 
         assertThat(isSupervisor).isTrue();
+    }
+
+    @Test
+    void 이미_가입한_멤버_배치_이미_있는경우() {
+        Member member = Member.builder()
+                .id(1L)
+                .user(User.builder().id(2L).build())
+                .build();
+        given(memberRepository.findAlreadyJoinedMemberByUserId(any(), anyLong()))
+                .willReturn(List.of(member));
+
+        assertThatThrownBy(() -> {
+            memberValidationService.checkAlreadyJoinedMemberInBatch(List.of(2L), 1L);
+        }).isInstanceOf(InvalidValueException.class);
     }
 }

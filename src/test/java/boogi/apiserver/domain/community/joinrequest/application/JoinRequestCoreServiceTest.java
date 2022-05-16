@@ -7,6 +7,7 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -16,7 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
@@ -106,5 +111,72 @@ class JoinRequestCoreServiceTest {
         }).isInstanceOf(InvalidValueException.class);
     }
 
-    //todo: confirmUser, rejectUser... void 메서드 테스트하는법 찾기
+
+    @Test
+    void 유저_여러개_승인() {
+        //given
+        User u1 = User.builder().id(1L).build();
+        User u2 = User.builder().id(2L).build();
+
+        Community community = Community.builder().id(3L).build();
+
+        JoinRequest jr1 = JoinRequest.of(u1, community);
+        JoinRequest jr2 = JoinRequest.of(u2, community);
+
+        given(joinRequestRepository.getRequestsByIds(any()))
+                .willReturn(List.of(jr1, jr2));
+
+        Member m1 = Member.builder()
+                .id(1L)
+                .user(u1)
+                .community(community)
+                .build();
+
+        Member m2 = Member.builder()
+                .id(2L)
+                .user(u2)
+                .community(community)
+                .build();
+        given(memberCoreService.joinMemberInBatch(any(), anyLong(), any()))
+                .willReturn(List.of(m1, m2));
+
+        Member manager = Member.builder()
+                .id(1L)
+                .build();
+        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                .willReturn(manager);
+        //when
+        joinRequestCoreService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
+
+        //then
+        assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.CONFIRM);
+        assertThat(jr1.getConfirmedMember()).isEqualTo(m1);
+        assertThat(jr1.getAcceptor()).isEqualTo(manager);
+    }
+
+    @Test
+    void 여러개_승인_거부() {
+        //given
+        User u1 = User.builder().id(1L).build();
+        User u2 = User.builder().id(2L).build();
+
+        Community community = Community.builder().id(3L).build();
+
+        JoinRequest jr1 = JoinRequest.of(u1, community);
+        JoinRequest jr2 = JoinRequest.of(u2, community);
+
+        given(joinRequestRepository.getRequestsByIds(any()))
+                .willReturn(List.of(jr1, jr2));
+
+        Member manager = Member.builder()
+                .id(1L)
+                .build();
+        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                .willReturn(manager);
+
+        //when
+        joinRequestCoreService.rejectUserInBatch(anyLong(), any(), community.getId());
+        assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
+        assertThat(jr2.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
+    }
 }

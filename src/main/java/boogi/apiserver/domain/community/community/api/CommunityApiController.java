@@ -256,14 +256,14 @@ public class CommunityApiController {
     @PostMapping("/{communityId}/requests/confirm")
     public ResponseEntity<Object> confirmRequest(@Session Long managerUserId,
                                                  @PathVariable Long communityId,
-                                                 @RequestBody HashMap<String, Long> body
+                                                 @RequestBody HashMap<String, List<Long>> body
     ) {
-        Long requestId = body.get("requestId");
+         List<Long> requestIds = body.get("requestIds");
 
         // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestCoreService.confirmUser(managerUserId, requestId, communityId);
+        joinRequestCoreService.confirmUserInBatch(managerUserId, requestIds, communityId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -271,14 +271,14 @@ public class CommunityApiController {
     @PostMapping("/{communityId}/requests/reject")
     public ResponseEntity<Object> rejectRequest(@Session Long managerUserId,
                                                 @PathVariable Long communityId,
-                                                @RequestBody HashMap<String, Long> body
+                                                @RequestBody HashMap<String, List<Long>> body
     ) {
-        Long requestId = body.get("requestId");
+        List<Long> requestIds = body.get("requestIds");
 
         // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestCoreService.rejectUser(managerUserId, requestId, communityId);
+        joinRequestCoreService.rejectUserInBatch(managerUserId, requestIds, communityId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

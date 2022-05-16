@@ -129,4 +129,14 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .orderBy(member.bannedAt.desc())
                 .fetch();
     }
+
+    @Override
+    public List<Member> findAlreadyJoinedMemberByUserId(List<Long> userIds, Long communityId) {
+        return queryFactory
+                .selectFrom(member)
+                .where(member.community.id.eq(communityId),
+                        member.user.id.in(userIds),
+                        member.canceledAt.isNull()
+                ).fetch();
+    }
 }

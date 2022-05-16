@@ -199,4 +199,27 @@ class MemberRepositoryTest {
         assertThat(first.getMemberId()).isEqualTo(m1.getId());
         assertThat(first.getUser().getId()).isEqualTo(m1.getUser().getId());
     }
+
+    @Test
+    void findAlreadyJoinedUser() {
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        User u1 = User.builder().build();
+        User u2 = User.builder().build();
+        userRepository.saveAll(List.of(u1, u2));
+
+        Member m1 = Member.builder()
+                .community(community)
+                .user(u1)
+                .build();
+        memberRepository.save(m1);
+
+        List<Member> alreadyJoinedMember = memberRepository.findAlreadyJoinedMemberByUserId(List.of(u1.getId(), u2.getId()), community.getId());
+
+        assertThat(alreadyJoinedMember.size()).isEqualTo(1);
+
+        Member first = alreadyJoinedMember.get(0);
+        assertThat(first.getUser()).isEqualTo(u1);
+    }
 }

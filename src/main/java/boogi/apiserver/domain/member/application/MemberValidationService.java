@@ -29,6 +29,17 @@ public class MemberValidationService {
         return null;
     }
 
+    public Member checkAlreadyJoinedMemberInBatch(List<Long> userIds, Long communityId) {
+        List<Member> joinedMembers = memberRepository.findAlreadyJoinedMemberByUserId(userIds, communityId);
+
+        boolean existenceOfJoinedMember = joinedMembers.stream()
+                .anyMatch(m -> userIds.contains(m.getUser().getId()));
+        if (existenceOfJoinedMember) {
+            throw new InvalidValueException("이미 가입한 멤버가 있습니다.");
+        }
+        return null;
+    }
+
     public Member checkMemberJoinedCommunity(Long userId, Long communityId) {
         List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
         if (members.isEmpty()) {

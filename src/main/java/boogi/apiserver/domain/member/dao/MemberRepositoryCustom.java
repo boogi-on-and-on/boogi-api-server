@@ -19,4 +19,6 @@ public interface MemberRepositoryCustom {
     Member findAnyMemberExceptManager(Long communityId);
 
     List<BannedMemberDto> findBannedMembers(Long communityId);
+
+    List<Member> findAlreadyJoinedMemberByUserId(List<Long> userIds, Long communityId);
 }

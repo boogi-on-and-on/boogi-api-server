@@ -9,4 +9,6 @@ public interface JoinRequestRepositoryCustom {
     List<JoinRequest> getAllRequests(Long communityId);
 
     JoinRequest getLatestJoinRequest(Long userId, Long communityId);
+
+    List<JoinRequest> getRequestsByIds(List<Long> requestIds);
 }

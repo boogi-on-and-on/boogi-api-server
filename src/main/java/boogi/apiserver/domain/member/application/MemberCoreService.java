@@ -6,12 +6,15 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -19,6 +22,7 @@ import java.util.Objects;
 @Transactional(readOnly = true)
 public class MemberCoreService {
     private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     private final MemberValidationService memberValidationService;
 
@@ -37,6 +41,22 @@ public class MemberCoreService {
         memberRepository.save(member);
 
         return member;
+    }
+
+    @Transactional
+    public List<Member> joinMemberInBatch(List<Long> userIds, Long communityId, MemberType type) {
+        memberValidationService.checkAlreadyJoinedMemberInBatch(userIds, communityId);
+
+        List<User> users = userRepository.findUsersById(userIds);
+        Community community = communityQueryService.getCommunity(communityId);
+
+        List<Member> members = new ArrayList<>();
+        users.forEach(user -> {
+            Member member = Member.createNewMember(community, user, type);
+            members.add(member);
+        });
+         memberRepository.saveAll(members);
+         return members;
     }
 
     @Transactional

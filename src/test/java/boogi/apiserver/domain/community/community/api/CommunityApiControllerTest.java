@@ -350,7 +350,7 @@ class CommunityApiControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                         .session(session)
-                        .content(mapper.writeValueAsString(Map.of("requestId", "2")))
+                        .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
         ).andExpect(status().isOk());
     }
 
