@@ -39,7 +39,12 @@ public class PostApiController {
 
     @PostMapping("/")
     public ResponseEntity<Object> createPost(@Validated @RequestBody CreatePost createPost, @Session Long userId) {
-        Post newPost = postCoreService.createPost(userId, createPost.getCommunityId(), createPost.getContent(), createPost.getHashtags());
+        Post newPost = postCoreService.createPost(
+                userId,
+                createPost.getCommunityId(),
+                createPost.getContent(),
+                createPost.getHashtags(),
+                createPost.getPostMediaIds());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", newPost.getId()
@@ -51,6 +56,17 @@ public class PostApiController {
         PostDetail postDetail = postCoreService.getPostDetail(postId, userId);
 
         return ResponseEntity.ok().body(postDetail);
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<Object> updatePost(@Validated @RequestBody UpdatePost updatePost,
+                                             @PathVariable Long postId,
+                                             @Session Long userId) {
+        Post updatedPost = postCoreService.updatePost(updatePost, postId, userId);
+
+        return ResponseEntity.ok().body(Map.of(
+                "id", updatedPost.getId()
+        ));
     }
 
     @DeleteMapping("/{postId}")

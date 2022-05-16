@@ -62,6 +62,7 @@ public class Post extends TimeBaseEntity {
 
     public void deletePost() {
         this.deletedAt = LocalDateTime.now();
+        this.likeCount = 0;
     }
 
     public void addLikeCount() {
@@ -69,7 +70,8 @@ public class Post extends TimeBaseEntity {
     }
 
     public void removeLikeCount() {
-        this.likeCount--;
+        if (this.likeCount > 0)
+            this.likeCount--;
     }
 
     public void addCommentCount() {
@@ -77,6 +79,12 @@ public class Post extends TimeBaseEntity {
     }
 
     public void removeCommentCount() {
-        this.commentCount--;
+        if (this.commentCount > 0)
+            this.commentCount--;
+    }
+
+    public void updatePost(String content, List<PostHashtag> hashtags) {
+        this.content = content;
+        this.hashtags = hashtags;
     }
 }

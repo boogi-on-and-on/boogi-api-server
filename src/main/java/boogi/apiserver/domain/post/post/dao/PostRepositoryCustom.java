@@ -1,7 +1,6 @@
 package boogi.apiserver.domain.post.post.dao;
 
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,7 @@ public interface PostRepositoryCustom {
 
     List<Post> getLatestPostOfCommunity(Long communityId);
 
-    Optional<PostDetail> getPostDetailByPostId(Long postId);
+    Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId);
 
     Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
 

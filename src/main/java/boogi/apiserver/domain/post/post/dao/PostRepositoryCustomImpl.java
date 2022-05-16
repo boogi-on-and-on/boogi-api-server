@@ -7,14 +7,11 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
-import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -29,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
 import static com.querydsl.jpa.JPAExpressions.select;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
@@ -130,20 +126,20 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     //TODO: member, user canceledAt, deletedAt validation 추가
     @Override
-    public Optional<PostDetail> getPostDetailByPostId(Long postId) {
-        PostDetail postDetail = queryFactory.select(Projections.constructor(PostDetail.class, post))
-                .from(post)
-                .leftJoin(post.member, member).fetchJoin()
+    public Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId) {
+        Post findPost = queryFactory.selectFrom(this.post)
+                .join(this.post.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()
-                .join(post.community, community).fetchJoin()
+                .join(this.post.community, community).fetchJoin()
                 .where(
-                        post.id.eq(postId),
-                        post.canceledAt.isNull(),
-                        post.deletedAt.isNull()
-                )
-                .fetchOne();
+                        this.post.id.eq(postId),
+                        this.post.canceledAt.isNull(),
+                        this.post.deletedAt.isNull(),
+                        this.post.community.deletedAt.isNull(),
+                        this.post.community.canceledAt.isNull()
+                ).fetchOne();
 
-        return Optional.ofNullable(postDetail);
+        return Optional.ofNullable(findPost);
     }
 
     @Override
