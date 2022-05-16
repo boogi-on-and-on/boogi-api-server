@@ -23,4 +23,6 @@ public interface PostRepositoryCustom {
     Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
 
     Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId);
+
+    Optional<Post> findPostById(Long postId);
 }

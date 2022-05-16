@@ -180,4 +180,16 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         return Optional.ofNullable(result);
     }
+
+    @Override
+    public Optional<Post> findPostById(Long postId) {
+        Post findPost = queryFactory.selectFrom(this.post)
+                .where(
+                        this.post.id.eq(postId),
+                        this.post.deletedAt.isNull(),
+                        this.post.canceledAt.isNull()
+                ).fetchOne();
+
+        return Optional.ofNullable(findPost);
+    }
 }

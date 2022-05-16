@@ -107,4 +107,16 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         comment.createdAt.asc()
                 ).fetch();
     }
+
+    @Override
+    public Optional<Comment> findCommentById(Long commentId) {
+        Comment findComment = queryFactory.selectFrom(this.comment)
+                .where(
+                        this.comment.id.eq(commentId),
+                        this.comment.deletedAt.isNull(),
+                        this.comment.canceledAt.isNull()
+                ).fetchOne();
+
+        return Optional.ofNullable(findComment);
+    }
 }
