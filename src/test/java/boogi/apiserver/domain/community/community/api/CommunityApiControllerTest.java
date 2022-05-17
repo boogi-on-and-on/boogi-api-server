@@ -21,6 +21,7 @@ import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
@@ -47,6 +48,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static boogi.apiserver.domain.post.postmedia.domain.MediaType.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -381,6 +383,10 @@ class CommunityApiControllerTest {
                 .id(1L)
                 .content("내용1")
                 .likeCount(2)
+                .postMedias(List.of(PostMedia.builder()
+                        .mediaURL("123")
+                        .mediaType(IMG)
+                        .build()))
                 .commentCount(3)
                 .community(community)
                 .member(member)
@@ -408,6 +414,7 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
                 .andExpect(jsonPath("$.posts.size()").value(1))
+                .andExpect(jsonPath("$.posts[0].postMedias[0].url").value("123"))
                 .andExpect(jsonPath("$.posts[0].id").value(1L))
                 .andExpect(jsonPath("$.posts[0].content").value("내용1"))
                 .andExpect(jsonPath("$.posts[0].user.id").value(2L))

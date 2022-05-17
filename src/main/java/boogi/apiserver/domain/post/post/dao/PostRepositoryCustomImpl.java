@@ -65,7 +65,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         .limit(pageable.getPageSize())
                         .fetch();
 
-        posts.stream().anyMatch(p -> p.getHashtags().size() != 0); // LAZY INIT
+        // LAZY INIT PostHashtag
+        posts.stream().anyMatch(p -> p.getHashtags().size() != 0);
+
+        //LAZY INIT PostMedia
+        posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
         JPAQuery<Post> countQuery = queryFactory.selectFrom(post).where(post.member.id.in(memberIds));
 
@@ -157,8 +161,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        //LAZY INIT
+        // LAZY INIT PostHashtag
         posts.stream().map(p -> p.getHashtags() != null && p.getHashtags().size() > 0).findFirst();
+
+        // LAZY INIT PostMedia
+        posts.stream().map(p -> p.getPostMedias().size() > 0);
 
         JPAQuery<Long> countQuery = queryFactory.select(this.post.count())
                 .from(this.post)
@@ -218,6 +225,9 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         //PostHashTag LAZY INIT
         posts.stream().anyMatch(p -> p.getHashtags().size() > 0);
+
+        //PostMedia LAZY INIT
+        posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
         List<SearchPostDto> postDtos = posts.stream()
                 .map(SearchPostDto::new)
