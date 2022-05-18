@@ -13,7 +13,6 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
-import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -23,6 +22,7 @@ import boogi.apiserver.domain.post.post.dto.PostOfCommunity;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -166,11 +166,13 @@ public class CommunityApiController {
                                            Pageable pageable
     ) {
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
-        if (Objects.isNull(member)) {
-            throw new NotJoinedMemberException();
+        Community community = communityQueryService.getCommunity(communityId);
+
+        boolean unauthorized = Objects.isNull(member) && community.isPrivate();
+        if (unauthorized) {
+            throw new InvalidValueException("비공개 커뮤니티이면서, 가입되지 않았습니다.");
         }
 
-        Community community = communityQueryService.getCommunity(communityId);
         Page<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
         List<PostOfCommunity> posts = postPage.getContent()
                 .stream()
