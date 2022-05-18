@@ -67,6 +67,7 @@ public class JoinRequestCoreService {
         isValidJoinRequestEntity(joinRequest, communityId);
 
         Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
+        isOperator(manager);
 
         Long userId = joinRequest.getUser().getId();
         User user = userQueryService.getUser(userId);
@@ -74,6 +75,12 @@ public class JoinRequestCoreService {
         Member newMember = memberCoreService.joinMember(userId, communityId, MemberType.NORMAL);
 
         joinRequest.confirm(manager, newMember);
+    }
+
+    private void isOperator(Member manager) {
+        if (Objects.isNull(manager)) {
+            throw new InvalidValueException("운영자의 계정을 확인해주세요.");
+        }
     }
 
     @Transactional
@@ -99,6 +106,8 @@ public class JoinRequestCoreService {
     @Transactional
     public void rejectUserInBatch(Long managerUserId, List<Long> requestIds, Long communityId) {
         Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
+        isOperator(manager);
+
         joinRequestRepository.getRequestsByIds(requestIds)
                 .forEach(joinRequest -> {
                     isValidJoinRequestEntity(joinRequest, communityId);

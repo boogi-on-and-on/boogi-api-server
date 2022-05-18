@@ -46,6 +46,9 @@ public class MemberQueryService {
 
     public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
         Member member = this.getMemberOfTheCommunity(userId, communityId);
+        if (Objects.isNull(member)) {
+            return false;
+        }
         return member.getMemberType().equals(memberType);
     }
 
