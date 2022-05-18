@@ -13,6 +13,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -93,6 +94,18 @@ public class CommunityApiController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/{communityId}/metadata")
+    public ResponseEntity<Object> getCommunityMetadata(@Session Long userId, @PathVariable Long communityId) {
+        // aop 이용해서 권한 체크하기?
+        memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
+
+        CommunityMetadataDto metadata = communityQueryService.getCommunityMetadata(communityId);
+
+        return ResponseEntity.ok(Map.of(
+                "metadata", metadata
+        ));
+    }
+
     @PatchMapping("/{communityId}")
     public ResponseEntity<Object> updateCommunityInfo(@PathVariable Long communityId,
                                                       @Session Long userId,
@@ -152,9 +165,12 @@ public class CommunityApiController {
                                            @Session Long userId,
                                            Pageable pageable
     ) {
-        Community community = communityQueryService.getCommunity(communityId);
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        if (Objects.isNull(member)) {
+            throw new NotJoinedMemberException();
+        }
 
+        Community community = communityQueryService.getCommunity(communityId);
         Page<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
         List<PostOfCommunity> posts = postPage.getContent()
                 .stream()
@@ -258,7 +274,7 @@ public class CommunityApiController {
                                                  @PathVariable Long communityId,
                                                  @RequestBody HashMap<String, List<Long>> body
     ) {
-         List<Long> requestIds = body.get("requestIds");
+        List<Long> requestIds = body.get("requestIds");
 
         // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);

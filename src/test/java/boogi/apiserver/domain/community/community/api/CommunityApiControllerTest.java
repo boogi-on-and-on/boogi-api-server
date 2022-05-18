@@ -509,6 +509,30 @@ class CommunityApiControllerTest {
     }
 
     @Test
+    void 커뮤니티_메타데이터_전달() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        CommunityMetadataDto dto = CommunityMetadataDto.builder()
+                .introduce("소개")
+                .name("이름")
+                .hashtags(List.of("테그1"))
+                .build();
+
+        given(communityQueryService.getCommunityMetadata(anyLong()))
+                .willReturn(dto);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1/metadata")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.metadata.name").value("이름"))
+                .andExpect(jsonPath("$.metadata.introduce").value("소개"))
+                .andExpect(jsonPath("$.metadata.hashtags[0]").value("테그1"));
+    }
+
+    @Test
     void 커뮤니티_업데이트_소개란_없는경우() throws Exception {
 
         MockHttpSession session = new MockHttpSession();

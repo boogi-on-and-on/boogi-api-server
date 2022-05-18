@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
 import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
 import boogi.apiserver.domain.member.dao.MemberRepository;
@@ -37,6 +38,13 @@ public class CommunityQueryService {
         community.getHashtags().size(); //LAZY INIT
 
         return community;
+    }
+
+    //todo: queryService에서 dto 만들도록 다른 API 수정 (OSIV off라서, LAZY INIT을 Service에서 한다)
+    public CommunityMetadataDto getCommunityMetadata(Long communityId) {
+        Community community = this.getCommunityWithHashTag(communityId);
+
+        return CommunityMetadataDto.of(community);
     }
 
     public Page<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest request) {
