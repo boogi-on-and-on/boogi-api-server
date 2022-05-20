@@ -56,5 +56,4 @@ public class ApiConfig implements WebMvcConfigurer {
         return HeaderHttpSessionIdResolver.xAuthToken();
     }
 
-
 }

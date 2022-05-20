@@ -23,6 +23,7 @@ import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.PagnationDto;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.global.webclient.HttpInvocation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -55,6 +56,8 @@ public class CommunityApiController {
     private final PostQueryService postQueryService;
     private final MemberQueryService memberQueryService;
     private final JoinRequestQueryService joinRequestQueryService;
+
+    private final HttpInvocation httpInvocation;
 
     @PostMapping
     public ResponseEntity<Object> createCommunity(@RequestBody @Validated CreateCommunityRequest request, @Session Long userId) {
@@ -283,6 +286,8 @@ public class CommunityApiController {
 
         joinRequestCoreService.confirmUserInBatch(managerUserId, requestIds, communityId);
 
+        httpInvocation.sendPushNotification.joinNotification(requestIds);
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -297,6 +302,8 @@ public class CommunityApiController {
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
         joinRequestCoreService.rejectUserInBatch(managerUserId, requestIds, communityId);
+
+        httpInvocation.sendPushNotification.rejectNotification(requestIds);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
