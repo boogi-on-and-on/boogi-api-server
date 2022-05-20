@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,7 +18,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Post extends TimeBaseEntity {
@@ -47,6 +47,9 @@ public class Post extends TimeBaseEntity {
 
     @OneToMany(mappedBy = "post")
     List<PostHashtag> hashtags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    List<PostMedia> postMedias = new ArrayList<>();
 
     private Post(Community community, Member member, String content) {
         this.community = community;

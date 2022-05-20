@@ -2,6 +2,8 @@ package boogi.apiserver.domain.post.post.dto;
 
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,9 @@ public class PostOfCommunity {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<PostMediaMetadataDto> postMedias;
+
     private Integer likeCount;
     private Integer commentCount;
     private Boolean me;
@@ -41,6 +46,13 @@ public class PostOfCommunity {
         if (Objects.nonNull(hashtags) && hashtags.size() > 0) {
             this.hashtags = hashtags.stream()
                     .map(PostHashtag::getTag)
+                    .collect(Collectors.toList());
+        }
+
+        List<PostMedia> postMedias = post.getPostMedias();
+        if (postMedias != null && postMedias.size() > 0) {
+            this.postMedias = postMedias.stream()
+                    .map(PostMediaMetadataDto::of)
                     .collect(Collectors.toList());
         }
 

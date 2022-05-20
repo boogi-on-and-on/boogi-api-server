@@ -10,6 +10,10 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.request_enum.PostListingOrder;
+import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.domain.MediaType;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -24,6 +28,8 @@ import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +50,9 @@ class PostRepositoryTest {
 
     @Autowired
     private PostHashtagRepository postHashtagRepository;
+
+    @Autowired
+    private PostMediaRepository postMediaRepository;
 
     @Autowired
     EntityManager em;
@@ -97,6 +106,13 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
+        PostMedia postMedia = PostMedia.builder()
+                .post(post1)
+                .mediaURL("123")
+                .mediaType(MediaType.IMG)
+                .build();
+        postMediaRepository.save(postMedia);
+
         PostHashtag hashtagOfPost1 = PostHashtag.builder()
                 .post(post1)
                 .tag("게시글1의 해시태그1")
@@ -126,6 +142,8 @@ class PostRepositoryTest {
 
         assertThat(first.getId()).isEqualTo(post1.getId());
         assertThat(second.getId()).isEqualTo(post2.getId());
+
+        assertThat(first.getPostMedias().get(0).getId()).isEqualTo(postMedia.getId());
 
         assertThat(posts.size()).isEqualTo(2);
         assertThat(first.getCreatedAt()).isAfter(second.getCreatedAt());
@@ -335,6 +353,13 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
+        PostMedia postMedia1 = PostMedia.builder()
+                .post(post1)
+                .mediaURL("123")
+                .mediaType(MediaType.IMG)
+                .build();
+        postMediaRepository.save(postMedia1);
+
         PostHashtag p1_t1 = PostHashtag.builder()
                 .post(post2)
                 .tag("post2태그1")
@@ -360,6 +385,8 @@ class PostRepositoryTest {
         assertThat(first.getId()).isEqualTo(post1.getId());
         assertThat(second.getId()).isEqualTo(post2.getId());
         assertThat(third.getId()).isEqualTo(post3.getId());
+
+        assertThat(first.getPostMedias().get(0).getId()).isEqualTo(postMedia1.getId());
 
         assertThat(second.getHashtags().size()).isEqualTo(2);
         assertThat(emf.getPersistenceUnitUtil().isLoaded(second.getHashtags().get(0))).isTrue();
@@ -422,6 +449,19 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(p1, p2, p3));
 
+
+        PostMedia postMedia1 = PostMedia.builder()
+                .post(p3)
+                .mediaType(MediaType.IMG)
+                .mediaURL("123")
+                .build();
+        PostMedia postMedia2 = PostMedia.builder()
+                .post(p3)
+                .mediaType(MediaType.IMG)
+                .mediaURL("456")
+                .build();
+        postMediaRepository.saveAll(List.of(postMedia1, postMedia2));
+
         PostHashtag p1_ht1 = PostHashtag.of("헤헤", p1);
         PostHashtag p1_ht2 = PostHashtag.of("ㅋㅋ", p1);
         PostHashtag p2_ht1 = PostHashtag.of("호호", p2);
@@ -456,5 +496,11 @@ class PostRepositoryTest {
                 .containsExactlyInAnyOrderElementsOf(List.of("헤헤"));
 
         assertThat(count).isEqualTo(2);
+
+        List<String> urls = second.getPostMedias().stream()
+                .map(PostMediaMetadataDto::getUrl)
+                .collect(Collectors.toList());
+
+        assertThat(urls).containsExactlyInAnyOrderElementsOf(List.of("123", "456"));
     }
 }

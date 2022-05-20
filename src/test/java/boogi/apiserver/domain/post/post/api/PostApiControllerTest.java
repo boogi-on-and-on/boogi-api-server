@@ -9,6 +9,7 @@ import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
 import boogi.apiserver.domain.post.post.dto.UserPostsDto;
 import boogi.apiserver.domain.post.post.dto.request_enum.PostListingOrder;
+import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -108,7 +109,9 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.hasNext").value(false))
                 .andExpect(jsonPath("$.posts[0].community.id").value("1"))
                 .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
+                .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
                 .andExpect(jsonPath("$.posts.size()").value(1));
+
     }
 
     @Test
@@ -170,6 +173,17 @@ class PostApiControllerTest {
                 .communityId(2L)
                 .content("게시글내용")
                 .hashtags(List.of("해시테그1", "해시태그2"))
+                .postMedias(List.of(
+                        PostMediaMetadataDto.builder()
+                                .url("123")
+                                .type("IMG")
+                                .build(),
+
+                        PostMediaMetadataDto.builder()
+                                .url("456")
+                                .type("IMG")
+                                .build()
+                ))
                 .likeCount(2)
                 .user(UserBasicProfileDto.builder()
                         .id(1L)
@@ -205,6 +219,8 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.posts[0].content").value("게시글내용"))
                 .andExpect(jsonPath("$.posts[0].likeCount").value(2))
                 .andExpect(jsonPath("$.posts[0].hashtags").isArray())
-                .andExpect(jsonPath("$.posts[0].user").isMap());
+                .andExpect(jsonPath("$.posts[0].user").isMap())
+                .andExpect(jsonPath("$.posts[0].postMedias[0].size()").value(2))
+                .andExpect(jsonPath("$.posts[0].postMedias[0].url").value("123"));
     }
 }

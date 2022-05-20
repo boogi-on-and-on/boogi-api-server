@@ -3,10 +3,11 @@ package boogi.apiserver.domain.post.post.dto;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,9 @@ public class SearchPostDto {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<PostMediaMetadataDto> postMedias;
 
     private int commentCount;
     private int likeCount;
@@ -56,7 +60,13 @@ public class SearchPostDto {
                     .map(PostHashtag::getTag)
                     .collect(Collectors.toList());
         }
-    }
 
+        List<PostMedia> postMedias = post.getPostMedias();
+        if (postMedias != null && postMedias.size() > 0) {
+            this.postMedias = postMedias.stream()
+                    .map(PostMediaMetadataDto::of)
+                    .collect(Collectors.toList());
+        }
+    }
 }
 

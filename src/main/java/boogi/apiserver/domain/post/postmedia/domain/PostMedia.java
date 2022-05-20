@@ -14,6 +14,8 @@ import static javax.persistence.FetchType.*;
 @Table(name = "POST_MEDIA")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class PostMedia extends TimeBaseEntity {
 
     @Id
@@ -40,6 +42,7 @@ public class PostMedia extends TimeBaseEntity {
 
     public void mapPost(Post post) {
         this.post = post;
+        post.getPostMedias().add(this);
     }
 
     public void deletePostMedia() {
