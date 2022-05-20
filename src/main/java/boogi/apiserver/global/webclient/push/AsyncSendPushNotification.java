@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -19,8 +20,6 @@ public class AsyncSendPushNotification implements SendPushNotification {
     @Override
     public void joinNotification(Long joinRequestId) {
         log.info("send push. joinRequestId: {}", joinRequestId);
-
-        System.out.println("LAPI_URL = " + LAPI_URL);
 
         client
                 .post()
@@ -37,8 +36,6 @@ public class AsyncSendPushNotification implements SendPushNotification {
     @Override
     public void rejectNotification(Long joinRequestId) {
         log.info("send push. joinRequestId: {}", joinRequestId);
-
-        System.out.println("LAPI_URL = " + LAPI_URL);
 
         client
                 .post()
@@ -81,6 +78,30 @@ public class AsyncSendPushNotification implements SendPushNotification {
                         "pushType", "comment",
                         "entity", Map.of("id", commentId)
                 )))
+                .retrieve()
+                .bodyToMono(String.class)
+                .subscribe();
+    }
+
+    @Override
+    public void mentionNotification(List<Long> receiverIds, Long entityId, MentionType type) {
+        log.info("send push. receiverIds: {}, entityId: {} ,mentionType: {}", receiverIds, entityId, type);
+
+        client
+                .post()
+                .uri(LAPI_URL + "/push")
+                .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(
+                        Map.of(
+                                "pushType", "mention",
+                                "entity", Map.of(
+                                        "type", type.getType(),
+                                        "id", entityId
+                                ),
+                                "receiver", Map.of(
+                                        "ids", receiverIds
+                                )
+                        )))
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe();
