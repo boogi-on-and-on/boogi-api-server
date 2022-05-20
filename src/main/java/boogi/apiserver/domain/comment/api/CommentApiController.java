@@ -9,7 +9,7 @@ import boogi.apiserver.domain.comment.dto.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.global.argument_resolver.session.Session;
-import boogi.apiserver.global.webclient.HttpInvocation;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +31,7 @@ public class CommentApiController {
 
     private final LikeCoreService likeCoreService;
 
-    private final HttpInvocation httpInvocation;
+    private final SendPushNotification sendPushNotification;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<UserCommentPage> getUserCommentsInfo(@PathVariable Long userId, Pageable pageable) {
@@ -44,7 +44,7 @@ public class CommentApiController {
     public ResponseEntity<Object> createComment(@Validated @RequestBody CreateComment createComment, @Session Long userId) {
         Comment newComment = commentCoreService.createComment(createComment, userId);
 
-        httpInvocation.sendPushNotification.commentNotification(newComment.getId());
+        sendPushNotification.commentNotification(newComment.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", newComment.getId()

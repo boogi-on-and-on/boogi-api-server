@@ -25,6 +25,7 @@ import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,6 +85,10 @@ class CommunityApiControllerTest {
 
     @MockBean
     JoinRequestQueryService joinRequestQueryService;
+
+    @MockBean
+    SendPushNotification sendPushNotification;
+
 
     MockMvc mvc;
 

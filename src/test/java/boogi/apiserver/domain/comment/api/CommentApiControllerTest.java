@@ -7,6 +7,7 @@ import boogi.apiserver.domain.comment.dto.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ class CommentApiControllerTest {
 
     @MockBean
     LikeCoreService likeCoreService;
+
+    @MockBean
+    SendPushNotification sendPushNotification;
 
     MockMvc mvc;
 

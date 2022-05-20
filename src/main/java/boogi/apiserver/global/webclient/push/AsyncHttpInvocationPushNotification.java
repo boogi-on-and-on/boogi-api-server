@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class AsyncSendPushNotification implements SendPushNotification {
+public class AsyncHttpInvocationPushNotification implements SendPushNotification {
 
     @Value("${env.LAPI_URL}")
     private String LAPI_URL;
