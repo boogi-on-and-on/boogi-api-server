@@ -103,6 +103,18 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
+    public List<Member> findJoinedMembersAllWithUserByCommunityId(Long communityId) {
+        return queryFactory.selectFrom(member)
+                .where(
+                        member.community.id.eq(communityId),
+                        member.canceledAt.isNull(),
+                        member.bannedAt.isNull()
+                )
+                .join(member.user, user).fetchJoin()
+                .fetch();
+    }
+
+    @Override
     public Member findAnyMemberExceptManager(Long communityId) {
         return queryFactory
                 .selectFrom(this.member)
