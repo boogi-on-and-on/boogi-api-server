@@ -129,9 +129,10 @@ public class CommentCoreService {
                 .collect(Collectors.toList());
         commentIds.addAll(parentCommentIds);
 
-        Long joinedMemberId = member.getId();
-        Map<Long, Like> commentLikes = likeRepository.findCommentLikesByCommentIdsAndMemberId(commentIds, joinedMemberId).stream()
-                .collect(Collectors.toMap(c -> c.getComment().getId(), c -> c));
+        Long joinedMemberId = (member == null) ? null : member.getId();
+        Map<Long, Like> commentLikes = (joinedMemberId == null) ? null :
+                likeRepository.findCommentLikesByCommentIdsAndMemberId(commentIds, joinedMemberId).stream()
+                        .collect(Collectors.toMap(c -> c.getComment().getId(), c -> c));
 
         Map<Long, List<CommentsAtPost.ChildCommentInfo>> childCommentInfos = childComments.stream()
                 .map(c -> createChildCommentInfo(joinedMemberId, commentLikes, c))
@@ -145,7 +146,7 @@ public class CommentCoreService {
     }
 
     private CommentsAtPost.ChildCommentInfo createChildCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Comment c) {
-        Like like = commentLikes.get(c.getId());
+        Like like = (commentLikes == null) ? null : commentLikes.get(c.getId());
         Long likeId = (like == null) ? null : like.getId();
         Member commentedMember = c.getMember();
         Long commentedMemberId = (commentedMember == null) ? null : commentedMember.getId();
@@ -156,7 +157,7 @@ public class CommentCoreService {
     }
 
     private CommentsAtPost.ParentCommentInfo createParentCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Map<Long, List<CommentsAtPost.ChildCommentInfo>> childCommentInfos, Comment c) {
-        Like like = commentLikes.get(c.getId());
+        Like like = (commentLikes == null) ? null : commentLikes.get(c.getId());
         Long likeId = (like == null) ? null : like.getId();
         Member commentedMember = c.getMember();
         Long commentedMemberId = (commentedMember == null) ? null : commentedMember.getId();
