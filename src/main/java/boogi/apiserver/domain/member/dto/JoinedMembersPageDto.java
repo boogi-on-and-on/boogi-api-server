@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class JoinedMembersPageDto extends PagnationDto {
+public class JoinedMembersPageDto {
 
     private List<HashMap<String, Object>> members = new ArrayList<>();
+    private PagnationDto pageInfo;
 
     @Data
     @NoArgsConstructor
@@ -44,7 +45,7 @@ public class JoinedMembersPageDto extends PagnationDto {
     }
 
     private JoinedMembersPageDto(Page<Member> page) {
-        super(page);
+        this.pageInfo = PagnationDto.of(page);
         this.members = page.getContent().stream()
                 .map(m -> {
                     HashMap<String, Object> map = new HashMap<>();
