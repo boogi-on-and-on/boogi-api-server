@@ -378,11 +378,12 @@ class CommunityApiControllerTest {
                 .build();
 
         Member member = Member.builder()
-                .memberType(MemberType.MANAGER)
                 .user(user)
+                .memberType(MemberType.NORMAL)
                 .build();
+
         given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                .willReturn(member);
+                .willReturn(null);
 
         Post post = Post.builder()
                 .id(1L)
@@ -393,8 +394,8 @@ class CommunityApiControllerTest {
                         .mediaType(IMG)
                         .build()))
                 .commentCount(3)
-                .community(community)
                 .member(member)
+                .community(community)
                 .build();
 
         post.setCreatedAt(LocalDateTime.now());
@@ -415,6 +416,7 @@ class CommunityApiControllerTest {
                                 .queryParam("size", "3")
 
                 ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.memberType").doesNotExist())
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
                 .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false))

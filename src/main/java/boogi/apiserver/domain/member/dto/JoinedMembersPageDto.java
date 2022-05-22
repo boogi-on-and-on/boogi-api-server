@@ -49,7 +49,7 @@ public class JoinedMembersPageDto extends PagnationDto {
                 .map(m -> {
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("id", m.getId());
-                    map.put("type", m.getMemberType().toString());
+                    map.put("memberType", m.getMemberType().toString());
                     map.put("createdAt", m.getCreatedAt().toString());
                     map.put("user", UserDto.of(m.getUser()));
 

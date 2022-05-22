@@ -7,6 +7,7 @@ import boogi.apiserver.domain.comment.dto.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.global.dto.PagnationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,16 +71,14 @@ class CommentApiControllerTest {
     @Test
     void 유저_댓글_페이지네이션() throws Exception {
         UserCommentDto commentDto = UserCommentDto.builder()
-                .postId("1")
+                .postId(1L)
                 .content("댓글1")
-                .at(LocalDateTime.now().toString())
+                .createdAt(LocalDateTime.now().toString())
                 .build();
 
         UserCommentPage page = UserCommentPage.builder()
                 .comments(List.of(commentDto))
-                .nextPage(1)
-                .hasNext(false)
-                .totalCount(20)
+                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
                 .build();
 
         given(commentQueryService.getUserComments(any(), anyLong()))
@@ -96,11 +95,11 @@ class CommentApiControllerTest {
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.nextPage").value(1))
-                .andExpect(jsonPath("$.totalCount").value(20))
-                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
+                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
+                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
                 .andExpect(jsonPath("$.comments[0].content").value("댓글1"))
-                .andExpect(jsonPath("$.comments[0].postId").value("1"))
+                .andExpect(jsonPath("$.comments[0].postId").value(1))
                 .andExpect(jsonPath("$.comments.size()").value(1));
     }
 }

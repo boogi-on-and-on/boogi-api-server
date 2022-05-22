@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.post.post.dto;
 
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.global.dto.PagnationDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,17 +15,13 @@ import java.util.stream.Collectors;
 @Data
 public class UserPostPage {
     private List<UserPostsDto> posts;
-    private int nextPage;
-    private int totalCount;
-    private boolean hasNext;
+    PagnationDto pageInfo;
 
     private UserPostPage(Page<Post> page) {
         this.posts = page.getContent().stream()
                 .map(UserPostsDto::of)
                 .collect(Collectors.toList());
-        this.nextPage = page.getNumber() + 1;
-        this.totalCount = (int) page.getTotalElements();
-        this.hasNext = page.hasNext();
+        this.pageInfo = PagnationDto.of(page);
     }
 
     public static UserPostPage of(Page<Post> page) {

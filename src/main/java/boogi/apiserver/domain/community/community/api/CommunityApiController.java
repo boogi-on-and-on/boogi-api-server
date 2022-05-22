@@ -182,12 +182,17 @@ public class CommunityApiController {
                 .map(p -> new PostOfCommunity(p, userId))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+        Map<String, Object> res = new HashMap<>(Map.of(
                 "communityName", community.getCommunityName(),
-                "memberType", member.getMemberType(),
                 "posts", posts,
                 "pageInfo", new PagnationDto(postPage)
         ));
+
+        if (Objects.nonNull(member) && Objects.nonNull(member.getMemberType())) {
+            res.put("memberType", member.getMemberType());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @GetMapping("/{communityId}/members")

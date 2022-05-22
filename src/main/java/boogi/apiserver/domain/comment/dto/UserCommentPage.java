@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.comment.dto;
 
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.global.dto.PagnationDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,17 +16,14 @@ import java.util.stream.Collectors;
 public class UserCommentPage {
 
     private List<UserCommentDto> comments;
-    private int nextPage;
-    private int totalCount;
-    private boolean hasNext;
+    PagnationDto pageInfo;
 
     private UserCommentPage(Page<Comment> page) {
         this.comments = page.getContent().stream()
                 .map(UserCommentDto::of)
                 .collect(Collectors.toList());
-        this.nextPage = page.getNumber();
-        this.totalCount = (int) page.getTotalElements();
-        this.hasNext = page.hasNext();
+
+        pageInfo = PagnationDto.of(page);
     }
 
     public static UserCommentPage of(Page<Comment> page) {

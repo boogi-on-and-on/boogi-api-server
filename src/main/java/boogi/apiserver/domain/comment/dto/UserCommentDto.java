@@ -11,13 +11,13 @@ import lombok.Data;
 public class UserCommentDto {
 
     private String content;
-    private String at;
-    private String postId;
+    private String createdAt;
+    private Long postId;
 
     private UserCommentDto(Comment comment) {
         this.content = comment.getContent();
-        this.at = comment.getCreatedAt().toString();
-        this.postId = comment.getPost().getId().toString();
+        this.createdAt = comment.getCreatedAt().toString();
+        this.postId = comment.getPost().getId();
     }
 
     public static UserCommentDto of(Comment comment) {

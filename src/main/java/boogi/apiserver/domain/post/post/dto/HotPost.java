@@ -15,20 +15,20 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class HotPost {
     private Long postId;
-    private String likeCount;
-    private String commentCount;
+    private Integer likeCount;
+    private Integer commentCount;
     private String content;
-    private String communityId;
+    private Long communityId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
 
     private HotPost(Post post) {
         this.postId = post.getId();
-        this.likeCount = post.getLikeCount().toString();
-        this.commentCount = post.getCommentCount().toString();
+        this.likeCount = post.getLikeCount();
+        this.commentCount = post.getCommentCount();
         this.content = post.getContent();
-        this.communityId = post.getCommunity().getId().toString();
+        this.communityId = post.getCommunity().getId();
 
         List<PostHashtag> hashtags = post.getHashtags();
         if (hashtags != null && hashtags.size() != 0) {

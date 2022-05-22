@@ -24,24 +24,24 @@ public class LatestPostOfUserJoinedCommunity {
     @Data
     public static class PostDto {
         private Long id;
-        private String at;
+        private String createdAt;
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private List<String> hashtags;
 
         private String content;
-        private String likeCount;
-        private String commentCount;
+        private Integer likeCount;
+        private Integer commentCount;
 
         private PostDto(Post post) {
             this.id = post.getId();
-            this.at = post.getCreatedAt().toString();
+            this.createdAt = post.getCreatedAt().toString();
             if (post.getHashtags().size() > 0) {
                 this.hashtags = post.getHashtags().stream().map(PostHashtag::getTag).collect(Collectors.toList());
             }
             this.content = post.getContent();
-            this.likeCount = post.getLikeCount().toString();
-            this.commentCount = post.getCommentCount().toString();
+            this.likeCount = post.getLikeCount();
+            this.commentCount = post.getCommentCount();
         }
     }
 

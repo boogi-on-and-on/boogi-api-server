@@ -149,9 +149,9 @@ class UserApiControllerTest {
                 .post(LatestPostOfUserJoinedCommunity.PostDto.builder()
                         .id(2L)
                         .content("글")
-                        .likeCount("111")
-                        .commentCount("222")
-                        .at(LocalDateTime.now().toString())
+                        .likeCount(111)
+                        .commentCount(222)
+                        .createdAt(LocalDateTime.now().toString())
                         .hashtags(List.of("해시테그"))
                         .build())
                 .build();
@@ -173,8 +173,8 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.communities[0].name").value("커뮤니티1"))
                 .andExpect(jsonPath("$.communities[0].post.id").value("2"))
                 .andExpect(jsonPath("$.communities[0].post.content").value("글"))
-                .andExpect(jsonPath("$.communities[0].post.likeCount").value("111"))
-                .andExpect(jsonPath("$.communities[0].post.commentCount").value("222"))
+                .andExpect(jsonPath("$.communities[0].post.likeCount").value(111))
+                .andExpect(jsonPath("$.communities[0].post.commentCount").value(222))
                 .andExpect(jsonPath("$.communities[0].post.hashtags").isArray());
 
     }

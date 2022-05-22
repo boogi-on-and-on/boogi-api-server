@@ -13,6 +13,7 @@ import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.global.dto.PagnationDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,16 +81,15 @@ class PostApiControllerTest {
                 .id(1L)
                 .content("게시글 내용1")
                 .community(UserPostsDto.CommunityDto.builder()
-                        .id("1")
+                        .id(1L)
                         .name("커뮤니티1")
                         .build())
                 .build();
 
         UserPostPage pageInfo = UserPostPage.builder()
-                .nextPage(1)
                 .posts(List.of(postsDto))
-                .hasNext(false)
-                .totalCount(20).build();
+                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+                .build();
 
         given(postQueryService.getUserPosts(any(), anyLong())).willReturn(pageInfo);
 
@@ -104,9 +104,9 @@ class PostApiControllerTest {
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nextPage").value(1))
-                .andExpect(jsonPath("$.totalCount").value(20))
-                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
+                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
+                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
                 .andExpect(jsonPath("$.posts[0].community.id").value("1"))
                 .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
                 .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
@@ -119,26 +119,26 @@ class PostApiControllerTest {
         HotPost hotPost1 = HotPost.builder()
                 .postId(1L)
                 .content("내용")
-                .commentCount("1")
-                .likeCount("1")
-                .communityId("1")
+                .commentCount(1)
+                .likeCount(1)
+                .communityId(1L)
                 .hashtags(List.of("hashtag1"))
                 .build();
 
         HotPost hotPost2 = HotPost.builder()
                 .postId(2L)
                 .content("내용")
-                .commentCount("2")
-                .likeCount("2")
-                .communityId("2")
+                .commentCount(2)
+                .likeCount(2)
+                .communityId(2L)
                 .build();
 
         HotPost hotPost3 = HotPost.builder()
                 .postId(3L)
                 .content("내용")
-                .commentCount("3")
-                .communityId("3")
-                .likeCount("3")
+                .commentCount(3)
+                .communityId(3L)
+                .likeCount(3)
                 .build();
 
         given(postQueryService.getHotPosts())
@@ -155,9 +155,9 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.hots.size()").value(3))
                 .andExpect(jsonPath("$.hots[0].postId").isNumber())
                 .andExpect(jsonPath("$.hots[0].content").isString())
-                .andExpect(jsonPath("$.hots[0].commentCount").isString())
-                .andExpect(jsonPath("$.hots[0].likeCount").isString())
-                .andExpect(jsonPath("$.hots[0].communityId").isString())
+                .andExpect(jsonPath("$.hots[0].commentCount").isNumber())
+                .andExpect(jsonPath("$.hots[0].likeCount").isNumber())
+                .andExpect(jsonPath("$.hots[0].communityId").isNumber())
                 .andExpect(jsonPath("$.hots[0].hashtags").isArray());
 
 
