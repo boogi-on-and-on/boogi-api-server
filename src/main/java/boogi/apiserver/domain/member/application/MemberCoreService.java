@@ -1,13 +1,16 @@
 package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.dto.JoinedMembersDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import java.util.Objects;
 public class MemberCoreService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final CommunityRepository communityRepository;
 
     private final MemberValidationService memberValidationService;
 
@@ -55,8 +59,8 @@ public class MemberCoreService {
             Member member = Member.createNewMember(community, user, type);
             members.add(member);
         });
-         memberRepository.saveAll(members);
-         return members;
+        memberRepository.saveAll(members);
+        return members;
     }
 
     @Transactional
@@ -86,5 +90,17 @@ public class MemberCoreService {
         Member member = memberQueryService.getMember(memberId);
 
         member.delegate(type);
+    }
+
+    public JoinedMembersDto getJoinedMembersAll(Long communityId, Long userId) {
+        communityRepository.findCommunityById(communityId).orElseThrow(() -> {
+            throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
+        });
+        Member findMember = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+
+        List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUserByCommunityId(communityId);
+        findJoinedMembersAll.remove(findMember);
+
+        return JoinedMembersDto.of(findJoinedMembersAll);
     }
 }

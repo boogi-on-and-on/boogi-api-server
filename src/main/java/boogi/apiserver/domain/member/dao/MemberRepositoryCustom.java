@@ -10,11 +10,14 @@ import java.util.List;
 public interface MemberRepositoryCustom {
 
     List<Member> findByUserId(Long userId);
+
     List<Member> findWhatIJoined(Long userId);
 
     List<Member> findByUserIdAndCommunityId(Long userId, Long communityId);
 
     Page<Member> findJoinedMembers(Pageable pageable, Long communityId);
+
+    List<Member> findJoinedMembersAllWithUserByCommunityId(Long communityId);
 
     Member findAnyMemberExceptManager(Long communityId);
 

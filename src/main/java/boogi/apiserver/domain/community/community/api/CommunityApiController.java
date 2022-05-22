@@ -12,6 +12,7 @@ import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.JoinedMembersDto;
 import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
@@ -322,5 +323,12 @@ public class CommunityApiController {
                 "communities", page.getContent(),
                 "pageInfo", PagnationDto.of(page)
         ));
+    }
+
+    @GetMapping("{communityId}/members/all")
+    public ResponseEntity<JoinedMembersDto> getMembersAll(@PathVariable Long communityId, @Session Long userId) {
+        JoinedMembersDto joinedMembersAll = memberCoreService.getJoinedMembersAll(communityId, userId);
+
+        return ResponseEntity.ok().body(joinedMembersAll);
     }
 }
