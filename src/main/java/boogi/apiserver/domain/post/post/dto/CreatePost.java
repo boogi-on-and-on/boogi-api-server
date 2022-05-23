@@ -26,4 +26,6 @@ public class CreatePost {
     private List<String> hashtags;
 
     private List<String> postMediaIds;
+
+    private List<Long> mentionedUserIds;
 }

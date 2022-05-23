@@ -24,6 +24,8 @@ import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
+import boogi.apiserver.global.webclient.push.MentionType;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +52,15 @@ public class PostCoreService {
 
     private final PostMediaQueryService postMediaQueryService;
 
+    private final SendPushNotification sendPushNotification;
+
     @Transactional
-    public Post createPost(Long userId, Long communityId, String content, List<String> tags, List<String> postMediaIds) {
+    public Post createPost(Long userId,
+                           Long communityId,
+                           String content,
+                           List<String> tags,
+                           List<String> postMediaIds,
+                           List<Long> mentionedUserIds) {
         Community community = communityValidationService.checkExistsCommunity(communityId);
         Member member = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
 
@@ -63,6 +72,10 @@ public class PostCoreService {
 
         findPostMedias.stream()
                 .forEach(pm -> pm.mapPost(savedPost));
+
+        if (mentionedUserIds.isEmpty() == false) {
+            sendPushNotification.mentionNotification(mentionedUserIds, savedPost.getId(), MentionType.POST);
+        }
 
         return savedPost;
     }

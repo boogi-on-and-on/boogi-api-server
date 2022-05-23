@@ -17,6 +17,8 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.comment.dto.CommentsAtPost;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
+import boogi.apiserver.global.webclient.push.MentionType;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +50,7 @@ public class CommentCoreService {
     private final CommentRepository commentRepository;
     private final CommentValidationService commentValidationService;
 
+    private final SendPushNotification sendPushNotification;
 
     @Transactional
     public Comment createComment(CreateComment createComment, Long userId) {
@@ -62,7 +65,16 @@ public class CommentCoreService {
         newComment.setChild(
                 (findParentComment == null) ? Boolean.FALSE : Boolean.TRUE);
         findPost.addCommentCount();
-        return commentRepository.save(newComment);
+
+        Comment savedComment = commentRepository.save(newComment);
+        Long savedCommentId = savedComment.getId();
+
+        sendPushNotification.commentNotification(savedCommentId);
+        if (createComment.getMentionedUserIds().isEmpty() == false) {
+            sendPushNotification.mentionNotification(createComment.getMentionedUserIds(), savedCommentId, MentionType.COMMENT);
+        }
+
+        return savedComment;
     }
 
     @Transactional

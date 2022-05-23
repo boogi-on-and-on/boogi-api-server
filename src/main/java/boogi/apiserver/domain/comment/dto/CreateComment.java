@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.Size;
+import java.util.List;
 
 
 @Getter
@@ -19,4 +20,6 @@ public class CreateComment {
 
     @Size(max = 250, message = "255자 이내로 입력해주세요")
     private String content;
+
+    private List<Long> mentionedUserIds;
 }
