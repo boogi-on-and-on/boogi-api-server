@@ -25,7 +25,7 @@ public class NoticeCoreService {
     private final CommunityQueryService communityQueryService;
     private final MemberQueryService memberQueryService;
 
-    //request: title, content
+    @Transactional
     public Notice create(Map<String, String> request, Long userId, Long communityId) {
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
         boolean isOperator = List.of(MemberType.MANAGER, MemberType.SUB_MANAGER)
