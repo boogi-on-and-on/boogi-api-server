@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import static boogi.apiserver.domain.like.domain.QLike.*;
 import static boogi.apiserver.domain.member.domain.QMember.*;
+import static com.querydsl.core.group.GroupBy.*;
 
 public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
 
@@ -142,5 +143,16 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+    }
+
+    @Override
+    public Map<Long, Long> getCommentLikeCountsByCommentIds(List<Long> commentIds) {
+        return queryFactory.select(like.count())
+                .from(like)
+                .where(
+                        like.comment.id.in(commentIds)
+                )
+                .groupBy(like.comment.id)
+                .transform(groupBy(like.comment.id).as(like.count()));
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface LikeRepositoryCustom {
@@ -28,4 +29,6 @@ public interface LikeRepositoryCustom {
     Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable);
 
     Page<Like> findCommentLikeWithMemberByCommentId(Long commentId, Pageable pageable);
+
+    Map<Long, Long> getCommentLikeCountsByCommentIds(List<Long> commentIds);
 }
