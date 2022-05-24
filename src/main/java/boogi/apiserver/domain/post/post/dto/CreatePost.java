@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -27,5 +28,5 @@ public class CreatePost {
 
     private List<String> postMediaIds;
 
-    private List<Long> mentionedUserIds;
+    private List<Long> mentionedUserIds = new ArrayList<>();
 }
