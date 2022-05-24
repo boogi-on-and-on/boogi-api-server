@@ -44,7 +44,8 @@ public class PostApiController {
                 createPost.getCommunityId(),
                 createPost.getContent(),
                 createPost.getHashtags(),
-                createPost.getPostMediaIds());
+                createPost.getPostMediaIds(),
+                createPost.getMentionedUserIds());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", newPost.getId()

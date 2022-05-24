@@ -37,7 +37,7 @@ public class CommentsAtPost {
     public static class ParentCommentInfo extends BaseCommentInfo {
         private List<ChildCommentInfo> child;
 
-        public static ParentCommentInfo toDto(Comment comment, Long likeId, boolean me, List<ChildCommentInfo> child) {
+        public static ParentCommentInfo toDto(Comment comment, Long likeId, boolean me, List<ChildCommentInfo> child, Long likeCount) {
             MemberInfo memberInfo;
             UserInfo userInfo;
 
@@ -57,6 +57,7 @@ public class CommentsAtPost {
                     .likeId(likeId)
                     .createdAt(comment.getCreatedAt())
                     .content(comment.getContent())
+                    .likeCount(likeCount)
                     .me(me)
                     .child((child == null) ? new ArrayList<>() : child)
                     .build();
@@ -70,7 +71,7 @@ public class CommentsAtPost {
         @JsonIgnore
         private Long parentId;
 
-        public static ChildCommentInfo toDto(Comment comment, Long likeId, boolean me, Long parentId) {
+        public static ChildCommentInfo toDto(Comment comment, Long likeId, boolean me, Long parentId, Long likeCount) {
             return ChildCommentInfo.builder()
                     .id(comment.getId())
                     .user(UserInfo.toDto(comment.getMember().getUser()))
@@ -78,6 +79,7 @@ public class CommentsAtPost {
                     .likeId(likeId)
                     .createdAt(comment.getCreatedAt())
                     .content(comment.getContent())
+                    .likeCount(likeCount)
                     .me(me)
                     .parentId(parentId)
                     .build();
@@ -98,6 +100,8 @@ public class CommentsAtPost {
         private LocalDateTime createdAt;
 
         private String content;
+
+        private Long likeCount;
 
         private Boolean me;
     }
