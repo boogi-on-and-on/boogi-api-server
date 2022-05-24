@@ -141,7 +141,8 @@ public class CommentCoreService {
                 .collect(Collectors.toList());
         commentIds.addAll(parentCommentIds);
 
-        Map<Long, Long> findCommentCountMap = likeRepository.getCommentLikeCountsByCommentIds(commentIds);
+        Map<Long, Long> findCommentCountMap = (commentIds.isEmpty()) ? new HashMap<>() :
+                likeRepository.getCommentLikeCountsByCommentIds(commentIds);
 
         Long joinedMemberId = (member == null) ? null : member.getId();
         Map<Long, Like> commentLikes = (joinedMemberId == null) ? null :
