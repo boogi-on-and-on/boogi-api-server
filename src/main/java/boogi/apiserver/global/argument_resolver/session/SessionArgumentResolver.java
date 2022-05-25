@@ -19,6 +19,6 @@ public class SessionArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
 
-        return (Long) httpRequest.getSession(false).getAttribute(SessionInfoConst.USER_ID);
+        return Long.valueOf((Integer) httpRequest.getSession(false).getAttribute(SessionInfoConst.USER_ID));
     }
 }
