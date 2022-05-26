@@ -6,6 +6,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PagnationDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -35,6 +36,8 @@ public class CommentsAtPost {
     @Getter
     @SuperBuilder
     public static class ParentCommentInfo extends BaseCommentInfo {
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         private List<ChildCommentInfo> child;
 
         public static ParentCommentInfo toDto(Comment comment, Long likeId, boolean me, List<ChildCommentInfo> child, Long likeCount) {
@@ -59,7 +62,7 @@ public class CommentsAtPost {
                     .content(comment.getContent())
                     .likeCount(likeCount)
                     .me(me)
-                    .child((child == null) ? new ArrayList<>() : child)
+                    .child(child)
                     .build();
         }
     }

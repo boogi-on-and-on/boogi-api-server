@@ -7,6 +7,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class PostDetail {
 
     private CommunityPostDetail community;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<PostMediaDetail> postMedias;
 
     private Long likeId;
@@ -39,6 +41,7 @@ public class PostDetail {
     @NotEmpty
     private String content;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
 
     private int likeCount;
@@ -120,13 +123,13 @@ public class PostDetail {
         this.user = UserPostDetail.toDto(post.getMember().getUser());
         this.member = MemberPostDetail.toDto(post.getMember());
         this.community = CommunityPostDetail.toDto(post.getCommunity());
-        this.postMedias = postMedias.stream()
+        this.postMedias = postMedias.isEmpty() ? null : postMedias.stream()
                 .map(pm -> PostMediaDetail.toDto(pm))
                 .collect(Collectors.toList());
         this.likeId = null;
         this.createdAt = post.getCreatedAt();
         this.content = post.getContent();
-        this.hashtags = post.getHashtags().stream()
+        this.hashtags = hashtags.isEmpty() ? null : post.getHashtags().stream()
                 .map(postHashtag -> postHashtag.getTag())
                 .collect(Collectors.toList());
         this.likeCount = post.getLikeCount();
