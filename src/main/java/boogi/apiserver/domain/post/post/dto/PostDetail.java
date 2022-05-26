@@ -129,7 +129,7 @@ public class PostDetail {
         this.likeId = null;
         this.createdAt = post.getCreatedAt();
         this.content = post.getContent();
-        this.hashtags = hashtags.isEmpty() ? null : post.getHashtags().stream()
+        this.hashtags = (hashtags == null || hashtags.isEmpty()) ? null : post.getHashtags().stream()
                 .map(postHashtag -> postHashtag.getTag())
                 .collect(Collectors.toList());
         this.likeCount = post.getLikeCount();
