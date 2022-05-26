@@ -19,13 +19,13 @@ import java.time.LocalDateTime;
 public class TimeBaseEntity {
 
     @CreatedDate
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, columnDefinition = "datetime(6)")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "datetime(6)")
     private LocalDateTime updatedAt;
 
-    @Column(name = "canceled_at")
+    @Column(name = "canceled_at", columnDefinition = "datetime(6)")
     private LocalDateTime canceledAt;
 }
