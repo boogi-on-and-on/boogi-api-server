@@ -113,6 +113,9 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         //LAZY INIT
         posts.stream().map(p -> p.getHashtags().size() > 0).findFirst();
 
+        //LAZY INIT POST MEDIA
+        posts.stream().map(p -> p.getPostMedias().size() > 0).findFirst();
+
         return posts;
     }
 

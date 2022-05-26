@@ -5,6 +5,7 @@ import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,6 +44,7 @@ class PostQueryServiceTest {
                 .content("글")
                 .likeCount(1)
                 .commentCount(2)
+                .postMedias(List.of(PostMedia.builder().mediaURL("111").build()))
                 .hashtags(List.of(PostHashtag.builder().tag("해시테그").build()))
                 .build();
         post.setCreatedAt(LocalDateTime.now());
