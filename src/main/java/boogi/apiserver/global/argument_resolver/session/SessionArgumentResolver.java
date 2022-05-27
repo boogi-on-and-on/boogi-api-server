@@ -1,6 +1,7 @@
 package boogi.apiserver.global.argument_resolver.session;
 
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.global.util.SessionUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -19,11 +20,6 @@ public class SessionArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
 
-        Object userIdObj = httpRequest.getSession(false).getAttribute(SessionInfoConst.USER_ID);
-        if (userIdObj instanceof Integer) {
-            return Long.valueOf((Integer) userIdObj);
-        } else {
-            return (Long) userIdObj;
-        }
+        return SessionUtil.transferObjectToLong(httpRequest.getSession(false).getAttribute(SessionInfoConst.USER_ID));
     }
 }
