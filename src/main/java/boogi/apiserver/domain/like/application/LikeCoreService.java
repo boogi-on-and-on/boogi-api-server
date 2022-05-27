@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,15 +90,16 @@ public class LikeCoreService {
                 .orElseThrow(EntityNotFoundException::new);
 
         Long DidLikedUser = findLike.getMember().getUser().getId();
-        if (DidLikedUser.equals(userId) == false) {
+        if (!DidLikedUser.equals(userId)) {
             throw new NotAuthorizedMemberException("요청한 유저가 좋아요를 한 유저와 다릅니다");
         }
 
-        Long postId = findLike.getPost().getId();
-        if (postId != null) {
-            postRepository.findById(postId).ifPresent(
-                    (findPost) -> findPost.removeLikeCount());
+        Post post = findLike.getPost();
+        if (Objects.nonNull(post)) {
+            postRepository.findById(post.getId())
+                    .ifPresent(Post::removeLikeCount);
         }
+
         likeRepository.delete(findLike);
     }
 
