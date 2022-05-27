@@ -93,6 +93,12 @@ public class ReportService {
                 Message findMessage = messageRepository.findById(id).orElseThrow(() -> {
                     throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
                 });
+
+                Long senderId = findMessage.getSender().getId();
+                Long receiverId = findMessage.getReceiver().getId();
+                if (senderId.equals(userId) == false && receiverId.equals(userId) == false) {
+                    throw new InvalidValueException("본인과의 쪽지 대화일 경우에만 신고가 가능합니다", ErrorInfo.BAD_REQUEST);
+                }
                 newReport = Report.of(
                         findMessage,
                         reportUser,
@@ -100,7 +106,7 @@ public class ReportService {
                         createReport.getReason());
                 break;
             default:
-                throw new InvalidValueException("잘못된 신고 대상입니다");
+                throw new InvalidValueException("잘못된 신고 대상입니다", ErrorInfo.BAD_REQUEST);
         }
 
         reportRepository.save(newReport);
