@@ -422,7 +422,7 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
                 .andExpect(jsonPath("$.posts.size()").value(1))
-                .andExpect(jsonPath("$.posts[0].isLiked").value(false))
+                .andExpect(jsonPath("$.posts[0].likeId").doesNotExist())
                 .andExpect(jsonPath("$.posts[0].postMedias[0].url").value("123"))
                 .andExpect(jsonPath("$.posts[0].id").value(1L))
                 .andExpect(jsonPath("$.posts[0].content").value("내용1"))

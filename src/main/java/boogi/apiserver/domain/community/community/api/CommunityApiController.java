@@ -180,7 +180,7 @@ public class CommunityApiController {
         Page<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
         List<PostOfCommunity> posts = postPage.getContent()
                 .stream()
-                .map(p -> new PostOfCommunity(p, userId))
+                .map(p -> new PostOfCommunity(p, userId, member))
                 .collect(Collectors.toList());
 
         Map<String, Object> res = new HashMap<>(Map.of(
