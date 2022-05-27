@@ -7,6 +7,8 @@ import boogi.apiserver.domain.community.community.application.CommunityValidatio
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberValidationService;
+import boogi.apiserver.domain.message.message.dao.MessageRepository;
+import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.report.dao.ReportRepository;
@@ -32,6 +34,7 @@ public class ReportService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReportRepository reportRepository;
+    private final MessageRepository messageRepository;
 
     private final CommunityValidationService communityValidationService;
     private final MemberValidationService memberValidationService;
@@ -82,6 +85,16 @@ public class ReportService {
                 }
                 newReport = Report.of(
                         findComment,
+                        reportUser,
+                        createReport.getContent(),
+                        createReport.getReason());
+                break;
+            case MESSAGE:
+                Message findMessage = messageRepository.findById(id).orElseThrow(() -> {
+                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
+                });
+                newReport = Report.of(
+                        findMessage,
                         reportUser,
                         createReport.getContent(),
                         createReport.getReason());
