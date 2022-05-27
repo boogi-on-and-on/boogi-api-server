@@ -170,6 +170,10 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         // LAZY INIT PostMedia
         posts.stream().map(p -> p.getPostMedias().size() > 0);
 
+        //LAZY INIT Like
+        //todo: MemberId 기반으로 쿼리하기
+        posts.stream().map(p -> p.getLikes().size() > 0);
+
         JPAQuery<Long> countQuery = queryFactory.select(this.post.count())
                 .from(this.post)
                 .where(

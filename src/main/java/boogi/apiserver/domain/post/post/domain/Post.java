@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.post.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
+import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -50,6 +51,9 @@ public class Post extends TimeBaseEntity {
 
     @OneToMany(mappedBy = "post")
     List<PostMedia> postMedias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    List<Like> likes = new ArrayList<>();
 
     private Post(Community community, Member member, String content) {
         this.community = community;

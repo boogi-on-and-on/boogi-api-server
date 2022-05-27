@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.post.post.dto;
 
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
+import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
@@ -35,10 +37,13 @@ public class PostOfCommunity {
     private Integer likeCount;
     private Integer commentCount;
     private Boolean me;
+    private Boolean isLiked;
 
     public PostOfCommunity(Post post, Long userId) {
+        Member member = post.getMember();
+
         this.id = post.getId();
-        this.user = new UserDto(post.getMember().getUser());
+        this.user = new UserDto(member.getUser());
         this.createdAt = post.getCreatedAt().toString();
         this.content = post.getContent();
 
@@ -56,11 +61,14 @@ public class PostOfCommunity {
                     .collect(Collectors.toList());
         }
 
+        List<Like> likes = post.getLikes();
+        this.isLiked = likes.stream()
+                .anyMatch(l -> l.getMember().getId().equals(member.getId()));
+
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
-        this.me = post.getMember().getUser().getId().equals(userId);
+        this.me = member.getUser().getId().equals(userId);
     }
-
 
 
     @Data
