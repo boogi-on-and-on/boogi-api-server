@@ -27,7 +27,13 @@ public class SessionValidationInterceptor implements HandlerInterceptor {
             throw new SessionNotFoundException();
         }
 
-        Long userId = Long.valueOf((Integer) session.getAttribute(SessionInfoConst.USER_ID));
+        Object userIdObj = session.getAttribute(SessionInfoConst.USER_ID);
+        Long userId;
+        if (userIdObj instanceof Integer) {
+            userId = Long.valueOf((Integer) userIdObj);
+        } else {
+            userId = (Long) userIdObj;
+        }
 
         log.info("{} is valid token. {}={}", authToken, SessionInfoConst.USER_ID, userId);
         return true;
