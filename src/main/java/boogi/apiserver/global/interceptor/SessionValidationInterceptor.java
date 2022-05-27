@@ -3,6 +3,7 @@ package boogi.apiserver.global.interceptor;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.error.exception.SessionNotFoundException;
+import boogi.apiserver.global.util.SessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -26,8 +27,7 @@ public class SessionValidationInterceptor implements HandlerInterceptor {
 
             throw new SessionNotFoundException();
         }
-
-        Long userId = (Long) session.getAttribute(SessionInfoConst.USER_ID);
+        Long userId = SessionUtil.transferObjectToLong(session.getAttribute(SessionInfoConst.USER_ID));
 
         log.info("{} is valid token. {}={}", authToken, SessionInfoConst.USER_ID, userId);
         return true;
