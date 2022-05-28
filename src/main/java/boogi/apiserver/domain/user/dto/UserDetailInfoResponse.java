@@ -15,7 +15,7 @@ public class UserDetailInfoResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String profileImageUrl;
 
-    private String username;
+    private String name;
     private String tagNum;
     private String introduce;
     private String department;
@@ -23,7 +23,7 @@ public class UserDetailInfoResponse {
     private UserDetailInfoResponse(User user) {
         this.id = user.getId();
         this.profileImageUrl = user.getProfileImageUrl();
-        this.username = user.getUsername();
+        this.name = user.getUsername();
         this.tagNum = user.getTagNumber();
         this.introduce = user.getIntroduce();
         this.department = user.getDepartment();

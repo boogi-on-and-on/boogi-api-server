@@ -28,6 +28,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,11 +59,12 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUserProfileInfo(
-            @PathVariable Long userId, @Session Long sessionUserId) {
-        UserDetailInfoResponse userDetailDto = userQueryService.getUserDetailInfo(userId);
-        Boolean me = userId.equals(sessionUserId);
+    @GetMapping
+    public ResponseEntity<Object> getUserProfileInfo(@RequestParam(required = false) Long userId,
+                                                     @Session Long sessionUserId) {
+        Long id = Objects.requireNonNullElse(userId, sessionUserId);
+        UserDetailInfoResponse userDetailDto = userQueryService.getUserDetailInfo(id);
+        Boolean me = sessionUserId.equals(userDetailDto.getId());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "user", userDetailDto,
                 "me", me
