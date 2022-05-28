@@ -11,11 +11,11 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import javax.annotation.PostConstruct;
 
 @EnableRedisHttpSession
-@ConditionalOnProperty(name = "spring.redis.session.store-type", havingValue = "redis")
+@ConditionalOnProperty(name = "spring.session.store-type", havingValue = "redis")
 @Slf4j
 public class RedisSessionConfig {
 
-    @Value("${spring.redis.session.store-type}")
+    @Value("${spring.session.store-type}")
     private String sessionStoreType;
 
     @PostConstruct
