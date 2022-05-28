@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.post.post.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -129,7 +130,9 @@ public class PostDetail {
         this.likeId = null;
         this.createdAt = post.getCreatedAt();
         this.content = post.getContent();
-        this.hashtags = (hashtags == null || hashtags.isEmpty()) ? null : post.getHashtags().stream()
+
+        List<PostHashtag> postHashtags = post.getHashtags();
+        this.hashtags = (postHashtags.isEmpty()) ? null : postHashtags.stream()
                 .map(postHashtag -> postHashtag.getTag())
                 .collect(Collectors.toList());
         this.likeCount = post.getLikeCount();
