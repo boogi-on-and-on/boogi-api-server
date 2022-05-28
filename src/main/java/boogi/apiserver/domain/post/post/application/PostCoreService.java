@@ -4,6 +4,7 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
@@ -42,6 +43,7 @@ public class PostCoreService {
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
+    private final CommunityRepository communityRepository;
     private final PostMediaRepository postMediaRepository;
 
     private final CommunityValidationService communityValidationService;
@@ -116,19 +118,18 @@ public class PostCoreService {
 
     @Transactional
     public Post updatePost(UpdatePost updatePost, Long postId, Long userId) {
-        Post findPost = postRepository.findById(postId).orElseThrow(() -> {
+        Post findPost = postRepository.findPostById(postId).orElseThrow(() -> {
             throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
         });
 
-        Community postedCommunity = communityValidationService.checkExistsCommunity(findPost.getCommunity().getId());
+        Community postedCommunity = communityRepository.findCommunityById(findPost.getCommunity().getId())
+                .orElseThrow(() -> {
+                    throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
+                });
 
-        Long postedCommunityId = postedCommunity.getId();
-        MemberType postMemberType = findPost.getMember().getMemberType();
         Long postedUserId = findPost.getMember().getUser().getId();
-
-        if (postedUserId.equals(userId) == false &&
-                memberValidationService.hasAuth(userId, postedCommunityId, MemberType.SUB_MANAGER) == false) {
-            throw new NotAuthorizedMemberException();
+        if (postedUserId.equals(userId) == false) {
+            throw new NotAuthorizedMemberException("해당 글의 수정 권한이 없습니다");
         }
 
         postHashtagCoreService.removeTagsByPostId(postId);
