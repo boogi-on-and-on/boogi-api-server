@@ -83,7 +83,7 @@ class UserApiControllerTest {
     void 유저_프로필_개인정보_조회() throws Exception {
         // given
         UserDetailInfoResponse response = UserDetailInfoResponse.builder()
-                .id(1L)
+                .id(4L)
                 .username("김선도")
                 .tagNum("#0001")
                 .introduce("반갑습니다")
@@ -97,12 +97,13 @@ class UserApiControllerTest {
 
         // when, then
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/users/1")
+                        MockMvcRequestBuilders.get("/api/users")
+                                .queryParam("userId", "4")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.id").value("1"))
+                .andExpect(jsonPath("$.user.id").value("4"))
                 .andExpect(jsonPath("$.user.username").value("김선도"))
                 .andExpect(jsonPath("$.user.tagNum").value("#0001"))
                 .andExpect(jsonPath("$.user.introduce").value("반갑습니다"))
