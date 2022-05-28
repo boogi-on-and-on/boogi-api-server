@@ -84,7 +84,7 @@ class UserApiControllerTest {
         // given
         UserDetailInfoResponse response = UserDetailInfoResponse.builder()
                 .id(4L)
-                .username("김선도")
+                .name("김선도")
                 .tagNum("#0001")
                 .introduce("반갑습니다")
                 .department("컴퓨터공학부")
@@ -104,7 +104,7 @@ class UserApiControllerTest {
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.id").value("4"))
-                .andExpect(jsonPath("$.user.username").value("김선도"))
+                .andExpect(jsonPath("$.user.name").value("김선도"))
                 .andExpect(jsonPath("$.user.tagNum").value("#0001"))
                 .andExpect(jsonPath("$.user.introduce").value("반갑습니다"))
                 .andExpect(jsonPath("$.user.department").value("컴퓨터공학부"))
