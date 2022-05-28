@@ -3,6 +3,7 @@ package boogi.apiserver.domain.community.community.api;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.*;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
@@ -62,7 +63,9 @@ public class CommunityApiController {
 
     @PostMapping
     public ResponseEntity<Object> createCommunity(@RequestBody @Validated CreateCommunityRequest request, @Session Long userId) {
-        Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(), request.getAutoApproval());
+        String _category = request.getCategory();
+        CommunityCategory category = CommunityCategory.valueOf(_category);
+        Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(), request.getAutoApproval(), category);
         Long communityId = communityCoreService.createCommunity(community, request.getHashtags(), userId).getId();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(

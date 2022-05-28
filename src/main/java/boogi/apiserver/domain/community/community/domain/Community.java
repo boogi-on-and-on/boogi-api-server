@@ -75,15 +75,16 @@ public class Community extends TimeBaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
-    private Community(String name, String description, boolean isPrivate, boolean autoApproval) {
+    private Community(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
         this.communityName = name;
         this.description = description;
         this.isPrivate = isPrivate;
         this.autoApproval = autoApproval;
+        this.category = category;
     }
 
-    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval) {
-        return new Community(name, description, isPrivate, autoApproval);
+    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
+        return new Community(name, description, isPrivate, autoApproval, category);
     }
 
     public void addMemberCount() {

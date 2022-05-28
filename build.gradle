@@ -43,6 +43,7 @@ dependencies {
     implementation 'org.springframework.session:spring-session-data-redis'
 
     implementation 'org.zalando:logbook-spring-boot-starter:2.14.0'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
 
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'mysql:mysql-connector-java'
