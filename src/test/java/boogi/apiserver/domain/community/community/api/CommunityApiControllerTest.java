@@ -116,7 +116,7 @@ class CommunityApiControllerTest {
         List<String> hashtags = List.of("해시테그1", "해시테그1");
         CreateCommunityRequest request = CreateCommunityRequest.builder()
                 .name("커뮤니티1")
-                .category("동아리")
+                .category("CLUB")
                 .description("설명")
                 .autoApproval(true)
                 .isPrivate(false)
@@ -154,7 +154,7 @@ class CommunityApiControllerTest {
         List<String> hashtags = List.of("해시테그1", "해시테그1");
         CreateCommunityRequest request = CreateCommunityRequest.builder()
                 .name("커뮤니티1")
-                .category("동아리")
+                .category("CLUB")
                 .description("설명")
                 .autoApproval(true)
                 .isPrivate(false)
