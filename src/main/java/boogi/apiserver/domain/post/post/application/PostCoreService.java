@@ -127,7 +127,7 @@ public class PostCoreService {
         Long postedUserId = findPost.getMember().getUser().getId();
 
         if (postedUserId.equals(userId) == false &&
-                memberValidationService.hasAuth(userId, postedCommunityId, postMemberType) == false) {
+                memberValidationService.hasAuth(userId, postedCommunityId, MemberType.SUB_MANAGER) == false) {
             throw new NotAuthorizedMemberException();
         }
 
@@ -167,7 +167,7 @@ public class PostCoreService {
         Long postedCommunityId = findPost.getCommunity().getId();
         MemberType postMemberType = findPost.getMember().getMemberType();
 
-        if (memberValidationService.hasAuth(userId, postedCommunityId, postMemberType)) {
+        if (memberValidationService.hasAuth(userId, postedCommunityId, MemberType.SUB_MANAGER)) {
             postHashtagCoreService.removeTagsByPostId(findPostId);
 
             List<Comment> findComments = commentRepository.findAllByPostId(postId);

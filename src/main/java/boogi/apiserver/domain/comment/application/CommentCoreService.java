@@ -11,6 +11,7 @@ import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -83,7 +84,7 @@ public class CommentCoreService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다."));
 
         Long joinedCommunityId = findComment.getMember().getCommunity().getId();
-        if (memberValidationService.hasAuth(userId, joinedCommunityId, findComment.getMember().getMemberType())) {
+        if (memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
             likeCoreService.removeAllCommentLikes(findComment.getId());
 
             findComment.deleteComment();
