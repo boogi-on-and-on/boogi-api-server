@@ -24,8 +24,8 @@ public class RedisSessionConfig {
         log.info("Redis Session Storage is turn {}", redisStatus);
     }
 
-//    @Bean
-//    public RedisSerializer springSessionDefaultRedisSerializer() {
-//        return new GenericJackson2JsonRedisSerializer();
-//    }
+    @Bean
+    public RedisSerializer springSessionDefaultRedisSerializer() {
+        return new GenericJackson2JsonRedisSerializer();
+    }
 }
