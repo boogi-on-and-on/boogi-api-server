@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.JoinedCommunities;
 import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagCoreService;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -9,6 +10,10 @@ import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -16,9 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +30,9 @@ import java.util.stream.Collectors;
 public class CommunityCoreService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
     private final CommunityHashtagRepository communityHashtagRepository;
+    private final PostMediaRepository postMediaRepository;
 
     private final CommunityHashtagCoreService communityHashtagCoreService;
     private final MemberCoreService memberCoreService;
@@ -117,5 +122,44 @@ public class CommunityCoreService {
         newTags.sort(Comparator.naturalOrder());
 
         return String.join("", prevTags).equals(String.join("", newTags));
+    }
+
+    public JoinedCommunities getJoinedCommunitiesWithLatestPost(Long userId) {
+        User findUser = userQueryService.getUser(userId);
+
+        List<Member> findMembers = memberRepository.findWhatIJoined(userId);
+
+        Map<Long, Community> joinedCommunityMap = findMembers.stream()
+                .map(m -> m.getCommunity())
+                .collect(Collectors.toMap(
+                        m1 -> m1.getId(),
+                        m2 -> m2,
+                        (o, n) -> n,
+                        LinkedHashMap::new
+                ));
+
+        List<Post> latestPosts = postRepository.getLatestPostByCommunityIds(joinedCommunityMap.keySet());
+        Map<Long, Post> latestPostMap = latestPosts.stream()
+                .collect(Collectors.toMap(
+                        lp1 -> lp1.getCommunity().getId(),
+                        lp2 -> lp2,
+                        (o, n) -> n,
+                        LinkedHashMap::new
+                ));
+
+        List<Long> latestPostIds = latestPosts.stream()
+                .map(lp -> lp.getId())
+                .collect(Collectors.toList());
+
+        List<PostMedia> postMedias = postMediaRepository.getMediaUrlByLatestPostIds(latestPostIds);
+        Map<Long, String> postMediaUrlMap = postMedias.stream()
+                .collect(Collectors.toMap(
+                        pm1 -> pm1.getPost().getId(),
+                        pm2 -> pm2.getMediaURL(),
+                        (o, n) -> n,
+                        HashMap::new
+                ));
+
+        return JoinedCommunities.of(joinedCommunityMap, latestPostMap, postMediaUrlMap);
     }
 }

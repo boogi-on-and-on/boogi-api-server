@@ -34,13 +34,6 @@ public class PostQueryService {
                 .collect(Collectors.toList());
     }
 
-    public List<LatestPostOfUserJoinedCommunity> getPostsOfUserJoinedCommunity(Long userId) {
-        List<Post> latestPostsOfCommunity = postRepository.getLatestPostOfUserJoinedCommunities(userId);
-        return latestPostsOfCommunity.stream()
-                .map(LatestPostOfUserJoinedCommunity::of)
-                .collect(Collectors.toList());
-    }
-
     public Post getPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(InvalidValueException::new);
         if (post.getCanceledAt() != null) {

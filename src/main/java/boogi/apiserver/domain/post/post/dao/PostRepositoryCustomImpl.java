@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.querydsl.jpa.JPAExpressions.select;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
@@ -88,35 +87,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .orderBy(post.likeCount.desc(), post.commentCount.desc())
                 .limit(3)
                 .fetch();
-    }
-
-    @Override
-    public List<Post> getLatestPostOfUserJoinedCommunities(Long userId) {
-        List<Long> memberJoinedCommunityIds = memberRepository.findByUserId(userId)
-                .stream()
-                .map(m -> m.getCommunity().getId())
-                .collect(Collectors.toList());
-
-        QPost _post = new QPost("sub_post");
-
-        List<Post> posts = queryFactory.selectFrom(post)
-                .where(
-                        post.id.in(select(_post.id.max()) //가장 최근일 수록 id가 최대인 점을 이용
-                                .from(_post)
-                                .where(
-                                        _post.community.id.in(memberJoinedCommunityIds))
-                                .groupBy(_post.community.id)))
-                .innerJoin(post.member, member)
-                .orderBy(post.member.createdAt.asc())
-                .fetch();
-
-        //LAZY INIT
-        posts.stream().map(p -> p.getHashtags().size() > 0).findFirst();
-
-        //LAZY INIT POST MEDIA
-        posts.stream().map(p -> p.getPostMedias().size() > 0).findFirst();
-
-        return posts;
     }
 
     @Override

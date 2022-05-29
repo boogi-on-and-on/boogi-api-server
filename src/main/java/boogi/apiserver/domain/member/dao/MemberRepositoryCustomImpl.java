@@ -46,9 +46,11 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(member.user.id.eq(userId),
                         member.bannedAt.isNull(),
                         member.canceledAt.isNull(),
-                        member.community.deletedAt.isNull()
+                        member.community.deletedAt.isNull(),
+                        member.community.canceledAt.isNull()
                 )
                 .join(member.community).fetchJoin()
+                .orderBy(member.createdAt.desc())
                 .fetch();
     }
 

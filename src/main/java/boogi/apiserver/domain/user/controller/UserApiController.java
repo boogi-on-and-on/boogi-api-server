@@ -4,12 +4,12 @@ import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreServi
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingRequest;
+import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.dto.JoinedCommunities;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.dto.LatestPostOfUserJoinedCommunity;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.BlockMessageUsersRequest;
@@ -37,8 +37,9 @@ import java.util.Objects;
 public class UserApiController {
     private final UserQueryService userQueryService;
     private final MemberQueryService memberQueryService;
-    private final PostQueryService postQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
+
+    private final CommunityCoreService communityCoreService;
 
     private final MessageBlockCoreService messageBlockCoreService;
     private final AlarmConfigCoreService alarmConfigCoreService;
@@ -73,11 +74,9 @@ public class UserApiController {
 
     @GetMapping("/communities/joined")
     public ResponseEntity<Object> getUserJoinedCommunitiesInfo(@Session Long userId) {
-        List<LatestPostOfUserJoinedCommunity> communities = postQueryService.getPostsOfUserJoinedCommunity(userId);
+        JoinedCommunities joinedCommunities = communityCoreService.getJoinedCommunitiesWithLatestPost(userId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "communities", communities
-        ));
+        return ResponseEntity.status(HttpStatus.OK).body(joinedCommunities);
     }
 
     @GetMapping("/messages/blocked")
