@@ -84,8 +84,10 @@ public class CommunityApiController {
                 .map(NoticeDto::of)
                 .collect(Collectors.toList());
 
+        MemberType sessionMemberType = (member == null) ? null : member.getMemberType();
+
         HashMap<String, Object> response = new HashMap<>(Map.of(
-                "isJoined", member != null,
+                "sessionMemberType", sessionMemberType,
                 "community", communityDetailInfoWithMember,
                 "notices", communityNotices));
 
