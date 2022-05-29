@@ -84,23 +84,21 @@ public class CommunityApiController {
                 .map(NoticeDto::of)
                 .collect(Collectors.toList());
 
-        MemberType sessionMemberType = (member == null) ? null : member.getMemberType();
-
-        HashMap<String, Object> response = new HashMap<>(Map.of(
-                "sessionMemberType", sessionMemberType,
-                "community", communityDetailInfoWithMember,
-                "notices", communityNotices));
-
         boolean showPostList = !(Objects.isNull(member) && community.isPrivate());
-        if (showPostList) {
-            List<LatestPostOfCommunityDto> latestPosts = postQueryService.getLatestPostOfCommunity(communityId)
-                    .stream()
-                    .map(LatestPostOfCommunityDto::of)
-                    .collect(Collectors.toList());
-            response.put("posts", latestPosts);
-        }
+        List<LatestPostOfCommunityDto> latestPosts = (showPostList == false) ? null :
+                postQueryService.getLatestPostOfCommunity(communityId)
+                        .stream()
+                        .map(LatestPostOfCommunityDto::of)
+                        .collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        MemberType sessionMemberType = (member == null) ? null : member.getMemberType();
+        CommunityDetail communityDetail = CommunityDetail.of(
+                sessionMemberType,
+                communityDetailInfoWithMember,
+                communityNotices,
+                latestPosts);
+
+        return ResponseEntity.status(HttpStatus.OK).body(communityDetail);
     }
 
     @GetMapping("/{communityId}/metadata")
