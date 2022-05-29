@@ -639,7 +639,7 @@ class CommunityApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         SearchCommunityDto dto = SearchCommunityDto.builder()
-                .category("INTEREST")
+                .category("HOBBY")
                 .createdAt(LocalDateTime.now().toString())
                 .id(1L)
                 .hashtags(List.of("안녕", "헤헤"))
@@ -658,7 +658,7 @@ class CommunityApiControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .queryParam("isPrivate", "FALSE")
                                 .queryParam("order", "NEWER")
-                                .queryParam("category", "INTEREST")
+                                .queryParam("category", "HOBBY")
                                 .queryParam("keyword", "안녕")
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.communities[0]").isMap());
