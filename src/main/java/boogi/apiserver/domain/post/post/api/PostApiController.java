@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 @RestController
@@ -77,9 +78,12 @@ public class PostApiController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<UserPostPage> getUserPostsInfo(@PathVariable Long userId, Pageable pageable) {
-        UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, userId);
+    @GetMapping("/users")
+    public ResponseEntity<UserPostPage> getUserPostsInfo(@RequestParam(required = false) Long userId,
+                                                         @Session Long sessionUserId,
+                                                         Pageable pageable) {
+        Long id = Objects.requireNonNullElse(userId, sessionUserId);
+        UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, id);
 
         return ResponseEntity.ok().body(userPostsPage);
     }

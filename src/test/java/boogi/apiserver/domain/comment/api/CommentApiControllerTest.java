@@ -88,7 +88,8 @@ class CommentApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/comments/user/1")
+                        MockMvcRequestBuilders.get("/api/comments/users")
+                                .queryParam("userId", "4")
                                 .queryParam("page", "0")
                                 .queryParam("size", "1")
                                 .contentType(MediaType.APPLICATION_JSON)

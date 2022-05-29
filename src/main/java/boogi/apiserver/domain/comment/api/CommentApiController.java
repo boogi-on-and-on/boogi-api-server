@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,9 +34,12 @@ public class CommentApiController {
 
     private final SendPushNotification sendPushNotification;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<UserCommentPage> getUserCommentsInfo(@PathVariable Long userId, Pageable pageable) {
-        UserCommentPage userCommentsPage = commentQueryService.getUserComments(pageable, userId);
+    @GetMapping("/users")
+    public ResponseEntity<UserCommentPage> getUserCommentsInfo(@RequestParam(required = false) Long userId,
+                                                               @Session Long sessionUserId,
+                                                               Pageable pageable) {
+        Long id = Objects.requireNonNullElse(userId, sessionUserId);
+        UserCommentPage userCommentsPage = commentQueryService.getUserComments(pageable, id);
 
         return ResponseEntity.status(HttpStatus.OK).body(userCommentsPage);
     }

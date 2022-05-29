@@ -97,7 +97,7 @@ class PostApiControllerTest {
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/user/1")
+                        MockMvcRequestBuilders.get("/api/posts/users")
                                 .queryParam("page", "0")
                                 .queryParam("size", "1")
                                 .contentType(MediaType.APPLICATION_JSON)
