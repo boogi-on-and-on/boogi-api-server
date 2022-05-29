@@ -14,7 +14,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.TimeZone;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
@@ -56,4 +58,8 @@ public class ApiConfig implements WebMvcConfigurer {
         return HeaderHttpSessionIdResolver.xAuthToken();
     }
 
+    @PostConstruct
+    public void timeZone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
+    }
 }
