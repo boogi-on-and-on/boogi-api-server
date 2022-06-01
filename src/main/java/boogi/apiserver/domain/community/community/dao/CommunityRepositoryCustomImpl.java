@@ -129,6 +129,9 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
     }
 
     private BooleanExpression privateEq(Boolean isPrivate) {
+        if (Objects.isNull(isPrivate)) {
+            return null;
+        }
         return isPrivate ? community.isPrivate.eq(true) : community.isPrivate.ne(true);
     }
 

@@ -16,8 +16,7 @@ import javax.validation.constraints.NotNull;
 public class CommunityQueryRequest {
     private CommunityCategory category;
 
-    @NotNull
-    private Boolean isPrivate = false;
+    private Boolean isPrivate;
 
     @NotNull
     private CommunityListingOrder order = CommunityListingOrder.NEWER;
