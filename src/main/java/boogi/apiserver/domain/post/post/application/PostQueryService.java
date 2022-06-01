@@ -35,7 +35,7 @@ public class PostQueryService {
     }
 
     public Post getPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(InvalidValueException::new);
+        Post post = postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
         if (post.getCanceledAt() != null) {
             throw new EntityNotFoundException();
         }
