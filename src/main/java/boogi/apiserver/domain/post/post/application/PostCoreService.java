@@ -26,7 +26,6 @@ import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.dao.UserRepository;
-import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
@@ -198,18 +197,11 @@ public class PostCoreService {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {
-            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
-                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
-            });
-
             findMemberIds = memberRepository
                     .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
         } else {
             userRepository.findUserById(userId).orElseThrow(() -> {
                 throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
-            });
-            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
-                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
             });
 
             findMemberIds = memberRepository
