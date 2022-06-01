@@ -43,7 +43,11 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         List<Comment> comments =
                 queryFactory
                         .selectFrom(comment)
-                        .where(comment.member.id.in(memberIds))
+                        .where(
+                                comment.member.id.in(memberIds),
+                                comment.canceledAt.isNull(),
+                                comment.deletedAt.isNull()
+                        )
                         .orderBy(comment.createdAt.desc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())

@@ -51,7 +51,7 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
     @Override
     public List<JoinRequest> getRequestsByIds(List<Long> requestIds) {
         return queryFactory.selectFrom(joinRequest)
-                .where(joinRequest.id.in(requestIds))
+                .where(joinRequest.id.in(requestIds), joinRequest.canceledAt.isNull())
                 .fetch();
     }
 

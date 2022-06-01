@@ -45,7 +45,8 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
             Predicate[] where = {
                     privateEq(condition.getIsPrivate()),
                     categoryEq(condition.getCategory()),
-                    community.canceledAt.isNull()
+                    community.canceledAt.isNull(),
+                    community.deletedAt.isNull()
             };
 
             List<Community> communities = queryFactory.selectFrom(community)
@@ -73,6 +74,7 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
                 privateEq(condition.getIsPrivate()),
                 categoryEq(condition.getCategory()),
                 community.canceledAt.isNull(),
+                community.deletedAt.isNull(),
 
                 //todo: 상관쿼리 작동 원인 찾고 해결
                 // 아래 서브쿼리는 독립적으로 작동할 수 있는 비상관쿼리

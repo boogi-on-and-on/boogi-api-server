@@ -56,7 +56,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         List<Post> posts =
                 queryFactory
                         .selectFrom(post)
-                        .where(post.member.id.in(memberIds))
+                        .where(
+                                post.member.id.in(memberIds),
+                                post.canceledAt.isNull(),
+                                post.deletedAt.isNull()
+                        )
                         .join(post.community)
                         .fetchJoin()
                         .orderBy(post.createdAt.desc())
@@ -81,6 +85,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(
                         post.createdAt.after(LocalDateTime.now().minusDays(4)),
                         post.canceledAt.isNull(),
+                        post.deletedAt.isNull(),
                         post.community.isPrivate.isFalse()
                 )
                 .join(post.community)
@@ -94,7 +99,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         return queryFactory.selectFrom(post)
                 .where(
                         post.community.id.eq(communityId),
-                        post.canceledAt.isNull()
+                        post.canceledAt.isNull(),
+                        post.deletedAt.isNull()
                 )
                 .orderBy(post.createdAt.desc())
                 .limit(5)
@@ -182,6 +188,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 post.community.isPrivate.ne(true).or(post.member.id.in(memberIds)),
                 post.community.deletedAt.isNull(),
                 post.deletedAt.isNull(),
+                post.canceledAt.isNull(),
                 post.id.in(
                         JPAExpressions.select(_post.id)
                                 .from(_post)

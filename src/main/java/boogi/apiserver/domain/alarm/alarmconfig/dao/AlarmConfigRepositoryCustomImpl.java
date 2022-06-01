@@ -20,7 +20,8 @@ public class AlarmConfigRepositoryCustomImpl implements AlarmConfigRepositoryCus
     @Override
     public AlarmConfig getAlarmConfigByUserId(Long userId) {
         List<AlarmConfig> configs = queryFactory.selectFrom(alarmConfig)
-                .where(alarmConfig.user.id.eq(userId))
+                .where(alarmConfig.user.id.eq(userId),
+                        alarmConfig.canceledAt.isNull())
                 .orderBy(alarmConfig.createdAt.desc())
                 .fetch();
 
