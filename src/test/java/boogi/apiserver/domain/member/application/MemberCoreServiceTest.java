@@ -119,7 +119,7 @@ class MemberCoreServiceTest {
                 .id(2L)
                 .build();
 
-        given(userRepository.findUsersById(any()))
+        given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(u1, u2));
 
         Community community = Community.builder()

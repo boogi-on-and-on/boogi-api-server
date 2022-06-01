@@ -96,7 +96,7 @@ class MessageBlockCoreServiceTest {
         then(messageBlockRepository).should(times(1)).updateBulkBlockedStatus(any());
 
         //todo: 다른 방식으로 테스트하는거 고려
-        then(userRepository).should(times(0)).findUsersById(any());
+        then(userRepository).should(times(0)).findUsersByIds(any());
     }
 
     @Test
@@ -110,7 +110,7 @@ class MessageBlockCoreServiceTest {
                 .willReturn(List.of());
 
         User blockedUser = User.builder().id(2L).build();
-        given(userRepository.findUsersById(any()))
+        given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(blockedUser));
 
         //when
@@ -118,7 +118,7 @@ class MessageBlockCoreServiceTest {
 
         //then
         then(messageBlockRepository).should(times(0)).updateBulkBlockedStatus(any());
-        then(userRepository).should(times(1)).findUsersById(any());
+        then(userRepository).should(times(1)).findUsersByIds(any());
         then(messageBlockRepository).should(times(1)).saveAll(any());
     }
 
