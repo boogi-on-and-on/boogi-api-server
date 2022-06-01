@@ -68,39 +68,39 @@ class CommentApiControllerTest {
                         .build();
     }
 
-    @Test
-    void 유저_댓글_페이지네이션() throws Exception {
-        UserCommentDto commentDto = UserCommentDto.builder()
-                .postId(1L)
-                .content("댓글1")
-                .createdAt(LocalDateTime.now().toString())
-                .build();
-
-        UserCommentPage page = UserCommentPage.builder()
-                .comments(List.of(commentDto))
-                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
-                .build();
-
-        given(commentQueryService.getUserComments(any(), anyLong()))
-                .willReturn(page);
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/comments/users")
-                                .queryParam("userId", "4")
-                                .queryParam("page", "0")
-                                .queryParam("size", "1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
-                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
-                .andExpect(jsonPath("$.comments[0].content").value("댓글1"))
-                .andExpect(jsonPath("$.comments[0].postId").value(1))
-                .andExpect(jsonPath("$.comments.size()").value(1));
-    }
+//    @Test
+//    void 유저_댓글_페이지네이션() throws Exception {
+//        UserCommentDto commentDto = UserCommentDto.builder()
+//                .postId(1L)
+//                .content("댓글1")
+//                .createdAt(LocalDateTime.now().toString())
+//                .build();
+//
+//        UserCommentPage page = UserCommentPage.builder()
+//                .comments(List.of(commentDto))
+//                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+//                .build();
+//
+//        given(commentQueryService.getUserComments(any(), anyLong()))
+//                .willReturn(page);
+//
+//        MockHttpSession session = new MockHttpSession();
+//        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+//
+//        mvc.perform(
+//                        MockMvcRequestBuilders.get("/api/comments/users")
+//                                .queryParam("userId", "4")
+//                                .queryParam("page", "0")
+//                                .queryParam("size", "1")
+//                                .contentType(MediaType.APPLICATION_JSON)
+//                                .session(session)
+//                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+//                ).andExpect(status().isOk())
+//                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
+//                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
+//                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
+//                .andExpect(jsonPath("$.comments[0].content").value("댓글1"))
+//                .andExpect(jsonPath("$.comments[0].postId").value(1))
+//                .andExpect(jsonPath("$.comments.size()").value(1));
+//    }
 }

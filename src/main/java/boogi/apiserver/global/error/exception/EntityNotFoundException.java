@@ -2,11 +2,11 @@ package boogi.apiserver.global.error.exception;
 
 public class EntityNotFoundException extends BusinessException {
     public EntityNotFoundException() {
-        super(ErrorInfo.INTERNAL_SERVER_ERROR);
+        super(ErrorInfo.NOT_FOUND);
     }
 
     public EntityNotFoundException(String message) {
-        super(message, ErrorInfo.INTERNAL_SERVER_ERROR);
+        super(message, ErrorInfo.NOT_FOUND);
     }
 
     public EntityNotFoundException(String message, ErrorInfo errorInfo) {

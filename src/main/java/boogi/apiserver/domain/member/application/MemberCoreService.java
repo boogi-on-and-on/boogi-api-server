@@ -51,7 +51,7 @@ public class MemberCoreService {
     public List<Member> joinMemberInBatch(List<Long> userIds, Long communityId, MemberType type) {
         memberValidationService.checkAlreadyJoinedMemberInBatch(userIds, communityId);
 
-        List<User> users = userRepository.findUsersById(userIds);
+        List<User> users = userRepository.findUsersByIds(userIds);
         Community community = communityQueryService.getCommunity(communityId);
 
         List<Member> members = new ArrayList<>();

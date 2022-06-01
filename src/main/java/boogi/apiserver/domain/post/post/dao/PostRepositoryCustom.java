@@ -26,4 +26,6 @@ public interface PostRepositoryCustom {
     Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
 
     Optional<Post> findPostById(Long postId);
+
+    Page<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable);
 }

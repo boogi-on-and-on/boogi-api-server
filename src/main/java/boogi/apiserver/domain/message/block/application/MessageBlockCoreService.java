@@ -58,7 +58,7 @@ public class MessageBlockCoreService {
             return;
         }
 
-        List<MessageBlock> newBlocks = userRepository.findUsersById(newMessageBlockUserIds).stream()
+        List<MessageBlock> newBlocks = userRepository.findUsersByIds(newMessageBlockUserIds).stream()
                 .map(blockUser -> MessageBlock.of(user, blockUser))
                 .collect(Collectors.toList());
         messageBlockRepository.saveAll(newBlocks);

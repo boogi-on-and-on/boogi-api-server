@@ -83,7 +83,8 @@ public class PostApiController {
                                                          @Session Long sessionUserId,
                                                          Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-        UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, id);
+//        UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, id);
+        UserPostPage userPostsPage = postCoreService.getUserPosts(id, sessionUserId, pageable);
 
         return ResponseEntity.ok().body(userPostsPage);
     }

@@ -73,7 +73,7 @@ public class MessageCoreService {
         List<Long> opponentIds = dedupMessages.keySet().stream()
                 .collect(Collectors.toList());
 
-        Map<Long, User> opponentUserMap = userRepository.findUsersById(opponentIds).stream()
+        Map<Long, User> opponentUserMap = userRepository.findUsersByIds(opponentIds).stream()
                 .collect(Collectors.toMap(
                         u1 -> u1.getId(),
                         u2 -> u2,

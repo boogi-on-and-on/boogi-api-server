@@ -75,44 +75,44 @@ class PostApiControllerTest {
                         .build();
     }
 
-    @Test
-    void 유저_게시글_페이지네이션() throws Exception {
-        UserPostsDto postsDto = UserPostsDto.builder()
-                .id(1L)
-                .content("게시글 내용1")
-                .community(UserPostsDto.CommunityDto.builder()
-                        .id(1L)
-                        .name("커뮤니티1")
-                        .build())
-                .build();
-
-        UserPostPage pageInfo = UserPostPage.builder()
-                .posts(List.of(postsDto))
-                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
-                .build();
-
-        given(postQueryService.getUserPosts(any(), anyLong())).willReturn(pageInfo);
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/users")
-                                .queryParam("page", "0")
-                                .queryParam("size", "1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
-                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
-                .andExpect(jsonPath("$.posts[0].community.id").value("1"))
-                .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
-                .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
-                .andExpect(jsonPath("$.posts.size()").value(1));
-
-    }
+//    @Test
+//    void 유저_게시글_페이지네이션() throws Exception {
+//        UserPostsDto postsDto = UserPostsDto.builder()
+//                .id(1L)
+//                .content("게시글 내용1")
+//                .community(UserPostsDto.CommunityDto.builder()
+//                        .id(1L)
+//                        .name("커뮤니티1")
+//                        .build())
+//                .build();
+//
+//        UserPostPage pageInfo = UserPostPage.builder()
+//                .posts(List.of(postsDto))
+//                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+//                .build();
+//
+//        given(postQueryService.getUserPosts(any(), anyLong())).willReturn(pageInfo);
+//
+//        MockHttpSession session = new MockHttpSession();
+//        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+//
+//        mvc.perform(
+//                        MockMvcRequestBuilders.get("/api/posts/users")
+//                                .queryParam("page", "0")
+//                                .queryParam("size", "1")
+//                                .contentType(MediaType.APPLICATION_JSON)
+//                                .session(session)
+//                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
+//                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
+//                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
+//                .andExpect(jsonPath("$.posts[0].community.id").value("1"))
+//                .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
+//                .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
+//                .andExpect(jsonPath("$.posts.size()").value(1));
+//
+//    }
 
     @Test
     void 핫한게시물() throws Exception {

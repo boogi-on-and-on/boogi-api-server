@@ -248,4 +248,28 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         return Optional.ofNullable(findPost);
     }
+
+    @Override
+    public Page<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+        List<Post> findPosts = queryFactory.selectFrom(post)
+                .where(
+                        post.member.id.in(memberIds),
+                        post.deletedAt.isNull(),
+                        post.canceledAt.isNull()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(post.createdAt.desc())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(post.count())
+                .from(post)
+                .where(
+                        post.member.id.in(memberIds),
+                        post.deletedAt.isNull(),
+                        post.canceledAt.isNull()
+                );
+
+        return PageableExecutionUtils.getPage(findPosts, pageable, countQuery::fetchOne);
+    }
 }
