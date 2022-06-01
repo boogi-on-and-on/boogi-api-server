@@ -21,13 +21,18 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.post.dto.UpdatePost;
+import boogi.apiserver.domain.post.post.dto.UserPostPage;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +50,7 @@ public class PostCoreService {
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
     private final PostMediaRepository postMediaRepository;
+    private final UserRepository userRepository;
 
     private final CommunityValidationService communityValidationService;
     private final MemberValidationService memberValidationService;
@@ -162,24 +168,56 @@ public class PostCoreService {
     @Transactional
     public void deletePost(Long postId, Long userId) {
         Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> {
+                    throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
+                });
 
         Long findPostId = findPost.getId();
         Long postedCommunityId = findPost.getCommunity().getId();
-        MemberType postMemberType = findPost.getMember().getMemberType();
+        Long postedUserId = findPost.getMember().getUser().getId();
 
-        if (memberValidationService.hasAuth(userId, postedCommunityId, MemberType.SUB_MANAGER)) {
-            postHashtagCoreService.removeTagsByPostId(findPostId);
-
-            List<Comment> findComments = commentRepository.findAllByPostId(postId);
-            findComments.stream().forEach(c -> c.deleteComment());
-
-            likeCoreService.removeAllPostLikes(findPostId);
-
-            postMediaRepository.findByPostId(postId).stream()
-                    .forEach(pm -> pm.deletePostMedia());
-
-            findPost.deletePost();
+        if (postedUserId.equals(userId) == false &&
+                memberValidationService.hasAuthWithoutThrow(userId, postedCommunityId, MemberType.SUB_MANAGER) == false) {
+            throw new NotAuthorizedMemberException();
         }
+
+        postHashtagCoreService.removeTagsByPostId(findPostId);
+
+        List<Comment> findComments = commentRepository.findAllByPostId(postId);
+        findComments.stream().forEach(c -> c.deleteComment());
+
+        likeCoreService.removeAllPostLikes(findPostId);
+
+        postMediaRepository.findByPostId(postId).stream()
+                .forEach(pm -> pm.deletePostMedia());
+
+        findPost.deletePost();
     }
+
+//    public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
+//        List<Long> findMemberIds;
+//
+//        if (userId.equals(sessionUserId)) {
+//            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
+//                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
+//            });
+//
+//            findMemberIds = memberRepository
+//                    .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
+//        } else {
+//            userRepository.findUserById(userId).orElseThrow(() -> {
+//                throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
+//            });
+//            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
+//                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
+//            });
+//
+//            findMemberIds = memberRepository
+//                    .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
+//        }
+//
+//        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
+//
+//        return UserPostPage.of(userPostPage);
+//    }
 }
