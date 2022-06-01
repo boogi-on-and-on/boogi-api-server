@@ -6,7 +6,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
-import boogi.apiserver.global.error.exception.ErrorInfo;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,7 +52,7 @@ public class MemberValidationService {
     public boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
         List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
         if (members.size() == 0) {
-            throw new InvalidValueException("가입하지 않은 멤버입니다.", ErrorInfo.BAD_REQUEST);
+            throw new EntityNotFoundException("가입하지 않은 멤버입니다.");
         }
         Member member = members.get(0);
 
@@ -80,7 +80,7 @@ public class MemberValidationService {
     public boolean hasAuthWithoutThrow(Long userId, Long communityId, MemberType memberType) {
         List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
         if (members.size() == 0) {
-            throw new InvalidValueException("가입하지 않은 멤버입니다.", ErrorInfo.BAD_REQUEST);
+            throw new EntityNotFoundException("가입하지 않은 멤버입니다.");
         }
         Member member = members.get(0);
 
