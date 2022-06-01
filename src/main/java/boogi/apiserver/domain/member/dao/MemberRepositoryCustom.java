@@ -24,4 +24,8 @@ public interface MemberRepositoryCustom {
     List<BannedMemberDto> findBannedMembers(Long communityId);
 
     List<Member> findAlreadyJoinedMemberByUserId(List<Long> userIds, Long communityId);
+
+    List<Long> findMemberIdsForQueryUserPostByUserIdAndSessionUserId(Long userId, Long sessionUserId);
+
+    List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId);
 }

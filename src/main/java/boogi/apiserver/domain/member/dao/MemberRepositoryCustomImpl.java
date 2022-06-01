@@ -9,6 +9,7 @@ import boogi.apiserver.domain.member.dto.QBannedMemberDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -150,6 +151,52 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .selectFrom(member)
                 .where(member.community.id.eq(communityId),
                         member.user.id.in(userIds),
+                        member.canceledAt.isNull()
+                ).fetch();
+    }
+
+    @Override
+    public List<Long> findMemberIdsForQueryUserPostByUserIdAndSessionUserId(Long userId, Long sessionUserId) {
+        QMember memberSub = new QMember("memberSub");
+
+        return queryFactory.select(member.id)
+                .from(member)
+                .where(
+                        member.user.id.eq(userId),
+                        member.bannedAt.isNull(),
+                        member.canceledAt.isNull(),
+                        member.community.id.notIn(
+                                JPAExpressions
+                                        .select(community.id)
+                                        .from(community)
+                                        .where(
+                                                community.isPrivate.isTrue(),
+                                                community.deletedAt.isNull(),
+                                                community.canceledAt.isNull(),
+                                                community.id.in(
+                                                        JPAExpressions
+                                                                .select(memberSub.community.id)
+                                                                .from(memberSub)
+                                                                .where(
+                                                                        memberSub.user.id.in(userId, sessionUserId),
+                                                                        memberSub.bannedAt.isNull(),
+                                                                        memberSub.canceledAt.isNull()
+                                                                )
+                                                                .groupBy(memberSub.community.id)
+                                                                .having(memberSub.community.id.count().lt(2))
+                                                )
+                                        )
+                        )
+                ).fetch();
+    }
+
+    @Override
+    public List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId) {
+        return queryFactory.select(member.id)
+                .from(member)
+                .where(
+                        member.user.id.eq(sessionUserId),
+                        member.bannedAt.isNull(),
                         member.canceledAt.isNull()
                 ).fetch();
     }

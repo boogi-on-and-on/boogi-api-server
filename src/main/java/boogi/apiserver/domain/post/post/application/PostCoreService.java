@@ -194,30 +194,30 @@ public class PostCoreService {
         findPost.deletePost();
     }
 
-//    public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
-//        List<Long> findMemberIds;
-//
-//        if (userId.equals(sessionUserId)) {
-//            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
-//                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
-//            });
-//
-//            findMemberIds = memberRepository
-//                    .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
-//        } else {
-//            userRepository.findUserById(userId).orElseThrow(() -> {
-//                throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
-//            });
-//            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
-//                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
-//            });
-//
-//            findMemberIds = memberRepository
-//                    .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
-//        }
-//
-//        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
-//
-//        return UserPostPage.of(userPostPage);
-//    }
+    public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
+        List<Long> findMemberIds;
+
+        if (userId.equals(sessionUserId)) {
+            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
+                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
+            });
+
+            findMemberIds = memberRepository
+                    .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
+        } else {
+            userRepository.findUserById(userId).orElseThrow(() -> {
+                throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
+            });
+            userRepository.findUserById(sessionUserId).orElseThrow(() -> {
+                throw new EntityNotFoundException("세션 유저가 존재하지 않습니다.");
+            });
+
+            findMemberIds = memberRepository
+                    .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
+        }
+
+        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
+
+        return UserPostPage.of(userPostPage);
+    }
 }
