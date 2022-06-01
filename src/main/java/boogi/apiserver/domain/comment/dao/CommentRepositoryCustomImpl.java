@@ -123,4 +123,28 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
         return Optional.ofNullable(findComment);
     }
+
+    @Override
+    public Page<Comment> getUserCommentPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+        List<Comment> findComments = queryFactory.selectFrom(comment)
+                .where(
+                        comment.member.id.in(memberIds),
+                        comment.deletedAt.isNull(),
+                        comment.canceledAt.isNull()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(comment.createdAt.desc())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(comment.count())
+                .from(comment)
+                .where(
+                        comment.member.id.in(memberIds),
+                        comment.deletedAt.isNull(),
+                        comment.canceledAt.isNull()
+                );
+
+        return PageableExecutionUtils.getPage(findComments, pageable, countQuery::fetchOne);
+    }
 }

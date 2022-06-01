@@ -3,6 +3,7 @@ package boogi.apiserver.domain.comment.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.CreateComment;
+import boogi.apiserver.domain.comment.dto.UserCommentPage;
 import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.like.application.LikeCoreService;
@@ -16,6 +17,8 @@ import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.comment.dto.CommentsAtPost;
+import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
@@ -39,6 +42,8 @@ import java.util.stream.Collectors;
 public class CommentCoreService {
 
     private final PostQueryService postQueryService;
+
+    private final UserRepository userRepository;
 
     private final MemberRepository memberRepository;
     private final MemberValidationService memberValidationService;
@@ -188,5 +193,25 @@ public class CommentCoreService {
         Boolean me = (commentedMember != null && commentedMemberId.equals(joinedMemberId))
                 ? Boolean.TRUE : Boolean.FALSE;
         return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
+    }
+
+    public UserCommentPage getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
+        List<Long> findMemberIds;
+
+        if (userId.equals(sessionUserId)) {
+            findMemberIds = memberRepository
+                    .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
+        } else {
+            userRepository.findUserById(userId).orElseThrow(() -> {
+                throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
+            });
+
+            findMemberIds = memberRepository
+                    .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
+        }
+
+        Page<Comment> userCommentPage = commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
+
+        return UserCommentPage.of(userCommentPage);
     }
 }

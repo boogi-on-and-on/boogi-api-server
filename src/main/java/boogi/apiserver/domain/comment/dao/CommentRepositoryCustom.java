@@ -18,4 +18,6 @@ public interface CommentRepositoryCustom {
     List<Comment> findChildCommentsWithMemberByParentCommentIds(List<Long> commentIds);
 
     Optional<Comment> findCommentById(Long commentId);
+
+    Page<Comment> getUserCommentPageByMemberIds(List<Long> memberIds, Pageable pageable);
 }

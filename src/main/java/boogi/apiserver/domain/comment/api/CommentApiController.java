@@ -39,7 +39,8 @@ public class CommentApiController {
                                                                @Session Long sessionUserId,
                                                                Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-        UserCommentPage userCommentsPage = commentQueryService.getUserComments(pageable, id);
+//        UserCommentPage userCommentsPage = commentQueryService.getUserComments(pageable, id);
+        UserCommentPage userCommentsPage = commentCoreService.getUserComments(id, sessionUserId, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(userCommentsPage);
     }
