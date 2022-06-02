@@ -132,8 +132,14 @@ public class CommentCoreService {
         Page<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
 
         List<Comment> parentComments = commentPage.getContent().stream()
-                .map(c -> (c.getDeletedAt() == null && c.getCanceledAt() == null) ?
-                        c : Comment.deletedOf(c.getId()))
+                .map(c -> {
+                    if (c.getDeletedAt() != null) {
+                        return Comment.deletedOf(c.getId(), c.getDeletedAt());
+                    } else if (c.getCanceledAt() != null) {
+                        return Comment.deletedOf(c.getId(), c.getCanceledAt());
+                    }
+                    return c;
+                })
                 .collect(Collectors.toList());
 
         List<Long> parentCommentIds = parentComments.stream()
@@ -164,6 +170,7 @@ public class CommentCoreService {
                 .collect(Collectors.groupingBy(c -> c.getParentId(), HashMap::new, Collectors.toCollection(ArrayList::new)));
 
         List<CommentsAtPost.ParentCommentInfo> commentInfos = parentComments.stream()
+                .filter(c -> (c.getDeletedAt() == null || childCommentInfos.get(c.getId()) != null))
                 .map(c -> createParentCommentInfo(joinedMemberId,
                         commentLikes,
                         childCommentInfos,
