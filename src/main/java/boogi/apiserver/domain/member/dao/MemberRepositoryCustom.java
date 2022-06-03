@@ -28,4 +28,6 @@ public interface MemberRepositoryCustom {
     List<Long> findMemberIdsForQueryUserPostByUserIdAndSessionUserId(Long userId, Long sessionUserId);
 
     List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId);
+
+    Member findManager(Long communityId);
 }

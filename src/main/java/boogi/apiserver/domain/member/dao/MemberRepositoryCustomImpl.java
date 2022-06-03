@@ -200,4 +200,19 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         member.canceledAt.isNull()
                 ).fetch();
     }
+
+    @Override
+    public Member findManager(Long communityId) {
+        return queryFactory.selectFrom(member)
+                .where(
+                        member.community.id.eq(communityId),
+                        member.memberType.eq(MemberType.MANAGER),
+                        member.bannedAt.isNull(),
+                        member.canceledAt.isNull(),
+                        member.user.canceledAt.isNull()
+                )
+                .join(member.user)
+                .limit(1)
+                .fetchOne();
+    }
 }

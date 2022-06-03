@@ -7,6 +7,7 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -35,6 +36,8 @@ public class JoinRequestCoreService {
     private final CommunityQueryService communityQueryService;
     private final MemberQueryService memberQueryService;
 
+    private final MemberRepository memberRepository;
+
     //todo: 거절했는데, 계속 요청하면 어떻게 할지? --> 커뮤니티에서 유저(멤버x)차단 기능 필요?
     @Transactional
     public Long request(Long userId, Long communityId) {
@@ -56,6 +59,15 @@ public class JoinRequestCoreService {
             }
         }
         JoinRequest request = JoinRequest.of(user, community);
+
+        if (community.isAutoApproval()) {
+            Member member = Member.createNewMember(community, user, MemberType.NORMAL);
+            memberRepository.save(member);
+
+            Member manager = memberRepository.findManager(communityId);
+            request.confirm(manager, member);
+        }
+
         joinRequestRepository.save(request);
 
         return request.getId();

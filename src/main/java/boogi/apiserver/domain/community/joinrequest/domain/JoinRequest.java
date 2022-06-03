@@ -58,6 +58,11 @@ public class JoinRequest extends TimeBaseEntity {
         this.status = JoinRequestStatus.CONFIRM;
     }
 
+    public void confirm(Member confirmedMember) {
+        this.confirmedMember = confirmedMember;
+        this.status = JoinRequestStatus.CONFIRM;
+    }
+
     public static JoinRequest of(User user, Community community) {
         return new JoinRequest(user, community);
     }
