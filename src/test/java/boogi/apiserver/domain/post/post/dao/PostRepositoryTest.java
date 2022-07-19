@@ -437,6 +437,7 @@ class PostRepositoryTest {
                 .member(member1)
                 .hashtags(new ArrayList<>())
                 .build();
+        p2.setCreatedAt(LocalDateTime.now().minusDays(1));
 
         Post p3 = Post.builder()
                 .community(community2)
@@ -478,7 +479,7 @@ class PostRepositoryTest {
         em.clear();
 
         //when
-        Page<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 2), request, user.getId());
+        Page<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 3), request, user.getId());
 
         //then
         List<SearchPostDto> posts = postPage.getContent();

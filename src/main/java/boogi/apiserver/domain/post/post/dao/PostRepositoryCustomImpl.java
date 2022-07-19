@@ -176,7 +176,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     @Override
     public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
-        List<Long> memberIds = queryFactory.select(member.id)
+        List<Long> memberJoinedCommunityIds = queryFactory.select(member.community.id)
                 .from(member)
                 .where(member.user.id.eq(userId),
                         member.bannedAt.isNull(),
@@ -185,7 +185,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         QPost _post = new QPost("postSub");
         Predicate[] where = {
-                post.community.isPrivate.ne(true).or(post.member.id.in(memberIds)),
+                post.community.isPrivate.ne(true).or(post.community.id.in(memberJoinedCommunityIds)),
                 post.community.deletedAt.isNull(),
                 post.deletedAt.isNull(),
                 post.canceledAt.isNull(),
