@@ -70,7 +70,7 @@ public class Comment extends TimeBaseEntity {
 
     public void deleteComment() {
         this.deletedAt = LocalDateTime.now();
-        if (post.getId() != null) {
+        if (post != null) {
             post.removeCommentCount();
         }
     }
