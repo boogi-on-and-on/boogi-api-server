@@ -25,7 +25,4 @@ public class TimeBaseEntity {
     @LastModifiedDate
     @Column(name = "updated_at", columnDefinition = "datetime(6)")
     private LocalDateTime updatedAt;
-
-    @Column(name = "canceled_at", columnDefinition = "datetime(6)")
-    private LocalDateTime canceledAt;
 }

@@ -3,6 +3,8 @@ package boogi.apiserver.domain.post.postmedia.domain;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -16,6 +18,7 @@ import static javax.persistence.FetchType.*;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@Where(clause = "deleted_at is null")
 public class PostMedia extends TimeBaseEntity {
 
     @Id

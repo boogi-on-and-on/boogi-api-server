@@ -7,6 +7,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import static javax.persistence.FetchType.LAZY;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Where(clause = "deleted_at is null")
 public class Post extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

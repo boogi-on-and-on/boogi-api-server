@@ -4,6 +4,7 @@ import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 @ToString
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Where(clause = "deleted_at is null")
 public class Community extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
