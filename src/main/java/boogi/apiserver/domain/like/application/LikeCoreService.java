@@ -120,9 +120,11 @@ public class LikeCoreService {
         List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
         Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
 
-        if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId) && member == null) {
+        if (member == null) {
             throw new NotJoinedMemberException();
         }
+
+        communityValidationService.checkPrivateCommunity(postedCommunityId);
 
         Page<Like> likePage = likeRepository.findPostLikeWithMemberByPostId(findPost.getId(), pageable);
 

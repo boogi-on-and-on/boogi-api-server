@@ -25,7 +25,7 @@ public class CommunityQueryService {
 
 
     public Community getCommunity(Long communityId) {
-        Community community = communityRepository.findById(communityId).orElseThrow(InvalidValueException::new);
+        Community community = communityRepository.findById(communityId).orElseThrow(EntityNotFoundException::new);
         if (community.getCanceledAt() != null) {
             throw new EntityNotFoundException();
         }

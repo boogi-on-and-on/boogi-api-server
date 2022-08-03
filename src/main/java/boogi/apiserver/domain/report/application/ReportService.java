@@ -3,6 +3,7 @@ package boogi.apiserver.domain.report.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -39,6 +40,8 @@ public class ReportService {
     private final CommunityValidationService communityValidationService;
     private final MemberValidationService memberValidationService;
 
+    private final CommunityQueryService communityQueryService;
+
     @Transactional
     public void createReport(CreateReport createReport, Long userId) {
         ReportTarget target = createReport.getTarget();
@@ -65,9 +68,10 @@ public class ReportService {
                 });
 
                 communityId = findPost.getCommunity().getId();
-                if (communityValidationService.checkOnlyPrivateCommunity(communityId)) {
+                if (communityQueryService.getCommunity(communityId).isPrivate()) {
                     memberValidationService.checkMemberJoinedCommunity(userId, communityId);
                 }
+
                 newReport = Report.of(
                         findPost,
                         reportUser,
@@ -80,7 +84,7 @@ public class ReportService {
                 });
 
                 communityId = findComment.getPost().getCommunity().getId();
-                if (communityValidationService.checkOnlyPrivateCommunity(communityId)) {
+                if (communityQueryService.getCommunity(communityId).isPrivate()) {
                     memberValidationService.checkMemberJoinedCommunity(userId, communityId);
                 }
                 newReport = Report.of(

@@ -17,7 +17,6 @@ import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.comment.dto.CommentsAtPost;
-import boogi.apiserver.domain.post.post.dto.UserPostPage;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
@@ -104,9 +103,11 @@ public class CommentCoreService {
         List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
         Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
 
-        if (communityValidationService.checkOnlyPrivateCommunity(commentedCommunityId) && member == null) {
+        if (member == null) {
             throw new NotJoinedMemberException();
         }
+
+        communityValidationService.checkPrivateCommunity(commentedCommunityId);
 
         Page<Like> likePage = likeRepository.findCommentLikeWithMemberByCommentId(findComment.getId(), pageable);
 
@@ -125,9 +126,11 @@ public class CommentCoreService {
         List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
         Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
 
-        if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId) && member == null) {
+        if (member == null) {
             throw new NotJoinedMemberException();
         }
+
+        communityValidationService.checkPrivateCommunity(postedCommunityId);
 
         Page<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
 
