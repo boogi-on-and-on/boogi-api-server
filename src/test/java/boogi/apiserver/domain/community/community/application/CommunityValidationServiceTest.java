@@ -36,16 +36,4 @@ class CommunityValidationServiceTest {
             communityValidationService.checkPreviousExistsCommunityName(anyString());
         }).isInstanceOf(AlreadyExistsCommunityNameException.class);
     }
-
-    @Test
-    void 존재하지_않는_커뮤니티_조회() {
-        //given
-        Long notExistsId = Long.MAX_VALUE;
-
-        //then
-        assertThatThrownBy(() -> {
-            //when
-            communityValidationService.checkExistsCommunity(notExistsId);
-        }).isInstanceOf(EntityNotFoundException.class);
-    }
 }

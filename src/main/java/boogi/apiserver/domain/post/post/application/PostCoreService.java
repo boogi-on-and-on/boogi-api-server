@@ -3,6 +3,7 @@ package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -52,6 +53,9 @@ public class PostCoreService {
     private final UserRepository userRepository;
 
     private final CommunityValidationService communityValidationService;
+
+    private final CommunityQueryService communityQueryService;
+
     private final MemberValidationService memberValidationService;
 
     private final PostHashtagCoreService postHashtagCoreService;
@@ -68,7 +72,7 @@ public class PostCoreService {
                            List<String> tags,
                            List<String> postMediaIds,
                            List<Long> mentionedUserIds) {
-        Community community = communityValidationService.checkExistsCommunity(communityId);
+        Community community = communityQueryService.getCommunity(communityId);
         Member member = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
 
         List<PostMedia> findPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(postMediaIds);
@@ -95,9 +99,11 @@ public class PostCoreService {
         List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
         Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
 
-        if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId) && member == null) {
+        if (member == null) {
             throw new NotJoinedMemberException();
         }
+
+        communityValidationService.checkPrivateCommunity(postedCommunityId);
 
         List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
 
