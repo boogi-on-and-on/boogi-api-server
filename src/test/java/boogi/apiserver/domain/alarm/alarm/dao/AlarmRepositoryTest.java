@@ -3,6 +3,7 @@ package boogi.apiserver.domain.alarm.alarm.dao;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -26,6 +27,7 @@ class AlarmRepositoryTest {
     EntityManager em;
 
     @Test
+    @Disabled
     void 알람목록() {
         //given
         User user1 = User.builder().build();
@@ -50,7 +52,7 @@ class AlarmRepositoryTest {
                 .head("헤드3")
                 .user(user1)
                 .build();
-        alarm3.setCanceledAt(LocalDateTime.now());
+//        alarm3.setCanceledAt(LocalDateTime.now());
 
         alarmRepository.saveAll(List.of(alarm1, alarm2, alarm3));
 
