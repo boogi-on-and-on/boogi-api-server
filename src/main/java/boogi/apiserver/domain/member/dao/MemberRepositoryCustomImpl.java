@@ -53,14 +53,17 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Member> findByUserIdAndCommunityId(Long userId, Long communityId) {
-        return queryFactory.selectFrom(member)
+    public Member findByUserIdAndCommunityId(Long userId, Long communityId) {
+        List<Member> members = queryFactory.selectFrom(member)
                 .where(
                         member.user.id.eq(userId),
                         member.community.id.eq(communityId),
                         member.bannedAt.isNull()
-                )
+                ).orderBy(member.createdAt.desc())
+                .limit(0)
                 .fetch();
+
+        return members.size() >= 1 ? members.get(0) : null;
     }
 
     @Override

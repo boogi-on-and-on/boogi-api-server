@@ -96,7 +96,7 @@ public class MemberCoreService {
         communityRepository.findCommunityById(communityId).orElseThrow(() -> {
             throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
         });
-        Member findMember = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+        Member findMember = memberRepository.findByUserIdAndCommunityId(userId, communityId);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUserByCommunityId(communityId);
         findJoinedMembersAll.remove(findMember);

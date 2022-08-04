@@ -13,7 +13,7 @@ public interface MemberRepositoryCustom {
 
     List<Member> findWhatIJoined(Long userId);
 
-    List<Member> findByUserIdAndCommunityId(Long userId, Long communityId);
+    Member findByUserIdAndCommunityId(Long userId, Long communityId);
 
     Page<Member> findJoinedMembers(Pageable pageable, Long communityId);
 

@@ -57,7 +57,10 @@ public class LikeCoreService {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않습니다"));
 
-        Member member = memberValidationService.checkMemberJoinedCommunity(userId, findPost.getCommunity().getId());
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId());
+        if (Objects.isNull(member)) {
+            throw new NotJoinedMemberException();
+        }
 
         if (likeValidationService.checkOnlyAlreadyDoPostLike(postId, member.getId())) {
             throw new AlreadyDoLikeException("이미 해당 글에 좋아요를 한 상태입니다");
@@ -74,7 +77,7 @@ public class LikeCoreService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
 
         Long communityId = findComment.getMember().getCommunity().getId();
-        Member joinedMember = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+        Member joinedMember = memberRepository.findByUserIdAndCommunityId(userId, communityId);
 
         if (likeValidationService.checkOnlyAlreadyDoCommentLike(commentId, joinedMember.getId())) {
             throw new AlreadyDoLikeException("이미 해당 댓글에 좋아요를 한 상태입니다");
@@ -117,8 +120,7 @@ public class LikeCoreService {
         Post findPost = postQueryService.getPost(postId);
 
         Long postedCommunityId = findPost.getCommunity().getId();
-        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
-        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
 
         if (member == null) {
             throw new NotJoinedMemberException();

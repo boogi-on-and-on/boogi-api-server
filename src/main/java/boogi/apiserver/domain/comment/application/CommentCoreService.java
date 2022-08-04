@@ -28,10 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -61,7 +58,10 @@ public class CommentCoreService {
     public Comment createComment(CreateComment createComment, Long userId) {
         Post findPost = postQueryService.getPost(createComment.getPostId());
 
-        Member member = memberValidationService.checkMemberJoinedCommunity(userId, findPost.getCommunity().getId());
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId());
+        if (Objects.isNull(member)) {
+            throw new NotJoinedMemberException();
+        }
 
         Comment findParentComment = commentValidationService
                 .checkCommentMaxDepthOver(createComment.getParentCommentId());
@@ -100,9 +100,7 @@ public class CommentCoreService {
                 () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
 
         Long commentedCommunityId = findComment.getPost().getCommunity().getId();
-        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
-        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
-
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
         if (member == null) {
             throw new NotJoinedMemberException();
         }
@@ -123,8 +121,7 @@ public class CommentCoreService {
         Post findPost = postQueryService.getPost(postId);
 
         Long postedCommunityId = findPost.getCommunity().getId();
-        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
-        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
 
         if (member == null) {
             throw new NotJoinedMemberException();

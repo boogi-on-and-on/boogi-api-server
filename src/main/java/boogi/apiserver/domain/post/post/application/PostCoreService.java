@@ -73,7 +73,7 @@ public class PostCoreService {
                            List<String> postMediaIds,
                            List<Long> mentionedUserIds) {
         Community community = communityQueryService.getCommunity(communityId);
-        Member member = memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
 
         List<PostMedia> findPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(postMediaIds);
 
@@ -96,8 +96,7 @@ public class PostCoreService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
 
         Long postedCommunityId = findPost.getCommunity().getId();
-        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
-        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
 
         if (member == null) {
             throw new NotJoinedMemberException();

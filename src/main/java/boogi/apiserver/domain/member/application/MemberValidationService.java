@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
@@ -22,15 +23,14 @@ public class MemberValidationService {
 
     private final MemberRepository memberRepository;
 
-    public Member checkAlreadyJoinedMember(Long userId, Long communityId) {
-        List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (members.size() > 0) {
+    public void checkAlreadyJoinedMember(Long userId, Long communityId) {
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        if (Objects.nonNull(member)) {
             throw new AlreadyJoinedMemberException();
         }
-        return null;
     }
 
-    public Member checkAlreadyJoinedMemberInBatch(List<Long> userIds, Long communityId) {
+    public void checkAlreadyJoinedMemberInBatch(List<Long> userIds, Long communityId) {
         List<Member> joinedMembers = memberRepository.findAlreadyJoinedMemberByUserId(userIds, communityId);
 
         boolean existenceOfJoinedMember = joinedMembers.stream()
@@ -38,24 +38,20 @@ public class MemberValidationService {
         if (existenceOfJoinedMember) {
             throw new InvalidValueException("이미 가입한 멤버가 있습니다.");
         }
-        return null;
     }
 
-    public Member checkMemberJoinedCommunity(Long userId, Long communityId) {
-        List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (members.isEmpty()) {
+    public void checkMemberJoinedCommunity(Long userId, Long communityId) {
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        if (Objects.isNull(member)) {
             throw new NotJoinedMemberException();
         }
-        return members.get(0);
     }
 
     public boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
-        List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (members.size() == 0) {
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        if (Objects.isNull(member)) {
             throw new EntityNotFoundException("가입하지 않은 멤버입니다.");
         }
-        Member member = members.get(0);
-
         Boolean hasAuth;
         switch (memberType) {
             case MANAGER:
@@ -78,11 +74,10 @@ public class MemberValidationService {
     }
 
     public boolean hasAuthWithoutThrow(Long userId, Long communityId, MemberType memberType) {
-        List<Member> members = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (members.size() == 0) {
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        if (Objects.isNull(member)) {
             throw new EntityNotFoundException("가입하지 않은 멤버입니다.");
         }
-        Member member = members.get(0);
 
         Boolean hasAuth;
         switch (memberType) {

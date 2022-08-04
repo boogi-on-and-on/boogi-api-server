@@ -35,7 +35,7 @@ class MemberValidationServiceTest {
     void 이미_가입한_멤버() {
         //given
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(Member.builder().build()));
+                .willReturn(Member.builder().build());
 
         //then
         assertThatThrownBy(() -> {
@@ -45,23 +45,10 @@ class MemberValidationServiceTest {
     }
 
     @Test
-    void 가입한_멤버_없는_경우() {
-        //given
-        given(memberRepository.findByUserIdAndCommunityId(any(), anyLong()))
-                .willReturn(List.of());
-
-        //when
-        Member member = memberValidationService.checkAlreadyJoinedMember(anyLong(), anyLong());
-
-        //then
-        assertThat(member).isNull();
-    }
-
-    @Test
     void 멤버의_해당_커뮤니티_가입여부() {
         //given
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of());
+                .willReturn(null);
 
         assertThatThrownBy(() -> {
             //when
@@ -71,7 +58,7 @@ class MemberValidationServiceTest {
 
     void 가입하지_않은_멤버가_접근() {
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of());
+                .willReturn(null);
 
         assertThatThrownBy(() -> {
             memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
@@ -86,7 +73,7 @@ class MemberValidationServiceTest {
                 .build();
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(member));
+                .willReturn(member);
 
         assertThatThrownBy(() -> {
             memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
@@ -102,7 +89,7 @@ class MemberValidationServiceTest {
 
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(member));
+                .willReturn(member);
 
         boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
 
@@ -118,7 +105,7 @@ class MemberValidationServiceTest {
 
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(member));
+                .willReturn(member);
 
         boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 

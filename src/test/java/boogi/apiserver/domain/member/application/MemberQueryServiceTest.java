@@ -81,7 +81,7 @@ class MemberQueryServiceTest {
         Member member = Member.builder().build();
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(member));
+                .willReturn(member);
 
         //when
         Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
@@ -94,7 +94,7 @@ class MemberQueryServiceTest {
     void 특정유저의_멤버가입_정보_없는경우() {
         //given
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of());
+                .willReturn(null);
 
         //when
         Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
@@ -110,7 +110,7 @@ class MemberQueryServiceTest {
                 .build();
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(List.of(member));
+                .willReturn(member);
 
         Boolean hasAuth = memberQueryService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 
