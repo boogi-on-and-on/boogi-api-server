@@ -26,9 +26,7 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
                         joinRequest.community.id.eq(communityId),
                         joinRequest.status.eq(JoinRequestStatus.PENDING),
                         joinRequest.confirmedMember.isNull(),
-                        joinRequest.acceptor.isNull(),
-                        joinRequest.canceledAt.isNull(),
-                        joinRequest.user.canceledAt.isNull()
+                        joinRequest.acceptor.isNull()
                 )
                 .orderBy(joinRequest.createdAt.desc())
                 .join(joinRequest.user, user).fetchJoin()
@@ -40,8 +38,7 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
         return queryFactory.selectFrom(joinRequest)
                 .where(
                         joinRequest.user.id.eq(userId),
-                        joinRequest.community.id.eq(communityId),
-                        joinRequest.canceledAt.isNull()
+                        joinRequest.community.id.eq(communityId)
                 )
                 .orderBy(joinRequest.createdAt.desc())
                 .limit(1)
@@ -51,7 +48,7 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
     @Override
     public List<JoinRequest> getRequestsByIds(List<Long> requestIds) {
         return queryFactory.selectFrom(joinRequest)
-                .where(joinRequest.id.in(requestIds), joinRequest.canceledAt.isNull())
+                .where(joinRequest.id.in(requestIds))
                 .fetch();
     }
 

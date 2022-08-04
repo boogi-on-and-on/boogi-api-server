@@ -27,8 +27,7 @@ public class MessageRepositoryCustomImpl implements MessageRepositoryCustom {
                 .where(
                         message.sender.id.eq(opponentId).and(message.receiver.id.eq(myId))
                                 .or(message.receiver.id.eq(opponentId).and(message.sender.id.eq(myId))),
-                        message.blocked_message.isFalse(),
-                        message.canceledAt.isNull()
+                        message.blocked_message.isFalse()
                 )
                 .orderBy(message.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -39,8 +38,7 @@ public class MessageRepositoryCustomImpl implements MessageRepositoryCustom {
                 .where(
                         message.sender.id.eq(opponentId).and(message.receiver.id.eq(myId))
                                 .or(message.receiver.id.eq(opponentId).and(message.sender.id.eq(myId))),
-                        message.blocked_message.isFalse(),
-                        message.canceledAt.isNull()
+                        message.blocked_message.isFalse()
                 );
 
         return PageableExecutionUtils.getPage(messages, pageable, () -> countQuery.fetch().size());

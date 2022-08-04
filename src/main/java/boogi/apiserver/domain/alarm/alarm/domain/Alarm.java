@@ -27,7 +27,4 @@ public class Alarm extends TimeBaseEntity {
     private String head;
     private String body;
 
-    public void delete() {
-        setCanceledAt(LocalDateTime.now());
-    }
 }

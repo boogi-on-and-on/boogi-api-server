@@ -5,14 +5,13 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
-import boogi.apiserver.global.error.exception.EntityNotFoundException;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,10 +24,7 @@ public class MemberQueryService {
     private final MemberRepository memberRepository;
 
     public Member getMember(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(InvalidValueException::new);
-        if (Objects.nonNull(member.getCanceledAt())) {
-            throw new EntityNotFoundException();
-        }
+        Member member = memberRepository.findById(memberId).orElseThrow(EntityNotFoundException::new);
         return member;
     }
 

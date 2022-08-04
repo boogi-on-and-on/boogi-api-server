@@ -138,8 +138,6 @@ public class CommentCoreService {
                 .map(c -> {
                     if (c.getDeletedAt() != null) {
                         return Comment.deletedOf(c.getId(), c.getDeletedAt());
-                    } else if (c.getCanceledAt() != null) {
-                        return Comment.deletedOf(c.getId(), c.getCanceledAt());
                     }
                     return c;
                 })

@@ -35,7 +35,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return queryFactory.select(member)
                 .from(member)
                 .where(member.user.id.eq(userId),
-                        member.canceledAt.isNull(),
                         member.bannedAt.isNull()
                 )
                 .fetch();
@@ -46,9 +45,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return queryFactory.selectFrom(member)
                 .where(member.user.id.eq(userId),
                         member.bannedAt.isNull(),
-                        member.canceledAt.isNull(),
-                        member.community.deletedAt.isNull(),
-                        member.community.canceledAt.isNull()
+                        member.community.deletedAt.isNull()
                 )
                 .join(member.community).fetchJoin()
                 .orderBy(member.createdAt.desc())
@@ -61,7 +58,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(
                         member.user.id.eq(userId),
                         member.community.id.eq(communityId),
-                        member.canceledAt.isNull(),
                         member.bannedAt.isNull()
                 )
                 .fetch();
@@ -79,8 +75,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(member)
                 .where(
                         member.community.id.eq(communityId),
-                        member.canceledAt.isNull(),
-                        member.user.canceledAt.isNull(),
                         member.bannedAt.isNull()
                 )
                 .innerJoin(member.user, user).fetchJoin()
@@ -96,9 +90,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .selectFrom(member)
                 .where(
                         member.community.id.eq(communityId),
-                        member.canceledAt.isNull(),
-                        member.bannedAt.isNull(),
-                        member.user.canceledAt.isNull()
+                        member.bannedAt.isNull()
                 )
                 .join(member.user, user);
 
@@ -110,7 +102,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return queryFactory.selectFrom(member)
                 .where(
                         member.community.id.eq(communityId),
-                        member.canceledAt.isNull(),
                         member.bannedAt.isNull()
                 )
                 .join(member.user, user).fetchJoin()
@@ -124,8 +115,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(
                         this.member.community.id.eq(communityId),
                         this.member.memberType.ne(MemberType.MANAGER),
-                        this.member.bannedAt.isNull(),
-                        this.member.canceledAt.isNull()
+                        this.member.bannedAt.isNull()
                 ).limit(1)
                 .fetchOne();
     }
@@ -137,8 +127,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(member)
                 .where(
                         member.community.id.eq(communityId),
-                        member.bannedAt.isNotNull(),
-                        member.canceledAt.isNull()
+                        member.bannedAt.isNotNull()
                 )
                 .join(member.user, user)
                 .orderBy(member.bannedAt.desc())
@@ -150,8 +139,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return queryFactory
                 .selectFrom(member)
                 .where(member.community.id.eq(communityId),
-                        member.user.id.in(userIds),
-                        member.canceledAt.isNull()
+                        member.user.id.in(userIds)
                 ).fetch();
     }
 
@@ -164,7 +152,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(
                         member.user.id.eq(userId),
                         member.bannedAt.isNull(),
-                        member.canceledAt.isNull(),
                         member.community.id.notIn(
                                 JPAExpressions
                                         .select(community.id)
@@ -172,15 +159,13 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                                         .where(
                                                 community.isPrivate.isTrue(),
                                                 community.deletedAt.isNull(),
-                                                community.canceledAt.isNull(),
                                                 community.id.in(
                                                         JPAExpressions
                                                                 .select(memberSub.community.id)
                                                                 .from(memberSub)
                                                                 .where(
                                                                         memberSub.user.id.in(userId, sessionUserId),
-                                                                        memberSub.bannedAt.isNull(),
-                                                                        memberSub.canceledAt.isNull()
+                                                                        memberSub.bannedAt.isNull()
                                                                 )
                                                                 .groupBy(memberSub.community.id)
                                                                 .having(memberSub.community.id.count().lt(2))
@@ -196,8 +181,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(member)
                 .where(
                         member.user.id.eq(sessionUserId),
-                        member.bannedAt.isNull(),
-                        member.canceledAt.isNull()
+                        member.bannedAt.isNull()
                 ).fetch();
     }
 
@@ -207,9 +191,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .where(
                         member.community.id.eq(communityId),
                         member.memberType.eq(MemberType.MANAGER),
-                        member.bannedAt.isNull(),
-                        member.canceledAt.isNull(),
-                        member.user.canceledAt.isNull()
+                        member.bannedAt.isNull()
                 )
                 .join(member.user)
                 .limit(1)

@@ -31,9 +31,7 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
                 .from(messageBlock)
                 .where(
                         messageBlock.user.id.eq(userId),
-                        messageBlock.blocked.eq(true),
-                        messageBlock.canceledAt.isNull(),
-                        messageBlock.user.canceledAt.isNull()
+                        messageBlock.blocked.eq(true)
                 )
                 .fetch();
     }
@@ -43,8 +41,7 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
         return queryFactory.selectFrom(messageBlock)
                 .where(
                         messageBlock.user.id.eq(userId),
-                        messageBlock.blockedUser.id.eq(blockedUserId),
-                        messageBlock.canceledAt.isNull()
+                        messageBlock.blockedUser.id.eq(blockedUserId)
                 )
                 .fetchOne();
     }
@@ -54,8 +51,7 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
         return queryFactory.selectFrom(messageBlock)
                 .where(
                         messageBlock.user.id.eq(userId),
-                        messageBlock.blockedUser.id.in(blockedUserIds),
-                        messageBlock.canceledAt.isNull()
+                        messageBlock.blockedUser.id.in(blockedUserIds)
                 )
                 .fetch();
     }
@@ -84,9 +80,7 @@ public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryC
         return queryFactory.selectFrom(messageBlock)
                 .where(
                         messageBlock.user.id.eq(userId),
-                        messageBlock.blocked.isTrue(),
-                        messageBlock.canceledAt.isNull(),
-                        messageBlock.user.canceledAt.isNull()
+                        messageBlock.blocked.isTrue()
                 ).fetch();
     }
 }

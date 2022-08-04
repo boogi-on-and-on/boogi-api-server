@@ -44,9 +44,7 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
         if (keyword == null) {
             Predicate[] where = {
                     privateEq(condition.getIsPrivate()),
-                    categoryEq(condition.getCategory()),
-                    community.canceledAt.isNull(),
-                    community.deletedAt.isNull()
+                    categoryEq(condition.getCategory())
             };
 
             List<Community> communities = queryFactory.selectFrom(community)
@@ -73,8 +71,6 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
         Predicate[] where = {
                 privateEq(condition.getIsPrivate()),
                 categoryEq(condition.getCategory()),
-                community.canceledAt.isNull(),
-                community.deletedAt.isNull(),
 
                 //todo: 상관쿼리 작동 원인 찾고 해결
                 // 아래 서브쿼리는 독립적으로 작동할 수 있는 비상관쿼리
@@ -153,9 +149,7 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
     public Optional<Community> findCommunityById(Long communityId) {
         Community findCommunity = queryFactory.selectFrom(QCommunity.community)
                 .where(
-                        QCommunity.community.id.eq(communityId),
-                        QCommunity.community.deletedAt.isNull(),
-                        QCommunity.community.canceledAt.isNull()
+                        QCommunity.community.id.eq(communityId)
                 ).fetchOne();
 
         return Optional.ofNullable(findCommunity);

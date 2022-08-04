@@ -22,8 +22,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public List<User> findUsersByIds(List<Long> userIds) {
         return queryFactory.selectFrom(user)
                 .where(
-                        user.id.in(userIds),
-                        user.canceledAt.isNull()
+                        user.id.in(userIds)
                 )
                 .fetch();
     }
@@ -32,8 +31,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public Optional<User> findUserById(Long userId) {
         User findUser = queryFactory.selectFrom(user)
                 .where(
-                        user.id.eq(userId),
-                        user.canceledAt.isNull()
+                        user.id.eq(userId)
                 )
                 .fetchOne();
         return Optional.ofNullable(findUser);

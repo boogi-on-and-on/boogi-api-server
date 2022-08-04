@@ -58,7 +58,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         .selectFrom(post)
                         .where(
                                 post.member.id.in(memberIds),
-                                post.canceledAt.isNull(),
                                 post.deletedAt.isNull()
                         )
                         .join(post.community)
@@ -84,7 +83,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         return queryFactory.selectFrom(post)
                 .where(
                         post.createdAt.after(LocalDateTime.now().minusDays(4)),
-                        post.canceledAt.isNull(),
                         post.deletedAt.isNull(),
                         post.community.isPrivate.isFalse()
                 )
@@ -99,7 +97,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         return queryFactory.selectFrom(post)
                 .where(
                         post.community.id.eq(communityId),
-                        post.canceledAt.isNull(),
                         post.deletedAt.isNull()
                 )
                 .orderBy(post.createdAt.desc())
@@ -116,10 +113,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .join(this.post.community, community).fetchJoin()
                 .where(
                         this.post.id.eq(postId),
-                        this.post.canceledAt.isNull(),
                         this.post.deletedAt.isNull(),
-                        this.post.community.deletedAt.isNull(),
-                        this.post.community.canceledAt.isNull()
+                        this.post.community.deletedAt.isNull()
                 ).fetchOne();
 
         return Optional.ofNullable(findPost);
@@ -130,7 +125,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         List<Post> posts = queryFactory.selectFrom(post)
                 .where(
                         post.community.id.eq(communityId),
-                        post.canceledAt.isNull(),
                         post.deletedAt.isNull()
                 )
                 .join(post.member, member).fetchJoin()
@@ -154,7 +148,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .from(this.post)
                 .where(
                         this.post.community.id.eq(communityId),
-                        this.post.canceledAt.isNull(),
                         this.post.deletedAt.isNull());
 
         return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchOne);
@@ -167,7 +160,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .join(this.post.member, member).fetchJoin()
                 .where(
                         this.post.id.eq(postId),
-                        this.post.canceledAt.isNull(),
                         this.post.deletedAt.isNull())
                 .fetchOne();
 
@@ -188,7 +180,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 post.community.isPrivate.ne(true).or(post.community.id.in(memberJoinedCommunityIds)),
                 post.community.deletedAt.isNull(),
                 post.deletedAt.isNull(),
-                post.canceledAt.isNull(),
                 post.id.in(
                         JPAExpressions.select(_post.id)
                                 .from(_post)
@@ -242,8 +233,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         Post findPost = queryFactory.selectFrom(this.post)
                 .where(
                         this.post.id.eq(postId),
-                        this.post.deletedAt.isNull(),
-                        this.post.canceledAt.isNull()
+                        this.post.deletedAt.isNull()
                 ).fetchOne();
 
         return Optional.ofNullable(findPost);
@@ -254,8 +244,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         List<Post> findPosts = queryFactory.selectFrom(post)
                 .where(
                         post.member.id.in(memberIds),
-                        post.deletedAt.isNull(),
-                        post.canceledAt.isNull()
+                        post.deletedAt.isNull()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -266,8 +255,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .from(post)
                 .where(
                         post.member.id.in(memberIds),
-                        post.deletedAt.isNull(),
-                        post.canceledAt.isNull()
+                        post.deletedAt.isNull()
                 );
 
         return PageableExecutionUtils.getPage(findPosts, pageable, countQuery::fetchOne);

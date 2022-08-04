@@ -42,8 +42,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
     public List<Notice> getAllNotices(Long communityId) {
         return queryFactory.selectFrom(notice)
                 .where(
-                        notice.community.id.eq(communityId),
-                        notice.canceledAt.isNull()
+                        notice.community.id.eq(communityId)
                 )
                 .join(notice.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()
@@ -60,7 +59,6 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
     }
 
     private List<Notice> queryNotice(BooleanBuilder builder, Integer limit) {
-        builder.and(notice.canceledAt.isNull());
         return queryFactory.selectFrom(notice)
                 .where(builder)
                 .orderBy(notice.createdAt.desc())

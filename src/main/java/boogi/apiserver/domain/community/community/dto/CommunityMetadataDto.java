@@ -29,7 +29,6 @@ public class CommunityMetadataDto {
         List<CommunityHashtag> hashtags = community.getHashtags();
         if (hashtags != null && hashtags.size() > 0) {
             this.hashtags = hashtags.stream()
-                    .filter(h -> h.getCanceledAt() == null)
                     .map(CommunityHashtag::getTag)
                     .collect(Collectors.toList());
         }

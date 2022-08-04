@@ -44,9 +44,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 queryFactory
                         .selectFrom(comment)
                         .where(
-                                comment.member.id.in(memberIds),
-                                comment.canceledAt.isNull(),
-                                comment.deletedAt.isNull()
+                                comment.member.id.in(memberIds)
                         )
                         .orderBy(comment.createdAt.desc())
                         .offset(pageable.getOffset())
@@ -64,9 +62,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         Comment result = queryFactory.selectFrom(this.comment)
                 .join(this.comment.member, member).fetchJoin()
                 .where(
-                        this.comment.id.eq(commentId),
-                        comment.deletedAt.isNull(),
-                        comment.canceledAt.isNull()
+                        this.comment.id.eq(commentId)
                 )
                 .fetchOne();
 
@@ -102,9 +98,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         return queryFactory.selectFrom(comment)
                 .join(comment.member, member).fetchJoin()
                 .where(
-                        comment.parent.id.in(commentIds),
-                        comment.deletedAt.isNull(),
-                        comment.canceledAt.isNull()
+                        comment.parent.id.in(commentIds)
                 )
                 .orderBy(
                         comment.parent.id.asc(),
@@ -116,9 +110,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     public Optional<Comment> findCommentById(Long commentId) {
         Comment findComment = queryFactory.selectFrom(this.comment)
                 .where(
-                        this.comment.id.eq(commentId),
-                        this.comment.deletedAt.isNull(),
-                        this.comment.canceledAt.isNull()
+                        this.comment.id.eq(commentId)
                 ).fetchOne();
 
         return Optional.ofNullable(findComment);
@@ -128,9 +120,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     public Page<Comment> getUserCommentPageByMemberIds(List<Long> memberIds, Pageable pageable) {
         List<Comment> findComments = queryFactory.selectFrom(comment)
                 .where(
-                        comment.member.id.in(memberIds),
-                        comment.deletedAt.isNull(),
-                        comment.canceledAt.isNull()
+                        comment.member.id.in(memberIds)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -140,9 +130,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory.select(comment.count())
                 .from(comment)
                 .where(
-                        comment.member.id.in(memberIds),
-                        comment.deletedAt.isNull(),
-                        comment.canceledAt.isNull()
+                        comment.member.id.in(memberIds)
                 );
 
         return PageableExecutionUtils.getPage(findComments, pageable, countQuery::fetchOne);

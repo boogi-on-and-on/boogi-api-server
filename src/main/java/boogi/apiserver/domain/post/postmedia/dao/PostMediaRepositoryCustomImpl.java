@@ -30,8 +30,7 @@ public class PostMediaRepositoryCustomImpl implements PostMediaRepositoryCustom 
         return queryFactory.selectFrom(postMedia)
                 .where(
                         postMedia.post.id.eq(postId),
-                        postMedia.deletedAt.isNull(),
-                        postMedia.canceledAt.isNull()
+                        postMedia.deletedAt.isNull()
                 ).fetch();
     }
 }

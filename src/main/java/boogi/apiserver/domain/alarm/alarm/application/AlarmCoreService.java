@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.alarm.alarm.application;
 
+import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ public class AlarmCoreService {
 
     private final AlarmQueryService alarmQueryService;
 
+    private final AlarmRepository alarmRepository;
+
     @Transactional
     public void deleteAlarm(Long userId, Long alarmId) {
         Alarm alarm = alarmQueryService.getAlarm(alarmId);
@@ -22,6 +25,6 @@ public class AlarmCoreService {
             throw new InvalidValueException("해당 알림을 삭제할 권한이 없습니다.");
         }
 
-        alarm.delete();
+        alarmRepository.delete(alarm);
     }
 }

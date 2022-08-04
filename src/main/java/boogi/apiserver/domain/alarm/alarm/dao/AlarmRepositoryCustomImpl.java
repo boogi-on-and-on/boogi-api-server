@@ -21,8 +21,7 @@ public class AlarmRepositoryCustomImpl implements AlarmRepositoryCustom {
     public List<Alarm> getAlarms(Long userId) {
         return queryFactory.selectFrom(alarm)
                 .where(
-                        alarm.user.id.eq(userId),
-                        alarm.canceledAt.isNull()
+                        alarm.user.id.eq(userId)
                 )
                 .orderBy(alarm.createdAt.desc())
                 .fetch();
