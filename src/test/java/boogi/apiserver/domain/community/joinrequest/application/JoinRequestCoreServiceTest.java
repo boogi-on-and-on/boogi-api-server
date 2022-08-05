@@ -11,6 +11,8 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,134 +51,147 @@ class JoinRequestCoreServiceTest {
     @Mock
     MemberQueryService memberQueryService;
 
-    @Test
-    void 이미_요청한_경우() {
-        User user = User.builder().id(1L).build();
-        given(userQueryService.getUser(anyLong()))
-                .willReturn(user);
+    @Nested
+    @DisplayName("가입 요청하기")
+    class RequestJoinRequest {
 
-        Community community = Community.builder().id(1L).build();
-        given(communityQueryService.getCommunity(anyLong()))
-                .willReturn(community);
+        @Test
+        @DisplayName("이미 요청한 경우")
+        void alreadyRequested() {
+            User user = User.builder().id(1L).build();
+            given(userQueryService.getUser(anyLong()))
+                    .willReturn(user);
 
-        JoinRequest request = JoinRequest.builder()
-                .status(JoinRequestStatus.PENDING)
-                .build();
-        given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                .willReturn(request);
+            Community community = Community.builder().id(1L).build();
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
 
-        assertThatThrownBy(() -> {
-            joinRequestCoreService.request(user.getId(), community.getId());
-        })
-                .isInstanceOf(InvalidValueException.class)
-                .hasMessage("이미 요청한 커뮤니티입니다.");
+            JoinRequest request = JoinRequest.builder()
+                    .status(JoinRequestStatus.PENDING)
+                    .build();
+            given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
+                    .willReturn(request);
+
+            assertThatThrownBy(() -> {
+                joinRequestCoreService.request(user.getId(), community.getId());
+            })
+                    .isInstanceOf(InvalidValueException.class)
+                    .hasMessage("이미 요청한 커뮤니티입니다.");
+        }
+
+        @Test
+        @DisplayName("이미 가입한 경우")
+        void alreadyJoined() {
+            User user = User.builder().id(1L).build();
+            given(userQueryService.getUser(anyLong()))
+                    .willReturn(user);
+
+            Community community = Community.builder().id(1L).build();
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
+
+            JoinRequest request = JoinRequest.builder()
+                    .status(JoinRequestStatus.CONFIRM)
+                    .build();
+            given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
+                    .willReturn(request);
+
+            assertThatThrownBy(() -> {
+                joinRequestCoreService.request(user.getId(), community.getId());
+            })
+                    .isInstanceOf(InvalidValueException.class)
+                    .hasMessage("이미 가입한 커뮤니티입니다.");
+        }
     }
 
-    @Test
-    void 이미_가입한_경우() {
-        User user = User.builder().id(1L).build();
-        given(userQueryService.getUser(anyLong()))
-                .willReturn(user);
+    @Nested
+    @DisplayName("가입 요청 승인 및 거부")
+    class ConfirmOrRejectRequest {
+        @Test
+        @DisplayName("요청승인 id의 매칭 실패")
+        void unmatch() {
+            JoinRequest request = JoinRequest.builder()
+                    .id(1L)
+                    .community(Community.builder().id(2L).build())
+                    .user(User.builder().id(3L).build())
+                    .build();
 
-        Community community = Community.builder().id(1L).build();
-        given(communityQueryService.getCommunity(anyLong()))
-                .willReturn(community);
+            given(joinRequestQueryService.getJoinRequest(anyLong()))
+                    .willReturn(request);
 
-        JoinRequest request = JoinRequest.builder()
-                .status(JoinRequestStatus.CONFIRM)
-                .build();
-        given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                .willReturn(request);
+            assertThatThrownBy(() -> {
+                joinRequestCoreService.confirmUser(1L, 1L, 1L);
+            }).isInstanceOf(InvalidValueException.class);
+        }
 
-        assertThatThrownBy(() -> {
-            joinRequestCoreService.request(user.getId(), community.getId());
-        })
-                .isInstanceOf(InvalidValueException.class)
-                .hasMessage("이미 가입한 커뮤니티입니다.");
-    }
+        @Test
+        @DisplayName("유저 여러개 승인하기")
+        void confirmManyRequest() {
+            //given
+            User u1 = User.builder().id(1L).build();
+            User u2 = User.builder().id(2L).build();
 
-    @Test
-    void 요청승인_id_매칭_실패() {
-        JoinRequest request = JoinRequest.builder()
-                .id(1L)
-                .community(Community.builder().id(2L).build())
-                .user(User.builder().id(3L).build())
-                .build();
+            Community community = Community.builder().id(3L).build();
 
-        given(joinRequestQueryService.getJoinRequest(anyLong()))
-                .willReturn(request);
+            JoinRequest jr1 = JoinRequest.of(u1, community);
+            JoinRequest jr2 = JoinRequest.of(u2, community);
 
-        assertThatThrownBy(() -> {
-            joinRequestCoreService.confirmUser(1L, 1L, 1L);
-        }).isInstanceOf(InvalidValueException.class);
-    }
+            given(joinRequestRepository.getRequestsByIds(any()))
+                    .willReturn(List.of(jr1, jr2));
 
+            Member m1 = Member.builder()
+                    .id(1L)
+                    .user(u1)
+                    .community(community)
+                    .build();
 
-    @Test
-    void 유저_여러개_승인() {
-        //given
-        User u1 = User.builder().id(1L).build();
-        User u2 = User.builder().id(2L).build();
+            Member m2 = Member.builder()
+                    .id(2L)
+                    .user(u2)
+                    .community(community)
+                    .build();
+            given(memberCoreService.joinMemberInBatch(any(), anyLong(), any()))
+                    .willReturn(List.of(m1, m2));
 
-        Community community = Community.builder().id(3L).build();
+            Member manager = Member.builder()
+                    .id(1L)
+                    .build();
+            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                    .willReturn(manager);
+            //when
+            joinRequestCoreService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
 
-        JoinRequest jr1 = JoinRequest.of(u1, community);
-        JoinRequest jr2 = JoinRequest.of(u2, community);
+            //then
+            assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.CONFIRM);
+            assertThat(jr1.getConfirmedMember()).isEqualTo(m1);
+            assertThat(jr1.getAcceptor()).isEqualTo(manager);
+        }
 
-        given(joinRequestRepository.getRequestsByIds(any()))
-                .willReturn(List.of(jr1, jr2));
+        @Test
+        @DisplayName("여러개 승인 거부하기")
+        void rejectManyRequest() {
+            //given
+            User u1 = User.builder().id(1L).build();
+            User u2 = User.builder().id(2L).build();
 
-        Member m1 = Member.builder()
-                .id(1L)
-                .user(u1)
-                .community(community)
-                .build();
+            Community community = Community.builder().id(3L).build();
 
-        Member m2 = Member.builder()
-                .id(2L)
-                .user(u2)
-                .community(community)
-                .build();
-        given(memberCoreService.joinMemberInBatch(any(), anyLong(), any()))
-                .willReturn(List.of(m1, m2));
+            JoinRequest jr1 = JoinRequest.of(u1, community);
+            JoinRequest jr2 = JoinRequest.of(u2, community);
 
-        Member manager = Member.builder()
-                .id(1L)
-                .build();
-        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                .willReturn(manager);
-        //when
-        joinRequestCoreService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
+            given(joinRequestRepository.getRequestsByIds(any()))
+                    .willReturn(List.of(jr1, jr2));
 
-        //then
-        assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.CONFIRM);
-        assertThat(jr1.getConfirmedMember()).isEqualTo(m1);
-        assertThat(jr1.getAcceptor()).isEqualTo(manager);
-    }
+            Member manager = Member.builder()
+                    .id(1L)
+                    .build();
+            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                    .willReturn(manager);
 
-    @Test
-    void 여러개_승인_거부() {
-        //given
-        User u1 = User.builder().id(1L).build();
-        User u2 = User.builder().id(2L).build();
-
-        Community community = Community.builder().id(3L).build();
-
-        JoinRequest jr1 = JoinRequest.of(u1, community);
-        JoinRequest jr2 = JoinRequest.of(u2, community);
-
-        given(joinRequestRepository.getRequestsByIds(any()))
-                .willReturn(List.of(jr1, jr2));
-
-        Member manager = Member.builder()
-                .id(1L)
-                .build();
-        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                .willReturn(manager);
-
-        //when
-        joinRequestCoreService.rejectUserInBatch(anyLong(), any(), community.getId());
-        assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
-        assertThat(jr2.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
+            //when
+            joinRequestCoreService.rejectUserInBatch(anyLong(), any(), community.getId());
+            assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
+            assertThat(jr2.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
+        }
     }
 }
