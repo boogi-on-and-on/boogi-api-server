@@ -3,13 +3,11 @@ package boogi.apiserver.domain.community.community.api;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.*;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.application.MemberCoreService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -18,7 +16,6 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
-import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -29,6 +26,8 @@ import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,7 +48,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static boogi.apiserver.domain.post.postmedia.domain.MediaType.*;
+import static boogi.apiserver.domain.post.postmedia.domain.MediaType.IMG;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -109,68 +108,76 @@ class CommunityApiControllerTest {
                         .build();
     }
 
-    @Test
-    void 커뮤니티_생성_성공() throws Exception {
 
-        //given
-        List<String> hashtags = List.of("해시테그1", "해시테그1");
-        CreateCommunityRequest request = CreateCommunityRequest.builder()
-                .name("커뮤니티1")
-                .category("CLUB")
-                .description("설명")
-                .autoApproval(true)
-                .isPrivate(false)
-                .hashtags(hashtags)
-                .build();
+    @Nested
+    @DisplayName("커뮤니티 생성 테스트")
+    class CommunityCreationTest {
 
-        Community community = Community.builder()
-                .id(1L)
-                .build();
+        @Test
+        @DisplayName("커뮤니티 생성 성공")
+        void communityCreationSuccess() throws Exception {
 
-        given(communityCoreService.createCommunity(any(), any(), anyLong())).willReturn(community);
+            //given
+            List<String> hashtags = List.of("해시테그1", "해시테그1");
+            CreateCommunityRequest request = CreateCommunityRequest.builder()
+                    .name("커뮤니티1")
+                    .category("CLUB")
+                    .description("설명")
+                    .autoApproval(true)
+                    .isPrivate(false)
+                    .hashtags(hashtags)
+                    .build();
+
+            Community community = Community.builder()
+                    .id(1L)
+                    .build();
+
+            given(communityCoreService.createCommunity(any(), any(), anyLong())).willReturn(community);
 
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        //when, then
-        mvc.perform(
-                        MockMvcRequestBuilders.post("/api/communities")
-                                .content(mapper.writeValueAsBytes(request))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                )
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.communityId").value("1"));
-    }
+            //when, then
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/communities")
+                                    .content(mapper.writeValueAsBytes(request))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    )
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.communityId").value("1"));
+        }
 
-    @Test
-    void 커뮤니티_생성_이미_동일한_이름() throws Exception {
+        @Test
+        @DisplayName("커뮤니티의 이름이 이미 존재하는 경우")
+        void communityAlreadyExistsName() throws Exception {
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        List<String> hashtags = List.of("해시테그1", "해시테그1");
-        CreateCommunityRequest request = CreateCommunityRequest.builder()
-                .name("커뮤니티1")
-                .category("CLUB")
-                .description("설명")
-                .autoApproval(true)
-                .isPrivate(false)
-                .hashtags(hashtags)
-                .build();
+            List<String> hashtags = List.of("해시테그1", "해시테그1");
+            CreateCommunityRequest request = CreateCommunityRequest.builder()
+                    .name("커뮤니티1")
+                    .category("CLUB")
+                    .description("설명")
+                    .autoApproval(true)
+                    .isPrivate(false)
+                    .hashtags(hashtags)
+                    .build();
 
-        given(communityCoreService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
+            given(communityCoreService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
 
-        mvc.perform(
-                        MockMvcRequestBuilders.post("/api/communities")
-                                .content(mapper.writeValueAsBytes(request))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                )
-                .andExpect(jsonPath("$.message").value("이미 해당 커뮤니티 이름이 존재합니다."));
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/communities")
+                                    .content(mapper.writeValueAsBytes(request))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    )
+                    .andExpect(jsonPath("$.message").value("이미 해당 커뮤니티 이름이 존재합니다."));
+        }
     }
 
 //    @Test
@@ -279,93 +286,194 @@ class CommunityApiControllerTest {
 //                .andExpect(jsonPath("$.posts").doesNotExist());
 //    }
 
-    @Test
-    void 가입요청_조회_권한_없을때() throws Exception {
 
-        given(memberValidationService.hasAuth(anyLong(), anyLong(), any()))
-                .willThrow(new NotAuthorizedMemberException());
+    @Nested
+    @DisplayName("커뮤니티 가입요청 테스트")
+    class JoinRequestTest {
+        @Test
+        @DisplayName("가입요청 조회 권한이 없는 경우")
+        void unauthorized() throws Exception {
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            given(memberValidationService.hasAuth(anyLong(), anyLong(), any()))
+                    .willThrow(new NotAuthorizedMemberException());
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/requests")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                )
-                .andExpect(jsonPath("$.code").value("MEMBER_002"));
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                            MockMvcRequestBuilders.get("/api/communities/1/requests")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    )
+                    .andExpect(jsonPath("$.code").value("MEMBER_002"));
+        }
+
+        @Test
+        @DisplayName("관리자의 가입요청목록 조회 성공")
+        void getJoinRequestList() throws Exception {
+
+            JoinRequest request = JoinRequest.builder()
+                    .id(2L)
+                    .user(User.builder()
+                            .id(1L)
+                            .tagNumber("#0001")
+                            .username("홍길동")
+                            .build())
+                    .build();
+
+            given(joinRequestQueryService.getAllRequests(anyLong()))
+                    .willReturn(List.of(request));
+
+
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                            MockMvcRequestBuilders.get("/api/communities/1/requests")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    )
+                    .andExpect(jsonPath("$.requests[0].id").value(2))
+                    .andExpect(jsonPath("$.requests[0].user.tagNum").value("#0001"))
+                    .andExpect(jsonPath("$.requests[0].user.id").value(1))
+                    .andExpect(jsonPath("$.requests[0].user.name").value("홍길동"))
+                    .andExpect(jsonPath("$.requests[0].user.profileImageUrl").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("가입요청 성공")
+        void applySuccess() throws Exception {
+
+            given(joinRequestCoreService.request(anyLong(), anyLong()))
+                    .willReturn(1L);
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                    MockMvcRequestBuilders.post("/api/communities/1/requests")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(session)
+                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+            ).andExpect(jsonPath("$.requestId").value(1));
+
+        }
+
+        @Test
+        @DisplayName("관리가자 가입요청 컨펌 성공")
+        void confirm() throws Exception {
+
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                    MockMvcRequestBuilders.post("/api/communities/1/requests/confirm")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                            .session(session)
+                            .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
+            ).andExpect(status().isOk());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("커뮤니티 기본정보 테스트")
+    class CommunityUpdateTest {
+
+        @Test
+        @DisplayName("커뮤니티 업데이트 소개란이 없는 경우")
+        void noIntroduce() throws Exception {
+
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                    .hashtags(List.of("t1"))
+                    .build();
+
+            mvc.perform(
+                            MockMvcRequestBuilders.patch("/api/communities/1")
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(mapper.writeValueAsString(request))
+                    ).andExpect(status().is4xxClientError())
+                    .andExpect(jsonPath("$.code").value("COMMON_004"))
+                    .andExpect(jsonPath("$.message").value("커뮤니티 소개란을 입력해주세요."));
+        }
+
+        @Test
+        @DisplayName("커뮤니티 업데이트 소개란이 10글자 미만인 경우")
+        void introduceIsLessThan10() throws Exception {
+
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                    .description("@13")
+                    .hashtags(List.of("t1"))
+                    .build();
+
+            mvc.perform(
+                            MockMvcRequestBuilders.patch("/api/communities/1")
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(mapper.writeValueAsString(request))
+                    ).andExpect(status().is4xxClientError())
+                    .andExpect(jsonPath("$.code").value("COMMON_004"))
+                    .andExpect(jsonPath("$.message").value("10글자 이상 소개란을 입력해주세요."));
+        }
+
+        @Test
+        @DisplayName("해시테그가 5개 초과하는 경우")
+        void hashTagsIsGreaterThan5() throws Exception {
+
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                    .description("@1fasdfadsfasdf3")
+                    .hashtags(List.of("t1", "t2", "t3", "t4", "t5", "t6"))
+                    .build();
+
+            mvc.perform(
+                            MockMvcRequestBuilders.patch("/api/communities/1")
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(mapper.writeValueAsString(request))
+                    ).andExpect(status().is4xxClientError())
+                    .andExpect(jsonPath("$.code").value("COMMON_004"))
+                    .andExpect(jsonPath("$.message").value("해시테그는 5개까지만 입력가능합니다."));
+        }
+
+        @Test
+        @DisplayName("커뮤니티 업데이트 성공")
+        void updateSuccess() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+                    .description("@1fasdfadsfasdf3")
+                    .hashtags(List.of("t1", "t2", "t3", "t4"))
+                    .build();
+
+            mvc.perform(
+                    MockMvcRequestBuilders.patch("/api/communities/1")
+                            .session(session)
+                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+            ).andExpect(status().isOk());
+        }
     }
 
     @Test
-    void 가입요청_조회_성공() throws Exception {
-
-        JoinRequest request = JoinRequest.builder()
-                .id(2L)
-                .user(User.builder()
-                        .id(1L)
-                        .tagNumber("#0001")
-                        .username("홍길동")
-                        .build())
-                .build();
-
-        given(joinRequestQueryService.getAllRequests(anyLong()))
-                .willReturn(List.of(request));
-
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/requests")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                )
-                .andExpect(jsonPath("$.requests[0].id").value(2))
-                .andExpect(jsonPath("$.requests[0].user.tagNum").value("#0001"))
-                .andExpect(jsonPath("$.requests[0].user.id").value(1))
-                .andExpect(jsonPath("$.requests[0].user.name").value("홍길동"))
-                .andExpect(jsonPath("$.requests[0].user.profileImageUrl").doesNotExist());
-    }
-
-    @Test
-    void 가입요청_성공() throws Exception {
-
-        given(joinRequestCoreService.request(anyLong(), anyLong()))
-                .willReturn(1L);
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                MockMvcRequestBuilders.post("/api/communities/1/requests")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-        ).andExpect(jsonPath("$.requestId").value(1));
-
-    }
-
-    @Test
-    void 가입_컨펌하기() throws Exception {
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                MockMvcRequestBuilders.post("/api/communities/1/requests/confirm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                        .session(session)
-                        .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
-        ).andExpect(status().isOk());
-    }
-
-    //todo: pagnation controller 테스트 방법 (CommunityApiController.getMembers())
-
-
-    @Test
-    void 커뮤니티_게시글_목록() throws Exception {
+    @DisplayName("커뮤니티 게시글 목록 조회")
+    void getCommunityPostList() throws Exception {
         Community community = Community.builder()
                 .communityName("커뮤니티1")
                 .build();
@@ -432,7 +540,8 @@ class CommunityApiControllerTest {
     }
 
     @Test
-    void 커뮤니티_폐쇄() throws Exception {
+    @DisplayName("커뮤니티 폐쇄")
+    void communityShutdown() throws Exception {
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -444,49 +553,55 @@ class CommunityApiControllerTest {
         ).andExpect(status().isOk());
     }
 
-    @Test
-    void 차단된_멤버() throws Exception {
-        BannedMemberDto dto = BannedMemberDto.builder()
-                .memberId(1L)
-                .user(UserBasicProfileDto.builder()
-                        .id(2L)
-                        .name("홍길동")
-                        .tagNum("#0001")
-                        .build())
-                .build();
+    @Nested
+    @DisplayName("커뮤니티 멤버 차단")
+    class BlockedMember {
+        @Test
+        @DisplayName("차단된 멤버 목록 조회")
+        void getBlockedMemberList() throws Exception {
+            BannedMemberDto dto = BannedMemberDto.builder()
+                    .memberId(1L)
+                    .user(UserBasicProfileDto.builder()
+                            .id(2L)
+                            .name("홍길동")
+                            .tagNum("#0001")
+                            .build())
+                    .build();
 
-        given(memberQueryService.getBannedMembers(anyLong()))
-                .willReturn(List.<BannedMemberDto>of(dto));
+            given(memberQueryService.getBannedMembers(anyLong()))
+                    .willReturn(List.<BannedMemberDto>of(dto));
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
+            mvc.perform(
+                            MockMvcRequestBuilders.get("/api/communities/1/members/banned")
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    ).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.banned[0].memberId").value(1L))
+                    .andExpect(jsonPath("$.banned[0].user.id").value(2L));
+        }
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/members/banned")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.banned[0].memberId").value(1L))
-                .andExpect(jsonPath("$.banned[0].user.id").value(2L));
+        @Test
+        @DisplayName("멤버 차단 해제")
+        void unblockMember() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                    MockMvcRequestBuilders.post("/api/communities/1/members/release")
+                            .session(session)
+                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(Map.of("memberId", "1")))
+            ).andExpect(status().isOk());
+        }
     }
 
     @Test
-    void 멤버_차단해제() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                MockMvcRequestBuilders.post("/api/communities/1/members/release")
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(Map.of("memberId", "1")))
-        ).andExpect(status().isOk());
-    }
-
-    @Test
-    void 멤버_권한주기() throws Exception {
+    @DisplayName("멤버 권한 부여하기")
+    void delegate() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
@@ -505,7 +620,8 @@ class CommunityApiControllerTest {
     }
 
     @Test
-    void 커뮤니티_설정() throws Exception {
+    @DisplayName("설정정보 수정하기")
+    void settingCommunity() throws Exception {
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -525,7 +641,8 @@ class CommunityApiControllerTest {
     }
 
     @Test
-    void 커뮤니티_메타데이터_전달() throws Exception {
+    @DisplayName("기본 메타데이터 전달")
+    void getMetadata() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
@@ -548,92 +665,10 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.metadata.hashtags[0]").value("테그1"));
     }
 
-    @Test
-    void 커뮤니티_업데이트_소개란_없는경우() throws Exception {
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
-                .hashtags(List.of("t1"))
-                .build();
-
-        mvc.perform(
-                        MockMvcRequestBuilders.patch("/api/communities/1")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(request))
-                ).andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.code").value("COMMON_004"))
-                .andExpect(jsonPath("$.message").value("커뮤니티 소개란을 입력해주세요."));
-    }
 
     @Test
-    void 커뮤니티_업데이트_소개란_10글자_미만() throws Exception {
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
-                .description("@13")
-                .hashtags(List.of("t1"))
-                .build();
-
-        mvc.perform(
-                        MockMvcRequestBuilders.patch("/api/communities/1")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(request))
-                ).andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.code").value("COMMON_004"))
-                .andExpect(jsonPath("$.message").value("10글자 이상 소개란을 입력해주세요."));
-    }
-
-    @Test
-    void 커뮤니티_업데이트_해시테그_5개_초과() throws Exception {
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
-                .description("@1fasdfadsfasdf3")
-                .hashtags(List.of("t1", "t2", "t3", "t4", "t5", "t6"))
-                .build();
-
-        mvc.perform(
-                        MockMvcRequestBuilders.patch("/api/communities/1")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(request))
-                ).andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.code").value("COMMON_004"))
-                .andExpect(jsonPath("$.message").value("해시테그는 5개까지만 입력가능합니다."));
-    }
-
-    @Test
-    void 커뮤니티_업데이트_성공() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        CommunityUpdateRequest request = CommunityUpdateRequest.builder()
-                .description("@1fasdfadsfasdf3")
-                .hashtags(List.of("t1", "t2", "t3", "t4"))
-                .build();
-
-        mvc.perform(
-                MockMvcRequestBuilders.patch("/api/communities/1")
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request))
-        ).andExpect(status().isOk());
-    }
-
-    @Test
-    void 커뮤니티_검색하기() throws Exception {
+    @DisplayName("커뮤니티 검색하기")
+    void searchCommunity() throws Exception {
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);

@@ -8,7 +8,8 @@ import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.request_enum.CommunityListingOrder;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -34,117 +35,124 @@ class CommunityRepositoryTest {
     @Autowired
     EntityManager em;
 
-    @Test
-    void 커뮤니티_검색_키워드_있을때() {
+    @Nested
+    @DisplayName("커뮤니티 검색 테스트")
+    class CommunitySearchTest {
+        @Test
+        @DisplayName("커뮤니티 검색 키워드가 있을 경우")
+        void ThereIsSearchKeyword() {
 
-        //given
-        Community c1 = Community.builder()
-                .communityName("커뮤니티1")
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .memberCount(12)
-                .hashtags(new ArrayList<>())
-                .description("소개")
-                .build();
-        c1.setCreatedAt(LocalDateTime.now());
+            //given
+            Community c1 = Community.builder()
+                    .communityName("커뮤니티1")
+                    .isPrivate(true)
+                    .category(CommunityCategory.ACADEMIC)
+                    .memberCount(12)
+                    .hashtags(new ArrayList<>())
+                    .description("소개")
+                    .build();
+            c1.setCreatedAt(LocalDateTime.now());
 
-        Community c2 = Community.builder()
-                .communityName("커뮤니티2")
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .memberCount(23)
-                .hashtags(new ArrayList<>())
-                .description("안녕")
-                .build();
-        c2.setCreatedAt(LocalDateTime.now().minusDays(2));
+            Community c2 = Community.builder()
+                    .communityName("커뮤니티2")
+                    .isPrivate(true)
+                    .category(CommunityCategory.ACADEMIC)
+                    .memberCount(23)
+                    .hashtags(new ArrayList<>())
+                    .description("안녕")
+                    .build();
+            c2.setCreatedAt(LocalDateTime.now().minusDays(2));
 
-        communityRepository.saveAll(List.of(c1, c2));
+            communityRepository.saveAll(List.of(c1, c2));
 
-        CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
-        CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
-        CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
-        communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
+            CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
+            CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
+            CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
+            communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
 
-        CommunityQueryRequest request = CommunityQueryRequest.builder()
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .order(CommunityListingOrder.NEWER)
-                .keyword("안녕")
-                .build();
+            CommunityQueryRequest request = CommunityQueryRequest.builder()
+                    .isPrivate(true)
+                    .category(CommunityCategory.ACADEMIC)
+                    .order(CommunityListingOrder.NEWER)
+                    .keyword("안녕")
+                    .build();
 
-        em.flush();
-        em.clear();
+            em.flush();
+            em.clear();
 
-        //when
-        Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            //when
+            Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
-        //then
-        List<SearchCommunityDto> dtos = page.getContent();
-        assertThat(dtos.size()).isEqualTo(1);
+            //then
+            List<SearchCommunityDto> dtos = page.getContent();
+            assertThat(dtos.size()).isEqualTo(1);
 
-        SearchCommunityDto first = dtos.get(0);
-        assertThat(first.getId()).isEqualTo(c1.getId());
+            SearchCommunityDto first = dtos.get(0);
+            assertThat(first.getId()).isEqualTo(c1.getId());
 
-        assertThat(first.getHashtags()).containsExactlyInAnyOrderElementsOf(List.of("안녕", "ㅎㅎ"));
-        assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
-        assertThat(first.getDescription()).isEqualTo("소개");
-        assertThat(first.getMemberCount()).isEqualTo(12);
-        assertThat(first.getName()).isEqualTo("커뮤니티1");
-    }
+            assertThat(first.getHashtags()).containsExactlyInAnyOrderElementsOf(List.of("안녕", "ㅎㅎ"));
+            assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
+            assertThat(first.getDescription()).isEqualTo("소개");
+            assertThat(first.getMemberCount()).isEqualTo(12);
+            assertThat(first.getName()).isEqualTo("커뮤니티1");
+        }
 
-    @Test
-    void 커뮤니티_검색_키워드_없을때() {
-        //given
-        Community c1 = Community.builder()
-                .communityName("커뮤니티1")
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .memberCount(12)
-                .hashtags(new ArrayList<>())
-                .description("소개")
-                .build();
-        c1.setCreatedAt(LocalDateTime.now());
+        @Test
+        @DisplayName("커뮤니티 검색 키워드가 없는 경우")
+        void ThereIsNoSearchKeyword() {
+            //given
+            Community c1 = Community.builder()
+                    .communityName("커뮤니티1")
+                    .isPrivate(true)
+                    .category(CommunityCategory.ACADEMIC)
+                    .memberCount(12)
+                    .hashtags(new ArrayList<>())
+                    .description("소개")
+                    .build();
+            c1.setCreatedAt(LocalDateTime.now());
 
-        Community c2 = Community.builder()
-                .communityName("커뮤니티2")
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .memberCount(23)
-                .hashtags(new ArrayList<>())
-                .description("안녕")
-                .build();
-        c2.setCreatedAt(LocalDateTime.now().minusDays(2));
+            Community c2 = Community.builder()
+                    .communityName("커뮤니티2")
+                    .isPrivate(true)
+                    .category(CommunityCategory.ACADEMIC)
+                    .memberCount(23)
+                    .hashtags(new ArrayList<>())
+                    .description("안녕")
+                    .build();
+            c2.setCreatedAt(LocalDateTime.now().minusDays(2));
 
-        communityRepository.saveAll(List.of(c1, c2));
+            communityRepository.saveAll(List.of(c1, c2));
 
-        CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
-        CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
-        CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
-        communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
+            CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
+            CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
+            CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
+            communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
-        CommunityQueryRequest request = CommunityQueryRequest.builder()
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .order(CommunityListingOrder.NEWER)
-                .build();
+            CommunityQueryRequest request = CommunityQueryRequest.builder()
+                    .isPrivate(true)
+                    .category(CommunityCategory.ACADEMIC)
+                    .order(CommunityListingOrder.NEWER)
+                    .build();
 
-        em.flush();
-        em.clear();
+            em.flush();
+            em.clear();
 
-        //when
-        Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            //when
 
-        //then
-        List<SearchCommunityDto> dtos = page.getContent();
-        assertThat(dtos.size()).isEqualTo(2);
+            Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
-        SearchCommunityDto first = dtos.get(0);
-        assertThat(first.getId()).isEqualTo(c1.getId());
+            //then
+            List<SearchCommunityDto> dtos = page.getContent();
+            assertThat(dtos.size()).isEqualTo(2);
 
-        assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
-        assertThat(first.getDescription()).isEqualTo("소개");
-        assertThat(first.getMemberCount()).isEqualTo(12);
-        assertThat(first.getName()).isEqualTo("커뮤니티1");
+            SearchCommunityDto first = dtos.get(0);
+            assertThat(first.getId()).isEqualTo(c1.getId());
+
+            assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
+            assertThat(first.getDescription()).isEqualTo("소개");
+            assertThat(first.getMemberCount()).isEqualTo(12);
+            assertThat(first.getName()).isEqualTo("커뮤니티1");
+        }
     }
 }

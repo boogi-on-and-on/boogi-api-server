@@ -3,6 +3,7 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,7 +27,8 @@ class CommunityQueryServiceTest {
     CommunityQueryService communityQueryService;
 
     @Test
-    void 커뮤니티와_해시테그() {
+    @DisplayName("커뮤니티 기본 정보 전달")
+    void communityBasicInfo() {
         //given
         Community community = Community.builder()
                 .id(1L)

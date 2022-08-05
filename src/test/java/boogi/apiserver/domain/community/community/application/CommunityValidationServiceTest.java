@@ -3,6 +3,7 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +26,8 @@ class CommunityValidationServiceTest {
 
 
     @Test
-    void 커뮤니티_이미_동일한_이름() {
+    @DisplayName("커뮤니티 동일한 이름 있는 경우")
+    void alreadySameCommunityName() {
         //given
         given(communityRepository.findByCommunityNameEquals(anyString()))
                 .willThrow(new AlreadyExistsCommunityNameException());
