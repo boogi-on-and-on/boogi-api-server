@@ -7,6 +7,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ import static javax.persistence.FetchType.LAZY;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Where(clause = "deleted_at is null")
+@SQLDelete(sql = "UPDATE post SET deleted_at = now(), likeCount = 0 WHERE post_id = ?")
 public class Post extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,11 +69,6 @@ public class Post extends TimeBaseEntity {
 
     public static Post of(Community community, Member member, String content) {
         return new Post(community, member, content);
-    }
-
-    public void deletePost() {
-        this.deletedAt = LocalDateTime.now();
-        this.likeCount = 0;
     }
 
     public void addLikeCount() {

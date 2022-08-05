@@ -19,6 +19,7 @@ import static javax.persistence.FetchType.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Where(clause = "deleted_at is null")
+@SQLDelete(sql = "UPDATE post_media SET deleted_at = now() WHERE post_media_id = ?")
 public class PostMedia extends TimeBaseEntity {
 
     @Id
@@ -46,9 +47,5 @@ public class PostMedia extends TimeBaseEntity {
     public void mapPost(Post post) {
         this.post = post;
         post.getPostMedias().add(this);
-    }
-
-    public void deletePostMedia() {
-        this.deletedAt = LocalDateTime.now();
     }
 }
