@@ -4,6 +4,7 @@ import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -26,6 +27,7 @@ class MessageBlockRepositoryTest {
     EntityManager em;
 
     @Test
+    @DisplayName("차단한 멤버 목록 조회하기")
     void getBlockedUsers() {
         //given
         User u1 = User.builder()
@@ -65,6 +67,7 @@ class MessageBlockRepositoryTest {
     }
 
     @Test
+    @DisplayName("userId로 messageBlock 로우 가져오기")
     void getMessageBlockByUserId() {
         //given
         User user = User.builder().build();
@@ -85,6 +88,7 @@ class MessageBlockRepositoryTest {
     }
 
     @Test
+    @DisplayName("2개 이상 userId로 messageBlock 로우 가져오기")
     void getMessageBlocksByUserIds() {
         //given
         User user = User.builder().build();
@@ -110,6 +114,7 @@ class MessageBlockRepositoryTest {
     }
 
     @Test
+    @DisplayName("messageBlock의 block update bulk")
     void updateBulkBlockedStatus() {
         //given
         User blockedUser1 = User.builder().build();

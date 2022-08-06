@@ -7,6 +7,7 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,7 +39,8 @@ class MessageBlockCoreServiceTest {
     MessageBlockCoreService messageBlockCoreService;
 
     @Test
-    void 메시지_이미_차단된_경우() {
+    @DisplayName("메시지 이미 차단한 경우")
+    void alreadyBlockMemberMessage() {
         //given
         MessageBlock block = MessageBlock.builder()
                 .blocked(false)
@@ -57,7 +59,8 @@ class MessageBlockCoreServiceTest {
     }
 
     @Test
-    void 메시지_차단_해제_성공() {
+    @DisplayName("메시지 차단 해제 성공")
+    void unblockMemberMessage() {
         //given
         MessageBlock block = MessageBlock.builder().blocked(true).build();
 
@@ -72,7 +75,8 @@ class MessageBlockCoreServiceTest {
     }
 
     @Test
-    void 메시지_차단하기_페어만_있을때() {
+    @DisplayName("row 업데이트만 진행하는 경우")
+    void updateMessageBlock() {
         //given
         User user = User.builder().id(1L).build();
         given(userQueryService.getUser(anyLong()))
@@ -100,7 +104,8 @@ class MessageBlockCoreServiceTest {
     }
 
     @Test
-    void 메시지_차단하기_페어_없을때() {
+    @DisplayName("차단하기 페어 추가")
+    void insertMessageBlock() {
         //given
         User user = User.builder().id(1L).build();
         given(userQueryService.getUser(anyLong()))
