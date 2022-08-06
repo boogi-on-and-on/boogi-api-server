@@ -4,6 +4,8 @@ import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.NoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.NoticeDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,50 +28,59 @@ class NoticeQueryServiceTest {
     @InjectMocks
     NoticeQueryService noticeQueryService;
 
-    @Test
-    void 앱_최근공지() {
-        //given
-        Notice notice = Notice.builder()
-                .id(1L)
-                .title("제목")
-                .build();
-        notice.setCreatedAt(LocalDateTime.now());
 
-        given(noticeRepository.getLatestNotice())
-                .willReturn(List.of(notice));
+    @Nested
+    @DisplayName("앱 공지사항 테스트")
+    class AppNoticeTest {
 
-        //when
-        List<NoticeDto> noticeDtos = noticeQueryService.getAppLatestNotice();
+        @Test
+        @DisplayName("최근공지 조회")
+        void lastCreatedNotice() {
+            //given
+            Notice notice = Notice.builder()
+                    .id(1L)
+                    .title("제목")
+                    .build();
+            notice.setCreatedAt(LocalDateTime.now());
 
-        //then
-        NoticeDto dto = noticeDtos.get(0);
-        assertThat(dto.getId()).isEqualTo(1L);
-        assertThat(dto.getTitle()).isEqualTo("제목");
-        assertThat(dto.getCreatedAt()).isEqualTo(notice.getCreatedAt().toString());
-    }
+            given(noticeRepository.getLatestNotice())
+                    .willReturn(List.of(notice));
 
-    @Test
-    void 앱_공지_전체() {
-        //given
-        Notice notice = Notice.builder()
-                .id(1L)
-                .title("제목")
-                .content("내용")
-                .build();
-        notice.setCreatedAt(LocalDateTime.now());
+            //when
+            List<NoticeDto> noticeDtos = noticeQueryService.getAppLatestNotice();
 
-        given(noticeRepository.getAllNotices())
-                .willReturn(List.of(notice));
+            //then
+            NoticeDto dto = noticeDtos.get(0);
+            assertThat(dto.getId()).isEqualTo(1L);
+            assertThat(dto.getTitle()).isEqualTo("제목");
+            assertThat(dto.getCreatedAt()).isEqualTo(notice.getCreatedAt().toString());
+        }
 
-        //when
-        List<NoticeDetailDto> dtos = noticeQueryService.getAppNotice();
+        @Test
+        @DisplayName("전체 공지사항 조회")
+        void allNotice() {
+            //given
+            Notice notice = Notice.builder()
+                    .id(1L)
+                    .title("제목")
+                    .content("내용")
+                    .build();
+            notice.setCreatedAt(LocalDateTime.now());
 
-        //then
-        NoticeDetailDto dto = dtos.get(0);
+            given(noticeRepository.getAllNotices())
+                    .willReturn(List.of(notice));
 
-        assertThat(dto.getId()).isEqualTo(1L);
-        assertThat(dto.getTitle()).isEqualTo("제목");
-        assertThat(dto.getContent()).isEqualTo("내용");
-        assertThat(dto.getCreatedAt()).isEqualTo(notice.getCreatedAt().toString());
+            //when
+            List<NoticeDetailDto> dtos = noticeQueryService.getAppNotice();
+
+            //then
+            NoticeDetailDto dto = dtos.get(0);
+
+            assertThat(dto.getId()).isEqualTo(1L);
+            assertThat(dto.getTitle()).isEqualTo("제목");
+            assertThat(dto.getContent()).isEqualTo("내용");
+            assertThat(dto.getCreatedAt()).isEqualTo(notice.getCreatedAt().toString());
+        }
+
     }
 }

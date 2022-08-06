@@ -9,6 +9,8 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,40 +38,46 @@ class NoticeCoreServiceTest {
     @InjectMocks
     NoticeCoreService noticeCoreService;
 
-    @Test
-    void 공지사항_생성_권한없을때() {
-        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                .willReturn(Member.builder().memberType(MemberType.NORMAL).build());
+    @Nested
+    @DisplayName("공지사항 생성 테스트")
+    class CreateNoticeTest {
 
-        assertThatThrownBy(() -> {
-            noticeCoreService.create(Map.of(),anyLong(),anyLong());
-        })
-                .isInstanceOf(InvalidValueException.class)
-                .hasMessage("관리자가 아닙니다.");
+        @Test
+        @DisplayName("생성 권한 없는 경우")
+        void hasNoAuth() {
+            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                    .willReturn(Member.builder().memberType(MemberType.NORMAL).build());
+
+            assertThatThrownBy(() -> {
+                noticeCoreService.create(Map.of(), anyLong(), anyLong());
+            })
+                    .isInstanceOf(InvalidValueException.class)
+                    .hasMessage("관리자가 아닙니다.");
+        }
+
+        @Test
+        @DisplayName("생성 성공")
+        void success() {
+            Member member = Member.builder().memberType(MemberType.SUB_MANAGER).build();
+            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+                    .willReturn(member);
+
+            Community community = Community.builder().build();
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
+
+            Notice notice = noticeCoreService.create(
+                    Map.of("content", "내용",
+                            "title", "제목"
+                    ),
+                    anyLong(),
+                    anyLong()
+            );
+
+            assertThat(notice.getContent()).isEqualTo("내용");
+            assertThat(notice.getTitle()).isEqualTo("제목");
+            assertThat(notice.getCommunity()).isEqualTo(community);
+            assertThat(notice.getMember()).isEqualTo(member);
+        }
     }
-
-    @Test
-    void 공지사항_생성_성공() {
-        Member member = Member.builder().memberType(MemberType.SUB_MANAGER).build();
-        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                .willReturn(member);
-
-        Community community = Community.builder().build();
-        given(communityQueryService.getCommunity(anyLong()))
-                .willReturn(community);
-
-        Notice notice = noticeCoreService.create(
-                Map.of("content", "내용",
-                        "title", "제목"
-                ),
-                anyLong(),
-                anyLong()
-        );
-
-        assertThat(notice.getContent()).isEqualTo("내용");
-        assertThat(notice.getTitle()).isEqualTo("제목");
-        assertThat(notice.getCommunity()).isEqualTo(community);
-        assertThat(notice.getMember()).isEqualTo(member);
-    }
-
 }

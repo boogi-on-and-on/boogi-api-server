@@ -5,9 +5,11 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -40,7 +42,9 @@ class NoticeRepositoryTest {
     private EntityManagerFactory emf;
 
 
+
     @Test
+    @DisplayName("최근 공지사항 5개 조회")
     void getLatestNotice() {
         //given
         Community community = Community.builder().build();
@@ -62,6 +66,7 @@ class NoticeRepositoryTest {
     }
 
     @Test
+    @DisplayName("전체 공지사항 조회")
     void getAllNotices() {
         //given
         Community community = Community.builder().build();
@@ -83,6 +88,7 @@ class NoticeRepositoryTest {
     }
 
     @Test
+    @DisplayName("커뮤니티의 전체 공지사항 조회")
     void getAllNotices_community() {
         //given
         User user = User.builder().build();
