@@ -6,6 +6,8 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +30,8 @@ class MemberQueryServiceTest {
     MemberQueryService memberQueryService;
 
     @Test
-    void 특정유저가_가입한_멤버_목록_조회() {
+    @DisplayName("특정 유저가 가입한 멤버목록 조회")
+    void myCommunityList() {
 
         //given
         User user = User.builder()
@@ -75,36 +78,45 @@ class MemberQueryServiceTest {
         return dtos.stream().filter(d -> d.getId().equals(id)).findFirst().get();
     }
 
-    @Test
-    void 특정유저의_멤버가입_정보_있는경우() {
-        //given
-        Member member = Member.builder().build();
+    @Nested
+    @DisplayName("멤버 가입정보 조회 테스트")
+    class MemberBasicInfo {
 
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(member);
+        @Test
+        @DisplayName("가입정보 조회 성공")
+        void success() {
+            //given
+            Member member = Member.builder().build();
 
-        //when
-        Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(member);
 
-        //then
-        assertThat(memberOfTheCommunity).isEqualTo(member);
+            //when
+            Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+
+            //then
+            assertThat(memberOfTheCommunity).isEqualTo(member);
+        }
+
+        @Test
+        @DisplayName("멤버 가입정보 없는 경우")
+        void noMemberInfo() {
+            //given
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(null);
+
+            //when
+            Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+
+            //then
+            assertThat(memberOfTheCommunity).isEqualTo(null);
+        }
+
     }
 
     @Test
-    void 특정유저의_멤버가입_정보_없는경우() {
-        //given
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(null);
-
-        //when
-        Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
-
-        //then
-        assertThat(memberOfTheCommunity).isEqualTo(null);
-    }
-
-    @Test
-    void 특정유저_권한같은지_체크() {
+    @DisplayName("특정 유저의 권한이 같은지 확인")
+    void checkMyAuth() {
         Member member = Member.builder()
                 .memberType(MemberType.MANAGER)
                 .build();
@@ -115,7 +127,5 @@ class MemberQueryServiceTest {
         Boolean hasAuth = memberQueryService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 
         assertThat(hasAuth).isTrue();
-
-
     }
 }

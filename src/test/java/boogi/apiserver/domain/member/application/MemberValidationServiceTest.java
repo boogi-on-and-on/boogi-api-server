@@ -8,6 +8,8 @@ import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,89 +33,95 @@ class MemberValidationServiceTest {
     @Mock
     MemberRepository memberRepository;
 
-    @Test
-    void 이미_가입한_멤버() {
-        //given
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(Member.builder().build());
+    @Nested
+    @DisplayName("멤버의 가입여부 테스트")
+    class CheckMemberJoinTest {
+        @Test
+        @DisplayName("이미 가입한 멤버인 경우")
+        void alreadyJoined() {
+            //given
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Member.builder().build());
 
-        //then
-        assertThatThrownBy(() -> {
-            //when
-            memberValidationService.checkAlreadyJoinedMember(anyLong(), anyLong());
-        }).isInstanceOf(AlreadyJoinedMemberException.class);
+            //then
+            assertThatThrownBy(() -> {
+                //when
+                memberValidationService.checkAlreadyJoinedMember(anyLong(), anyLong());
+            }).isInstanceOf(AlreadyJoinedMemberException.class);
+        }
+
+        @Test
+        @DisplayName("가입하지 않은 경우")
+        void yetJoined() {
+            //given
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(null);
+
+            assertThatThrownBy(() -> {
+                //when
+                memberValidationService.checkMemberJoinedCommunity(anyLong(), anyLong() + 1);
+            }).isInstanceOf(NotJoinedMemberException.class);
+        }
+    }
+
+
+    @Nested
+    @DisplayName("커뮤니티 멤버의 권한 체크 테스트")
+    class MemberTypeTest {
+        @Test
+        @DisplayName("멤버가 관리자 권한 없는 경우")
+        void NoMemberAuth() {
+            Member member = Member
+                    .builder()
+                    .memberType(MemberType.NORMAL)
+                    .build();
+
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(member);
+
+            assertThatThrownBy(() -> {
+                memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
+            }).isInstanceOf(NotAuthorizedMemberException.class);
+        }
+
+        @Test
+        @DisplayName("부매니저이상의 권한이 있는 경우")
+        void greaterThanSubManagerAuth() {
+            Member member = Member
+                    .builder()
+                    .memberType(MemberType.MANAGER)
+                    .build();
+
+
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(member);
+
+            boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
+
+            assertThat(isSupervisor).isTrue();
+        }
+
+        @Test
+        @DisplayName("매니저 권한이 있는 경우")
+        void hasManagerAuth() {
+            Member member = Member
+                    .builder()
+                    .memberType(MemberType.MANAGER)
+                    .build();
+
+
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(member);
+
+            boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
+
+            assertThat(isSupervisor).isTrue();
+        }
     }
 
     @Test
-    void 멤버의_해당_커뮤니티_가입여부() {
-        //given
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(null);
-
-        assertThatThrownBy(() -> {
-            //when
-            memberValidationService.checkMemberJoinedCommunity(anyLong(), anyLong() + 1);
-        }).isInstanceOf(NotJoinedMemberException.class);
-    }
-
-    void 가입하지_않은_멤버가_접근() {
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(null);
-
-        assertThatThrownBy(() -> {
-            memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
-        }).isInstanceOf(InvalidValueException.class);
-    }
-
-    @Test
-    void 멤버가_권한이_없을경우() {
-        Member member = Member
-                .builder()
-                .memberType(MemberType.NORMAL)
-                .build();
-
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(member);
-
-        assertThatThrownBy(() -> {
-            memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
-        }).isInstanceOf(NotAuthorizedMemberException.class);
-    }
-
-    @Test
-    void 부매니저권한이_있는경우() {
-        Member member = Member
-                .builder()
-                .memberType(MemberType.MANAGER)
-                .build();
-
-
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(member);
-
-        boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
-
-        assertThat(isSupervisor).isTrue();
-    }
-
-    @Test
-    void 매니저권한이_있는경우() {
-        Member member = Member
-                .builder()
-                .memberType(MemberType.MANAGER)
-                .build();
-
-
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(member);
-
-        boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
-
-        assertThat(isSupervisor).isTrue();
-    }
-
-    @Test
-    void 이미_가입한_멤버_배치_이미_있는경우() {
+    @DisplayName("이미 가입한 멤버가 있는경우(배치 가입)")
+    void alreadyJoinedMemberInBatch() {
         Member member = Member.builder()
                 .id(1L)
                 .user(User.builder().id(2L).build())

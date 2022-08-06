@@ -9,6 +9,8 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,93 +51,107 @@ class MemberCoreServiceTest {
     @Mock
     UserQueryService userQueryService;
 
-    @Test
-    void 멤버_가입_성공() {
-        //given
-        User user = User.builder()
-                .id(1L)
-                .build();
-        given(userQueryService.getUser(anyLong()))
-                .willReturn(user);
+    @Nested
+    @DisplayName("멤버 가입 테스트")
+    class MemberJoinTest {
+        @Test
+        @DisplayName("멤버 가입 1명")
+        void joinOne() {
+            //given
+            User user = User.builder()
+                    .id(1L)
+                    .build();
+            given(userQueryService.getUser(anyLong()))
+                    .willReturn(user);
 
-        Community community = Community.builder()
-                .id(2L)
-                .build();
-        given(communityQueryService.getCommunity(anyLong()))
-                .willReturn(community);
+            Community community = Community.builder()
+                    .id(2L)
+                    .build();
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
 
-        //when
-        Member member = memberCoreService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
-
-        //then
-        assertThat(member.getCommunity().getId()).isEqualTo(community.getId());
-        assertThat(member.getUser().getId()).isEqualTo(user.getId());
-        assertThat(member.getCommunity().getMemberCount()).isEqualTo(1);
-    }
-
-    @Test
-    void 이미_차단한_멤버() {
-        Member member = Member.builder()
-                .id(1L)
-                .bannedAt(LocalDateTime.now())
-                .build();
-
-
-        given(memberQueryService.getMember(anyLong()))
-                .willReturn(member);
-
-        assertThatThrownBy(() -> {
-            memberCoreService.banMember(member.getId());
-        })
-                .isInstanceOf(InvalidValueException.class)
-                .hasMessage("이미 차단된 멤버입니다.");
-
-    }
-
-    @Test
-    void 멤버_차단안된_멤버를_차단시도() {
-        //given
-        Member member = Member.builder()
-                .id(1L)
-                .build();
-
-        given(memberQueryService.getMember(anyLong()))
-                .willReturn(member);
-
-        //then
-        assertThatThrownBy(() -> {
             //when
-            memberCoreService.releaseMember(member.getId());
-        }).isInstanceOf(InvalidValueException.class);
+            Member member = memberCoreService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
+
+            //then
+            assertThat(member.getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(member.getUser().getId()).isEqualTo(user.getId());
+            assertThat(member.getCommunity().getMemberCount()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("멤버 2명이상 추가")
+        void joinMany() {
+            //given
+            User u1 = User.builder()
+                    .id(1L)
+                    .build();
+            User u2 = User.builder()
+                    .id(2L)
+                    .build();
+
+            given(userRepository.findUsersByIds(any()))
+                    .willReturn(List.of(u1, u2));
+
+            Community community = Community.builder()
+                    .id(1L)
+                    .build();
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
+
+            //when
+            List<Member> members = memberCoreService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
+
+            //then
+            assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))
+                    .containsExactlyInAnyOrderElementsOf(List.of(u1.getId(), u2.getId()));
+
+            assertThat(members.stream().map(Member::getMemberType).collect(Collectors.toList()))
+                    .containsOnly(MemberType.NORMAL);
+        }
+
     }
 
-    @Test
-    void 멤버_여러개_추가() {
-        //given
-        User u1 = User.builder()
-                .id(1L)
-                .build();
-        User u2 = User.builder()
-                .id(2L)
-                .build();
+    @Nested
+    @DisplayName("멤버 차단")
+    class BanMember {
 
-        given(userRepository.findUsersByIds(any()))
-                .willReturn(List.of(u1, u2));
+        @Test
+        @DisplayName("이미 차단한 멤버인 경우")
+        void alreadyBanned() {
+            Member member = Member.builder()
+                    .id(1L)
+                    .bannedAt(LocalDateTime.now())
+                    .build();
 
-        Community community = Community.builder()
-                .id(1L)
-                .build();
-        given(communityQueryService.getCommunity(anyLong()))
-                .willReturn(community);
 
-        //when
-        List<Member> members = memberCoreService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
+            given(memberQueryService.getMember(anyLong()))
+                    .willReturn(member);
 
-        //then
-        assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))
-                .containsExactlyInAnyOrderElementsOf(List.of(u1.getId(), u2.getId()));
+            assertThatThrownBy(() -> {
+                memberCoreService.banMember(member.getId());
+            })
+                    .isInstanceOf(InvalidValueException.class)
+                    .hasMessage("이미 차단된 멤버입니다.");
 
-        assertThat(members.stream().map(Member::getMemberType).collect(Collectors.toList()))
-                .containsOnly(MemberType.NORMAL);
+        }
+
+        @Test
+        @DisplayName("차단 안된 멤버를 차단해제 하는경우")
+        void failRelease() {
+            //given
+            Member member = Member.builder()
+                    .id(1L)
+                    .build();
+
+            given(memberQueryService.getMember(anyLong()))
+                    .willReturn(member);
+
+            //then
+            assertThatThrownBy(() -> {
+                //when
+                memberCoreService.releaseMember(member.getId());
+            }).isInstanceOf(InvalidValueException.class);
+        }
     }
 }
