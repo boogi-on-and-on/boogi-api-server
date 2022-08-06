@@ -3,6 +3,7 @@ package boogi.apiserver.domain.user.application;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +26,8 @@ class UserQueryServiceTest {
     UserQueryService userQueryService;
 
     @Test
-    void 유저_상세정보_조회() {
+    @DisplayName("유저 상세정보 조회")
+    void userBasicInfo() {
         // given
         User user = User.builder()
                 .id(1L)

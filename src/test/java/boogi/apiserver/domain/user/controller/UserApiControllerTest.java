@@ -15,8 +15,7 @@ import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +81,8 @@ class UserApiControllerTest {
     }
 
     @Test
-    void 유저_프로필_개인정보_조회() throws Exception {
+    @DisplayName("유저 프로필 개인정보 조회")
+    void userBasicInfo() throws Exception {
         // given
         UserDetailInfoResponse response = UserDetailInfoResponse.builder()
                 .id(4L)
@@ -114,7 +113,8 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.user.profileImageUrl").doesNotExist());
     }
 
-    //    @Test
+    @Test
+    @Disabled
     void 유저_가입한_커뮤니티_조회() throws Exception {
         //given
         UserJoinedCommunity dto1 = UserJoinedCommunity.builder()
@@ -183,65 +183,75 @@ class UserApiControllerTest {
 //
 //    }
 
-    @Test
-    void 차단한_유저_목록() throws Exception {
-        MessageBlockedUserDto dto = MessageBlockedUserDto.builder()
-                .userId(1L)
-                .nameTag("가나다#0001")
-                .build();
+    @Nested
+    @DisplayName("유저 차단 테스트")
+    class UserBlockTest {
 
-        given(messageBlockQueryService.getBlockedMembers(anyLong()))
-                .willReturn(List.of(dto));
+        @Test
+        @DisplayName("차단한 유저 목록 조회")
+        void blockUserList() throws Exception {
+            MessageBlockedUserDto dto = MessageBlockedUserDto.builder()
+                    .userId(1L)
+                    .nameTag("가나다#0001")
+                    .build();
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            given(messageBlockQueryService.getBlockedMembers(anyLong()))
+                    .willReturn(List.of(dto));
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/users/messages/blocked")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.blocked[0].userId").value(1L))
-                .andExpect(jsonPath("$.blocked[0].nameTag").value("가나다#0001"));
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                            MockMvcRequestBuilders.get("/api/users/messages/blocked")
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.blocked[0].userId").value(1L))
+                    .andExpect(jsonPath("$.blocked[0].nameTag").value("가나다#0001"));
+        }
+
+        @Test
+        @DisplayName("유저 차단 해제")
+        void unblockUser() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/users/messages/unblock")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                    .content(mapper.writeValueAsString(Map.of("blockedUserId", 1L)))
+                    )
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("유저 차단 실패")
+        void failBlockingUser() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            BlockMessageUsersRequest request = BlockMessageUsersRequest.builder()
+                    .blockUserIds(List.of())
+                    .build();
+
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/users/messages/block")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                    .content(mapper.writeValueAsString(request))
+                    ).andExpect(status().is4xxClientError())
+                    .andExpect(jsonPath("$.message").value("메시지 차단할 유저를 1명이상 선택해주세요"));
+        }
+
     }
 
     @Test
-    void 유저_차단_해제() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        mvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/messages/unblock")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .content(mapper.writeValueAsString(Map.of("blockedUserId", 1L)))
-                )
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 유저_차단_실패() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-        BlockMessageUsersRequest request = BlockMessageUsersRequest.builder()
-                .blockUserIds(List.of())
-                .build();
-
-        mvc.perform(
-                        MockMvcRequestBuilders.post("/api/users/messages/block")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .content(mapper.writeValueAsString(request))
-                ).andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.message").value("메시지 차단할 유저를 1명이상 선택해주세요"));
-    }
-
-    @Test
-    void 유저_알림_조회() throws Exception {
+    @DisplayName("유저 알림설정 정보 조회")
+    void userAlarmList() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
