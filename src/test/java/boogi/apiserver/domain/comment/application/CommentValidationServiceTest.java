@@ -34,9 +34,9 @@ class CommentValidationServiceTest {
         @Test
         @DisplayName("댓글(Depth 0)일때 성공한다.")
         void DepthZero() {
-            Comment result = commentValidationService.checkCommentMaxDepthOver(null);
+            commentValidationService.checkCommentMaxDepthOver(null);
 
-            assertThat(result).isNull();
+            verify(commentRepository, times(0)).findById(anyLong());
         }
 
         @Test
@@ -56,9 +56,9 @@ class CommentValidationServiceTest {
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(parentComment));
 
-            Comment result = commentValidationService.checkCommentMaxDepthOver(childComment.getParent().getId());
+            commentValidationService.checkCommentMaxDepthOver(childComment.getParent().getId());
 
-            assertThat(result).isEqualTo(parentComment);
+            verify(commentRepository, times(1)).findById(anyLong());
         }
 
         @Test
