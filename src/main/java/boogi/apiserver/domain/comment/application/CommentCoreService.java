@@ -89,10 +89,14 @@ public class CommentCoreService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다."));
 
         Long joinedCommunityId = findComment.getMember().getCommunity().getId();
-        if (memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
+        Long commentedUserId = findComment.getMember().getUser().getId();
+        if (commentedUserId.equals(userId) ||
+                memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
             likeCoreService.removeAllCommentLikes(findComment.getId());
 
             findComment.deleteComment();
+        } else {
+            throw new NotAuthorizedMemberException("해당 댓글의 삭제 권한이 없습니다.");
         }
     }
 
