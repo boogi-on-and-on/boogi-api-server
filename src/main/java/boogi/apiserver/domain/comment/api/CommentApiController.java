@@ -76,7 +76,7 @@ public class CommentApiController {
 
     @GetMapping("/{commentId}/likes")
     public ResponseEntity<Object> getLikeMembersAtComment(@PathVariable Long commentId, @Session Long userId, Pageable pageable) {
-        LikeMembersAtComment likeMembersAtComment = commentCoreService.getLikeMembersAtComment(commentId, userId, pageable);
+        LikeMembersAtComment likeMembersAtComment = likeCoreService.getLikeMembersAtComment(commentId, userId, pageable);
 
         return ResponseEntity.ok().body(likeMembersAtComment);
     }

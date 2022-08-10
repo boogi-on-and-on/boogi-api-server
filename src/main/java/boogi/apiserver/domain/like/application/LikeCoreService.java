@@ -5,6 +5,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
 import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -15,6 +16,7 @@ import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +37,7 @@ public class LikeCoreService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     private final PostQueryService postQueryService;
 
@@ -65,7 +67,8 @@ public class LikeCoreService {
 
         Like newLike = Like.postOf(findPost, member);
         findPost.addLikeCount();
-        return likeRepository.save(newLike);
+        likeRepository.save(newLike);
+        return newLike;
     }
 
     @Transactional
@@ -81,12 +84,13 @@ public class LikeCoreService {
         }
 
         Like newLike = Like.commentOf(findComment, joinedMember);
-        return likeRepository.save(newLike);
+        likeRepository.save(newLike);
+        return newLike;
     }
 
     @Transactional
     public void doUnlike(Long likeId, Long userId) {
-        Like findLike = likeRepository.findPostLikeWithMemberByLikeId(likeId)
+        Like findLike = likeRepository.findLikeWithMemberById(likeId)
                 .orElseThrow(EntityNotFoundException::new);
 
         Long DidLikedUser = findLike.getMember().getUser().getId();
@@ -95,9 +99,8 @@ public class LikeCoreService {
         }
 
         Post post = findLike.getPost();
-        if (Objects.nonNull(post)) {
-            postRepository.findById(post.getId())
-                    .ifPresent(Post::removeLikeCount);
+        if (post != null) {
+            post.removeLikeCount();
         }
 
         likeRepository.delete(findLike);
@@ -124,12 +127,37 @@ public class LikeCoreService {
             throw new NotJoinedMemberException();
         }
 
-        Page<Like> likePage = likeRepository.findPostLikeWithMemberByPostId(findPost.getId(), pageable);
+        Page<Like> likePage = likeRepository.findPostLikePageWithMemberByPostId(findPost.getId(), pageable);
 
-        List<User> users = likePage.getContent().stream()
-                .map(like -> like.getMember().getUser())
+        List<Long> userIds = likePage.getContent().stream()
+                .map(like -> like.getMember().getUser().getId())
                 .collect(Collectors.toList());
 
+        List<User> users = userRepository.findUsersByIds(userIds);
+
         return new LikeMembersAtPost(users, likePage);
+    }
+
+    public LikeMembersAtComment getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {
+        Comment findComment = commentRepository.findById(commentId).orElseThrow(
+                () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
+
+        Long commentedCommunityId = findComment.getPost().getCommunity().getId();
+        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
+        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
+
+        if (communityValidationService.checkOnlyPrivateCommunity(commentedCommunityId) && member == null) {
+            throw new NotJoinedMemberException();
+        }
+
+        Page<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
+
+        List<Long> userIds = likePage.getContent().stream()
+                .map(like -> like.getMember().getUser().getId())
+                .collect(Collectors.toList());
+
+        List<User> users = userRepository.findUsersByIds(userIds);
+
+        return new LikeMembersAtComment(users, likePage);
     }
 }

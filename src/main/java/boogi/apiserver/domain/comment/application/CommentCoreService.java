@@ -99,30 +99,6 @@ public class CommentCoreService {
         }
     }
 
-    public LikeMembersAtComment getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {
-        Comment findComment = commentRepository.findById(commentId).orElseThrow(
-                () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
-
-        Long commentedCommunityId = findComment.getPost().getCommunity().getId();
-        List<Member> findMemberResult = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
-        Member member = (findMemberResult.isEmpty()) ? null : findMemberResult.get(0);
-
-        if (communityValidationService.checkOnlyPrivateCommunity(commentedCommunityId) && member == null) {
-            throw new NotJoinedMemberException();
-        }
-
-        Page<Like> likePage = likeRepository.findCommentLikeWithMemberByCommentId(findComment.getId(), pageable);
-
-        List<Long> userIds = likePage.getContent().stream()
-                .map(like -> like.getMember().getUser().getId())
-                .collect(Collectors.toList());
-
-        List<User> users = userRepository.findUsersByIds(userIds);
-
-        return new LikeMembersAtComment(users, likePage);
-    }
-
-
     public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postQueryService.getPost(postId);
 

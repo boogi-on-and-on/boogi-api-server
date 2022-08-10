@@ -191,7 +191,7 @@ class CommentApiControllerTest {
                 .members(userInfos)
                 .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(1).build())
                 .build();
-        given(commentCoreService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
+        given(likeCoreService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembersAtComment);
 
         MockHttpSession session = new MockHttpSession();
