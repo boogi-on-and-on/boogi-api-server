@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -9,6 +10,8 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +53,9 @@ class MemberCoreServiceTest {
 
     @Mock
     UserQueryService userQueryService;
+
+    @Mock
+    CommunityRepository communityRepository;
 
     @Test
     void 멤버_가입_성공() {
@@ -137,5 +145,46 @@ class MemberCoreServiceTest {
 
         assertThat(members.stream().map(Member::getMemberType).collect(Collectors.toList()))
                 .containsOnly(MemberType.NORMAL);
+    }
+
+    @Test
+    @DisplayName("나를 제외한 커뮤니티에 가입된 모든 멤버들을 조회한다.")
+    void testGetJoinedMembersAllWithoutMeSuccess() {
+        User user1 = User.builder()
+                .id(1L)
+                .build();
+        User user2 = User.builder()
+                .id(2L)
+                .build();
+
+        Community community = Community.builder()
+                .id(1L)
+                .build();
+        given(communityRepository.findCommunityById(anyLong()))
+                .willReturn(Optional.of(community));
+
+        Member member1 = Member.builder()
+                .id(1L)
+                .user(user1)
+                .community(community)
+                .build();
+        Member member2 = Member.builder()
+                .id(2L)
+                .user(user2)
+                .community(community)
+                .build();
+        given(memberValidationService.checkMemberJoinedCommunity(anyLong(), anyLong()))
+                .willReturn(member1);
+
+        List<Member> members = new ArrayList<>(List.of(member1, member2));
+        given(memberRepository.findJoinedMembersAllWithUserByCommunityId(anyLong()))
+                .willReturn(members);
+
+        List<Member> result = memberCoreService.getJoinedMembersAll(community.getId(), user1.getId());
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getId()).isEqualTo(member2.getId());
+        assertThat(result.get(0).getCommunity()).isEqualTo(community);
+        assertThat(result.get(0).getUser()).isEqualTo(user2);
     }
 }

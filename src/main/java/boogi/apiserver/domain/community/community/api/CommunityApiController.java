@@ -330,8 +330,8 @@ public class CommunityApiController {
 
     @GetMapping("{communityId}/members/all")
     public ResponseEntity<JoinedMembersDto> getMembersAll(@PathVariable Long communityId, @Session Long userId) {
-        JoinedMembersDto joinedMembersAll = memberCoreService.getJoinedMembersAll(communityId, userId);
+        List<Member> joinedMembers = memberCoreService.getJoinedMembersAll(communityId, userId);
 
-        return ResponseEntity.ok().body(joinedMembersAll);
+        return ResponseEntity.ok().body(JoinedMembersDto.of(joinedMembers));
     }
 }

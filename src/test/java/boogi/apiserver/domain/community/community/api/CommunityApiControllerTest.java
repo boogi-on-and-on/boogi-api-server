@@ -29,6 +29,7 @@ import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -662,5 +663,39 @@ class CommunityApiControllerTest {
                                 .queryParam("keyword", "안녕")
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.communities[0]").isMap());
+    }
+
+    @Test
+    @DisplayName("해당 커뮤니티에 가입된 모든 멤버 가져오기")
+    void testGetMembersAll() throws Exception {
+        User user = User.builder()
+                .id(2L)
+                .build();
+
+        Community community = Community.builder()
+                .id(1L)
+                .build();
+
+        Member member = Member.builder()
+                .id(2L)
+                .community(community)
+                .user(user)
+                .build();
+
+        List<Member> membersWithoutMe = List.of(member);
+        given(memberCoreService.getJoinedMembersAll(anyLong(), anyLong()))
+                .willReturn(membersWithoutMe);
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/communities/1/members/all")
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.members[0].id").value(2L))
+                .andExpect(jsonPath("$.members[0].user.id").value(2L));
     }
 }

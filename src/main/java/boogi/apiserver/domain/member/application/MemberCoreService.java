@@ -92,7 +92,7 @@ public class MemberCoreService {
         member.delegate(type);
     }
 
-    public JoinedMembersDto getJoinedMembersAll(Long communityId, Long userId) {
+    public List<Member> getJoinedMembersAll(Long communityId, Long userId) {
         communityRepository.findCommunityById(communityId).orElseThrow(() -> {
             throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
         });
@@ -101,6 +101,6 @@ public class MemberCoreService {
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUserByCommunityId(communityId);
         findJoinedMembersAll.remove(findMember);
 
-        return JoinedMembersDto.of(findJoinedMembersAll);
+        return findJoinedMembersAll;
     }
 }
