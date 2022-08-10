@@ -12,6 +12,7 @@ import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +41,10 @@ public class CommentApiController {
                                                                Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
 //        UserCommentPage userCommentsPage = commentQueryService.getUserComments(pageable, id);
-        UserCommentPage userCommentsPage = commentCoreService.getUserComments(id, sessionUserId, pageable);
+        Page<Comment> userComments = commentCoreService.getUserComments(id, sessionUserId, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(userCommentsPage);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(UserCommentPage.of(userComments));
     }
 
     @PostMapping("/")
