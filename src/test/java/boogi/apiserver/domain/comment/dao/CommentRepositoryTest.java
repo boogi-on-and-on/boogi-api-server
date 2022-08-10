@@ -7,6 +7,7 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceUnitUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,11 +40,11 @@ class CommentRepositoryTest {
     @Autowired
     private EntityManager em;
 
-    private PersistenceUnitUtil unitUtil;
+    private PersistenceUtil persistenceUtil;
 
     @BeforeAll
     void init() {
-        unitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();
+        persistenceUtil = new PersistenceUtil(em);
     }
 
     @Test
@@ -83,7 +83,7 @@ class CommentRepositoryTest {
 
         commentRepository.saveAll(List.of(comment1, comment2, comment3));
 
-        cleanPersistenceContext(em);
+        persistenceUtil.cleanPersistenceContext();
 
         Page<Comment> commentPage1 = commentRepository.getUserCommentPage(PageRequest.of(0, 2), user.getId());
         Page<Comment> commentPage2 = commentRepository.getUserCommentPage(PageRequest.of(1, 2), user.getId());
@@ -139,24 +139,24 @@ class CommentRepositoryTest {
                 .build();
         commentRepository.save(comment2);
 
-        cleanPersistenceContext(em);
+        persistenceUtil.cleanPersistenceContext();
 
         Comment findComment2 = commentRepository
                 .findCommentWithMemberByCommentId(comment2.getId()).orElse(null);
         if (findComment2 == null) {
             Assertions.fail();
         }
-        assertThat(unitUtil.isLoaded(findComment2.getMember())).isTrue();
-        assertThat(unitUtil.isLoaded(findComment2.getPost())).isFalse();
-        assertThat(unitUtil.isLoaded(findComment2.getParent())).isFalse();
+        assertThat(persistenceUtil.isLoaded(findComment2.getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(findComment2.getPost())).isFalse();
+        assertThat(persistenceUtil.isLoaded(findComment2.getParent())).isFalse();
 
         Comment findComment1 = commentRepository
                 .findCommentWithMemberByCommentId(comment1.getId()).orElse(null);
         if (findComment1 == null) {
             Assertions.fail();
         }
-        assertThat(unitUtil.isLoaded(findComment1.getMember())).isTrue();
-        assertThat(unitUtil.isLoaded(findComment1.getPost())).isFalse();
+        assertThat(persistenceUtil.isLoaded(findComment1.getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(findComment1.getPost())).isFalse();
         assertThat(findComment1.getParent()).isNull();
     }
 
@@ -196,7 +196,7 @@ class CommentRepositoryTest {
         comment3.setCreatedAt(LocalDateTime.now());
         commentRepository.save(comment3);
 
-        cleanPersistenceContext(em);
+        persistenceUtil.cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
         Page<Comment> parentCommentsPage = commentRepository
@@ -210,13 +210,13 @@ class CommentRepositoryTest {
 
         assertThat(firstComment.getId()).isEqualTo(comment1.getId());
         assertThat(firstComment.getParent()).isNull();
-        assertThat(unitUtil.isLoaded(firstComment.getMember())).isTrue();
-        assertThat(unitUtil.isLoaded(firstComment.getPost())).isFalse();
+        assertThat(persistenceUtil.isLoaded(firstComment.getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(firstComment.getPost())).isFalse();
 
         assertThat(secondComment.getId()).isEqualTo(comment3.getId());
         assertThat(secondComment.getParent()).isNull();
-        assertThat(unitUtil.isLoaded(secondComment.getMember())).isTrue();
-        assertThat(unitUtil.isLoaded(secondComment.getPost())).isFalse();
+        assertThat(persistenceUtil.isLoaded(secondComment.getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(secondComment.getPost())).isFalse();
     }
 
     @Test
@@ -264,7 +264,7 @@ class CommentRepositoryTest {
         comment4.setCreatedAt(LocalDateTime.now());
         commentRepository.save(comment4);
 
-        cleanPersistenceContext(em);
+        persistenceUtil.cleanPersistenceContext();
 
         List<Long> parentCommentIds = List.of(comment1.getId(), comment3.getId());
         List<Comment> childComments = commentRepository
@@ -277,15 +277,15 @@ class CommentRepositoryTest {
 
         assertThat(firstComment.getId()).isEqualTo(comment2.getId());
         assertThat(firstComment.getParent().getId()).isEqualTo(comment1.getId());
-        assertThat(unitUtil.isLoaded(firstComment.getParent())).isFalse();
-        assertThat(unitUtil.isLoaded(firstComment.getMember())).isTrue();
-        assertThat(unitUtil.isLoaded(firstComment.getPost())).isFalse();
+        assertThat(persistenceUtil.isLoaded(firstComment.getParent())).isFalse();
+        assertThat(persistenceUtil.isLoaded(firstComment.getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(firstComment.getPost())).isFalse();
 
         assertThat(secondComment.getId()).isEqualTo(comment4.getId());
         assertThat(secondComment.getParent().getId()).isEqualTo(comment1.getId());
-        assertThat(unitUtil.isLoaded(secondComment.getParent())).isFalse();
-        assertThat(unitUtil.isLoaded(secondComment.getMember())).isTrue();
-        assertThat(unitUtil.isLoaded(secondComment.getPost())).isFalse();
+        assertThat(persistenceUtil.isLoaded(secondComment.getParent())).isFalse();
+        assertThat(persistenceUtil.isLoaded(secondComment.getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(secondComment.getPost())).isFalse();
     }
 
     @Test
@@ -305,7 +305,7 @@ class CommentRepositoryTest {
         comment3.deleteComment();
         commentRepository.save(comment3);
 
-        cleanPersistenceContext(em);
+        persistenceUtil.cleanPersistenceContext();
 
         Comment findComment1 = commentRepository
                 .findCommentById(comment1.getId()).orElse(null);
@@ -381,7 +381,7 @@ class CommentRepositoryTest {
         comment5.deleteComment();
         commentRepository.save(comment5);
 
-        cleanPersistenceContext(em);
+        persistenceUtil.cleanPersistenceContext();
 
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
         Pageable pageable = PageRequest.of(0, 4);
@@ -415,10 +415,5 @@ class CommentRepositoryTest {
         assertThat(findComment4.getMember().getId()).isEqualTo(member1.getId());
         assertThat(findComment4.getDeletedAt()).isNull();
         assertThat(findComment4.getCanceledAt()).isNull();
-    }
-
-    private void cleanPersistenceContext(EntityManager em) {
-        em.flush();
-        em.clear();
     }
 }

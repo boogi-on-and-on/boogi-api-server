@@ -7,6 +7,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.BannedMemberDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceUnitUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,11 +40,11 @@ class MemberRepositoryTest {
     @Autowired
     private EntityManager em;
 
-    private PersistenceUnitUtil unitUtil;
+    private PersistenceUtil persistenceUtil;
 
     @BeforeAll
     void init() {
-        unitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();
+        persistenceUtil = new PersistenceUtil(em);
     }
 
     @Test
@@ -242,45 +242,35 @@ class MemberRepositoryTest {
     @DisplayName("해당 커뮤니티에 가입된 삭제되지 않은 모든 멤버를 User와 함께 조회한다.")
     void testFindJoinedMembersAllWithUserByCommunityId() {
         User user1 = User.builder()
-                .id(1L)
                 .build();
         User user2 = User.builder()
-                .id(2L)
                 .build();
         userRepository.saveAll(List.of(user1, user2));
 
         Community community = Community.builder()
-                .id(1L)
                 .build();
         communityRepository.save(community);
 
         Member member1 = Member.builder()
-                .id(1L)
                 .user(user1)
                 .community(community)
                 .build();
         Member member2 = Member.builder()
-                .id(2L)
                 .user(user2)
                 .community(community)
                 .build();
         member2.ban();
         memberRepository.saveAll(List.of(member1, member2));
 
-        cleanPersistenceContext();
+        persistenceUtil.cleanPersistenceContext();
 
         List<Member> joinedMembers = memberRepository.findJoinedMembersAllWithUserByCommunityId(community.getId());
 
         assertThat(joinedMembers.size()).isEqualTo(1);
 
         assertThat(joinedMembers.get(0).getId()).isEqualTo(member1.getId());
-        assertThat(unitUtil.isLoaded(joinedMembers.get(0).getUser())).isTrue();
+        assertThat(persistenceUtil.isLoaded(joinedMembers.get(0).getUser())).isTrue();
         assertThat(joinedMembers.get(0).getUser().getId()).isEqualTo(member1.getUser().getId());
         assertThat(joinedMembers.get(0).getCommunity().getId()).isEqualTo(community.getId());
-    }
-
-    private void cleanPersistenceContext() {
-        em.flush();
-        em.clear();
     }
 }
