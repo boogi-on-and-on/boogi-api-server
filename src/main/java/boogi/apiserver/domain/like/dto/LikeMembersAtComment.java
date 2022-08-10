@@ -2,6 +2,8 @@ package boogi.apiserver.domain.like.dto;
 
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PagnationDto;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class LikeMembersAtComment {
 
     private List<UserInfo> members = new ArrayList<>();
