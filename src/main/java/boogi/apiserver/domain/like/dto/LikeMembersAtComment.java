@@ -13,20 +13,20 @@ import java.util.stream.Collectors;
 @Getter
 public class LikeMembersAtComment {
 
-    private List<userInfo> members = new ArrayList<>();
+    private List<UserInfo> members = new ArrayList<>();
 
     private PagnationDto pageInfo;
 
     @Getter
     @Builder
-    public static class userInfo {
+    public static class UserInfo {
         private Long id;
         private String name;
         private String tagNum;
         private String profileImageUrl;
 
-        private static userInfo toDto(User user) {
-            return userInfo.builder()
+        public static UserInfo toDto(User user) {
+            return UserInfo.builder()
                     .id(user.getId())
                     .name(user.getUsername())
                     .tagNum(user.getTagNumber())
@@ -38,7 +38,7 @@ public class LikeMembersAtComment {
     public LikeMembersAtComment(List<User> users, Page page) {
         if (users != null && users.size() > 0) {
             this.members = users.stream()
-                    .map(user -> userInfo.toDto(user))
+                    .map(user -> UserInfo.toDto(user))
                     .collect(Collectors.toList());
         }
         this.pageInfo = PagnationDto.of(page);
