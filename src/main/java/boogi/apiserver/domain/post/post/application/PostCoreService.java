@@ -192,10 +192,10 @@ public class PostCoreService {
 
         likeCoreService.removeAllPostLikes(findPostId);
 
-        postMediaRepository.findByPostId(postId).stream()
-                .forEach(pm -> pm.deletePostMedia());
+        List<PostMedia> postMedias = postMediaRepository.findByPostId(postId);
+        postMediaRepository.deleteAllInBatch(postMedias);
 
-        findPost.deletePost();
+        postRepository.delete(findPost);
     }
 
     public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {

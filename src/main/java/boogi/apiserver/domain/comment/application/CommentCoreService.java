@@ -63,8 +63,12 @@ public class CommentCoreService {
             throw new NotJoinedMemberException();
         }
 
-        Comment findParentComment = commentValidationService
-                .checkCommentMaxDepthOver(createComment.getParentCommentId());
+        Long parentCommentId = createComment.getParentCommentId();
+        commentValidationService
+                .checkCommentMaxDepthOver(parentCommentId);
+
+        Comment findParentComment = commentRepository.findById(parentCommentId)
+                .orElse(null);
 
         Comment newComment = Comment.of(findPost, member, findParentComment, createComment.getContent());
         newComment.setChild(
