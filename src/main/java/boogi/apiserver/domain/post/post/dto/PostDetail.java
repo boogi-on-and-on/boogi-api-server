@@ -25,14 +25,14 @@ public class PostDetail {
     @NotNull
     private Long id;
 
-    private UserPostDetail user;
+    private UserInfo user;
 
-    private MemberPostDetail member;
+    private MemberInfo member;
 
-    private CommunityPostDetail community;
+    private CommunityInfo community;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<PostMediaDetail> postMedias;
+    private List<PostMediaInfo> postMedias;
 
     private Long likeId;
 
@@ -54,13 +54,13 @@ public class PostDetail {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class CommunityPostDetail {
+    public static class CommunityInfo {
 
         private Long id;
         private String name;
 
-        private static CommunityPostDetail toDto(Community community) {
-            return CommunityPostDetail.builder()
+        private static CommunityInfo toDto(Community community) {
+            return CommunityInfo.builder()
                     .id(community.getId())
                     .name(community.getCommunityName())
                     .build();
@@ -70,13 +70,13 @@ public class PostDetail {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class MemberPostDetail {
+    public static class MemberInfo {
 
         private Long id;
         private MemberType memberType;
 
-        private static MemberPostDetail toDto(Member member) {
-            return MemberPostDetail.builder()
+        private static MemberInfo toDto(Member member) {
+            return MemberInfo.builder()
                     .id(member.getId())
                     .memberType(member.getMemberType())
                     .build();
@@ -86,15 +86,15 @@ public class PostDetail {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class UserPostDetail {
+    public static class UserInfo {
 
         private Long id;
         private String name;
         private String tagNum;
         private String profileImageUrl;
 
-        private static UserPostDetail toDto(User user) {
-            return UserPostDetail.builder()
+        private static UserInfo toDto(User user) {
+            return UserInfo.builder()
                     .id(user.getId())
                     .name(user.getUsername())
                     .tagNum(user.getTagNumber())
@@ -106,28 +106,28 @@ public class PostDetail {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class PostMediaDetail {
+    public static class PostMediaInfo {
 
         private MediaType type;
         private String url;
 
-        private static PostMediaDetail toDto(PostMedia postMedia) {
-            return PostMediaDetail.builder()
+        private static PostMediaInfo toDto(PostMedia postMedia) {
+            return PostMediaInfo.builder()
                     .type(postMedia.getMediaType())
                     .url(postMedia.getMediaURL())
                     .build();
         }
     }
 
-    public PostDetail(Post post, List<PostMedia> postMedias) {
+    public PostDetail(Post post, List<PostMedia> postMedias, Boolean me, Long likeId) {
         this.id = post.getId();
-        this.user = UserPostDetail.toDto(post.getMember().getUser());
-        this.member = MemberPostDetail.toDto(post.getMember());
-        this.community = CommunityPostDetail.toDto(post.getCommunity());
+        this.user = UserInfo.toDto(post.getMember().getUser());
+        this.member = MemberInfo.toDto(post.getMember());
+        this.community = CommunityInfo.toDto(post.getCommunity());
         this.postMedias = postMedias.isEmpty() ? null : postMedias.stream()
-                .map(pm -> PostMediaDetail.toDto(pm))
+                .map(pm -> PostMediaInfo.toDto(pm))
                 .collect(Collectors.toList());
-        this.likeId = null;
+        this.likeId = likeId;
         this.createdAt = post.getCreatedAt();
         this.content = post.getContent();
 
@@ -137,14 +137,6 @@ public class PostDetail {
                 .collect(Collectors.toList());
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
-        this.me = null;
-    }
-
-    public void setLikeId(Long likeId) {
-        this.likeId = likeId;
-    }
-
-    public void setMe(Boolean me) {
         this.me = me;
     }
 }
