@@ -15,5 +15,5 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long>, Pos
             "WHERE pm.post_id IN (:latestPostIds)) AS rankrow " +
             "WHERE rankrow.a <= 1",
             nativeQuery = true)
-    List<PostMedia> getMediaUrlByLatestPostIds(@Param("latestPostIds") List<Long> latestedPostIds);
+    List<PostMedia> getPostMediasByLatestPostIds(@Param("latestPostIds") List<Long> latestedPostIds);
 }

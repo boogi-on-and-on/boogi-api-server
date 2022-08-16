@@ -21,7 +21,7 @@ public class PostMediaQueryService {
         if (postMediaIds == null || postMediaIds.isEmpty())
             return new ArrayList<>();
 
-        List<PostMedia> findPostMedias = postMediaRepository.findUnmappedPostMediasByIds(postMediaIds);
+        List<PostMedia> findPostMedias = postMediaRepository.findUnmappedPostMediasByUUIDs(postMediaIds);
 
         if (postMediaIds.size() != findPostMedias.size()) {
             throw new InvalidValueException("잘못된 요청입니다");

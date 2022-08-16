@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface PostMediaRepositoryCustom {
 
-    List<PostMedia> findUnmappedPostMediasByIds(List<String> postMediaIds);
+    List<PostMedia> findUnmappedPostMediasByUUIDs(List<String> postMediaIds);
 
     List<PostMedia> findByPostId(Long postId);
 }

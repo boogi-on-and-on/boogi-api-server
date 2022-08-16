@@ -151,7 +151,7 @@ public class CommunityCoreService {
                 .map(lp -> lp.getId())
                 .collect(Collectors.toList());
 
-        List<PostMedia> postMedias = postMediaRepository.getMediaUrlByLatestPostIds(latestPostIds);
+        List<PostMedia> postMedias = postMediaRepository.getPostMediasByLatestPostIds(latestPostIds);
         Map<Long, String> postMediaUrlMap = postMedias.stream()
                 .collect(Collectors.toMap(
                         pm1 -> pm1.getPost().getId(),
