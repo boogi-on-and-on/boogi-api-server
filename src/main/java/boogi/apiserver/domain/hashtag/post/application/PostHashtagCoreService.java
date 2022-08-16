@@ -32,7 +32,9 @@ public class PostHashtagCoreService {
                 .map(ht -> PostHashtag.of(ht, post))
                 .collect(Collectors.toList());
 
-        return postHashtagRepository.saveAll(postHashtags);
+        postHashtagRepository.saveAll(postHashtags);
+
+        return postHashtags;
     }
 
     @Transactional
