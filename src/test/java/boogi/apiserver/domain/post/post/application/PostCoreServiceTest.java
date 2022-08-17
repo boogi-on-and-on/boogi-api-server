@@ -49,6 +49,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -415,14 +417,17 @@ class PostCoreServiceTest {
             PostMedia postMedia = PostMedia.builder()
                     .id(1L)
                     .build();
+            List<PostMedia> postMedias = List.of(postMedia);
             given(postMediaRepository.findByPostId(anyLong()))
-                    .willReturn(List.of(postMedia));
+                    .willReturn(postMedias);
 
             postCoreService.deletePost(post.getId(), 1L);
 
+            verify(postHashtagCoreService, times(1)).removeTagsByPostId(post.getId());
+            verify(postMediaRepository, times(1)).deleteAllInBatch(postMedias);
+            verify(postRepository, times(1)).delete(post);
+
             assertThat(comment.getDeletedAt()).isNotNull();
-            assertThat(postMedia.getDeletedAt()).isNotNull();
-            assertThat(post.getDeletedAt()).isNotNull();
         }
 
         @Test

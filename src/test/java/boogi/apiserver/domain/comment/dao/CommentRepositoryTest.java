@@ -292,33 +292,17 @@ class CommentRepositoryTest {
     void testFindCommentById() {
         Comment comment1 = Comment.builder()
                 .build();
-        commentRepository.save(comment1);
-
         Comment comment2 = Comment.builder()
                 .build();
-//        comment2.setCanceledAt(LocalDateTime.now());
-        commentRepository.save(comment2);
-
-        Comment comment3 = Comment.builder()
-                .build();
-        comment3.deleteComment();
-        commentRepository.save(comment3);
+        comment2.deleteComment();
+        commentRepository.saveAll(List.of(comment1, comment2));
 
         persistenceUtil.cleanPersistenceContext();
 
-        Comment findComment1 = commentRepository
-                .findCommentById(comment1.getId()).orElse(null);
-        if (findComment1 == null) {
-            Assertions.fail();
-        }
-        assertThat(findComment1.getId()).isEqualTo(comment1.getId());
-        assertThat(findComment1.getDeletedAt()).isNull();
-//        assertThat(findComment1.getCanceledAt()).isNull();
+        List<Comment> comments = commentRepository.findAll();
 
-        if (commentRepository.findCommentById(comment2.getId()).isPresent()
-                || commentRepository.findCommentById(comment3.getId()).isPresent()) {
-            Assertions.fail();
-        }
+        assertThat(comments.size()).isEqualTo(1);
+        assertThat(comments.get(0).getId()).isEqualTo(comment1.getId());
     }
 
     @Test
@@ -398,21 +382,17 @@ class CommentRepositoryTest {
         assertThat(findComment1.getId()).isEqualTo(comment4.getId());
         assertThat(findComment1.getMember().getId()).isEqualTo(member1.getId());
         assertThat(findComment1.getDeletedAt()).isNull();
-//        assertThat(findComment1.getCanceledAt()).isNull();
 
         assertThat(findComment2.getId()).isEqualTo(comment3.getId());
         assertThat(findComment2.getMember().getId()).isEqualTo(member2.getId());
         assertThat(findComment2.getDeletedAt()).isNull();
-//        assertThat(findComment2.getCanceledAt()).isNull();
 
         assertThat(findComment3.getId()).isEqualTo(comment2.getId());
         assertThat(findComment3.getMember().getId()).isEqualTo(member2.getId());
         assertThat(findComment3.getDeletedAt()).isNull();
-//        assertThat(findComment3.getCanceledAt()).isNull();
 
         assertThat(findComment4.getId()).isEqualTo(comment1.getId());
         assertThat(findComment4.getMember().getId()).isEqualTo(member1.getId());
         assertThat(findComment4.getDeletedAt()).isNull();
-//        assertThat(findComment4.getCanceledAt()).isNull();
     }
 }
