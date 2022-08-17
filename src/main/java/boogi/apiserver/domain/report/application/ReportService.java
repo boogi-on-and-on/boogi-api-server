@@ -50,17 +50,13 @@ public class ReportService {
         Long communityId;
         Report newReport;
         User reportUser = userQueryService.getUser(userId);
+        Object targetObject;
 
         switch (target) {
             case COMMUNITY:
-                Community findCommunity = communityRepository.findCommunityById(id).orElseThrow(() -> {
+                targetObject = communityRepository.findCommunityById(id).orElseThrow(() -> {
                     throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
                 });
-                newReport = Report.of(
-                        findCommunity,
-                        reportUser,
-                        createReport.getContent(),
-                        createReport.getReason());
                 break;
             case POST:
                 Post findPost = postRepository.findPostById(id).orElseThrow(() -> {
@@ -71,12 +67,7 @@ public class ReportService {
                 if (communityQueryService.getCommunity(communityId).isPrivate()) {
                     memberValidationService.checkMemberJoinedCommunity(userId, communityId);
                 }
-
-                newReport = Report.of(
-                        findPost,
-                        reportUser,
-                        createReport.getContent(),
-                        createReport.getReason());
+                targetObject = findPost;
                 break;
             case COMMENT:
                 Comment findComment = commentRepository.findCommentById(id).orElseThrow(() -> {
@@ -87,11 +78,7 @@ public class ReportService {
                 if (communityQueryService.getCommunity(communityId).isPrivate()) {
                     memberValidationService.checkMemberJoinedCommunity(userId, communityId);
                 }
-                newReport = Report.of(
-                        findComment,
-                        reportUser,
-                        createReport.getContent(),
-                        createReport.getReason());
+                targetObject = findComment;
                 break;
             case MESSAGE:
                 Message findMessage = messageRepository.findById(id).orElseThrow(() -> {
@@ -103,15 +90,16 @@ public class ReportService {
                 if (senderId.equals(userId) == false && receiverId.equals(userId) == false) {
                     throw new InvalidValueException("본인과의 쪽지 대화일 경우에만 신고가 가능합니다", ErrorInfo.BAD_REQUEST);
                 }
-                newReport = Report.of(
-                        findMessage,
-                        reportUser,
-                        createReport.getContent(),
-                        createReport.getReason());
+                targetObject = findMessage;
                 break;
             default:
                 throw new InvalidValueException("잘못된 신고 대상입니다", ErrorInfo.BAD_REQUEST);
         }
+        newReport = Report.of(
+                targetObject,
+                reportUser,
+                createReport.getContent(),
+                createReport.getReason());
 
         reportRepository.save(newReport);
     }

@@ -17,7 +17,11 @@ import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Disabled;
+import boogi.apiserver.utils.PersistenceUtil;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
@@ -25,16 +29,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DataJpaTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PostRepositoryTest {
 
     @Autowired
@@ -58,8 +63,12 @@ class PostRepositoryTest {
     @Autowired
     EntityManager em;
 
-    @Autowired
-    EntityManagerFactory emf;
+    private PersistenceUtil persistenceUtil;
+
+    @BeforeAll
+    void init() {
+        persistenceUtil = new PersistenceUtil(em);
+    }
 
     @Test
     void getUserPostPage() {
@@ -126,8 +135,7 @@ class PostRepositoryTest {
 
         postHashtagRepository.saveAll(List.of(hashtagOfPost1, hashtagOfPost2));
 
-        em.flush();
-        em.clear();
+        persistenceUtil.cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
 
@@ -153,7 +161,7 @@ class PostRepositoryTest {
         assertThat(postPage.getTotalElements()).isEqualTo(3); // 전체 데이터 수
         assertThat(postPage.hasNext()).isTrue(); //다음 페이지가 있는지
 
-        assertThat(emf.getPersistenceUnitUtil().isLoaded(first.getHashtags().get(0))).isTrue();
+        assertThat(persistenceUtil.isLoaded(first.getHashtags().get(0))).isTrue();
     }
 
     @Test
@@ -181,7 +189,6 @@ class PostRepositoryTest {
                 .build();
         post2.setCreatedAt(LocalDateTime.now());
 
-
         Post post3 = Post.builder()
                 .community(community1)
                 .content("게시글3")
@@ -200,8 +207,7 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3, post4));
 
-        em.flush();
-        em.clear();
+        persistenceUtil.cleanPersistenceContext();
 
         //when
         List<Post> posts = postRepository.getHotPosts();
@@ -372,8 +378,7 @@ class PostRepositoryTest {
                 .build();
         postHashtagRepository.saveAll(List.of(p1_t1, p1_t2));
 
-        em.flush();
-        em.clear();
+        persistenceUtil.cleanPersistenceContext();
 
         PageRequest page = PageRequest.of(0, 10);
         Page<Post> postPage = postRepository.getPostsOfCommunity(page, community.getId());
@@ -391,7 +396,7 @@ class PostRepositoryTest {
         assertThat(first.getPostMedias().get(0).getId()).isEqualTo(postMedia1.getId());
 
         assertThat(second.getHashtags().size()).isEqualTo(2);
-        assertThat(emf.getPersistenceUnitUtil().isLoaded(second.getHashtags().get(0))).isTrue();
+        assertThat(persistenceUtil.isLoaded(second.getHashtags().get(0))).isTrue();
     }
 
     @Test
@@ -452,7 +457,6 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(p1, p2, p3));
 
-
         PostMedia postMedia1 = PostMedia.builder()
                 .post(p3)
                 .mediaType(MediaType.IMG)
@@ -477,8 +481,7 @@ class PostRepositoryTest {
                 .order(PostListingOrder.NEWER)
                 .build();
 
-        em.flush();
-        em.clear();
+        persistenceUtil.cleanPersistenceContext();
 
         //when
         Page<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 3), request, user.getId());
@@ -505,5 +508,161 @@ class PostRepositoryTest {
                 .collect(Collectors.toList());
 
         assertThat(urls).containsExactlyInAnyOrderElementsOf(List.of("123", "456"));
+    }
+
+    @Test
+    @DisplayName("postId로 Post를 Member, User, Community와 함께 fetch join해서 조회한다.")
+    void testGetPostWithUserAndMemberAndCommunityByPostId() {
+        User user = User.builder()
+                .build();
+        userRepository.save(user);
+
+        Community community = Community.builder()
+                .build();
+        communityRepository.save(community);
+
+        Member member = Member.builder()
+                .user(user)
+                .community(community)
+                .build();
+        memberRepository.save(member);
+
+        Post post = Post.builder()
+                .member(member)
+                .community(community)
+                .build();
+        postRepository.save(post);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        Post findPost = postRepository
+                .getPostWithUserAndMemberAndCommunityByPostId(post.getId())
+                .orElse(null);
+        if (findPost == null) {
+            fail();
+        }
+
+        assertThat(findPost.getId()).isEqualTo(post.getId());
+        assertThat(persistenceUtil.isLoaded(findPost.getMember())).isTrue();
+        assertThat(findPost.getMember().getId()).isEqualTo(member.getId());
+        assertThat(persistenceUtil.isLoaded(findPost.getMember().getUser())).isTrue();
+        assertThat(findPost.getMember().getUser().getId()).isEqualTo(user.getId());
+        assertThat(persistenceUtil.isLoaded(findPost.getCommunity())).isTrue();
+        assertThat(findPost.getCommunity().getId()).isEqualTo(community.getId());
+    }
+
+    @Test
+    @DisplayName("postId로 Post를 Member, Community와 함께 fetch join해서 조회한다.")
+    void testGetPostWithCommunityAndMemberByPostId() {
+        User user = User.builder()
+                .build();
+        userRepository.save(user);
+
+        Community community = Community.builder()
+                .build();
+        communityRepository.save(community);
+
+        Member member = Member.builder()
+                .user(user)
+                .community(community)
+                .build();
+        memberRepository.save(member);
+
+        Post post = Post.builder()
+                .member(member)
+                .community(community)
+                .build();
+        postRepository.save(post);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        Post findPost = postRepository
+                .getPostWithCommunityAndMemberByPostId(post.getId())
+                .orElse(null);
+        if (findPost == null) {
+            fail();
+        }
+
+        assertThat(findPost.getId()).isEqualTo(post.getId());
+        assertThat(persistenceUtil.isLoaded(findPost.getMember())).isTrue();
+        assertThat(findPost.getMember().getId()).isEqualTo(member.getId());
+        assertThat(persistenceUtil.isLoaded(findPost.getMember().getUser())).isFalse();
+        assertThat(findPost.getMember().getUser().getId()).isEqualTo(user.getId());
+        assertThat(persistenceUtil.isLoaded(findPost.getCommunity())).isTrue();
+        assertThat(findPost.getCommunity().getId()).isEqualTo(community.getId());
+    }
+
+    @Test
+    @DisplayName("memberId들로 해당 멤버들이 작성한 글을 최근 작성일순으로 페이지네이션해서 조회한다.")
+    void testGetUserPostPageByMemberIds() {
+        Member member1 = Member.builder()
+                .build();
+        Member member2 = Member.builder()
+                .build();
+        memberRepository.saveAll(List.of(member1, member2));
+
+        Post post1 = Post.builder()
+                .member(member1)
+                .build();
+        post1.setCreatedAt(LocalDateTime.now());
+        Post post2 = Post.builder()
+                .member(member2)
+                .build();
+        post2.setCreatedAt(LocalDateTime.now());
+        postRepository.saveAll(List.of(post1, post2));
+
+        persistenceUtil.cleanPersistenceContext();
+
+        Pageable pageable = PageRequest.of(0, 2);
+        List<Long> memberIds = List.of(member1.getId(), member2.getId());
+
+        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(memberIds, pageable);
+
+        List<Post> userPosts = userPostPage.getContent();
+        assertThat(userPosts.size()).isEqualTo(2);
+        assertThat(userPosts.get(0).getId()).isEqualTo(post2.getId());
+        assertThat(userPosts.get(0).getMember().getId()).isEqualTo(member2.getId());
+        assertThat(userPosts.get(1).getId()).isEqualTo(post1.getId());
+        assertThat(userPosts.get(1).getMember().getId()).isEqualTo(member1.getId());
+    }
+
+    @Test
+    @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
+    @Disabled
+    //MYSQL native 쿼리로 인한 h2 테스트 불가능
+    void testGetLatestPostByCommunityIds() {
+        Community community1 = Community.builder()
+                .build();
+        Community community2 = Community.builder()
+                .build();
+        Community community3 = Community.builder()
+                .build();
+        communityRepository.saveAll(List.of(community1, community2, community3));
+
+        Post post1 = Post.builder()
+                .community(community1)
+                .build();
+        post1.setCreatedAt(LocalDateTime.now());
+        Post post2 = Post.builder()
+                .community(community1)
+                .build();
+        post2.setCreatedAt(LocalDateTime.now());
+        Post post3 = Post.builder()
+                .community(community2)
+                .build();
+        post3.setCreatedAt(LocalDateTime.now());
+        postRepository.saveAll(List.of(post1, post2, post3));
+
+        persistenceUtil.cleanPersistenceContext();
+
+        Set<Long> communityIds = Set.of(community1.getId(), community2.getId(), community3.getId());
+        List<Post> latestPosts = postRepository
+                .getLatestPostByCommunityIds(communityIds);
+
+        assertThat(latestPosts.size()).isEqualTo(2);
+        assertThat(latestPosts.get(0).getId()).isEqualTo(post3.getId());
+        assertThat(latestPosts.get(0).getCommunity().getId()).isEqualTo(community2.getId());
+        assertThat(latestPosts.get(1).getId()).isEqualTo(post2.getId());
+        assertThat(latestPosts.get(1).getCommunity().getId()).isEqualTo(community1.getId());
     }
 }

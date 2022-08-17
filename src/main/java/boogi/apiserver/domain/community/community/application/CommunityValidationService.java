@@ -29,4 +29,15 @@ public class CommunityValidationService {
             throw new InvalidValueException("비공개 커뮤니티입니다.");
         }
     }
+
+    //TEST CODE 머지하는 과정에서
+    //해당 함수가 없는데 이용하는 코드가 있어서
+    //해당 코드 추가
+    public Boolean checkOnlyPrivateCommunity(Long communityId) {
+        Community findCommunity = communityQueryService.getCommunity(communityId);
+        if (findCommunity.isPrivate()) {
+            return true;
+        }
+        return false;
+    }
 }

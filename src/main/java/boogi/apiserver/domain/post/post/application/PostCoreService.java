@@ -20,6 +20,7 @@ import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.CreatePost;
 import boogi.apiserver.domain.post.post.dto.PostDetail;
 import boogi.apiserver.domain.post.post.dto.UpdatePost;
 import boogi.apiserver.domain.post.post.dto.UserPostPage;
@@ -38,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,24 +68,23 @@ public class PostCoreService {
     private final SendPushNotification sendPushNotification;
 
     @Transactional
-    public Post createPost(Long userId,
-                           Long communityId,
-                           String content,
-                           List<String> tags,
-                           List<String> postMediaIds,
-                           List<Long> mentionedUserIds) {
+    public Post createPost(CreatePost createPost, Long userId) {
+        Long communityId = createPost.getCommunityId();
         Community community = communityQueryService.getCommunity(communityId);
         Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
 
-        List<PostMedia> findPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(postMediaIds);
+        List<PostMedia> findPostMedias = postMediaQueryService
+                .getUnmappedPostMediasByUUID(createPost.getPostMediaIds());
 
-        Post savedPost = postRepository.save(Post.of(community, member, content));
+        Post savedPost = postRepository.save(
+                Post.of(community, member, createPost.getContent()));
 
-        postHashtagCoreService.addTags(savedPost.getId(), tags);
+        postHashtagCoreService.addTags(savedPost.getId(), createPost.getHashtags());
 
         findPostMedias.stream()
                 .forEach(pm -> pm.mapPost(savedPost));
 
+        List<Long> mentionedUserIds = createPost.getMentionedUserIds();
         if (mentionedUserIds.isEmpty() == false) {
             sendPushNotification.mentionNotification(mentionedUserIds, savedPost.getId(), MentionType.POST);
         }
@@ -106,22 +107,19 @@ public class PostCoreService {
 
         List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
 
-        PostDetail postDetail = new PostDetail(findPost, findPostMedias);
-
-        Long findLikeId;
-        if (member == null) {   // public 커뮤니티에서 비가입 상태로 글 요청
-            findLikeId = null;
-        } else {    // public, private 커뮤니티에서 가입 상태로 글 요청
-            Like findLike = likeRepository.
-                    findPostLikeByPostIdAndMemberId(postId, member.getId())
-                    .orElse(null);
-            findLikeId = (findLike == null) ? null : findLike.getId();
+        Long findLikeId = null;
+        if (member != null) {
+            Optional<Like> findLike = likeRepository.
+                    findPostLikeByPostIdAndMemberId(postId, member.getId());
+            if (findLike.isPresent()) {
+                findLikeId = findLike.get().getId();
+            }
         }
-        postDetail.setLikeId(findLikeId);
 
-        Long postUserId = postDetail.getUser().getId();
-        postDetail.setMe(
-                postUserId.equals(userId) ? Boolean.TRUE : Boolean.FALSE);
+        Long postUserId = findPost.getMember().getUser().getId();
+        Boolean me = postUserId.equals(userId) ? Boolean.TRUE : Boolean.FALSE;
+
+        PostDetail postDetail = new PostDetail(findPost, findPostMedias, me, findLikeId);
 
         return postDetail;
     }
@@ -132,7 +130,7 @@ public class PostCoreService {
             throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
         });
 
-        Community postedCommunity = communityRepository.findCommunityById(findPost.getCommunity().getId())
+        communityRepository.findCommunityById(findPost.getCommunity().getId())
                 .orElseThrow(() -> {
                     throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
                 });

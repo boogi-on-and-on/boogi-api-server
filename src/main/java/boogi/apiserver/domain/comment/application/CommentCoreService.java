@@ -3,7 +3,6 @@ package boogi.apiserver.domain.comment.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.CreateComment;
-import boogi.apiserver.domain.comment.dto.UserCommentPage;
 import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.like.application.LikeCoreService;
@@ -13,6 +12,7 @@ import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -75,15 +75,15 @@ public class CommentCoreService {
                 (findParentComment == null) ? Boolean.FALSE : Boolean.TRUE);
         findPost.addCommentCount();
 
-        Comment savedComment = commentRepository.save(newComment);
-        Long savedCommentId = savedComment.getId();
+        commentRepository.save(newComment);
+        Long savedCommentId = newComment.getId();
 
         sendPushNotification.commentNotification(savedCommentId);
         if (createComment.getMentionedUserIds().isEmpty() == false) {
             sendPushNotification.mentionNotification(createComment.getMentionedUserIds(), savedCommentId, MentionType.COMMENT);
         }
 
-        return savedComment;
+        return newComment;
     }
 
     @Transactional
@@ -92,10 +92,14 @@ public class CommentCoreService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다."));
 
         Long joinedCommunityId = findComment.getMember().getCommunity().getId();
-        if (memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
+        Long commentedUserId = findComment.getMember().getUser().getId();
+        if (commentedUserId.equals(userId) ||
+                memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
             likeCoreService.removeAllCommentLikes(findComment.getId());
 
             findComment.deleteComment();
+        } else {
+            throw new NotAuthorizedMemberException("해당 댓글의 삭제 권한이 없습니다.");
         }
     }
 
@@ -111,7 +115,7 @@ public class CommentCoreService {
 
         communityValidationService.checkPrivateCommunity(commentedCommunityId);
 
-        Page<Like> likePage = likeRepository.findCommentLikeWithMemberByCommentId(findComment.getId(), pageable);
+        Page<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
 
         List<User> users = likePage.getContent().stream()
                 .map(like -> like.getMember().getUser())
@@ -119,7 +123,6 @@ public class CommentCoreService {
 
         return new LikeMembersAtComment(users, likePage);
     }
-
 
     public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postQueryService.getPost(postId);
@@ -145,13 +148,13 @@ public class CommentCoreService {
                 .collect(Collectors.toList());
 
         List<Long> parentCommentIds = parentComments.stream()
-                .map(c -> c.getId())
+                .map(Comment::getId)
                 .collect(Collectors.toList());
 
         List<Comment> childComments = commentRepository.findChildCommentsWithMemberByParentCommentIds(parentCommentIds);
 
         List<Long> commentIds = childComments.stream()
-                .map(c -> c.getId())
+                .map(Comment::getId)
                 .collect(Collectors.toList());
         commentIds.addAll(parentCommentIds);
 
@@ -169,7 +172,7 @@ public class CommentCoreService {
                         commentLikes,
                         c,
                         findCommentCountMap.getOrDefault(c.getId(), 0L)))
-                .collect(Collectors.groupingBy(c -> c.getParentId(), HashMap::new, Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.groupingBy(CommentsAtPost.ChildCommentInfo::getParentId, HashMap::new, Collectors.toCollection(ArrayList::new)));
 
         List<CommentsAtPost.ParentCommentInfo> commentInfos = parentComments.stream()
                 .filter(c -> (c.getDeletedAt() == null || childCommentInfos.get(c.getId()) != null))
@@ -204,23 +207,20 @@ public class CommentCoreService {
         return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
     }
 
-    public UserCommentPage getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
+    public Page<Comment> getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {
             findMemberIds = memberRepository
                     .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
         } else {
-            userRepository.findUserById(userId).orElseThrow(() -> {
-                throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
-            });
+            userRepository.findUserById(userId).orElseThrow(() ->
+                    new EntityNotFoundException("해당 유저가 존재하지 않습니다."));
 
             findMemberIds = memberRepository
                     .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
         }
 
-        Page<Comment> userCommentPage = commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
-
-        return UserCommentPage.of(userCommentPage);
+        return commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
     }
 }

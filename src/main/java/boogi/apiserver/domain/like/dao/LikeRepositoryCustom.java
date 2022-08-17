@@ -20,15 +20,15 @@ public interface LikeRepositoryCustom {
 
     boolean existsLikeByCommentIdAndMemberId(Long commentId, Long memberId);
 
-    Optional<Like> findPostLikeWithMemberByLikeId(Long likeId);
+    Optional<Like> findLikeWithMemberById(Long likeId);
 
     Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId);
 
     List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentId, Long memberId);
 
-    Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable);
+    Page<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable);
 
-    Page<Like> findCommentLikeWithMemberByCommentId(Long commentId, Pageable pageable);
+    Page<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable);
 
     Map<Long, Long> getCommentLikeCountsByCommentIds(List<Long> commentIds);
 }

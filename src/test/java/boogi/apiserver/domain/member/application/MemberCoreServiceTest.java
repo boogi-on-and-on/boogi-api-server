@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -18,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,66 +54,65 @@ class MemberCoreServiceTest {
     @Mock
     UserQueryService userQueryService;
 
-    @Nested
-    @DisplayName("멤버 가입 테스트")
-    class MemberJoinTest {
-        @Test
-        @DisplayName("멤버 가입 1명")
-        void joinOne() {
-            //given
-            User user = User.builder()
-                    .id(1L)
-                    .build();
-            given(userQueryService.getUser(anyLong()))
-                    .willReturn(user);
 
-            Community community = Community.builder()
-                    .id(2L)
-                    .build();
-            given(communityQueryService.getCommunity(anyLong()))
-                    .willReturn(community);
+    @Mock
+    CommunityRepository communityRepository;
 
-            //when
-            Member member = memberCoreService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
 
-            //then
-            assertThat(member.getCommunity().getId()).isEqualTo(community.getId());
-            assertThat(member.getUser().getId()).isEqualTo(user.getId());
-            assertThat(member.getCommunity().getMemberCount()).isEqualTo(1);
-        }
+    @Test
+    void 멤버_가입_성공() {
+        //given
+        User user = User.builder()
+                .id(1L)
+                .build();
+        given(userQueryService.getUser(anyLong()))
+                .willReturn(user);
+        Community community = Community.builder()
+                .id(2L)
+                .build();
+        given(communityQueryService.getCommunity(anyLong()))
+                .willReturn(community);
 
-        @Test
-        @DisplayName("멤버 2명이상 추가")
-        void joinMany() {
-            //given
-            User u1 = User.builder()
-                    .id(1L)
-                    .build();
-            User u2 = User.builder()
-                    .id(2L)
-                    .build();
+        //when
+        Member member = memberCoreService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
 
-            given(userRepository.findUsersByIds(any()))
-                    .willReturn(List.of(u1, u2));
-
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
-            given(communityQueryService.getCommunity(anyLong()))
-                    .willReturn(community);
-
-            //when
-            List<Member> members = memberCoreService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
-
-            //then
-            assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))
-                    .containsExactlyInAnyOrderElementsOf(List.of(u1.getId(), u2.getId()));
-
-            assertThat(members.stream().map(Member::getMemberType).collect(Collectors.toList()))
-                    .containsOnly(MemberType.NORMAL);
-        }
-
+        //then
+        assertThat(member.getCommunity().getId()).isEqualTo(community.getId());
+        assertThat(member.getUser().getId()).isEqualTo(user.getId());
+        assertThat(member.getCommunity().getMemberCount()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("멤버 2명이상 추가")
+    void joinMany() {
+        //given
+        User u1 = User.builder()
+                .id(1L)
+                .build();
+        User u2 = User.builder()
+                .id(2L)
+                .build();
+
+        given(userRepository.findUsersByIds(any()))
+                .willReturn(List.of(u1, u2));
+
+        Community community = Community.builder()
+                .id(1L)
+                .build();
+        given(communityQueryService.getCommunity(anyLong()))
+                .willReturn(community);
+
+        //when
+        List<Member> members = memberCoreService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
+
+        //then
+        assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))
+                .containsExactlyInAnyOrderElementsOf(List.of(u1.getId(), u2.getId()));
+
+        assertThat(members.stream().map(Member::getMemberType).collect(Collectors.toList()))
+                .containsOnly(MemberType.NORMAL);
+    }
+
 
     @Nested
     @DisplayName("멤버 차단")
@@ -153,5 +155,45 @@ class MemberCoreServiceTest {
                 memberCoreService.releaseMember(member.getId());
             }).isInstanceOf(InvalidValueException.class);
         }
+
+    }
+
+    @Test
+    @DisplayName("나를 제외한 커뮤니티에 가입된 모든 멤버들을 조회한다.")
+    void testGetJoinedMembersAllWithoutMeSuccess() {
+        User user1 = User.builder()
+                .id(1L)
+                .build();
+        User user2 = User.builder()
+                .id(2L)
+                .build();
+
+        Community community = Community.builder()
+                .id(3L)
+                .build();
+        given(communityRepository.findCommunityById(anyLong()))
+                .willReturn(Optional.of(community));
+
+        Member member1 = Member.builder()
+                .id(4L)
+                .user(user1)
+                .community(community)
+                .build();
+        Member member2 = Member.builder()
+                .id(5L)
+                .user(user2)
+                .community(community)
+                .build();
+
+        List<Member> members = new ArrayList<>(List.of(member1, member2));
+        given(memberRepository.findJoinedMembersAllWithUserByCommunityId(anyLong()))
+                .willReturn(members);
+
+        List<Member> result = memberCoreService.getJoinedMembersAll(community.getId(), user1.getId());
+
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0).getId()).isEqualTo(member1.getId());
+        assertThat(result.get(0).getCommunity()).isEqualTo(community);
+        assertThat(result.get(0).getUser()).isEqualTo(user1);
     }
 }

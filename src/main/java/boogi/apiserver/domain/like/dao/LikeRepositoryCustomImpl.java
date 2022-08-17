@@ -71,8 +71,7 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
         return (result == null) ? false : true;
     }
 
-    @Override
-    public Optional<Like> findPostLikeWithMemberByLikeId(Long likeId) {
+    public Optional<Like> findLikeWithMemberById(Long likeId) {
         Like result = queryFactory.selectFrom(like)
                 .join(like.member, member).fetchJoin()
                 .where(like.id.eq(likeId))
@@ -101,8 +100,7 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                 ).fetch();
     }
 
-    @Override
-    public Page<Like> findPostLikeWithMemberByPostId(Long postId, Pageable pageable) {
+    public Page<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable) {
         List<Like> result = queryFactory.selectFrom(like)
                 .where(
                         like.post.id.eq(postId)
@@ -123,8 +121,7 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
         return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
     }
 
-    @Override
-    public Page<Like> findCommentLikeWithMemberByCommentId(Long commentId, Pageable pageable) {
+    public Page<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable) {
         List<Like> result = queryFactory.selectFrom(like)
                 .where(
                         like.comment.id.eq(commentId)

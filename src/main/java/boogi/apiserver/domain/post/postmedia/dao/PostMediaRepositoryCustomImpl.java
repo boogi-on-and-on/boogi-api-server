@@ -15,11 +15,10 @@ public class PostMediaRepositoryCustomImpl implements PostMediaRepositoryCustom 
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    @Override
-    public List<PostMedia> findUnmappedPostMediasByIds(List<String> postMediaIds) {
+    public List<PostMedia> findUnmappedPostMediasByUUIDs(List<String> postMediaUUIds) {
         return queryFactory.selectFrom(postMedia)
                 .where(
-                        postMedia.uuid.in(postMediaIds),
+                        postMedia.uuid.in(postMediaUUIds),
                         postMedia.post.isNull(),
                         postMedia.deletedAt.isNull()
                 ).fetch();
