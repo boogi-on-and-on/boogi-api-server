@@ -101,12 +101,7 @@ class MemberRepositoryTest {
         assertThat(members.get(0).getId()).isEqualTo(member2.getId());
     }
 
-
-    // Todo: 해당 테스트를 혼자서 실행하면 잘 실행된다.
-    //  클래스 단위 이상으로 테스트하면, 밑에서 검증에 실패한다.
-    //  각 테스트는 독립적인것 같은데?
-
-    //    @Test
+    @Test
     void findJoinedMember() {
         //given
         Community community = Community.builder().build();
@@ -143,7 +138,7 @@ class MemberRepositoryTest {
 
         //when
         PageRequest pageable = PageRequest.of(0, 4);
-        Page<Member> page = memberRepository.findJoinedMembers(pageable, user.getId());
+        Page<Member> page = memberRepository.findJoinedMembers(pageable, community.getId());
         List<Member> members = page.getContent();
 
         //then
@@ -152,7 +147,6 @@ class MemberRepositoryTest {
         assertThat(members.get(1).getId()).isEqualTo(submanager2.getId());
         assertThat(members.get(2).getId()).isEqualTo(submanager1.getId());
         assertThat(members.get(3).getId()).isEqualTo(normalMember.getId());
-
     }
 
     @Test
