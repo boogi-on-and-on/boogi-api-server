@@ -67,8 +67,6 @@ public class CommentCoreService {
                 .orElse(null);
 
         Comment newComment = Comment.of(findPost, member, findParentComment, createComment.getContent());
-        newComment.setChild(
-                (findParentComment == null) ? Boolean.FALSE : Boolean.TRUE);
         findPost.addCommentCount();
 
         commentRepository.save(newComment);
