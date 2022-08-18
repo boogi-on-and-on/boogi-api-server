@@ -184,6 +184,8 @@ class MemberCoreServiceTest {
                 .user(user2)
                 .community(community)
                 .build();
+        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                .willReturn(Optional.of(member1));
 
         List<Member> members = new ArrayList<>(List.of(member1, member2));
         given(memberRepository.findJoinedMembersAllWithUserByCommunityId(anyLong()))
@@ -191,9 +193,9 @@ class MemberCoreServiceTest {
 
         List<Member> result = memberCoreService.getJoinedMembersAll(community.getId(), user1.getId());
 
-        assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).getId()).isEqualTo(member1.getId());
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getId()).isEqualTo(member2.getId());
         assertThat(result.get(0).getCommunity()).isEqualTo(community);
-        assertThat(result.get(0).getUser()).isEqualTo(user1);
+        assertThat(result.get(0).getUser()).isEqualTo(user2);
     }
 }

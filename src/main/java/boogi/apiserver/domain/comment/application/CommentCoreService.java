@@ -58,10 +58,8 @@ public class CommentCoreService {
     public Comment createComment(CreateComment createComment, Long userId) {
         Post findPost = postQueryService.getPost(createComment.getPostId());
 
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId());
-        if (Objects.isNull(member)) {
-            throw new NotJoinedMemberException();
-        }
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId())
+                .orElseThrow(NotJoinedMemberException::new);
 
         Long parentCommentId = createComment.getParentCommentId();
         commentValidationService

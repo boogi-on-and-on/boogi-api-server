@@ -97,7 +97,7 @@ class CommentCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Member.builder().build());
+                    .willReturn(Optional.of(Member.builder().build()));
 
             CreateComment createComment = new CreateComment(post.getId(), null, "hello", List.of());
 
@@ -141,7 +141,7 @@ class CommentCoreServiceTest {
                     .willReturn(Optional.of(parentComment));
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             CreateComment createComment = new CreateComment(post.getId(), parentComment.getId(), "자식댓글", List.of());
 
@@ -345,7 +345,7 @@ class CommentCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             Pageable pageable = PageRequest.of(0, 2);
             List<Comment> parentComments = List.of(pComment1, pComment2);
@@ -410,7 +410,7 @@ class CommentCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             PageRequest pageable = PageRequest.of(0, 1);
 
@@ -459,7 +459,7 @@ class CommentCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             Pageable pageable = PageRequest.of(0, 2);
             List<Comment> parentComments = List.of(pComment1);

@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -89,7 +90,7 @@ class MemberQueryServiceTest {
             Member member = Member.builder().build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             //when
             Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
@@ -103,7 +104,7 @@ class MemberQueryServiceTest {
         void noMemberInfo() {
             //given
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             //when
             Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
@@ -122,7 +123,7 @@ class MemberQueryServiceTest {
                 .build();
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(member);
+                .willReturn(Optional.of(member));
 
         Boolean hasAuth = memberQueryService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 

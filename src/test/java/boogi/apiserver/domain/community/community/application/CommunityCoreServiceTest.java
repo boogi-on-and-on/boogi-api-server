@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +56,7 @@ class CommunityCoreServiceTest {
 
             Member member = Member.builder().build();
             given(memberRepository.findAnyMemberExceptManager(any()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             //then
             assertThatThrownBy(() -> {
@@ -74,7 +75,7 @@ class CommunityCoreServiceTest {
 
             Member member = Member.builder().build();
             given(memberRepository.findAnyMemberExceptManager(any()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             communityCoreService.shutdown(community.getId());
 

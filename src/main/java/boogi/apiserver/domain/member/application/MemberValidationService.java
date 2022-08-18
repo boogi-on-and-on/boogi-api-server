@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -24,10 +24,9 @@ public class MemberValidationService {
     private final MemberRepository memberRepository;
 
     public void checkAlreadyJoinedMember(Long userId, Long communityId) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (Objects.nonNull(member)) {
+        memberRepository.findByUserIdAndCommunityId(userId, communityId).ifPresent(m -> {
             throw new AlreadyJoinedMemberException();
-        }
+        });
     }
 
     public void checkAlreadyJoinedMemberInBatch(List<Long> userIds, Long communityId) {
@@ -41,17 +40,14 @@ public class MemberValidationService {
     }
 
     public void checkMemberJoinedCommunity(Long userId, Long communityId) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (Objects.isNull(member)) {
-            throw new NotJoinedMemberException();
-        }
+        memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
     }
 
     public boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (Objects.isNull(member)) {
-            throw new EntityNotFoundException("가입하지 않은 멤버입니다.");
-        }
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(() -> new EntityNotFoundException("가입하지 않은 멤버입니다."));
+
         Boolean hasAuth;
         switch (memberType) {
             case MANAGER:
@@ -74,10 +70,8 @@ public class MemberValidationService {
     }
 
     public boolean hasAuthWithoutThrow(Long userId, Long communityId, MemberType memberType) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
-        if (Objects.isNull(member)) {
-            throw new EntityNotFoundException("가입하지 않은 멤버입니다.");
-        }
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(() -> new EntityNotFoundException("가입하지 않은 멤버입니다."));
 
         Boolean hasAuth;
         switch (memberType) {

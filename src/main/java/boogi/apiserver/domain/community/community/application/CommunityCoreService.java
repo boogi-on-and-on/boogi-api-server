@@ -59,10 +59,9 @@ public class CommunityCoreService {
     public void shutdown(Long communityId) {
         Community community = communityQueryService.getCommunity(communityId);
 
-        Member member = memberRepository.findAnyMemberExceptManager(communityId);
-        if (Objects.nonNull(member)) {
+        memberRepository.findAnyMemberExceptManager(communityId).ifPresent(m -> {
             throw new InvalidValueException("탈퇴하지 않은 부매니저 혹은 일반 맴버가 있습니다.");
-        }
+        });
 
         community.shutdown();
     }

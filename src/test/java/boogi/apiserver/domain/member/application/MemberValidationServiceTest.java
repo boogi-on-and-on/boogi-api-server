@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,7 +42,7 @@ class MemberValidationServiceTest {
         void alreadyJoined() {
             //given
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Member.builder().build());
+                    .willReturn(Optional.of(Member.builder().build()));
 
             //then
             assertThatThrownBy(() -> {
@@ -55,7 +56,7 @@ class MemberValidationServiceTest {
         void yetJoined() {
             //given
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             assertThatThrownBy(() -> {
                 //when
@@ -77,7 +78,7 @@ class MemberValidationServiceTest {
                     .build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             assertThatThrownBy(() -> {
                 memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
@@ -94,7 +95,7 @@ class MemberValidationServiceTest {
 
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.SUB_MANAGER);
 
@@ -111,7 +112,7 @@ class MemberValidationServiceTest {
 
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             boolean isSupervisor = memberValidationService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 

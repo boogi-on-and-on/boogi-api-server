@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,16 +63,15 @@ public class LikeCoreService {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않습니다"));
 
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId());
-        if (Objects.isNull(member)) {
-            throw new NotJoinedMemberException();
-        }
+        Long communityId = findPost.getCommunity().getId();
+        Member joinedMember = memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
 
-        if (likeValidationService.checkOnlyAlreadyDoPostLike(postId, member.getId())) {
+        if (likeValidationService.checkOnlyAlreadyDoPostLike(postId, joinedMember.getId())) {
             throw new AlreadyDoLikeException("이미 해당 글에 좋아요를 한 상태입니다");
         }
 
-        Like newLike = Like.postOf(findPost, member);
+        Like newLike = Like.postOf(findPost, joinedMember);
         findPost.addLikeCount();
         likeRepository.save(newLike);
         return newLike;
@@ -85,7 +83,8 @@ public class LikeCoreService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
 
         Long communityId = findComment.getMember().getCommunity().getId();
-        Member joinedMember = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        Member joinedMember = memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
 
         if (likeValidationService.checkOnlyAlreadyDoCommentLike(commentId, joinedMember.getId())) {
             throw new AlreadyDoLikeException("이미 해당 댓글에 좋아요를 한 상태입니다");
@@ -127,10 +126,11 @@ public class LikeCoreService {
     public LikeMembersAtPost getLikeMembersAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postQueryService.getPost(postId);
 
-        Long postedCommunityId = findPost.getCommunity().getId();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
+        Community postedCommunity = findPost.getCommunity();
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunity.getId())
+                .orElse(null);
 
-        if (communityValidationService.checkOnlyPrivateCommunity(postedCommunityId) && member == null) {
+        if (postedCommunity.isPrivate() && member == null) {
             throw new NotJoinedMemberException();
         }
 
@@ -149,10 +149,11 @@ public class LikeCoreService {
         Comment findComment = commentRepository.findById(commentId).orElseThrow(
                 () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
 
-        Long commentedCommunityId = findComment.getPost().getCommunity().getId();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
+        Community commentedCommunity = findComment.getPost().getCommunity();
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunity.getId())
+                .orElse(null);
 
-        if (communityValidationService.checkOnlyPrivateCommunity(commentedCommunityId) && member == null) {
+        if (commentedCommunity.isPrivate() && member == null) {
             throw new NotJoinedMemberException();
         }
 

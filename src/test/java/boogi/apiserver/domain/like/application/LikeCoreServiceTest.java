@@ -103,7 +103,7 @@ class LikeCoreServiceTest {
                     .id(1L)
                     .build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             given(likeValidationService.checkOnlyAlreadyDoPostLike(anyLong(), anyLong()))
                     .willReturn(false);
@@ -135,7 +135,7 @@ class LikeCoreServiceTest {
                     .build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             given(likeValidationService.checkOnlyAlreadyDoPostLike(anyLong(), anyLong()))
                     .willReturn(true);
@@ -160,7 +160,7 @@ class LikeCoreServiceTest {
                     .community(community)
                     .build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             Comment comment = Comment.builder()
                     .id(1L)
@@ -191,7 +191,7 @@ class LikeCoreServiceTest {
                     .build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             Comment comment = Comment.builder()
                     .id(1L)
@@ -305,7 +305,7 @@ class LikeCoreServiceTest {
     @DisplayName("글에 좋아요한 유저들 조회시")
     class GetLikeMembersAtPostTest {
         @Test
-        @DisplayName("글이 작성된 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
+        @DisplayName("글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
             User user = User.builder()
                     .id(1L)
@@ -313,6 +313,7 @@ class LikeCoreServiceTest {
 
             Community community = Community.builder()
                     .id(1L)
+                    .isPrivate(false)
                     .build();
 
             Member member = Member.builder()
@@ -334,9 +335,7 @@ class LikeCoreServiceTest {
                     .post(post)
                     .build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
-            given(communityValidationService.checkOnlyPrivateCommunity(anyLong()))
-                    .willReturn(false);
+                    .willReturn(Optional.empty());
 
             Pageable pageable = PageRequest.of(0, 1);
             List<Like> likes = List.of(like);
@@ -365,6 +364,7 @@ class LikeCoreServiceTest {
         void notJoinedMemberInPrivateCommunityRequestFail() {
             Community community = Community.builder()
                     .id(1L)
+                    .isPrivate(true)
                     .build();
 
             Post post = Post.builder()
@@ -374,9 +374,8 @@ class LikeCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 
-            given(communityValidationService.checkOnlyPrivateCommunity(anyLong())).willReturn(true);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             Pageable pageable = PageRequest.of(0, 1);
 
@@ -390,7 +389,7 @@ class LikeCoreServiceTest {
     @DisplayName("댓글에 좋아요한 유저들 조회시")
     class GetLikeMembersAtCommentTest {
         @Test
-        @DisplayName("댓글이 작성된 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
+        @DisplayName("댓글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
             User user = User.builder()
                     .id(1L)
@@ -398,6 +397,7 @@ class LikeCoreServiceTest {
 
             Community community = Community.builder()
                     .id(1L)
+                    .isPrivate(false)
                     .build();
 
             Member member = Member.builder()
@@ -425,9 +425,7 @@ class LikeCoreServiceTest {
                     .comment(comment)
                     .build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
-            given(communityValidationService.checkOnlyPrivateCommunity(anyLong()))
-                    .willReturn(false);
+                    .willReturn(Optional.empty());
 
             Pageable pageable = PageRequest.of(0, 1);
             List<Like> likes = List.of(like);
@@ -472,10 +470,7 @@ class LikeCoreServiceTest {
                     .willReturn(Optional.of(comment));
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
-
-            given(communityValidationService.checkOnlyPrivateCommunity(anyLong()))
-                    .willReturn(true);
+                    .willReturn(Optional.empty());
 
             Pageable pageable = PageRequest.of(0, 1);
 

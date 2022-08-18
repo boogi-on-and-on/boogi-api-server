@@ -18,6 +18,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
@@ -53,8 +54,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Member findByUserIdAndCommunityId(Long userId, Long communityId) {
-        List<Member> members = queryFactory.selectFrom(member)
+    public Optional<Member> findByUserIdAndCommunityId(Long userId, Long communityId) {
+        Member findMember = queryFactory.selectFrom(member)
                 .where(
                         member.user.id.eq(userId),
                         member.community.id.eq(communityId),
@@ -62,8 +63,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 ).orderBy(member.createdAt.desc())
                 .limit(0)
                 .fetch();
+                .fetchOne();
 
-        return members.size() >= 1 ? members.get(0) : null;
+        return Optional.ofNullable(findMember);
     }
 
     @Override
@@ -112,8 +114,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Member findAnyMemberExceptManager(Long communityId) {
-        return queryFactory
+    public Optional<Member> findAnyMemberExceptManager(Long communityId) {
+        Member findMember = queryFactory
                 .selectFrom(this.member)
                 .where(
                         this.member.community.id.eq(communityId),
@@ -121,6 +123,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         this.member.bannedAt.isNull()
                 ).limit(1)
                 .fetchOne();
+        return Optional.ofNullable(findMember);
     }
 
     @Override

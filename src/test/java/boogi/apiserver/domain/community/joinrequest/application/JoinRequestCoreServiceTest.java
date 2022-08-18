@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,7 +71,7 @@ class JoinRequestCoreServiceTest {
                     .status(JoinRequestStatus.PENDING)
                     .build();
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                    .willReturn(request);
+                    .willReturn(Optional.of(request));
 
             assertThatThrownBy(() -> {
                 joinRequestCoreService.request(user.getId(), community.getId());
@@ -94,7 +95,7 @@ class JoinRequestCoreServiceTest {
                     .status(JoinRequestStatus.CONFIRM)
                     .build();
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                    .willReturn(request);
+                    .willReturn(Optional.of(request));
 
             assertThatThrownBy(() -> {
                 joinRequestCoreService.request(user.getId(), community.getId());

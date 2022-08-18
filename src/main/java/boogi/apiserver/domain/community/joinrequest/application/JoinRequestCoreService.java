@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,8 +50,9 @@ public class JoinRequestCoreService {
         User user = userQueryService.getUser(userId);
         Community community = communityQueryService.getCommunity(communityId);
 
-        JoinRequest latestRequest = joinRequestRepository.getLatestJoinRequest(userId, communityId);
-        if (Objects.nonNull(latestRequest)) {
+        Optional<JoinRequest> possibleLatestRequest = joinRequestRepository.getLatestJoinRequest(userId, communityId);
+        if (possibleLatestRequest.isPresent()) {
+            JoinRequest latestRequest = possibleLatestRequest.get();
             switch (latestRequest.getStatus()) {
                 case CONFIRM:
                     throw new InvalidValueException("이미 가입한 커뮤니티입니다.");

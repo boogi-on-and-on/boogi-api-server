@@ -6,6 +6,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
@@ -95,7 +96,8 @@ public class MemberCoreService {
         communityRepository.findCommunityById(communityId).orElseThrow(() -> {
             throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
         });
-        Member findMember = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        Member findMember = memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUserByCommunityId(communityId);
         findJoinedMembersAll.remove(findMember);

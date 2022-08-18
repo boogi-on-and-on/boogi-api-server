@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -166,7 +167,10 @@ class MemberRepositoryTest {
         memberRepository.saveAll(List.of(manager, normalUser));
 
         //when
-        Member member = memberRepository.findAnyMemberExceptManager(community.getId());
+        Member member = memberRepository.findAnyMemberExceptManager(community.getId()).orElse(null);
+        if (member == null) {
+            fail();
+        }
 
         //then
         assertThat(member).isEqualTo(normalUser);

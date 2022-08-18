@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCustom {
     private final JPAQueryFactory queryFactory;
@@ -34,8 +35,8 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
     }
 
     @Override
-    public JoinRequest getLatestJoinRequest(Long userId, Long communityId) {
-        return queryFactory.selectFrom(joinRequest)
+    public Optional<JoinRequest> getLatestJoinRequest(Long userId, Long communityId) {
+        JoinRequest request = queryFactory.selectFrom(joinRequest)
                 .where(
                         joinRequest.user.id.eq(userId),
                         joinRequest.community.id.eq(communityId)
@@ -43,6 +44,8 @@ public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCus
                 .orderBy(joinRequest.createdAt.desc())
                 .limit(1)
                 .fetchOne();
+
+        return Optional.ofNullable(request);
     }
 
     @Override

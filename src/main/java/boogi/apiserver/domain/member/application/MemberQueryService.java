@@ -35,7 +35,8 @@ public class MemberQueryService {
     }
 
     public Member getMemberOfTheCommunity(Long userId, Long communityId) {
-        return memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        return memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElse(null);
     }
 
     public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {

@@ -111,18 +111,18 @@ class PostCoreServiceTest {
             Community community = Community.builder()
                     .id(1L)
                     .build();
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
 
             Member member = Member.builder()
                     .id(1L)
                     .community(community)
                     .build();
-
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.of(member));
 
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
                     .willReturn(List.of());
-
-            given(communityQueryService.getCommunity(anyLong()))
-                    .willReturn(community);
 
             Post post = Post.builder()
                     .id(1L)
@@ -173,7 +173,7 @@ class PostCoreServiceTest {
                     .willReturn(Optional.of(post));
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
+                    .willReturn(Optional.of(member));
 
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of());
@@ -223,8 +223,7 @@ class PostCoreServiceTest {
                     .willReturn(Optional.of(post));
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(member);
-
+                    .willReturn(Optional.of(member));
 
             PostMedia postMedia = PostMedia.builder()
                     .id(1L)
@@ -273,7 +272,7 @@ class PostCoreServiceTest {
                     .willReturn(Optional.of(post));
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             assertThatThrownBy(() -> postCoreService.getPostDetail(post.getId(), 1L))
                     .isInstanceOf(NotJoinedMemberException.class);
