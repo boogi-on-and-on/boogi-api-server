@@ -54,16 +54,13 @@ public class PostCoreService {
     private final PostMediaRepository postMediaRepository;
     private final UserRepository userRepository;
 
-    private final CommunityValidationService communityValidationService;
+    private final MemberValidationService memberValidationService;
 
     private final CommunityQueryService communityQueryService;
-
-    private final MemberValidationService memberValidationService;
+    private final PostMediaQueryService postMediaQueryService;
 
     private final PostHashtagCoreService postHashtagCoreService;
     private final LikeCoreService likeCoreService;
-
-    private final PostMediaQueryService postMediaQueryService;
 
     private final SendPushNotification sendPushNotification;
 
@@ -71,7 +68,8 @@ public class PostCoreService {
     public Post createPost(CreatePost createPost, Long userId) {
         Long communityId = createPost.getCommunityId();
         Community community = communityQueryService.getCommunity(communityId);
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId);
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
 
         List<PostMedia> findPostMedias = postMediaQueryService
                 .getUnmappedPostMediasByUUID(createPost.getPostMediaIds());
@@ -96,32 +94,29 @@ public class PostCoreService {
         Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
 
-        Long postedCommunityId = findPost.getCommunity().getId();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
+        Community postedCommunity = findPost.getCommunity();
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunity.getId())
+                .orElse(null);
 
-        if (member == null) {
+        if (postedCommunity.isPrivate() && member == null) {
             throw new NotJoinedMemberException();
         }
-
-        communityValidationService.checkPrivateCommunity(postedCommunityId);
 
         List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
 
         Long findLikeId = null;
         if (member != null) {
-            Optional<Like> findLike = likeRepository.
+            Optional<Like> possibleLike = likeRepository.
                     findPostLikeByPostIdAndMemberId(postId, member.getId());
-            if (findLike.isPresent()) {
-                findLikeId = findLike.get().getId();
+            if (possibleLike.isPresent()) {
+                findLikeId = possibleLike.get().getId();
             }
         }
 
         Long postUserId = findPost.getMember().getUser().getId();
         Boolean me = postUserId.equals(userId) ? Boolean.TRUE : Boolean.FALSE;
 
-        PostDetail postDetail = new PostDetail(findPost, findPostMedias, me, findLikeId);
-
-        return postDetail;
+        return new PostDetail(findPost, findPostMedias, me, findLikeId);
     }
 
     @Transactional

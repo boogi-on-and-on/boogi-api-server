@@ -3,7 +3,6 @@ package boogi.apiserver.domain.comment.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.CreateComment;
-import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
@@ -18,7 +17,6 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.comment.dto.CommentsAtPost;
 import boogi.apiserver.domain.user.dao.UserRepository;
-import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
@@ -101,36 +99,12 @@ public class CommentCoreService {
         }
     }
 
-    public LikeMembersAtComment getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {
-        Comment findComment = commentRepository.findById(commentId).orElseThrow(
-                () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
-
-        Long commentedCommunityId = findComment.getPost().getCommunity().getId();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, commentedCommunityId);
-        if (member == null) {
-            throw new NotJoinedMemberException();
-        }
-
-        communityValidationService.checkPrivateCommunity(commentedCommunityId);
-
-        Page<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
-
-        List<User> users = likePage.getContent().stream()
-                .map(like -> like.getMember().getUser())
-                .collect(Collectors.toList());
-
-        return new LikeMembersAtComment(users, likePage);
-    }
-
     public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postQueryService.getPost(postId);
 
         Long postedCommunityId = findPost.getCommunity().getId();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId);
-
-        if (member == null) {
-            throw new NotJoinedMemberException();
-        }
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId)
+                .orElseThrow(NotJoinedMemberException::new);
 
         communityValidationService.checkPrivateCommunity(postedCommunityId);
 

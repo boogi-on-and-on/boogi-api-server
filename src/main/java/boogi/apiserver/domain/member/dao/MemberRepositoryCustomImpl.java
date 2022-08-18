@@ -61,8 +61,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         member.community.id.eq(communityId),
                         member.bannedAt.isNull()
                 ).orderBy(member.createdAt.desc())
-                .limit(0)
-                .fetch();
+                .limit(1)
                 .fetchOne();
 
         return Optional.ofNullable(findMember);
