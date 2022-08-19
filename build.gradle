@@ -53,6 +53,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+def profile = project.hasProperty("profile") ? project.property("profile").toString() : "local"
+
 tasks.named('test') {
     useJUnitPlatform()
 }
@@ -64,7 +66,14 @@ querydsl {
     querydslSourcesDir = querydslDir
 }
 sourceSets {
-    main.java.srcDir querydslDir
+    main {
+        java {
+            srcDirs = [querydslDir, "src/main/java"]
+        }
+        resources {
+            srcDirs = ["src/main/resources", "src/main/resources-${profile}"]
+        }
+    }
 }
 compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
