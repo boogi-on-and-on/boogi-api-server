@@ -3,6 +3,8 @@ package boogi.apiserver.domain.message.message.dto;
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -56,6 +58,8 @@ public class MessageResponse {
     static class MessageInfo {
         private Long id;
         private String content;
+
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
         private LocalDateTime receivedAt;
         private Boolean me;
 

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public abstract class DateTimePattern {
+public abstract class CustomDateTimeFormatter {
 
     public final static Map<TimePatternType, DateTimeFormatter> formatterMap = new HashMap<>();
 

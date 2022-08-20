@@ -1,9 +1,13 @@
 package boogi.apiserver.domain.post.post.dto;
 
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -11,12 +15,14 @@ import lombok.Data;
 public class LatestPostOfCommunityDto {
     private Long id;
     private String content;
-    private String createdAt;
+
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    private LocalDateTime createdAt;
 
     private LatestPostOfCommunityDto(Post post) {
         this.id = post.getId();
         this.content = post.getContent();
-        this.createdAt = post.getCreatedAt().toString();
+        this.createdAt = post.getCreatedAt();
     }
 
     public static LatestPostOfCommunityDto of(Post post) {

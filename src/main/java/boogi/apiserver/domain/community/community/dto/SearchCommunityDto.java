@@ -2,12 +2,15 @@ package boogi.apiserver.domain.community.community.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,7 +23,9 @@ public class SearchCommunityDto {
     private Long id;
     private String name;
     private String description;
-    private String createdAt;
+
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    private LocalDateTime createdAt;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
@@ -33,7 +38,7 @@ public class SearchCommunityDto {
         this.id = community.getId();
         this.name = community.getCommunityName();
         this.description = community.getDescription();
-        this.createdAt = community.getCreatedAt().toString();
+        this.createdAt = community.getCreatedAt();
 
         List<CommunityHashtag> hashtags = community.getHashtags();
         if (Objects.nonNull(hashtags) && hashtags.size() > 0) {
