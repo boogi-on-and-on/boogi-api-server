@@ -3,6 +3,8 @@ package boogi.apiserver.domain.community.community.dto;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,6 +68,8 @@ public class JoinedCommunities {
     @Builder
     static class PostInfo {
         private Long id;
+
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
         private LocalDateTime createdAt;
 
         @JsonInclude(JsonInclude.Include.NON_NULL)

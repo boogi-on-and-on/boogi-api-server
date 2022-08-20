@@ -7,12 +7,15 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,7 +28,8 @@ public class PostOfCommunity {
 
     private Long id;
     private UserDto user;
-    private String createdAt;
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    private LocalDateTime createdAt;
     private String content;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -46,7 +50,7 @@ public class PostOfCommunity {
 
         this.id = post.getId();
         this.user = new UserDto(member.getUser());
-        this.createdAt = post.getCreatedAt().toString();
+        this.createdAt = post.getCreatedAt();
         this.content = post.getContent();
 
         List<PostHashtag> hashtags = post.getHashtags();

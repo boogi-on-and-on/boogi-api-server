@@ -83,7 +83,7 @@ class CommentApiControllerTest {
         UserCommentDto commentDto = UserCommentDto.builder()
                 .postId(1L)
                 .content("댓글1")
-                .createdAt(LocalDateTime.now().toString())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         UserCommentPage page = UserCommentPage.builder()

@@ -8,6 +8,8 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +39,7 @@ public class PostDetail {
     private Long likeId;
 
     @NotNull
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
     private LocalDateTime createdAt;
 
     @NotEmpty

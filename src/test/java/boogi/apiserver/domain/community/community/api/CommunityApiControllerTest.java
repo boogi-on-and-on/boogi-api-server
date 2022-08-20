@@ -675,7 +675,7 @@ class CommunityApiControllerTest {
 
         SearchCommunityDto dto = SearchCommunityDto.builder()
                 .category("HOBBY")
-                .createdAt(LocalDateTime.now().toString())
+                .createdAt(LocalDateTime.now())
                 .id(1L)
                 .hashtags(List.of("안녕", "헤헤"))
                 .memberCount(23)

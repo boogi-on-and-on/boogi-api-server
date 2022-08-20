@@ -2,6 +2,8 @@ package boogi.apiserver.domain.message.message.dto;
 
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -45,6 +47,8 @@ public class MessageRoomResponse {
     @Builder
     static class RecentMessage {
         private String content;
+
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
         private LocalDateTime receivedAt;
 
         private static RecentMessage toDto(Message message) {

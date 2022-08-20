@@ -5,6 +5,8 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.util.time.TimePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -100,6 +102,7 @@ public class CommentsAtPost {
 
         private Long likeId;
 
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
         private LocalDateTime createdAt;
 
         private String content;
