@@ -102,7 +102,7 @@ public class CommentsAtPost {
 
         private Long likeId;
 
-        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
         private LocalDateTime createdAt;
 
         private String content;

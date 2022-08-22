@@ -28,7 +28,7 @@ public class PostOfCommunity {
 
     private Long id;
     private UserDto user;
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
     private String content;
 

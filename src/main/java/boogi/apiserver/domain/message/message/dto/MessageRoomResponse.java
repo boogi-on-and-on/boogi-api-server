@@ -48,7 +48,7 @@ public class MessageRoomResponse {
     static class RecentMessage {
         private String content;
 
-        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
         private LocalDateTime receivedAt;
 
         private static RecentMessage toDto(Message message) {

@@ -19,7 +19,7 @@ public class NoticeDto {
     protected Long id;
     protected String title;
 
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     protected LocalDateTime createdAt;
 
     protected NoticeDto(Notice notice) {

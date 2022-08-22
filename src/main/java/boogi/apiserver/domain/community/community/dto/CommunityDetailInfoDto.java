@@ -26,7 +26,7 @@ public class CommunityDetailInfoDto {
     private List<String> hashtags;
     private String memberCount;
 
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
     private CommunityDetailInfoDto(Community community, List<CommunityHashtag> hashtags) {

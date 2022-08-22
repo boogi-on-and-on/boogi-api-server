@@ -39,7 +39,7 @@ public class PostDetail {
     private Long likeId;
 
     @NotNull
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
     @NotEmpty
