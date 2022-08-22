@@ -9,14 +9,14 @@ import java.util.stream.Stream;
 
 public abstract class CustomDateTimeFormatter {
 
-    public final static Map<TimePatternType, DateTimeFormatter> formatterMap = new HashMap<>();
+    public final static Map<TimePattern, DateTimeFormatter> formatterMap = new HashMap<>();
 
     static {
-        Stream.of(TimePatternType.values())
+        Stream.of(TimePattern.values())
                 .forEach(format -> formatterMap.put(format, DateTimeFormatter.ofPattern(format.getFormat())));
     }
 
-    public static String toString(LocalDateTime localDateTime, TimePatternType type) {
+    public static String toString(LocalDateTime localDateTime, TimePattern type) {
         DateTimeFormatter formatter = formatterMap.get(type);
         if (Objects.isNull(formatter)) {
             throw new RuntimeException("invalid pattern type");

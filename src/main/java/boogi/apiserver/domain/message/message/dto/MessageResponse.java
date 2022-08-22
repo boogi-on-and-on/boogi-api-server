@@ -59,7 +59,7 @@ public class MessageResponse {
         private Long id;
         private String content;
 
-        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
         private LocalDateTime receivedAt;
         private Boolean me;
 

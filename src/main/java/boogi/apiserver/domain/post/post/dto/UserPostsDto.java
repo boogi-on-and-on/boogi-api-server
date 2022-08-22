@@ -23,7 +23,7 @@ public class UserPostsDto {
     private String content;
     private CommunityDto community;
 
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
     private Long id;
 

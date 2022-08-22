@@ -16,7 +16,7 @@ public class LatestPostOfCommunityDto {
     private Long id;
     private String content;
 
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
     private LatestPostOfCommunityDto(Post post) {

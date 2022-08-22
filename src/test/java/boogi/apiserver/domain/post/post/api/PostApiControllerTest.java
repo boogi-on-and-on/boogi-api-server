@@ -23,7 +23,7 @@ import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PagnationDto;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
-import boogi.apiserver.global.util.time.TimePatternType;
+import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -185,7 +185,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.postMedias[0].type").value(postMedia.getMediaType().toString()))
                 .andExpect(jsonPath("$.postMedias[0].url").value(postMedia.getMediaURL()))
                 .andExpect(jsonPath("$.likeId").value(1L))
-                .andExpect(jsonPath("$.createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePatternType.BASIC_FORMAT)))
+                .andExpect(jsonPath("$.createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.content").value(post.getContent()))
                 .andExpect(jsonPath("$.hashtags").isArray())
                 .andExpect(jsonPath("$.hashtags[0]").value(postHashtag.getTag()))
@@ -403,7 +403,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.comments[0].member.id").value(memberInfo.getId()))
                 .andExpect(jsonPath("$.comments[0].member.memberType").value(memberInfo.getMemberType().toString()))
                 .andExpect(jsonPath("$.comments[0].likeId").value(nullValue()))
-                .andExpect(jsonPath("$.comments[0].createdAt").value(CustomDateTimeFormatter.toString(parentComment.getCreatedAt(), TimePatternType.BASIC_FORMAT)))
+                .andExpect(jsonPath("$.comments[0].createdAt").value(CustomDateTimeFormatter.toString(parentComment.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.comments[0].content").value(parentComment.getContent()))
                 .andExpect(jsonPath("$.comments[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].me").value(false))
@@ -417,7 +417,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.comments[0].child[0].member.id").value(memberInfo.getId()))
                 .andExpect(jsonPath("$.comments[0].child[0].member.memberType").value(memberInfo.getMemberType().toString()))
                 .andExpect(jsonPath("$.comments[0].child[0].likeId").value(nullValue()))
-                .andExpect(jsonPath("$.comments[0].child[0].createdAt").value(CustomDateTimeFormatter.toString(childCommentInfo.getCreatedAt(), TimePatternType.BASIC_FORMAT)))
+                .andExpect(jsonPath("$.comments[0].child[0].createdAt").value(CustomDateTimeFormatter.toString(childCommentInfo.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.comments[0].child[0].content").value(childCommentInfo.getContent()))
                 .andExpect(jsonPath("$.comments[0].child[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].child[0].me").value(false))

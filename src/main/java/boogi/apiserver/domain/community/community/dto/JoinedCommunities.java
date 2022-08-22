@@ -69,7 +69,7 @@ public class JoinedCommunities {
     static class PostInfo {
         private Long id;
 
-        @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+        @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
         private LocalDateTime createdAt;
 
         @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -24,7 +24,7 @@ public class SearchCommunityDto {
     private String name;
     private String description;
 
-    @JsonFormat(pattern = TimePattern.BASIC_FORMAT)
+    @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
