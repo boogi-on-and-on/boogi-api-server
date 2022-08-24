@@ -55,7 +55,6 @@ public class NoticeApiController {
 
     @PostMapping
     public ResponseEntity<Object> createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
-        //aop 적용하기
         memberValidationService.hasAuth(userId, request.getCommunityId(), MemberType.SUB_MANAGER);
 
         Notice notice = noticeCoreService.create(Map.of(

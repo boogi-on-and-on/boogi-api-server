@@ -103,7 +103,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/metadata")
     public ResponseEntity<Object> getCommunityMetadata(@Session Long userId, @PathVariable Long communityId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         CommunityMetadataDto metadata = communityQueryService.getCommunityMetadata(communityId);
@@ -117,8 +116,6 @@ public class CommunityApiController {
     public ResponseEntity<Object> updateCommunityInfo(@PathVariable Long communityId,
                                                       @Session Long userId,
                                                       @RequestBody @Validated CommunityUpdateRequest request) {
-
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         communityCoreService.update(communityId, request.getDescription(), request.getHashtags());
@@ -128,7 +125,6 @@ public class CommunityApiController {
 
     @DeleteMapping("/{communityId}")
     public ResponseEntity<Object> shutdown(@PathVariable Long communityId, @Session Long userId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         communityCoreService.shutdown(communityId);
@@ -137,7 +133,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/settings")
     public ResponseEntity<Object> getSettingInfo(@PathVariable Long communityId, @Session Long userId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Community community = communityQueryService.getCommunity(communityId);
@@ -152,7 +147,6 @@ public class CommunityApiController {
                                         @Session Long userId,
                                         @RequestBody CommunitySettingRequest request
     ) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Boolean isAuto = request.getIsAutoApproval();
@@ -207,7 +201,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/members/banned")
     public ResponseEntity<Object> getBannedMembers(@Session Long userId, @PathVariable Long communityId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         List<BannedMemberDto> bannedMembers = memberQueryService.getBannedMembers(communityId);
@@ -220,7 +213,6 @@ public class CommunityApiController {
     public ResponseEntity<Object> banMember(@Session Long userId,
                                             @PathVariable Long communityId,
                                             @RequestBody HashMap<String, Long> body) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         Long banMemberId = body.get("memberId");
@@ -234,7 +226,6 @@ public class CommunityApiController {
                                                       @PathVariable Long communityId,
                                                       @RequestBody HashMap<String, Long> request
     ) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Long memberId = request.get("memberId");
@@ -248,7 +239,6 @@ public class CommunityApiController {
                                                  @PathVariable Long communityId,
                                                  @RequestBody DelegateMemberRequest request
     ) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         memberCoreService.delegeteMember(request.getMemberId(), request.getType());
@@ -259,7 +249,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/requests")
     public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         List<Map<String, Object>> requests = joinRequestQueryService.getAllRequests(communityId)
@@ -290,7 +279,6 @@ public class CommunityApiController {
     ) {
         List<Long> requestIds = body.get("requestIds");
 
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
         joinRequestCoreService.confirmUserInBatch(managerUserId, requestIds, communityId);
@@ -307,7 +295,6 @@ public class CommunityApiController {
     ) {
         List<Long> requestIds = body.get("requestIds");
 
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
         joinRequestCoreService.rejectUserInBatch(managerUserId, requestIds, communityId);
