@@ -5,6 +5,7 @@ import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +33,8 @@ public class SearchCommunityDto {
 
     private int memberCount;
     private String category;
+
+    @JsonProperty("isPrivate")
     private boolean isPrivate;
 
     private SearchCommunityDto(Community community) {
