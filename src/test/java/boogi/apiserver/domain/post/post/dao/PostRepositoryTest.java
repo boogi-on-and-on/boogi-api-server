@@ -625,8 +625,6 @@ class PostRepositoryTest {
 
     @Test
     @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
-    @Disabled
-    //MYSQL native 쿼리로 인한 h2 테스트 불가능
     void testGetLatestPostByCommunityIds() {
         Community community1 = Community.builder()
                 .build();
