@@ -7,7 +7,7 @@ import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -22,7 +22,7 @@ public class MessageResponse {
     private List<MessageInfo> messages;
     private PaginationDto pageInfo;
 
-    public static MessageResponse of(User user, Page<Message> messagePage, Long userId) {
+    public static MessageResponse of(User user, Slice<Message> messagePage, Long userId) {
         List<MessageInfo> messages = messagePage.getContent().stream()
                 .map(m -> MessageInfo.toDto(m, userId))
                 .collect(Collectors.toList());

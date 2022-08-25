@@ -88,7 +88,7 @@ class CommentApiControllerTest {
 
         UserCommentPage page = UserCommentPage.builder()
                 .comments(List.of(commentDto))
-                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
 
         given(commentQueryService.getUserComments(any(Pageable.class), anyLong()))
@@ -107,7 +107,6 @@ class CommentApiControllerTest {
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
                 .andExpect(jsonPath("$.comments[0].content").value("댓글1"))
                 .andExpect(jsonPath("$.comments[0].postId").value(1))
@@ -189,7 +188,7 @@ class CommentApiControllerTest {
 
         LikeMembersAtComment likeMembersAtComment = LikeMembersAtComment.builder()
                 .members(userInfos)
-                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).totalCount(1).build())
+                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
         given(likeCoreService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembersAtComment);
@@ -210,7 +209,6 @@ class CommentApiControllerTest {
                 .andExpect(jsonPath("$.members[0].tagNum").value(user1.getTagNumber()))
                 .andExpect(jsonPath("$.members[0].profileImageUrl").value(user1.getProfileImageUrl()))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 }

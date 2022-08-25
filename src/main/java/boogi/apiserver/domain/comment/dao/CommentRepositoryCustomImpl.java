@@ -9,6 +9,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -70,7 +72,9 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public Page<Comment> findParentCommentsWithMemberByPostId(Pageable pageable, Long postId) {
+    public Slice<Comment> findParentCommentsWithMemberByPostId(Pageable pageable, Long postId) {
+        int pageSize = pageable.getPageSize();
+
         List<Comment> comments = queryFactory.selectFrom(comment)
                 .join(comment.member, member).fetchJoin()
                 .where(
@@ -81,16 +85,15 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         comment.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageSize + 1)
                 .fetch();
 
-        JPAQuery<Comment> countQuery = queryFactory.selectFrom(comment)
-                .where(
-                        comment.post.id.eq(postId),
-                        comment.child.isFalse()
-                );
-
-        return PageableExecutionUtils.getPage(comments, pageable, () -> countQuery.fetch().size());
+        boolean hasNext = false;
+        if (comments.size() > pageSize) {
+            comments.remove(pageSize);
+            hasNext = true;
+        }
+        return new SliceImpl<>(comments, pageable, hasNext);
     }
 
     @Override
@@ -117,22 +120,24 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public Page<Comment> getUserCommentPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+    public Slice<Comment> getUserCommentPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+
         List<Comment> findComments = queryFactory.selectFrom(comment)
                 .where(
                         comment.member.id.in(memberIds)
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageSize + 1)
                 .orderBy(comment.createdAt.desc())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory.select(comment.count())
-                .from(comment)
-                .where(
-                        comment.member.id.in(memberIds)
-                );
+        boolean hasNext = false;
+        if (findComments.size() > pageSize) {
+            findComments.remove(pageSize);
+            hasNext = true;
+        }
 
-        return PageableExecutionUtils.getPage(findComments, pageable, countQuery::fetchOne);
+        return new SliceImpl<>(findComments, pageable, hasNext);
     }
 }

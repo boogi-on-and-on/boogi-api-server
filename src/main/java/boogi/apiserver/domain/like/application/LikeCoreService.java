@@ -22,8 +22,8 @@ import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,7 +134,7 @@ public class LikeCoreService {
             throw new NotJoinedMemberException();
         }
 
-        Page<Like> likePage = likeRepository.findPostLikePageWithMemberByPostId(findPost.getId(), pageable);
+        Slice<Like> likePage = likeRepository.findPostLikePageWithMemberByPostId(findPost.getId(), pageable);
 
         List<Long> userIds = likePage.getContent().stream()
                 .map(like -> like.getMember().getUser().getId())
@@ -157,7 +157,7 @@ public class LikeCoreService {
             throw new NotJoinedMemberException();
         }
 
-        Page<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
+        Slice<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
 
         List<Long> userIds = likePage.getContent().stream()
                 .map(like -> like.getMember().getUser().getId())

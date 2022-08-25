@@ -1,20 +1,19 @@
 package boogi.apiserver.domain.like.dao;
 
 import boogi.apiserver.domain.like.domain.Like;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static boogi.apiserver.domain.like.domain.QLike.*;
-import static boogi.apiserver.domain.member.domain.QMember.*;
-import static com.querydsl.core.group.GroupBy.*;
+import static boogi.apiserver.domain.like.domain.QLike.like;
+import static boogi.apiserver.domain.member.domain.QMember.member;
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
 
@@ -100,8 +99,10 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                 ).fetch();
     }
 
-    public Page<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable) {
-        List<Like> result = queryFactory.selectFrom(like)
+    public Slice<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+
+        List<Like> postLikes = queryFactory.selectFrom(like)
                 .where(
                         like.post.id.eq(postId)
                 )
@@ -110,19 +111,21 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                         like.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageSize + 1)
                 .fetch();
 
-        JPAQuery<Like> countQuery = queryFactory.selectFrom(like)
-                .where(
-                        like.post.id.eq(postId)
-                );
-
-        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+        boolean hasNext = false;
+        if (postLikes.size() > pageSize) {
+            postLikes.remove(pageSize);
+            hasNext = true;
+        }
+        return new SliceImpl(postLikes, pageable, hasNext);
     }
 
-    public Page<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable) {
-        List<Like> result = queryFactory.selectFrom(like)
+    public Slice<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+
+        List<Like> commentLikes = queryFactory.selectFrom(like)
                 .where(
                         like.comment.id.eq(commentId)
                 )
@@ -131,15 +134,16 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                         like.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageSize + 1)
                 .fetch();
 
-        JPAQuery<Like> countQuery = queryFactory.selectFrom(like)
-                .where(
-                        like.post.id.eq(commentId)
-                );
+        boolean hasNext = false;
+        if (commentLikes.size() > pageSize) {
+            commentLikes.remove(pageSize);
+            hasNext = true;
+        }
 
-        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+        return new SliceImpl<>(commentLikes, pageable, hasNext);
     }
 
     @Override

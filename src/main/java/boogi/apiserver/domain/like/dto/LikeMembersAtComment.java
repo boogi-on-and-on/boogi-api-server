@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class LikeMembersAtComment {
         }
     }
 
-    public LikeMembersAtComment(List<User> users, Page page) {
+    public LikeMembersAtComment(List<User> users, Slice page) {
         if (users != null && users.size() > 0) {
             this.members = users.stream()
                     .map(user -> UserInfo.toDto(user))

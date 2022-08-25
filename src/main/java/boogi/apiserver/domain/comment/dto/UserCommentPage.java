@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ public class UserCommentPage {
     private List<UserCommentDto> comments;
     PaginationDto pageInfo;
 
-    private UserCommentPage(Page<Comment> page) {
+    private UserCommentPage(Slice<Comment> page) {
         this.comments = page.getContent().stream()
                 .map(UserCommentDto::of)
                 .collect(Collectors.toList());
@@ -26,7 +27,7 @@ public class UserCommentPage {
         pageInfo = PaginationDto.of(page);
     }
 
-    public static UserCommentPage of(Page<Comment> page) {
+    public static UserCommentPage of(Slice<Comment> page) {
         return new UserCommentPage(page);
     }
 

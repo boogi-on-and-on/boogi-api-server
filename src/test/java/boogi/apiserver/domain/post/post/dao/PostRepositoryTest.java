@@ -16,17 +16,14 @@ import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import org.junit.jupiter.api.Disabled;
 import boogi.apiserver.utils.PersistenceUtil;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -616,7 +613,7 @@ class PostRepositoryTest {
         Pageable pageable = PageRequest.of(0, 2);
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
 
-        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(memberIds, pageable);
+        Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(memberIds, pageable);
 
         List<Post> userPosts = userPostPage.getContent();
         assertThat(userPosts.size()).isEqualTo(2);

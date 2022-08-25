@@ -522,7 +522,6 @@ class PostCoreServiceTest {
 
             PaginationDto pageInfo = userPostPage.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(2);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 
@@ -591,7 +590,6 @@ class PostCoreServiceTest {
 
             PaginationDto pageInfo = userPostPage.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
     }

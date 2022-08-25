@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,12 +26,12 @@ public class CommentsAtPost {
 
     private PaginationDto pageInfo;
 
-    private CommentsAtPost(List<ParentCommentInfo> comments, Page page) {
+    private CommentsAtPost(List<ParentCommentInfo> comments, Slice page) {
         this.comments = (comments == null) ? new ArrayList<>() : comments;
         this.pageInfo = PaginationDto.of(page);
     }
 
-    public static CommentsAtPost of(List<ParentCommentInfo> comments, Page page) {
+    public static CommentsAtPost of(List<ParentCommentInfo> comments, Slice page) {
         return new CommentsAtPost(comments, page);
     }
 

@@ -353,7 +353,6 @@ class LikeCoreServiceTest {
 
             PaginationDto pageInfo = likeMembers.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 
@@ -443,7 +442,6 @@ class LikeCoreServiceTest {
 
             PaginationDto pageInfo = likeMembers.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 

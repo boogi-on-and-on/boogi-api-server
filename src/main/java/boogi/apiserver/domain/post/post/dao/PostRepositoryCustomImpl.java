@@ -18,6 +18,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -240,24 +242,24 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+    public Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+
         List<Post> findPosts = queryFactory.selectFrom(post)
                 .where(
                         post.member.id.in(memberIds),
                         post.deletedAt.isNull()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageSize + 1)
                 .orderBy(post.createdAt.desc())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory.select(post.count())
-                .from(post)
-                .where(
-                        post.member.id.in(memberIds),
-                        post.deletedAt.isNull()
-                );
-
-        return PageableExecutionUtils.getPage(findPosts, pageable, countQuery::fetchOne);
+        boolean hasNext = false;
+        if (findPosts.size() > pageSize) {
+            findPosts.remove(pageSize);
+            hasNext = true;
+        }
+        return new SliceImpl<>(findPosts, pageable, hasNext);
     }
 }

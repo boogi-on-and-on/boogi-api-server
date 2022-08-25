@@ -5,7 +5,7 @@ import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,14 +17,14 @@ public class UserPostPage {
     private List<UserPostsDto> posts;
     PaginationDto pageInfo;
 
-    private UserPostPage(Page<Post> page) {
+    private UserPostPage(Slice<Post> page) {
         this.posts = page.getContent().stream()
                 .map(UserPostsDto::of)
                 .collect(Collectors.toList());
         this.pageInfo = PaginationDto.of(page);
     }
 
-    public static UserPostPage of(Page<Post> page) {
+    public static UserPostPage of(Slice<Post> page) {
         return new UserPostPage(page);
     }
 
