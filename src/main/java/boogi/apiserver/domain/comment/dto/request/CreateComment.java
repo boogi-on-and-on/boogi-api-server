@@ -16,12 +16,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CreateComment {
 
-    @NotNull
+    @NotNull(message = "댓글이 작성될 글을 선택해주세요")
     private Long postId;
 
     private Long parentCommentId;
 
-    @Size(max = 250, message = "255자 이내로 입력해주세요")
+    @Size(max = 255, message = "255자 이내로 입력해주세요")
     private String content;
 
     private List<Long> mentionedUserIds = new ArrayList<>();

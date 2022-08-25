@@ -17,10 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CreatePost {
 
-    @NotNull
+    @NotNull(message = "글을 작성할 커뮤니티를 선택해주세요")
     private Long communityId;
 
-    @NotEmpty
+    @NotEmpty(message = "내용을 입력해주세요")
     @Size(min = 1, max = 1000, message = "1000자 이내로 입력해주세요")
     private String content;
 

@@ -13,13 +13,13 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class CreateReport {
 
-    @NotNull
+    @NotNull(message = "신고할 대상을 입력해주세요")
     private Long id;
 
-    @NotNull
+    @NotNull(message = "신고 대상의 종류를 입력해주세요")
     private ReportTarget target;
 
-    @NotNull
+    @NotNull(message = "신고 사유를 입력해주세요")
     private ReportReason reason;
 
     private String content;
