@@ -4,7 +4,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,11 +24,11 @@ public class CommentsAtPost {
 
     private List<ParentCommentInfo> comments;
 
-    private PagnationDto pageInfo;
+    private PaginationDto pageInfo;
 
     private CommentsAtPost(List<ParentCommentInfo> comments, Page page) {
         this.comments = (comments == null) ? new ArrayList<>() : comments;
-        this.pageInfo = PagnationDto.of(page);
+        this.pageInfo = PaginationDto.of(page);
     }
 
     public static CommentsAtPost of(List<ParentCommentInfo> comments, Page page) {

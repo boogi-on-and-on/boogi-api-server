@@ -21,7 +21,7 @@ import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -246,7 +246,7 @@ class PostApiControllerTest {
 
         UserPostPage pageInfo = UserPostPage.builder()
                 .posts(List.of(postsDto))
-                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
                 .build();
 
         given(postCoreService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))

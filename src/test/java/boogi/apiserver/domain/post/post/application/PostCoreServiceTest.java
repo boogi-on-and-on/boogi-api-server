@@ -26,7 +26,7 @@ import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -521,7 +520,7 @@ class PostCoreServiceTest {
             assertThat(userPosts.get(1).getCommunity().getId()).isEqualTo(community.getId());
             assertThat(userPosts.get(1).getCreatedAt()).isEqualTo(now.toString());
 
-            PagnationDto pageInfo = userPostPage.getPageInfo();
+            PaginationDto pageInfo = userPostPage.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.getTotalCount()).isEqualTo(2);
             assertThat(pageInfo.isHasNext()).isFalse();
@@ -590,7 +589,7 @@ class PostCoreServiceTest {
             assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(community.getId());
             assertThat(userPosts.get(0).getCreatedAt()).isEqualTo(now.toString());
 
-            PagnationDto pageInfo = userPostPage.getPageInfo();
+            PaginationDto pageInfo = userPostPage.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();

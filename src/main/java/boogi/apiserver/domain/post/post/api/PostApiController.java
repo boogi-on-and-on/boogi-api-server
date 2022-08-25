@@ -10,7 +10,7 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.*;
 import boogi.apiserver.global.argument_resolver.session.Session;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -120,7 +120,7 @@ public class PostApiController {
                                               Pageable pageable,
                                               @Session Long userId) {
         Page<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
-        PagnationDto pageInfo = PagnationDto.of(page);
+        PaginationDto pageInfo = PaginationDto.of(page);
         List<SearchPostDto> dtos = page.getContent();
 
         return ResponseEntity.ok(Map.of(

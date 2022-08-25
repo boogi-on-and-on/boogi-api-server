@@ -19,7 +19,7 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 
@@ -391,7 +390,7 @@ class CommentCoreServiceTest {
             assertThat(parentCommentInfo2.getChild().get(0).getLikeId()).isNull();
             assertThat(parentCommentInfo2.getChild().get(0).getParentId()).isEqualTo(pComment2.getId());
 
-            PagnationDto pageInfo = commentsAtPost.getPageInfo();
+            PaginationDto pageInfo = commentsAtPost.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.getTotalCount()).isEqualTo(2);
             assertThat(pageInfo.isHasNext()).isFalse();
@@ -490,7 +489,7 @@ class CommentCoreServiceTest {
             assertThat(parentCommentInfo1.getChild().get(0).getId()).isEqualTo(cComment1.getId());
             assertThat(parentCommentInfo1.getChild().get(0).getParentId()).isEqualTo(pComment1.getId());
 
-            PagnationDto pageInfo = commentsAtPost.getPageInfo();
+            PaginationDto pageInfo = commentsAtPost.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();

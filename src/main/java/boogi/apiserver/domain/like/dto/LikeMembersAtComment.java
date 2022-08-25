@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.like.dto;
 
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ public class LikeMembersAtComment {
 
     private List<UserInfo> members = new ArrayList<>();
 
-    private PagnationDto pageInfo;
+    private PaginationDto pageInfo;
 
     @Getter
     @Builder
@@ -45,6 +45,6 @@ public class LikeMembersAtComment {
                     .map(user -> UserInfo.toDto(user))
                     .collect(Collectors.toList());
         }
-        this.pageInfo = PagnationDto.of(page);
+        this.pageInfo = PaginationDto.of(page);
     }
 }

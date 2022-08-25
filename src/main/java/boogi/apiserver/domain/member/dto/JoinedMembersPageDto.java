@@ -2,7 +2,7 @@ package boogi.apiserver.domain.member.dto;
 
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class JoinedMembersPageDto {
 
     private List<HashMap<String, Object>> members = new ArrayList<>();
-    private PagnationDto pageInfo;
+    private PaginationDto pageInfo;
 
     @Data
     @NoArgsConstructor
@@ -45,7 +45,7 @@ public class JoinedMembersPageDto {
     }
 
     private JoinedMembersPageDto(Page<Member> page) {
-        this.pageInfo = PagnationDto.of(page);
+        this.pageInfo = PaginationDto.of(page);
         this.members = page.getContent().stream()
                 .map(m -> {
                     HashMap<String, Object> map = new HashMap<>();

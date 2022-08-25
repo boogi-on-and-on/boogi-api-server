@@ -23,7 +23,7 @@ import boogi.apiserver.domain.post.post.dto.LatestPostOfCommunityDto;
 import boogi.apiserver.domain.post.post.dto.PostOfCommunity;
 import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
@@ -183,7 +183,7 @@ public class CommunityApiController {
         Map<String, Object> res = new HashMap<>(Map.of(
                 "communityName", community.getCommunityName(),
                 "posts", posts,
-                "pageInfo", new PagnationDto(postPage)
+                "pageInfo", new PaginationDto(postPage)
         ));
 
         if (Objects.nonNull(member) && Objects.nonNull(member.getMemberType())) {
@@ -311,7 +311,7 @@ public class CommunityApiController {
 
         return ResponseEntity.ok(Map.of(
                 "communities", page.getContent(),
-                "pageInfo", PagnationDto.of(page)
+                "pageInfo", PaginationDto.of(page)
         ));
     }
 
