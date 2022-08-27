@@ -20,6 +20,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -524,7 +525,7 @@ class CommentCoreServiceTest {
 
             Pageable pageable = PageRequest.of(0, 2);
             List<Comment> comments = List.of(pComment, cComment);
-            Slice<Comment> userCommentPage = new SliceImpl<>(comments, pageable, false);
+            Slice<Comment> userCommentPage = PageableUtil.getSlice(comments, pageable);
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
@@ -575,7 +576,7 @@ class CommentCoreServiceTest {
 
             Pageable pageable = PageRequest.of(0, 2);
             List<Comment> comments = List.of(cComment);
-            Slice<Comment> userCommentPage = new SliceImpl<>(comments, pageable, false);
+            Slice<Comment> userCommentPage = PageableUtil.getSlice(comments, pageable);
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 

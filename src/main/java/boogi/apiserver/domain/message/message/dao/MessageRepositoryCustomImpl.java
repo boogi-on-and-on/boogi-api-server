@@ -2,10 +2,10 @@ package boogi.apiserver.domain.message.message.dao;
 
 
 import boogi.apiserver.domain.message.message.domain.Message;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -22,8 +22,6 @@ public class MessageRepositoryCustomImpl implements MessageRepositoryCustom {
 
     @Override
     public Slice<Message> findMessagesByOpponentIdAndMyId(Long opponentId, Long myId, Pageable pageable) {
-        int pageSize = pageable.getPageSize();
-
         List<Message> messages = queryFactory.selectFrom(message)
                 .where(
                         message.sender.id.eq(opponentId).and(message.receiver.id.eq(myId))
@@ -32,15 +30,9 @@ public class MessageRepositoryCustomImpl implements MessageRepositoryCustom {
                 )
                 .orderBy(message.createdAt.desc())
                 .offset(pageable.getOffset())
-                .limit(pageSize + 1)
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        boolean hasNext = false;
-        if (messages.size() > pageSize) {
-            messages.remove(pageSize);
-            hasNext = true;
-        }
-
-        return new SliceImpl<>(messages, pageable, hasNext);
+        return PageableUtil.getSlice(messages, pageable);
     }
 }

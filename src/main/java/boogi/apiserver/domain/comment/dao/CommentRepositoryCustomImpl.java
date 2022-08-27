@@ -4,13 +4,13 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.domain.QComment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -73,8 +73,6 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
     @Override
     public Slice<Comment> findParentCommentsWithMemberByPostId(Pageable pageable, Long postId) {
-        int pageSize = pageable.getPageSize();
-
         List<Comment> comments = queryFactory.selectFrom(comment)
                 .join(comment.member, member).fetchJoin()
                 .where(
@@ -85,15 +83,10 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         comment.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageSize + 1)
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        boolean hasNext = false;
-        if (comments.size() > pageSize) {
-            comments.remove(pageSize);
-            hasNext = true;
-        }
-        return new SliceImpl<>(comments, pageable, hasNext);
+        return PageableUtil.getSlice(comments, pageable);
     }
 
     @Override
@@ -121,23 +114,15 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
     @Override
     public Slice<Comment> getUserCommentPageByMemberIds(List<Long> memberIds, Pageable pageable) {
-        int pageSize = pageable.getPageSize();
-
         List<Comment> findComments = queryFactory.selectFrom(comment)
                 .where(
                         comment.member.id.in(memberIds)
                 )
                 .offset(pageable.getOffset())
-                .limit(pageSize + 1)
+                .limit(pageable.getPageSize() + 1)
                 .orderBy(comment.createdAt.desc())
                 .fetch();
 
-        boolean hasNext = false;
-        if (findComments.size() > pageSize) {
-            findComments.remove(pageSize);
-            hasNext = true;
-        }
-
-        return new SliceImpl<>(findComments, pageable, hasNext);
+        return PageableUtil.getSlice(findComments, pageable);
     }
 }

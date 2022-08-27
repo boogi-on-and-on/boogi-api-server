@@ -10,6 +10,7 @@ import boogi.apiserver.domain.post.post.domain.QPost;
 import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.JPAExpressions;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -243,23 +243,16 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     @Override
     public Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
-        int pageSize = pageable.getPageSize();
-
         List<Post> findPosts = queryFactory.selectFrom(post)
                 .where(
                         post.member.id.in(memberIds),
                         post.deletedAt.isNull()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageSize + 1)
+                .limit(pageable.getPageSize() + 1)
                 .orderBy(post.createdAt.desc())
                 .fetch();
 
-        boolean hasNext = false;
-        if (findPosts.size() > pageSize) {
-            findPosts.remove(pageSize);
-            hasNext = true;
-        }
-        return new SliceImpl<>(findPosts, pageable, hasNext);
+        return PageableUtil.getSlice(findPosts, pageable);
     }
 }

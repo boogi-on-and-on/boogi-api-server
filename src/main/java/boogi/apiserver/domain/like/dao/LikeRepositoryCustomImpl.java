@@ -1,10 +1,10 @@
 package boogi.apiserver.domain.like.dao;
 
 import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -100,8 +100,6 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
     }
 
     public Slice<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable) {
-        int pageSize = pageable.getPageSize();
-
         List<Like> postLikes = queryFactory.selectFrom(like)
                 .where(
                         like.post.id.eq(postId)
@@ -111,20 +109,13 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                         like.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageSize + 1)
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        boolean hasNext = false;
-        if (postLikes.size() > pageSize) {
-            postLikes.remove(pageSize);
-            hasNext = true;
-        }
-        return new SliceImpl(postLikes, pageable, hasNext);
+        return PageableUtil.getSlice(postLikes, pageable);
     }
 
     public Slice<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable) {
-        int pageSize = pageable.getPageSize();
-
         List<Like> commentLikes = queryFactory.selectFrom(like)
                 .where(
                         like.comment.id.eq(commentId)
@@ -134,16 +125,10 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                         like.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageSize + 1)
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        boolean hasNext = false;
-        if (commentLikes.size() > pageSize) {
-            commentLikes.remove(pageSize);
-            hasNext = true;
-        }
-
-        return new SliceImpl<>(commentLikes, pageable, hasNext);
+        return PageableUtil.getSlice(commentLikes, pageable);
     }
 
     @Override

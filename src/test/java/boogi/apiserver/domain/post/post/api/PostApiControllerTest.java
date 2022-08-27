@@ -22,6 +22,7 @@ import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -302,7 +303,7 @@ class PostApiControllerTest {
         List<User> users = List.of(user);
 
         Pageable pageable = PageRequest.of(0, 1);
-        Slice<User> page = new SliceImpl<>(users, pageable, false);
+        Slice<User> page = PageableUtil.getSlice(users, pageable);
 
         LikeMembersAtPost likeMembers = new LikeMembersAtPost(users, page);
         given(likeCoreService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
