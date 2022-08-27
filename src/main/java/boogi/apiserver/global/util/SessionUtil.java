@@ -1,6 +1,6 @@
 package boogi.apiserver.global.util;
 
-public final class SessionUtil {
+public abstract class SessionUtil {
 
     public static Long transferObjectToLong(Object attr) {
         if (attr instanceof Integer) {
