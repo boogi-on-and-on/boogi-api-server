@@ -2,8 +2,8 @@ package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
 import boogi.apiserver.domain.member.application.MemberQueryService;

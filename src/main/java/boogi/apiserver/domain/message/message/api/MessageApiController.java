@@ -1,9 +1,9 @@
 package boogi.apiserver.domain.message.message.api;
 
 import boogi.apiserver.domain.message.message.application.MessageCoreService;
+import boogi.apiserver.domain.message.message.dto.request.SendMessage;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
-import boogi.apiserver.domain.message.message.dto.request.SendMessage;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

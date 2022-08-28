@@ -3,7 +3,6 @@ package boogi.apiserver.domain.post.post.dao;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
