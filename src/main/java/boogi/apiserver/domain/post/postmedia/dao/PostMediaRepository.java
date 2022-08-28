@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PostMediaRepository extends JpaRepository<PostMedia, Long>, PostMediaRepositoryCustom {
 
-    @Query(value = "SELECT post_media_id, post_id, media_type, media_url, uuid, deleted_at, created_at, updated_at, canceled_at " +
+    @Query(value = "SELECT post_media_id, post_id, media_type, media_url, uuid, deleted_at, created_at, updated_at " +
             "FROM (SELECT *, RANK() OVER (PARTITION BY pm.post_id ORDER BY pm.created_at) AS a " +
             "FROM post_media AS pm " +
             "WHERE pm.post_id IN (:latestPostIds)) AS rankrow " +

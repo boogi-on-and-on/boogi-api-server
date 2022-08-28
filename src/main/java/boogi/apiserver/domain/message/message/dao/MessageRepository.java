@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long>, MessageRepositoryCustom {
 
-    @Query(value = "SELECT message_id, sender_id, receiver_id, content, canceled_at, created_at, updated_at, blocked_message " +
+    @Query(value = "SELECT message_id, sender_id, receiver_id, content, created_at, updated_at, blocked_message " +
             "FROM (SELECT *, RANK() OVER (PARTITION BY m.sender_id, m.receiver_id ORDER BY m.created_at DESC) AS a " +
             "FROM message AS m " +
             "WHERE (m.sender_id = :userId AND m.receiver_id NOT IN (:blockedUserIds)) " +
