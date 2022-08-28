@@ -2,12 +2,12 @@ package boogi.apiserver.domain.message.message.dto.response;
 
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -20,9 +20,9 @@ public class MessageResponse {
 
     private UserInfo user;
     private List<MessageInfo> messages;
-    private PagnationDto pageInfo;
+    private PaginationDto pageInfo;
 
-    public static MessageResponse of(User user, Page<Message> messagePage, Long userId) {
+    public static MessageResponse of(User user, Slice<Message> messagePage, Long userId) {
         List<MessageInfo> messages = messagePage.getContent().stream()
                 .map(m -> MessageInfo.toDto(m, userId))
                 .collect(Collectors.toList());
@@ -31,7 +31,7 @@ public class MessageResponse {
         return MessageResponse.builder()
                 .user(UserInfo.toDto(user))
                 .messages(messages)
-                .pageInfo(PagnationDto.of(messagePage))
+                .pageInfo(PaginationDto.of(messagePage))
                 .build();
     }
 

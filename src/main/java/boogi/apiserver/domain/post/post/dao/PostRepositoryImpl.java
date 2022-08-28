@@ -10,6 +10,7 @@ import boogi.apiserver.domain.post.post.domain.QPost;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.JPAExpressions;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
@@ -237,24 +239,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+    public Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
         List<Post> findPosts = queryFactory.selectFrom(post)
                 .where(
                         post.member.id.in(memberIds),
                         post.deletedAt.isNull()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .orderBy(post.createdAt.desc())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory.select(post.count())
-                .from(post)
-                .where(
-                        post.member.id.in(memberIds),
-                        post.deletedAt.isNull()
-                );
-
-        return PageableExecutionUtils.getPage(findPosts, pageable, countQuery::fetchOne);
+        return PageableUtil.getSlice(findPosts, pageable);
     }
 }

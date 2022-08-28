@@ -4,7 +4,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,14 +24,14 @@ public class CommentsAtPost {
 
     private List<ParentCommentInfo> comments;
 
-    private PagnationDto pageInfo;
+    private PaginationDto pageInfo;
 
-    private CommentsAtPost(List<ParentCommentInfo> comments, Page page) {
+    private CommentsAtPost(List<ParentCommentInfo> comments, Slice page) {
         this.comments = (comments == null) ? new ArrayList<>() : comments;
-        this.pageInfo = PagnationDto.of(page);
+        this.pageInfo = PaginationDto.of(page);
     }
 
-    public static CommentsAtPost of(List<ParentCommentInfo> comments, Page page) {
+    public static CommentsAtPost of(List<ParentCommentInfo> comments, Slice page) {
         return new CommentsAtPost(comments, page);
     }
 

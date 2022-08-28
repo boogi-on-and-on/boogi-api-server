@@ -21,12 +21,15 @@ import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -106,7 +109,7 @@ public class CommentCoreService {
 
         communityValidationService.checkPrivateCommunity(postedCommunityId);
 
-        Page<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
+        Slice<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
 
         List<Comment> parentComments = commentPage.getContent().stream()
                 .map(c -> {
@@ -177,7 +180,7 @@ public class CommentCoreService {
         return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
     }
 
-    public Page<Comment> getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
+    public Slice<Comment> getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {

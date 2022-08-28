@@ -31,8 +31,8 @@ import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -205,7 +205,7 @@ public class PostCoreService {
                     .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
         }
 
-        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
+        Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
 
         return UserPostPage.of(userPostPage);
     }

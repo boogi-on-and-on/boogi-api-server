@@ -20,7 +20,7 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -351,9 +351,8 @@ class LikeCoreServiceTest {
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);
             assertThat(likeMembers.getMembers().get(0).getId()).isEqualTo(user.getId());
 
-            PagnationDto pageInfo = likeMembers.getPageInfo();
+            PaginationDto pageInfo = likeMembers.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 
@@ -441,9 +440,8 @@ class LikeCoreServiceTest {
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);
             assertThat(likeMembers.getMembers().get(0).getId()).isEqualTo(user.getId());
 
-            PagnationDto pageInfo = likeMembers.getPageInfo();
+            PaginationDto pageInfo = likeMembers.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 

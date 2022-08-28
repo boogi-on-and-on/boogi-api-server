@@ -4,24 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class PagnationDto {
+public class PaginationDto {
     protected int nextPage;
-    protected int totalCount;
     protected boolean hasNext;
 
-    public PagnationDto(Page page) {
+    public PaginationDto(Slice page) {
         this.nextPage = page.getNumber() + 1;
-        this.totalCount = (int) page.getTotalElements();
         this.hasNext = page.hasNext();
     }
 
-    public static PagnationDto of(Page page) {
-        return new PagnationDto(page);
+    public static PaginationDto of(Slice page) {
+        return new PaginationDto(page);
     }
 }

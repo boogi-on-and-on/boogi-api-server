@@ -1,11 +1,12 @@
 package boogi.apiserver.domain.comment.dto.response;
 
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,17 +17,17 @@ import java.util.stream.Collectors;
 public class UserCommentPage {
 
     private List<UserCommentDto> comments;
-    PagnationDto pageInfo;
+    PaginationDto pageInfo;
 
-    private UserCommentPage(Page<Comment> page) {
+    private UserCommentPage(Slice<Comment> page) {
         this.comments = page.getContent().stream()
                 .map(UserCommentDto::of)
                 .collect(Collectors.toList());
 
-        pageInfo = PagnationDto.of(page);
+        pageInfo = PaginationDto.of(page);
     }
 
-    public static UserCommentPage of(Page<Comment> page) {
+    public static UserCommentPage of(Slice<Comment> page) {
         return new UserCommentPage(page);
     }
 

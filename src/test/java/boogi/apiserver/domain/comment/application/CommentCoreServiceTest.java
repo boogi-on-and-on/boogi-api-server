@@ -19,7 +19,8 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,9 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
@@ -390,9 +389,8 @@ class CommentCoreServiceTest {
             assertThat(parentCommentInfo2.getChild().get(0).getLikeId()).isNull();
             assertThat(parentCommentInfo2.getChild().get(0).getParentId()).isEqualTo(pComment2.getId());
 
-            PagnationDto pageInfo = commentsAtPost.getPageInfo();
+            PaginationDto pageInfo = commentsAtPost.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(2);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 
@@ -489,9 +487,8 @@ class CommentCoreServiceTest {
             assertThat(parentCommentInfo1.getChild().get(0).getId()).isEqualTo(cComment1.getId());
             assertThat(parentCommentInfo1.getChild().get(0).getParentId()).isEqualTo(pComment1.getId());
 
-            PagnationDto pageInfo = commentsAtPost.getPageInfo();
+            PaginationDto pageInfo = commentsAtPost.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
     }
@@ -528,17 +525,16 @@ class CommentCoreServiceTest {
 
             Pageable pageable = PageRequest.of(0, 2);
             List<Comment> comments = List.of(pComment, cComment);
-            Page<Comment> userCommentPage = PageableExecutionUtils.getPage(comments, pageable, () -> comments.size());
+            Slice<Comment> userCommentPage = PageableUtil.getSlice(comments, pageable);
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
-            Page<Comment> userComments = commentCoreService.getUserComments(user.getId(), user.getId(), pageable);
+            Slice<Comment> userComments = commentCoreService.getUserComments(user.getId(), user.getId(), pageable);
 
             assertThat(userComments.getContent().size()).isEqualTo(2);
             assertThat(userComments.getContent().get(0).getId()).isEqualTo(pComment.getId());
             assertThat(userComments.getContent().get(1).getId()).isEqualTo(cComment.getId());
             assertThat(userComments.getNumber()).isEqualTo(0);
-            assertThat(userComments.getTotalElements()).isEqualTo(2L);
             assertThat(userComments.hasNext()).isFalse();
         }
 
@@ -580,16 +576,15 @@ class CommentCoreServiceTest {
 
             Pageable pageable = PageRequest.of(0, 2);
             List<Comment> comments = List.of(cComment);
-            Page<Comment> userCommentPage = PageableExecutionUtils.getPage(comments, pageable, () -> comments.size());
+            Slice<Comment> userCommentPage = PageableUtil.getSlice(comments, pageable);
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
-            Page<Comment> userComments = commentCoreService.getUserComments(user2.getId(), user1.getId(), pageable);
+            Slice<Comment> userComments = commentCoreService.getUserComments(user2.getId(), user1.getId(), pageable);
 
             assertThat(userComments.getContent().size()).isEqualTo(1);
             assertThat(userComments.getContent().get(0).getId()).isEqualTo(cComment.getId());
             assertThat(userComments.getNumber()).isEqualTo(0);
-            assertThat(userComments.getTotalElements()).isEqualTo(1L);
             assertThat(userComments.hasNext()).isFalse();
         }
     }

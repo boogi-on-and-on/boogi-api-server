@@ -23,7 +23,8 @@ import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,10 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
@@ -249,7 +247,7 @@ class PostApiControllerTest {
 
         UserPostPage pageInfo = UserPostPage.builder()
                 .posts(List.of(postsDto))
-                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
 
         given(postCoreService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
@@ -271,7 +269,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
                 .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 
@@ -308,7 +305,7 @@ class PostApiControllerTest {
         List<User> users = List.of(user);
 
         Pageable pageable = PageRequest.of(0, 1);
-        Page<User> page = PageableExecutionUtils.getPage(users, pageable, () -> users.size());
+        Slice<User> page = PageableUtil.getSlice(users, pageable);
 
         LikeMembersAtPost likeMembers = new LikeMembersAtPost(users, page);
         given(likeCoreService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
@@ -330,7 +327,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.members[0].tagNum").value(user.getTagNumber()))
                 .andExpect(jsonPath("$.members[0].profileImageUrl").value(user.getProfileImageUrl()))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 
@@ -425,7 +421,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.comments[0].child[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].child[0].me").value(false))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 
@@ -474,8 +469,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.hots[0].likeCount").isNumber())
                 .andExpect(jsonPath("$.hots[0].communityId").isNumber())
                 .andExpect(jsonPath("$.hots[0].hashtags").isArray());
-
-
     }
 
     @Test

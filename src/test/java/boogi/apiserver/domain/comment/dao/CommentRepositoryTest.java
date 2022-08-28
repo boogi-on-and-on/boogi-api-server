@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -198,7 +199,7 @@ class CommentRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
-        Page<Comment> parentCommentsPage = commentRepository
+        Slice<Comment> parentCommentsPage = commentRepository
                 .findParentCommentsWithMemberByPostId(pageable, post.getId());
         List<Comment> parentComments = parentCommentsPage.getContent();
 
@@ -368,7 +369,7 @@ class CommentRepositoryTest {
 
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
         Pageable pageable = PageRequest.of(0, 4);
-        Page<Comment> commentPage = commentRepository.getUserCommentPageByMemberIds(memberIds, pageable);
+        Slice<Comment> commentPage = commentRepository.getUserCommentPageByMemberIds(memberIds, pageable);
         List<Comment> comments = commentPage.getContent();
 
         assertThat(comments.size()).isEqualTo(4);

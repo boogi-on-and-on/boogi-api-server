@@ -1,12 +1,12 @@
 package boogi.apiserver.domain.like.dto.response;
 
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class LikeMembersAtComment {
 
     private List<UserInfo> members = new ArrayList<>();
 
-    private PagnationDto pageInfo;
+    private PaginationDto pageInfo;
 
     @Getter
     @Builder
@@ -39,12 +39,12 @@ public class LikeMembersAtComment {
         }
     }
 
-    public LikeMembersAtComment(List<User> users, Page page) {
+    public LikeMembersAtComment(List<User> users, Slice page) {
         if (users != null && users.size() > 0) {
             this.members = users.stream()
                     .map(user -> UserInfo.toDto(user))
                     .collect(Collectors.toList());
         }
-        this.pageInfo = PagnationDto.of(page);
+        this.pageInfo = PaginationDto.of(page);
     }
 }

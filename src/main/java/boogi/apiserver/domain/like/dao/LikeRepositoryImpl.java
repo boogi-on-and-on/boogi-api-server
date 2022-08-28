@@ -1,12 +1,11 @@
 package boogi.apiserver.domain.like.dao;
 
 import boogi.apiserver.domain.like.domain.Like;
-import com.querydsl.jpa.impl.JPAQuery;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Map;
@@ -98,8 +97,8 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
                 ).fetch();
     }
 
-    public Page<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable) {
-        List<Like> result = queryFactory.selectFrom(like)
+    public Slice<Like> findPostLikePageWithMemberByPostId(Long postId, Pageable pageable) {
+        List<Like> postLikes = queryFactory.selectFrom(like)
                 .where(
                         like.post.id.eq(postId)
                 )
@@ -108,19 +107,14 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
                         like.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        JPAQuery<Like> countQuery = queryFactory.selectFrom(like)
-                .where(
-                        like.post.id.eq(postId)
-                );
-
-        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+        return PageableUtil.getSlice(postLikes, pageable);
     }
 
-    public Page<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable) {
-        List<Like> result = queryFactory.selectFrom(like)
+    public Slice<Like> findCommentLikePageWithMemberByCommentId(Long commentId, Pageable pageable) {
+        List<Like> commentLikes = queryFactory.selectFrom(like)
                 .where(
                         like.comment.id.eq(commentId)
                 )
@@ -129,15 +123,10 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
                         like.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        JPAQuery<Like> countQuery = queryFactory.selectFrom(like)
-                .where(
-                        like.post.id.eq(commentId)
-                );
-
-        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+        return PageableUtil.getSlice(commentLikes, pageable);
     }
 
     @Override
