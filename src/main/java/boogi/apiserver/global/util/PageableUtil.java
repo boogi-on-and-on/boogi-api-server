@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class PageableUtil {
 
-    public static <T> Slice getSlice(List<T> contents, Pageable pageable) {
+    public static <T> Slice<T> getSlice(List<T> contents, Pageable pageable) {
         int pageSize = pageable.getPageSize();
         boolean hasNext = false;
 
@@ -17,6 +17,6 @@ public abstract class PageableUtil {
             hasNext = true;
         }
 
-        return new SliceImpl(contents, pageable, hasNext);
+        return new SliceImpl<>(contents, pageable, hasNext);
     }
 }
