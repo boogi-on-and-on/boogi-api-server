@@ -2,24 +2,22 @@ package boogi.apiserver.domain.message.block.dao;
 
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.domain.QMessageBlock;
-import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
-import boogi.apiserver.domain.message.block.dto.QMessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.QMessageBlockedUserDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
-public class MessageBlockRepositoryCustomImpl implements MessageBlockRepositoryCustom {
+
+@RequiredArgsConstructor
+public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     private final QMessageBlock messageBlock = QMessageBlock.messageBlock;
     private final QUser user = QUser.user;
-
-    public MessageBlockRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<MessageBlockedUserDto> getBlockedUsers(Long userId) {

@@ -7,27 +7,28 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
-import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-public class PostRepositoryCustomImpl implements PostRepositoryCustom {
+@RequiredArgsConstructor
+public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -39,10 +40,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     private final QMember member = QMember.member;
     private final QUser user = QUser.user;
     private final QCommunity community = QCommunity.community;
-
-    public PostRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public Page<Post> getUserPostPage(Pageable pageable, Long userId) {
@@ -104,7 +101,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .fetch();
     }
 
-    //TODO: member, user canceledAt, deletedAt validation 추가
     @Override
     public Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId) {
         Post findPost = queryFactory.selectFrom(this.post)
@@ -217,6 +213,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     private OrderSpecifier getPostSearchOrder(PostQueryRequest request) {
+
         switch (request.getOrder()) {
             case NEWER:
                 return post.createdAt.desc();

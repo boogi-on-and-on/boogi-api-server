@@ -1,18 +1,17 @@
 package boogi.apiserver.domain.notice.dao;
 
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -20,7 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@CustomDataJpaTest
 class NoticeRepositoryTest {
 
     @Autowired

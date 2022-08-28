@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.like.dao;
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.like.domain.Like;
@@ -10,7 +11,6 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@CustomDataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LikeRepositoryTest {
 

@@ -3,37 +3,33 @@ package boogi.apiserver.domain.community.community.dao;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.domain.QCommunity;
-import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
-import boogi.apiserver.domain.community.community.dto.request_enum.CommunityListingOrder;
+import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
 import boogi.apiserver.domain.hashtag.community.domain.QCommunityHashtag;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom {
+
+@RequiredArgsConstructor
+public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     private final QCommunity community = QCommunity.community;
     private final QCommunityHashtag communityHashtag = QCommunityHashtag.communityHashtag;
-
-    public CommunityRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
-
 
     @Override
     public Page<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest condition) {

@@ -5,20 +5,18 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.community.joinrequest.domain.QJoinRequest;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-public class JoinRequestRepositoryCustomImpl implements JoinRequestRepositoryCustom {
+
+@RequiredArgsConstructor
+public class JoinRequestRepositoryImpl implements JoinRequestRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     private final QJoinRequest joinRequest = QJoinRequest.joinRequest;
     private final QUser user = QUser.user;
-
-    public JoinRequestRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<JoinRequest> getAllRequests(Long communityId) {

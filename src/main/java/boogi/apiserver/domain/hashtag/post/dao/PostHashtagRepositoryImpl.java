@@ -2,19 +2,17 @@ package boogi.apiserver.domain.hashtag.post.dao;
 
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
-import static boogi.apiserver.domain.hashtag.post.domain.QPostHashtag.*;
+import static boogi.apiserver.domain.hashtag.post.domain.QPostHashtag.postHashtag;
 
-public class PostHashtagRepositoryCustomImpl implements PostHashtagRepositoryCustom {
+
+@RequiredArgsConstructor
+public class PostHashtagRepositoryImpl implements PostHashtagRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public PostHashtagRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<PostHashtag> findPostHashtagByPostId(Long postId) {

@@ -4,32 +4,29 @@ import boogi.apiserver.domain.community.community.domain.QCommunity;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.domain.QMember;
-import boogi.apiserver.domain.member.dto.BannedMemberDto;
-import boogi.apiserver.domain.member.dto.QBannedMemberDto;
+import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.response.QBannedMemberDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
+@RequiredArgsConstructor
+public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     private final QMember member = QMember.member;
     private final QCommunity community = QCommunity.community;
     private final QUser user = QUser.user;
-
-    public MemberRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<Member> findByUserId(Long userId) {

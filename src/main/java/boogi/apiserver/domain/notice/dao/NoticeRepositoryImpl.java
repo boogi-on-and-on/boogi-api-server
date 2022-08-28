@@ -6,21 +6,18 @@ import boogi.apiserver.domain.notice.domain.QNotice;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
-public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
+@RequiredArgsConstructor
+public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     private final QNotice notice = QNotice.notice;
     private final QMember member = QMember.member;
     private final QUser user = QUser.user;
-
-    public NoticeRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<Notice> getLatestNotice(Long communityId) {

@@ -3,26 +3,24 @@ package boogi.apiserver.domain.like.dao;
 import boogi.apiserver.domain.like.domain.Like;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static boogi.apiserver.domain.like.domain.QLike.*;
-import static boogi.apiserver.domain.member.domain.QMember.*;
-import static com.querydsl.core.group.GroupBy.*;
+import static boogi.apiserver.domain.like.domain.QLike.like;
+import static boogi.apiserver.domain.member.domain.QMember.member;
+import static com.querydsl.core.group.GroupBy.groupBy;
 
-public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
+
+@RequiredArgsConstructor
+public class LikeRepositoryImpl implements LikeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public LikeRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<Like> findPostLikesByPostId(Long postId) {

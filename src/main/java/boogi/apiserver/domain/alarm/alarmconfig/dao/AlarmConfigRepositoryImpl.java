@@ -3,19 +3,17 @@ package boogi.apiserver.domain.alarm.alarmconfig.dao;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.QAlarmConfig;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
-public class AlarmConfigRepositoryCustomImpl implements AlarmConfigRepositoryCustom {
+
+@RequiredArgsConstructor
+public class AlarmConfigRepositoryImpl implements AlarmConfigRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     private final QAlarmConfig alarmConfig = QAlarmConfig.alarmConfig;
-
-    public AlarmConfigRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public AlarmConfig getAlarmConfigByUserId(Long userId) {

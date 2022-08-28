@@ -3,20 +3,17 @@ package boogi.apiserver.domain.user.dao;
 import boogi.apiserver.domain.user.domain.QUser;
 import boogi.apiserver.domain.user.domain.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-public class UserRepositoryCustomImpl implements UserRepositoryCustom {
+@RequiredArgsConstructor
+public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     private final QUser user = QUser.user;
-
-    public UserRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<User> findUsersByIds(List<Long> userIds) {
