@@ -16,7 +16,7 @@ import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
-import boogi.apiserver.domain.report.dto.CreateReport;
+import boogi.apiserver.domain.report.dto.request.CreateReport;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;

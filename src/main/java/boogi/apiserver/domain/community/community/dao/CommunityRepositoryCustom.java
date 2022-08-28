@@ -1,8 +1,8 @@
 package boogi.apiserver.domain.community.community.dao;
 
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

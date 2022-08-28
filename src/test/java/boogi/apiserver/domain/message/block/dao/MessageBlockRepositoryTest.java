@@ -2,7 +2,7 @@ package boogi.apiserver.domain.message.block.dao;
 
 import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
-import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;

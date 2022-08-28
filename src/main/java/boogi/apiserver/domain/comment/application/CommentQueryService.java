@@ -2,7 +2,7 @@ package boogi.apiserver.domain.comment.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.UserCommentPage;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

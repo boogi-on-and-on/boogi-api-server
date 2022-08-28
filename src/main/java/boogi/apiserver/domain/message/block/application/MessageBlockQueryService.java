@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.message.block.application;
 
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
-import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

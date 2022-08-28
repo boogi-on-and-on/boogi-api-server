@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.report.api;
 
 import boogi.apiserver.domain.report.application.ReportService;
-import boogi.apiserver.domain.report.dto.CreateReport;
+import boogi.apiserver.domain.report.dto.request.CreateReport;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

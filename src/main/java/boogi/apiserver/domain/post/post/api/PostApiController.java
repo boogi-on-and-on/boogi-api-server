@@ -1,14 +1,20 @@
 package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.domain.comment.application.CommentCoreService;
-import boogi.apiserver.domain.comment.dto.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.*;
+import boogi.apiserver.domain.post.post.dto.request.CreatePost;
+import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
+import boogi.apiserver.domain.post.post.dto.response.HotPost;
+import boogi.apiserver.domain.post.post.dto.response.PostDetail;
+import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.PagnationDto;
 import lombok.RequiredArgsConstructor;

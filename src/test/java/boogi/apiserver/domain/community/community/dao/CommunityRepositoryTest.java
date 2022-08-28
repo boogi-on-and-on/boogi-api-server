@@ -4,9 +4,9 @@ package boogi.apiserver.domain.community.community.dao;
 import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
-import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
-import boogi.apiserver.domain.community.community.dto.request_enum.CommunityListingOrder;
+import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
+import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @CustomDataJpaTest
 class CommunityRepositoryTest {

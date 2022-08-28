@@ -6,12 +6,12 @@ import boogi.apiserver.domain.community.community.application.CommunityCoreServi
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.user.application.UserQueryService;
-import boogi.apiserver.domain.user.dto.BlockMessageUsersRequest;
-import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
-import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
+import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;

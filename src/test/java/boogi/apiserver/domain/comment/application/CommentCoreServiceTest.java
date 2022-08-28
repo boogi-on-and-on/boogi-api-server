@@ -2,8 +2,8 @@ package boogi.apiserver.domain.comment.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.CommentsAtPost;
-import boogi.apiserver.domain.comment.dto.CreateComment;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCoreService;
@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 

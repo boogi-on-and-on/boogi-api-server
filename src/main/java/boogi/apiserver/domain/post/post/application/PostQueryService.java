@@ -2,7 +2,10 @@ package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.*;
+import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.response.HotPost;
+import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

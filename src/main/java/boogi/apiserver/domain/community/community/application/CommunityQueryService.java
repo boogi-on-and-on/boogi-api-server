@@ -2,9 +2,9 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.CommunityMetadataDto;
-import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.response.CommunityMetadataDto;
+import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

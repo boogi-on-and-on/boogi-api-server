@@ -3,7 +3,7 @@ package boogi.apiserver.domain.alarm.alarm.application;
 
 import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
-import boogi.apiserver.domain.alarm.alarm.dto.AlarmListDto;
+import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmListDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
