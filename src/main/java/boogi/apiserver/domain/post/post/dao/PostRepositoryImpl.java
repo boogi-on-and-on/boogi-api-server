@@ -14,14 +14,11 @@ import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,14 +41,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private final QCommunity community = QCommunity.community;
 
     @Override
-    public Page<Post> getUserPostPage(Pageable pageable, Long userId) {
+    public Slice<Post> getUserPostPage(Pageable pageable, Long userId) {
         List<Long> memberIds = memberRepository.findByUserId(userId)
                 .stream()
                 .map(Member::getId)
                 .collect(Collectors.toList());
 
         // TODO: 자신의 프로필 조회한 경우?
-        // TODO: DTO로 변환하기
         List<Post> posts =
                 queryFactory
                         .selectFrom(post)
@@ -63,7 +59,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         .fetchJoin()
                         .orderBy(post.createdAt.desc())
                         .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
+                        .limit(pageable.getPageSize() + 1)
                         .fetch();
 
         // LAZY INIT PostHashtag
@@ -72,9 +68,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         //LAZY INIT PostMedia
         posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
-        JPAQuery<Post> countQuery = queryFactory.selectFrom(post).where(post.member.id.in(memberIds));
-
-        return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchCount);
+        return PageableUtil.getSlice(posts, pageable);
     }
 
     @Override
@@ -119,7 +113,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
+    public Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
         List<Post> posts = queryFactory.selectFrom(post)
                 .where(
                         post.community.id.eq(communityId),
@@ -129,7 +123,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .join(member.user, user).fetchJoin()
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         // LAZY INIT PostHashtag
@@ -142,13 +136,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         //todo: MemberId 기반으로 쿼리하기
         posts.stream().anyMatch(p -> p.getLikes().size() > 0);
 
-        JPAQuery<Long> countQuery = queryFactory.select(this.post.count())
-                .from(this.post)
-                .where(
-                        this.post.community.id.eq(communityId),
-                        this.post.deletedAt.isNull());
-
-        return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchOne);
+        return PageableUtil.getSlice(posts, pageable);
     }
 
     @Override
@@ -165,7 +153,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
+    public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         List<Long> memberJoinedCommunityIds = queryFactory.select(member.community.id)
                 .from(member)
                 .where(member.user.id.eq(userId),
@@ -193,7 +181,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .innerJoin(member.user, user).fetchJoin()
                 .orderBy(getPostSearchOrder(request))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         //PostHashTag LAZY INIT
@@ -206,12 +194,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .map(SearchPostDto::new)
                 .collect(Collectors.toList());
 
-        JPAQuery<Long> countQuery = queryFactory.select(post.count())
-                .from(post)
-                .where(where)
-                .innerJoin(post.community);
+        return PageableUtil.getSlice(postDtos, pageable);
 
-        return PageableExecutionUtils.getPage(postDtos, pageable, countQuery::fetchOne);
     }
 
     private OrderSpecifier getPostSearchOrder(PostQueryRequest request) {

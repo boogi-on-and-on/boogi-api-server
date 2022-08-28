@@ -137,12 +137,11 @@ class PostRepositoryTest {
         Pageable pageable = PageRequest.of(0, 2);
 
         //when
-        Page<Post> postPage = postRepository.getUserPostPage(pageable, user.getId());
-        Page<Post> postPage1 = postRepository.getUserPostPage(PageRequest.of(1, 2), user.getId());
+        Slice<Post> postSlice = postRepository.getUserPostPage(pageable, user.getId());
 
         //then
         //first page
-        List<Post> posts = postPage.getContent();
+        List<Post> posts = postSlice.getContent();
         Post first = posts.get(0);
         Post second = posts.get(1);
 
@@ -154,9 +153,6 @@ class PostRepositoryTest {
         assertThat(posts.size()).isEqualTo(2);
         assertThat(first.getCreatedAt()).isAfter(second.getCreatedAt());
         assertThat(first.getHashtags().size()).isEqualTo(2);
-
-        assertThat(postPage.getTotalElements()).isEqualTo(3); // 전체 데이터 수
-        assertThat(postPage.hasNext()).isTrue(); //다음 페이지가 있는지
 
         assertThat(persistenceUtil.isLoaded(first.getHashtags().get(0))).isTrue();
     }
@@ -378,9 +374,9 @@ class PostRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         PageRequest page = PageRequest.of(0, 10);
-        Page<Post> postPage = postRepository.getPostsOfCommunity(page, community.getId());
+        Slice<Post> postSlice = postRepository.getPostsOfCommunity(page, community.getId());
 
-        List<Post> posts = postPage.getContent();
+        List<Post> posts = postSlice.getContent();
         Post first = posts.get(0);
         Post second = posts.get(1);
         Post third = posts.get(2);
@@ -481,11 +477,11 @@ class PostRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         //when
-        Page<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 3), request, user.getId());
+        Slice<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 3), request, user.getId());
 
         //then
         List<SearchPostDto> posts = postPage.getContent();
-        long count = postPage.getTotalElements();
+        long count = postPage.getContent().size();
 
         SearchPostDto first = posts.get(0);
         SearchPostDto second = posts.get(1);

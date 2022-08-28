@@ -7,15 +7,14 @@ import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.response.QBannedMemberDto;
 import boogi.apiserver.domain.user.domain.QUser;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +64,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Page<Member> findJoinedMembers(Pageable pageable, Long communityId) {
+    public Slice<Member> findJoinedMembers(Pageable pageable, Long communityId) {
         NumberExpression<Integer> caseBuilder = new CaseBuilder()
                 .when(member.memberType.eq(MemberType.MANAGER)).then(3)
                 .when(member.memberType.eq(MemberType.SUB_MANAGER)).then(2)
@@ -84,18 +83,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        JPAQuery<Member> countQuery = queryFactory
-                .selectFrom(member)
-                .where(
-                        member.community.id.eq(communityId),
-                        member.bannedAt.isNull()
-                )
-                .join(member.user, user);
-
-        return PageableExecutionUtils.getPage(members, pageable, countQuery::fetchCount);
+        return PageableUtil.getSlice(members, pageable);
     }
 
     @Override

@@ -29,8 +29,8 @@ import boogi.apiserver.global.error.exception.InvalidValueException;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -175,7 +175,7 @@ public class CommunityApiController {
             throw new InvalidValueException("비공개 커뮤니티이면서, 가입되지 않았습니다.");
         }
 
-        Page<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
+        Slice<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
         List<PostOfCommunity> posts = postPage.getContent()
                 .stream()
                 .map(p -> new PostOfCommunity(p, userId, member))
@@ -196,7 +196,7 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/members")
     public ResponseEntity<JoinedMembersPageDto> getMembers(@PathVariable Long communityId, Pageable pageable) {
-        Page<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+        Slice<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
         return ResponseEntity.status(HttpStatus.OK).body(JoinedMembersPageDto.of(members));
     }
 
@@ -308,11 +308,11 @@ public class CommunityApiController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchCommunities(@ModelAttribute @Validated CommunityQueryRequest request,
                                                     Pageable pageable) {
-        Page<SearchCommunityDto> page = communityQueryService.getSearchedCommunities(pageable, request);
+        Slice<SearchCommunityDto> slice = communityQueryService.getSearchedCommunities(pageable, request);
 
         return ResponseEntity.ok(Map.of(
-                "communities", page.getContent(),
-                "pageInfo", PaginationDto.of(page)
+                "communities", slice.getContent(),
+                "pageInfo", PaginationDto.of(slice)
         ));
     }
 

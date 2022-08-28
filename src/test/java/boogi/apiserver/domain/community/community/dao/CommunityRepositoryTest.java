@@ -13,8 +13,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -82,7 +82,7 @@ class CommunityRepositoryTest {
             em.clear();
 
             //when
-            Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            Slice<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
             List<SearchCommunityDto> dtos = page.getContent();
@@ -140,10 +140,10 @@ class CommunityRepositoryTest {
 
             //when
 
-            Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            Slice<SearchCommunityDto> slice = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
-            List<SearchCommunityDto> dtos = page.getContent();
+            List<SearchCommunityDto> dtos = slice.getContent();
             assertThat(dtos.size()).isEqualTo(2);
 
             SearchCommunityDto first = dtos.get(0);

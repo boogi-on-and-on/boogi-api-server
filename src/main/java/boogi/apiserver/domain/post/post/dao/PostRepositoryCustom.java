@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface PostRepositoryCustom {
 
-    Page<Post> getUserPostPage(Pageable pageable, Long userId);
+    Slice<Post> getUserPostPage(Pageable pageable, Long userId);
 
     List<Post> getHotPosts();
 
@@ -20,11 +20,11 @@ public interface PostRepositoryCustom {
 
     Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId);
 
-    Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
+    Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
 
     Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId);
 
-    Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
+    Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
 
     Optional<Post> findPostById(Long postId);
 

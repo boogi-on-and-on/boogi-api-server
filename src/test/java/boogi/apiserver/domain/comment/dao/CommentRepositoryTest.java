@@ -86,8 +86,8 @@ class CommentRepositoryTest {
 
         persistenceUtil.cleanPersistenceContext();
 
-        Page<Comment> commentPage1 = commentRepository.getUserCommentPage(PageRequest.of(0, 2), user.getId());
-        Page<Comment> commentPage2 = commentRepository.getUserCommentPage(PageRequest.of(1, 2), user.getId());
+        Slice<Comment> commentPage1 = commentRepository.getUserCommentPage(PageRequest.of(0, 2), user.getId());
+        Slice<Comment> commentPage2 = commentRepository.getUserCommentPage(PageRequest.of(1, 2), user.getId());
 
         List<Comment> comments1 = commentPage1.getContent(); //first page
         List<Comment> comments2 = commentPage2.getContent(); //second page
@@ -109,9 +109,9 @@ class CommentRepositoryTest {
 
     @Test
     void getUserCommentPage_멤버아이디_없을때() {
-        Page<Comment> commentPage = commentRepository.getUserCommentPage(PageRequest.of(0, 3), 2L);
+        Slice<Comment> commentPage = commentRepository.getUserCommentPage(PageRequest.of(0, 3), 2L);
 
-        assertThat(commentPage.getTotalElements()).isEqualTo(0);
+        assertThat(commentPage.getContent().size()).isEqualTo(0);
         assertThat(commentPage.hasNext()).isFalse();
     }
 

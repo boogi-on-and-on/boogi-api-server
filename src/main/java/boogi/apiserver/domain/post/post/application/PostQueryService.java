@@ -7,8 +7,8 @@ import boogi.apiserver.domain.post.post.dto.response.HotPost;
 import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +24,9 @@ public class PostQueryService {
     private final PostRepository postRepository;
 
     public UserPostPage getUserPosts(Pageable pageable, Long userId) {
-        Page<Post> userPostPage = postRepository.getUserPostPage(pageable, userId);
+        Slice<Post> userPostSlice = postRepository.getUserPostPage(pageable, userId);
 
-        return UserPostPage.of(userPostPage);
+        return UserPostPage.of(userPostSlice);
     }
 
     public List<HotPost> getHotPosts() {
@@ -45,11 +45,11 @@ public class PostQueryService {
         return postRepository.getLatestPostOfCommunity(communityId);
     }
 
-    public Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
+    public Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
         return postRepository.getPostsOfCommunity(pageable, communityId);
     }
 
-    public Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
+    public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         return postRepository.getSearchedPosts(pageable, request, userId);
     }
 }

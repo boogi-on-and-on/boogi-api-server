@@ -6,7 +6,7 @@ import boogi.apiserver.global.dto.PaginationDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,9 +44,9 @@ public class JoinedMembersPageDto {
         }
     }
 
-    private JoinedMembersPageDto(Page<Member> page) {
-        this.pageInfo = PaginationDto.of(page);
-        this.members = page.getContent().stream()
+    private JoinedMembersPageDto(Slice<Member> slice) {
+        this.pageInfo = PaginationDto.of(slice);
+        this.members = slice.getContent().stream()
                 .map(m -> {
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("id", m.getId());
@@ -60,7 +60,7 @@ public class JoinedMembersPageDto {
     }
 
 
-    public static JoinedMembersPageDto of(Page page) {
-        return new JoinedMembersPageDto(page);
+    public static JoinedMembersPageDto of(Slice<Member> slice) {
+        return new JoinedMembersPageDto(slice);
     }
 }

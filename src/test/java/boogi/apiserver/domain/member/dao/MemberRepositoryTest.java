@@ -14,8 +14,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -139,8 +139,8 @@ class MemberRepositoryTest {
 
         //when
         PageRequest pageable = PageRequest.of(0, 4);
-        Page<Member> page = memberRepository.findJoinedMembers(pageable, community.getId());
-        List<Member> members = page.getContent();
+        Slice<Member> slice = memberRepository.findJoinedMembers(pageable, community.getId());
+        List<Member> members = slice.getContent();
 
         //then
         assertThat(members.size()).isEqualTo(4);

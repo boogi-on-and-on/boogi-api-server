@@ -7,16 +7,15 @@ import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequ
 import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
 import boogi.apiserver.domain.hashtag.community.domain.QCommunityHashtag;
+import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +31,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
     private final QCommunityHashtag communityHashtag = QCommunityHashtag.communityHashtag;
 
     @Override
-    public Page<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest condition) {
+    public Slice<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest condition) {
         OrderSpecifier order = getOrderSpecifier(condition.getOrder());
 
         String keyword = condition.getKeyword();
@@ -47,7 +46,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                     .where(where)
                     .orderBy(order)
                     .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
+                    .limit(pageable.getPageSize() + 1)
                     .fetch();
 
             // CommunityHashtag LAZY INIT
@@ -55,12 +54,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
 
             List<SearchCommunityDto> dtos = transformToSearchCommunityDto(communities);
 
-            JPAQuery<Long> countQuery = queryFactory
-                    .select(community.count())
-                    .from(community)
-                    .where(where);
-
-            return PageableExecutionUtils.getPage(dtos, pageable, countQuery::fetchOne);
+            return PageableUtil.getSlice(dtos, pageable);
         }
 
         QCommunity _community = new QCommunity("communitySub");
@@ -84,20 +78,14 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 .where(where)
                 .orderBy(order)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
         //LAZY INIT
         communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
 
         List<SearchCommunityDto> dtos = transformToSearchCommunityDto(communities);
 
-        JPAQuery<Long> countQuery = queryFactory
-                .select(community.count())
-                .from(community)
-                .where(where)
-                .leftJoin(community.hashtags);
-
-        return PageableExecutionUtils.getPage(dtos, pageable, countQuery::fetchOne);
+        return PageableUtil.getSlice(dtos, pageable);
     }
 
     private OrderSpecifier getOrderSpecifier(CommunityListingOrder condition) {

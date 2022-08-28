@@ -19,8 +19,8 @@ import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.PaginationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -125,7 +125,7 @@ public class PostApiController {
     public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request,
                                               Pageable pageable,
                                               @Session Long userId) {
-        Page<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
+        Slice<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
         PaginationDto pageInfo = PaginationDto.of(page);
         List<SearchPostDto> dtos = page.getContent();
 

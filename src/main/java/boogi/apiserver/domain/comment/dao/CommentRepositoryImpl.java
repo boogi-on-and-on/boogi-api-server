@@ -5,14 +5,11 @@ import boogi.apiserver.domain.comment.domain.QComment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.global.util.PageableUtil;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +29,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     private final QComment comment = QComment.comment;
 
     @Override
-    public Page<Comment> getUserCommentPage(Pageable pageable, Long userId) {
+    public Slice<Comment> getUserCommentPage(Pageable pageable, Long userId) {
         List<Long> memberIds = memberRepository.findByUserId(userId)
                 .stream()
                 .map(Member::getId)
@@ -47,13 +44,10 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         )
                         .orderBy(comment.createdAt.desc())
                         .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
+                        .limit(pageable.getPageSize() + 1)
                         .fetch();
 
-        JPAQuery<Comment> countQuery =
-                queryFactory.selectFrom(comment).where(comment.member.id.in(memberIds));
-
-        return PageableExecutionUtils.getPage(comments, pageable, countQuery::fetchCount);
+        return PageableUtil.getSlice(comments, pageable);
     }
 
     @Override
