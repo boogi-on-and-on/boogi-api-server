@@ -4,7 +4,6 @@ package boogi.apiserver.domain.report.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.message.message.dao.MessageRepository;
@@ -36,7 +35,6 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final MessageRepository messageRepository;
 
-    private final CommunityValidationService communityValidationService;
     private final MemberValidationService memberValidationService;
 
     private final CommunityQueryService communityQueryService;

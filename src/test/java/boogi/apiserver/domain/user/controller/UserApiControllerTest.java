@@ -7,7 +7,6 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
@@ -47,9 +46,6 @@ class UserApiControllerTest {
 
     @MockBean
     private UserQueryService userQueryService;
-
-    @MockBean
-    private PostQueryService postQueryService;
 
     @MockBean
     MessageBlockQueryService messageBlockQueryService;

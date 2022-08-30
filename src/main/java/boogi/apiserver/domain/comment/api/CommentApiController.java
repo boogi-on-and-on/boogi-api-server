@@ -1,7 +1,6 @@
 package boogi.apiserver.domain.comment.api;
 
 import boogi.apiserver.domain.comment.application.CommentCoreService;
-import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
@@ -29,7 +28,6 @@ import java.util.Objects;
 public class CommentApiController {
 
     private final CommentCoreService commentCoreService;
-    private final CommentQueryService commentQueryService;
 
     private final LikeCoreService likeCoreService;
 

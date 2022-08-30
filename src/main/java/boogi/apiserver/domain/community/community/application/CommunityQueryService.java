@@ -5,7 +5,6 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
 import boogi.apiserver.domain.community.community.dto.response.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
-import boogi.apiserver.domain.member.dao.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +20,6 @@ import javax.persistence.EntityNotFoundException;
 @Slf4j
 public class CommunityQueryService {
     private final CommunityRepository communityRepository;
-    private final MemberRepository memberRepository;
-
 
     public Community getCommunity(Long communityId) {
         Community community = communityRepository.findById(communityId).orElseThrow(EntityNotFoundException::new);

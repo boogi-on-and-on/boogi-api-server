@@ -6,7 +6,6 @@ import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRe
 import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
 import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
-import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
@@ -36,7 +35,6 @@ import java.util.Objects;
 @RequestMapping("/api/users")
 public class UserApiController {
     private final UserQueryService userQueryService;
-    private final MemberQueryService memberQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
 
     private final CommunityCoreService communityCoreService;
