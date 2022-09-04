@@ -72,7 +72,7 @@ public class PostApiController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Object> deletePost(@PathVariable Long postId, @Session Long userId) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId, @Session Long userId) {
         postCoreService.deletePost(postId, userId);
 
         return ResponseEntity.ok().build();

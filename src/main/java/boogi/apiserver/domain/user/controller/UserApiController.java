@@ -43,7 +43,7 @@ public class UserApiController {
     private final AlarmConfigCoreService alarmConfigCoreService;
 
     @PostMapping("/token/{email}")
-    public ResponseEntity<Object> issueToken(HttpServletRequest request, @PathVariable String email) {
+    public ResponseEntity<Void> issueToken(HttpServletRequest request, @PathVariable String email) {
         User user = userQueryService.getUserByEmail(email);
 
         HttpSession preSession = request.getSession(false);
