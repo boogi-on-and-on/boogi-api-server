@@ -6,6 +6,7 @@ import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
@@ -68,42 +70,40 @@ class CommentApiControllerTest {
                         .build();
     }
 
-    //todo: 테스트 코드 구현
-//    @Test
-//    @Disabled
-//    void 유저_댓글_페이지네이션() throws Exception {
-//        UserCommentDto commentDto = UserCommentDto.builder()
-//                .postId(1L)
-//                .content("댓글1")
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//
-//        UserCommentPage page = UserCommentPage.builder()
-//                .comments(List.of(commentDto))
-//                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
-//                .build();
-//
-//        given(commentCoreService.getUserComments(any(Pageable.class), anyLong()))
-//                .willReturn(page);
-//
-//        MockHttpSession session = new MockHttpSession();
-//        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-//
-//        mvc.perform(
-//                        MockMvcRequestBuilders.get("/api/comments/users")
-//                                .queryParam("userId", "4")
-//                                .queryParam("page", "0")
-//                                .queryParam("size", "1")
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .session(session)
-//                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-//                ).andExpect(status().isOk())
-//                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-//                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
-//                .andExpect(jsonPath("$.comments[0].content").value("댓글1"))
-//                .andExpect(jsonPath("$.comments[0].postId").value(1))
-//                .andExpect(jsonPath("$.comments.size()").value(1));
-//    }
+    @Test
+    @DisplayName("유저 댓글 슬라이스")
+    void userCommentSlice() throws Exception {
+        Comment comment = Comment.builder()
+                .content("내용1")
+                .post(
+                        Post.builder()
+                                .id(1L)
+                                .build()
+                )
+                .build();
+        SliceImpl<Comment> page = new SliceImpl<>(List.of(comment), Pageable.ofSize(1), false);
+
+        given(commentCoreService.getUserComments(anyLong(), any(), any(Pageable.class)))
+                .willReturn(page);
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/api/comments/users")
+                                .queryParam("userId", "4")
+                                .queryParam("page", "0")
+                                .queryParam("size", "1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .session(session)
+                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
+                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
+                .andExpect(jsonPath("$.comments[0].content").value("내용1"))
+                .andExpect(jsonPath("$.comments[0].postId").value(1))
+                .andExpect(jsonPath("$.comments.size()").value(1));
+    }
 
     @Test
     @DisplayName("댓글 생성")
