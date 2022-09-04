@@ -2,7 +2,7 @@ package boogi.apiserver.domain.alarm.alarmconfig.application;
 
 import boogi.apiserver.domain.alarm.alarmconfig.dao.AlarmConfigRepository;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingRequest;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.Test;

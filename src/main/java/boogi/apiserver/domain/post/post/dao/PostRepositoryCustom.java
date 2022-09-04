@@ -1,17 +1,17 @@
 package boogi.apiserver.domain.post.post.dao;
 
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.SearchPostDto;
-import org.springframework.data.domain.Page;
+import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PostRepositoryCustom {
 
-    Page<Post> getUserPostPage(Pageable pageable, Long userId);
+    Slice<Post> getUserPostPage(Pageable pageable, Long userId);
 
     List<Post> getHotPosts();
 
@@ -19,13 +19,13 @@ public interface PostRepositoryCustom {
 
     Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId);
 
-    Page<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
+    Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
 
     Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId);
 
-    Page<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
+    Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
 
     Optional<Post> findPostById(Long postId);
 
-    Page<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable);
+    Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable);
 }

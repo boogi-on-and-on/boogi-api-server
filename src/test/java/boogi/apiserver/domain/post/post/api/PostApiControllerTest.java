@@ -2,26 +2,31 @@ package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.domain.comment.application.CommentCoreService;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.*;
-import boogi.apiserver.domain.post.post.dto.request_enum.PostListingOrder;
+import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
+import boogi.apiserver.domain.post.post.dto.request.CreatePost;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
+import boogi.apiserver.domain.post.post.dto.response.*;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
+import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.util.PageableUtil;
+import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
+import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,10 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
@@ -48,7 +50,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -183,7 +186,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.postMedias[0].type").value(postMedia.getMediaType().toString()))
                 .andExpect(jsonPath("$.postMedias[0].url").value(postMedia.getMediaURL()))
                 .andExpect(jsonPath("$.likeId").value(1L))
-                .andExpect(jsonPath("$.createdAt").value(post.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.content").value(post.getContent()))
                 .andExpect(jsonPath("$.hashtags").isArray())
                 .andExpect(jsonPath("$.hashtags[0]").value(postHashtag.getTag()))
@@ -244,7 +247,7 @@ class PostApiControllerTest {
 
         UserPostPage pageInfo = UserPostPage.builder()
                 .posts(List.of(postsDto))
-                .pageInfo(PagnationDto.builder().nextPage(1).hasNext(false).totalCount(20).build())
+                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
 
         given(postCoreService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
@@ -266,7 +269,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
                 .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(20))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 
@@ -303,7 +305,7 @@ class PostApiControllerTest {
         List<User> users = List.of(user);
 
         Pageable pageable = PageRequest.of(0, 1);
-        Page<User> page = PageableExecutionUtils.getPage(users, pageable, () -> users.size());
+        Slice<User> page = PageableUtil.getSlice(users, pageable);
 
         LikeMembersAtPost likeMembers = new LikeMembersAtPost(users, page);
         given(likeCoreService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
@@ -325,7 +327,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.members[0].tagNum").value(user.getTagNumber()))
                 .andExpect(jsonPath("$.members[0].profileImageUrl").value(user.getProfileImageUrl()))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 
@@ -401,11 +402,10 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.comments[0].member.id").value(memberInfo.getId()))
                 .andExpect(jsonPath("$.comments[0].member.memberType").value(memberInfo.getMemberType().toString()))
                 .andExpect(jsonPath("$.comments[0].likeId").value(nullValue()))
-//                .andExpect(jsonPath("$.comments[0].createdAt").value(parentComment.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.comments[0].createdAt").value(CustomDateTimeFormatter.toString(parentComment.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.comments[0].content").value(parentComment.getContent()))
                 .andExpect(jsonPath("$.comments[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].me").value(false))
-
                 .andExpect(jsonPath("$.comments[0].child").isArray())
                 .andExpect(jsonPath("$.comments[0].child.size()").value(1))
                 .andExpect(jsonPath("$.comments[0].child[0].id").value(childCommentInfo.getId()))
@@ -416,12 +416,11 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.comments[0].child[0].member.id").value(memberInfo.getId()))
                 .andExpect(jsonPath("$.comments[0].child[0].member.memberType").value(memberInfo.getMemberType().toString()))
                 .andExpect(jsonPath("$.comments[0].child[0].likeId").value(nullValue()))
-                .andExpect(jsonPath("$.comments[0].child[0].createdAt").value(childCommentInfo.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.comments[0].child[0].createdAt").value(CustomDateTimeFormatter.toString(childCommentInfo.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.comments[0].child[0].content").value(childCommentInfo.getContent()))
                 .andExpect(jsonPath("$.comments[0].child[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].child[0].me").value(false))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.totalCount").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
 
@@ -470,8 +469,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.hots[0].likeCount").isNumber())
                 .andExpect(jsonPath("$.hots[0].communityId").isNumber())
                 .andExpect(jsonPath("$.hots[0].hashtags").isArray());
-
-
     }
 
     @Test

@@ -4,7 +4,8 @@ import boogi.apiserver.domain.community.community.application.CommunityCoreServi
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
-import boogi.apiserver.domain.community.community.dto.*;
+import boogi.apiserver.domain.community.community.dto.request.*;
+import boogi.apiserver.domain.community.community.dto.response.*;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.member.application.MemberCoreService;
@@ -12,24 +13,24 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.member.dto.BannedMemberDto;
-import boogi.apiserver.domain.member.dto.JoinedMembersDto;
-import boogi.apiserver.domain.member.dto.JoinedMembersPageDto;
+import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.response.JoinedMembersDto;
+import boogi.apiserver.domain.member.dto.response.JoinedMembersPageDto;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
-import boogi.apiserver.domain.notice.dto.NoticeDto;
+import boogi.apiserver.domain.notice.dto.response.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.LatestPostOfCommunityDto;
-import boogi.apiserver.domain.post.post.dto.PostOfCommunity;
-import boogi.apiserver.domain.user.dto.UserBasicProfileDto;
+import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
+import boogi.apiserver.domain.post.post.dto.response.PostOfCommunity;
+import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
-import boogi.apiserver.global.dto.PagnationDto;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -103,7 +104,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/metadata")
     public ResponseEntity<Object> getCommunityMetadata(@Session Long userId, @PathVariable Long communityId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         CommunityMetadataDto metadata = communityQueryService.getCommunityMetadata(communityId);
@@ -117,8 +117,6 @@ public class CommunityApiController {
     public ResponseEntity<Object> updateCommunityInfo(@PathVariable Long communityId,
                                                       @Session Long userId,
                                                       @RequestBody @Validated CommunityUpdateRequest request) {
-
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         communityCoreService.update(communityId, request.getDescription(), request.getHashtags());
@@ -128,7 +126,6 @@ public class CommunityApiController {
 
     @DeleteMapping("/{communityId}")
     public ResponseEntity<Object> shutdown(@PathVariable Long communityId, @Session Long userId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         communityCoreService.shutdown(communityId);
@@ -137,7 +134,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/settings")
     public ResponseEntity<Object> getSettingInfo(@PathVariable Long communityId, @Session Long userId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Community community = communityQueryService.getCommunity(communityId);
@@ -152,7 +148,6 @@ public class CommunityApiController {
                                         @Session Long userId,
                                         @RequestBody CommunitySettingRequest request
     ) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Boolean isAuto = request.getIsAutoApproval();
@@ -180,7 +175,7 @@ public class CommunityApiController {
             throw new InvalidValueException("비공개 커뮤니티이면서, 가입되지 않았습니다.");
         }
 
-        Page<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
+        Slice<Post> postPage = postQueryService.getPostsOfCommunity(pageable, communityId);
         List<PostOfCommunity> posts = postPage.getContent()
                 .stream()
                 .map(p -> new PostOfCommunity(p, userId, member))
@@ -189,7 +184,7 @@ public class CommunityApiController {
         Map<String, Object> res = new HashMap<>(Map.of(
                 "communityName", community.getCommunityName(),
                 "posts", posts,
-                "pageInfo", new PagnationDto(postPage)
+                "pageInfo", new PaginationDto(postPage)
         ));
 
         if (Objects.nonNull(member) && Objects.nonNull(member.getMemberType())) {
@@ -201,13 +196,12 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/members")
     public ResponseEntity<JoinedMembersPageDto> getMembers(@PathVariable Long communityId, Pageable pageable) {
-        Page<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+        Slice<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
         return ResponseEntity.status(HttpStatus.OK).body(JoinedMembersPageDto.of(members));
     }
 
     @GetMapping("/{communityId}/members/banned")
     public ResponseEntity<Object> getBannedMembers(@Session Long userId, @PathVariable Long communityId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         List<BannedMemberDto> bannedMembers = memberQueryService.getBannedMembers(communityId);
@@ -220,7 +214,6 @@ public class CommunityApiController {
     public ResponseEntity<Object> banMember(@Session Long userId,
                                             @PathVariable Long communityId,
                                             @RequestBody HashMap<String, Long> body) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         Long banMemberId = body.get("memberId");
@@ -234,7 +227,6 @@ public class CommunityApiController {
                                                       @PathVariable Long communityId,
                                                       @RequestBody HashMap<String, Long> request
     ) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Long memberId = request.get("memberId");
@@ -248,7 +240,6 @@ public class CommunityApiController {
                                                  @PathVariable Long communityId,
                                                  @RequestBody DelegateMemberRequest request
     ) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         memberCoreService.delegeteMember(request.getMemberId(), request.getType());
@@ -259,7 +250,6 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/requests")
     public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         List<Map<String, Object>> requests = joinRequestQueryService.getAllRequests(communityId)
@@ -290,7 +280,6 @@ public class CommunityApiController {
     ) {
         List<Long> requestIds = body.get("requestIds");
 
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
         joinRequestCoreService.confirmUserInBatch(managerUserId, requestIds, communityId);
@@ -307,7 +296,6 @@ public class CommunityApiController {
     ) {
         List<Long> requestIds = body.get("requestIds");
 
-        // aop 이용해서 권한 체크하기?
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
         joinRequestCoreService.rejectUserInBatch(managerUserId, requestIds, communityId);
@@ -320,11 +308,11 @@ public class CommunityApiController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchCommunities(@ModelAttribute @Validated CommunityQueryRequest request,
                                                     Pageable pageable) {
-        Page<SearchCommunityDto> page = communityQueryService.getSearchedCommunities(pageable, request);
+        Slice<SearchCommunityDto> slice = communityQueryService.getSearchedCommunities(pageable, request);
 
         return ResponseEntity.ok(Map.of(
-                "communities", page.getContent(),
-                "pageInfo", PagnationDto.of(page)
+                "communities", slice.getContent(),
+                "pageInfo", PaginationDto.of(slice)
         ));
     }
 

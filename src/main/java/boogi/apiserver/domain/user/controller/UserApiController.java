@@ -2,18 +2,17 @@ package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingInfo;
-import boogi.apiserver.domain.alarm.alarmconfig.dto.AlarmConfigSettingRequest;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.community.community.application.CommunityCoreService;
-import boogi.apiserver.domain.community.community.dto.JoinedCommunities;
-import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
 import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.BlockMessageUsersRequest;
-import boogi.apiserver.domain.user.dto.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ import java.util.Objects;
 @RequestMapping("/api/users")
 public class UserApiController {
     private final UserQueryService userQueryService;
-    private final MemberQueryService memberQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
 
     private final CommunityCoreService communityCoreService;

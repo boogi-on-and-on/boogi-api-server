@@ -83,8 +83,7 @@ public class GlobalExceptionHandler {
 
         final ErrorInfo errorInfo = e.getErrorInfo();
         BasicErrorResponse response = BasicErrorResponse.of(errorInfo);
-        int statusCode = errorInfo.getStatusCode();
-        return new ResponseEntity<>(response, HttpStatus.valueOf(statusCode));
+        return new ResponseEntity<>(response, errorInfo.getStatusCode());
     }
 
     @ExceptionHandler(Exception.class)

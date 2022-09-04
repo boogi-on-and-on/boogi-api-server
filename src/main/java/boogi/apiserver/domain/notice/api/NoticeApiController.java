@@ -6,10 +6,10 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.application.NoticeCoreService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.CommunityNoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.NoticeCreateRequest;
-import boogi.apiserver.domain.notice.dto.NoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.NoticeDto;
+import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
+import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.response.NoticeDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +55,6 @@ public class NoticeApiController {
 
     @PostMapping
     public ResponseEntity<Object> createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
-        //aop 적용하기
         memberValidationService.hasAuth(userId, request.getCommunityId(), MemberType.SUB_MANAGER);
 
         Notice notice = noticeCoreService.create(Map.of(

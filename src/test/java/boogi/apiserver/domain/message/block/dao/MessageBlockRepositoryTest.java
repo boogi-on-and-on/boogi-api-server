@@ -1,20 +1,20 @@
 package boogi.apiserver.domain.message.block.dao;
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
-import boogi.apiserver.domain.message.block.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@CustomDataJpaTest
 class MessageBlockRepositoryTest {
 
     @Autowired

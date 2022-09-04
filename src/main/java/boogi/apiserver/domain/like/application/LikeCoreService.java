@@ -2,15 +2,12 @@ package boogi.apiserver.domain.like.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
-import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
@@ -22,8 +19,8 @@ import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +38,9 @@ public class LikeCoreService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
 
-    private final CommunityRepository communityRepository;
-
     private final PostQueryService postQueryService;
 
     private final LikeValidationService likeValidationService;
-    private final MemberValidationService memberValidationService;
-    private final CommunityValidationService communityValidationService;
 
     public List<Like> getPostLikes(Long postId) {
         List<Like> findPostLikes = likeRepository.findPostLikesByPostId(postId);
@@ -134,7 +127,7 @@ public class LikeCoreService {
             throw new NotJoinedMemberException();
         }
 
-        Page<Like> likePage = likeRepository.findPostLikePageWithMemberByPostId(findPost.getId(), pageable);
+        Slice<Like> likePage = likeRepository.findPostLikePageWithMemberByPostId(findPost.getId(), pageable);
 
         List<Long> userIds = likePage.getContent().stream()
                 .map(like -> like.getMember().getUser().getId())
@@ -157,7 +150,7 @@ public class LikeCoreService {
             throw new NotJoinedMemberException();
         }
 
-        Page<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
+        Slice<Like> likePage = likeRepository.findCommentLikePageWithMemberByCommentId(findComment.getId(), pageable);
 
         List<Long> userIds = likePage.getContent().stream()
                 .map(like -> like.getMember().getUser().getId())

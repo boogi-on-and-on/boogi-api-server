@@ -14,13 +14,13 @@ public class BasicErrorResponse {
 
     private BasicErrorResponse(ErrorInfo errorInfo) {
         this.message = errorInfo.getMessage();
-        this.statusCode = errorInfo.getStatusCode();
+        this.statusCode = errorInfo.getStatusCode().value();
         this.code = errorInfo.getCode();
     }
 
     private BasicErrorResponse(ErrorInfo errorInfo, String message) {
         this.message = message;
-        this.statusCode = errorInfo.getStatusCode();
+        this.statusCode = errorInfo.getStatusCode().value();
         this.code = errorInfo.getCode();
     }
 

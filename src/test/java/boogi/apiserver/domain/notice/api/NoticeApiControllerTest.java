@@ -7,12 +7,14 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.application.NoticeCoreService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.CommunityNoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.NoticeCreateRequest;
-import boogi.apiserver.domain.notice.dto.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
+import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
+import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -102,7 +104,7 @@ class NoticeApiControllerTest {
                     ).andExpect(status().isOk())
                     .andExpect(jsonPath("$.notices[0].id").isNumber())
                     .andExpect(jsonPath("$.notices[0].title").isString())
-                    .andExpect(jsonPath("$.notices[0].createdAt").isString())
+                    .andExpect(jsonPath("$.notices[0].createdAt").value(CustomDateTimeFormatter.toString(notice.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                     .andExpect(jsonPath("$.notices[0].content").isString());
         }
 

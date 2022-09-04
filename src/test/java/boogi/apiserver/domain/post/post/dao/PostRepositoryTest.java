@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.post.dao;
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
@@ -7,26 +8,22 @@ import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.SearchPostDto;
-import boogi.apiserver.domain.post.post.dto.request_enum.PostListingOrder;
+import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
+import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.dto.PostMediaMetadataDto;
+import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import org.junit.jupiter.api.Disabled;
 import boogi.apiserver.utils.PersistenceUtil;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -38,7 +35,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@DataJpaTest
+@CustomDataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PostRepositoryTest {
 
@@ -140,12 +137,11 @@ class PostRepositoryTest {
         Pageable pageable = PageRequest.of(0, 2);
 
         //when
-        Page<Post> postPage = postRepository.getUserPostPage(pageable, user.getId());
-        Page<Post> postPage1 = postRepository.getUserPostPage(PageRequest.of(1, 2), user.getId());
+        Slice<Post> postSlice = postRepository.getUserPostPage(pageable, user.getId());
 
         //then
         //first page
-        List<Post> posts = postPage.getContent();
+        List<Post> posts = postSlice.getContent();
         Post first = posts.get(0);
         Post second = posts.get(1);
 
@@ -157,9 +153,6 @@ class PostRepositoryTest {
         assertThat(posts.size()).isEqualTo(2);
         assertThat(first.getCreatedAt()).isAfter(second.getCreatedAt());
         assertThat(first.getHashtags().size()).isEqualTo(2);
-
-        assertThat(postPage.getTotalElements()).isEqualTo(3); // 전체 데이터 수
-        assertThat(postPage.hasNext()).isTrue(); //다음 페이지가 있는지
 
         assertThat(persistenceUtil.isLoaded(first.getHashtags().get(0))).isTrue();
     }
@@ -381,9 +374,9 @@ class PostRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         PageRequest page = PageRequest.of(0, 10);
-        Page<Post> postPage = postRepository.getPostsOfCommunity(page, community.getId());
+        Slice<Post> postSlice = postRepository.getPostsOfCommunity(page, community.getId());
 
-        List<Post> posts = postPage.getContent();
+        List<Post> posts = postSlice.getContent();
         Post first = posts.get(0);
         Post second = posts.get(1);
         Post third = posts.get(2);
@@ -484,11 +477,11 @@ class PostRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         //when
-        Page<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 3), request, user.getId());
+        Slice<SearchPostDto> postPage = postRepository.getSearchedPosts(PageRequest.of(0, 3), request, user.getId());
 
         //then
         List<SearchPostDto> posts = postPage.getContent();
-        long count = postPage.getTotalElements();
+        long count = postPage.getContent().size();
 
         SearchPostDto first = posts.get(0);
         SearchPostDto second = posts.get(1);
@@ -616,7 +609,7 @@ class PostRepositoryTest {
         Pageable pageable = PageRequest.of(0, 2);
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
 
-        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(memberIds, pageable);
+        Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(memberIds, pageable);
 
         List<Post> userPosts = userPostPage.getContent();
         assertThat(userPosts.size()).isEqualTo(2);
@@ -628,8 +621,6 @@ class PostRepositoryTest {
 
     @Test
     @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
-    @Disabled
-    //MYSQL native 쿼리로 인한 h2 테스트 불가능
     void testGetLatestPostByCommunityIds() {
         Community community1 = Community.builder()
                 .build();

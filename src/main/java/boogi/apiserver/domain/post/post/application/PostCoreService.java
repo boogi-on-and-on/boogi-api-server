@@ -4,7 +4,6 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
@@ -20,10 +19,10 @@ import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.CreatePost;
-import boogi.apiserver.domain.post.post.dto.PostDetail;
-import boogi.apiserver.domain.post.post.dto.UpdatePost;
-import boogi.apiserver.domain.post.post.dto.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.request.CreatePost;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
+import boogi.apiserver.domain.post.post.dto.response.PostDetail;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -32,8 +31,8 @@ import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -206,7 +205,7 @@ public class PostCoreService {
                     .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
         }
 
-        Page<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
+        Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
 
         return UserPostPage.of(userPostPage);
     }

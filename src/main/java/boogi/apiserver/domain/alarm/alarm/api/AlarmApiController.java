@@ -2,7 +2,7 @@ package boogi.apiserver.domain.alarm.alarm.api;
 
 import boogi.apiserver.domain.alarm.alarm.application.AlarmCoreService;
 import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
-import boogi.apiserver.domain.alarm.alarm.dto.AlarmListDto;
+import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmListDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

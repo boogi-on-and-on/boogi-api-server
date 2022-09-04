@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.comment.dao;
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -10,18 +11,18 @@ import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@CustomDataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CommentRepositoryTest {
 
@@ -85,8 +86,8 @@ class CommentRepositoryTest {
 
         persistenceUtil.cleanPersistenceContext();
 
-        Page<Comment> commentPage1 = commentRepository.getUserCommentPage(PageRequest.of(0, 2), user.getId());
-        Page<Comment> commentPage2 = commentRepository.getUserCommentPage(PageRequest.of(1, 2), user.getId());
+        Slice<Comment> commentPage1 = commentRepository.getUserCommentPage(PageRequest.of(0, 2), user.getId());
+        Slice<Comment> commentPage2 = commentRepository.getUserCommentPage(PageRequest.of(1, 2), user.getId());
 
         List<Comment> comments1 = commentPage1.getContent(); //first page
         List<Comment> comments2 = commentPage2.getContent(); //second page
@@ -108,9 +109,9 @@ class CommentRepositoryTest {
 
     @Test
     void getUserCommentPage_멤버아이디_없을때() {
-        Page<Comment> commentPage = commentRepository.getUserCommentPage(PageRequest.of(0, 3), 2L);
+        Slice<Comment> commentPage = commentRepository.getUserCommentPage(PageRequest.of(0, 3), 2L);
 
-        assertThat(commentPage.getTotalElements()).isEqualTo(0);
+        assertThat(commentPage.getContent().size()).isEqualTo(0);
         assertThat(commentPage.hasNext()).isFalse();
     }
 
@@ -198,7 +199,7 @@ class CommentRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
-        Page<Comment> parentCommentsPage = commentRepository
+        Slice<Comment> parentCommentsPage = commentRepository
                 .findParentCommentsWithMemberByPostId(pageable, post.getId());
         List<Comment> parentComments = parentCommentsPage.getContent();
 
@@ -368,7 +369,7 @@ class CommentRepositoryTest {
 
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
         Pageable pageable = PageRequest.of(0, 4);
-        Page<Comment> commentPage = commentRepository.getUserCommentPageByMemberIds(memberIds, pageable);
+        Slice<Comment> commentPage = commentRepository.getUserCommentPageByMemberIds(memberIds, pageable);
         List<Comment> comments = commentPage.getContent();
 
         assertThat(comments.size()).isEqualTo(4);

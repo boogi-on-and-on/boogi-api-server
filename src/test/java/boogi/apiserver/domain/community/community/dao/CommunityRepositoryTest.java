@@ -1,29 +1,29 @@
 package boogi.apiserver.domain.community.community.dao;
 
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
-import boogi.apiserver.domain.community.community.dto.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.SearchCommunityDto;
-import boogi.apiserver.domain.community.community.dto.request_enum.CommunityListingOrder;
+import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
+import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@CustomDataJpaTest
 class CommunityRepositoryTest {
 
     @Autowired
@@ -82,7 +82,7 @@ class CommunityRepositoryTest {
             em.clear();
 
             //when
-            Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            Slice<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
             List<SearchCommunityDto> dtos = page.getContent();
@@ -140,10 +140,10 @@ class CommunityRepositoryTest {
 
             //when
 
-            Page<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            Slice<SearchCommunityDto> slice = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
-            List<SearchCommunityDto> dtos = page.getContent();
+            List<SearchCommunityDto> dtos = slice.getContent();
             assertThat(dtos.size()).isEqualTo(2);
 
             SearchCommunityDto first = dtos.get(0);

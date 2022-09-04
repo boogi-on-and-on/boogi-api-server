@@ -2,7 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.JoinedCommunities;
+import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
 import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagCoreService;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;

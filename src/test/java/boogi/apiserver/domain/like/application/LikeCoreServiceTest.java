@@ -2,15 +2,12 @@ package boogi.apiserver.domain.like.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
-import boogi.apiserver.domain.like.dto.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
@@ -20,8 +17,7 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PagnationDto;
-import org.junit.jupiter.api.Disabled;
+import boogi.apiserver.global.dto.PaginationDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,8 +33,8 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -70,16 +66,7 @@ class LikeCoreServiceTest {
     private LikeValidationService likeValidationService;
 
     @Mock
-    private MemberValidationService memberValidationService;
-
-    @Mock
-    private CommunityValidationService communityValidationService;
-
-    @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private CommunityRepository communityRepository;
 
     @Nested
     @DisplayName("글에 좋아요할 시")
@@ -353,9 +340,8 @@ class LikeCoreServiceTest {
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);
             assertThat(likeMembers.getMembers().get(0).getId()).isEqualTo(user.getId());
 
-            PagnationDto pageInfo = likeMembers.getPageInfo();
+            PaginationDto pageInfo = likeMembers.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 
@@ -443,9 +429,8 @@ class LikeCoreServiceTest {
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);
             assertThat(likeMembers.getMembers().get(0).getId()).isEqualTo(user.getId());
 
-            PagnationDto pageInfo = likeMembers.getPageInfo();
+            PaginationDto pageInfo = likeMembers.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
-            assertThat(pageInfo.getTotalCount()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
 

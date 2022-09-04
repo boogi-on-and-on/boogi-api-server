@@ -5,7 +5,7 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
+import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

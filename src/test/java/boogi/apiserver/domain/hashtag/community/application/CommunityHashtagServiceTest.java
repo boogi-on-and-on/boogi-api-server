@@ -19,6 +19,7 @@ class CommunityHashtagServiceTest {
     @InjectMocks
     CommunityHashtagCoreService communityHashtagCoreService;
 
+    //todo: 테스트코드 구현
 //    @Test
 //    void 커뮤니티_카테고리_저장하기() {
 //        //given

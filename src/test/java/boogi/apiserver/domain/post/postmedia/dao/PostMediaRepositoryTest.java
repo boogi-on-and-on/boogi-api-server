@@ -1,23 +1,21 @@
 package boogi.apiserver.domain.post.postmedia.dao;
 
+import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
-@DataJpaTest
+@CustomDataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PostMediaRepositoryTest {
 

@@ -3,7 +3,6 @@ package boogi.apiserver.domain.report.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -16,7 +15,7 @@ import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
-import boogi.apiserver.domain.report.dto.CreateReport;
+import boogi.apiserver.domain.report.dto.request.CreateReport;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -30,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -62,9 +61,6 @@ class ReportServiceTest {
 
     @Mock
     private MessageRepository messageRepository;
-
-    @Mock
-    private CommunityValidationService communityValidationService;
 
     @Mock
     private MemberValidationService memberValidationService;

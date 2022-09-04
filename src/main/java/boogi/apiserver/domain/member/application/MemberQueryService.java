@@ -3,11 +3,11 @@ package boogi.apiserver.domain.member.application;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.member.dto.BannedMemberDto;
-import boogi.apiserver.domain.user.dto.UserJoinedCommunity;
+import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +47,7 @@ public class MemberQueryService {
         return member.getMemberType().equals(memberType);
     }
 
-    public Page<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
+    public Slice<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
         return memberRepository.findJoinedMembers(pageable, communityId);
     }
 

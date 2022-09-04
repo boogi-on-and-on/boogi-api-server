@@ -2,9 +2,9 @@ package boogi.apiserver.domain.notice.application;
 
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.CommunityNoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.NoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.NoticeDto;
+import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.response.NoticeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

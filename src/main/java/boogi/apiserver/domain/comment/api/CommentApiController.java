@@ -1,19 +1,18 @@
 package boogi.apiserver.domain.comment.api;
 
 import boogi.apiserver.domain.comment.application.CommentCoreService;
-import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.CreateComment;
-import boogi.apiserver.domain.like.dto.LikeMembersAtComment;
-import boogi.apiserver.domain.comment.dto.UserCommentPage;
+import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +28,6 @@ import java.util.Objects;
 public class CommentApiController {
 
     private final CommentCoreService commentCoreService;
-    private final CommentQueryService commentQueryService;
 
     private final LikeCoreService likeCoreService;
 
@@ -40,8 +38,7 @@ public class CommentApiController {
                                                                @Session Long sessionUserId,
                                                                Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-//        UserCommentPage userCommentsPage = commentQueryService.getUserComments(pageable, id);
-        Page<Comment> userComments = commentCoreService.getUserComments(id, sessionUserId, pageable);
+        Slice<Comment> userComments = commentCoreService.getUserComments(id, sessionUserId, pageable);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserCommentPage.of(userComments));
