@@ -58,16 +58,21 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @GetMapping("/token/validation")
+    public ResponseEntity<Object> validateToken(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        Boolean isValid = Objects.nonNull(session);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("isValid", isValid));
+    }
+
     @GetMapping
-    public ResponseEntity<Object> getUserProfileInfo(@RequestParam(required = false) Long userId,
-                                                     @Session Long sessionUserId) {
+    public ResponseEntity<Object> getUserProfileInfo(@RequestParam(required = false) Long userId, @Session Long sessionUserId) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
         UserDetailInfoResponse userDetailDto = userQueryService.getUserDetailInfo(id);
         Boolean me = sessionUserId.equals(userDetailDto.getId());
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "user", userDetailDto,
-                "me", me
-        ));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("user", userDetailDto, "me", me));
     }
 
     @GetMapping("/communities/joined")
@@ -81,9 +86,7 @@ public class UserApiController {
     public ResponseEntity<Object> getBlockedUsers(@Session Long userId) {
         List<MessageBlockedUserDto> blockedUserDtos = messageBlockQueryService.getBlockedMembers(userId);
 
-        return ResponseEntity.ok(Map.of(
-                "blocked", blockedUserDtos
-        ));
+        return ResponseEntity.ok(Map.of("blocked", blockedUserDtos));
     }
 
     @PostMapping("/messages/unblock")
@@ -105,17 +108,13 @@ public class UserApiController {
     public ResponseEntity<Object> getAlarmConfig(@Session Long userId) {
         AlarmConfig alarmConfig = alarmConfigCoreService.findOrElseCreateAlarmConfig(userId);
 
-        return ResponseEntity.ok(Map.of(
-                "alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)
-        ));
+        return ResponseEntity.ok(Map.of("alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)));
     }
 
     @PostMapping("/config/notifications")
     public ResponseEntity<Object> configureAlarm(@Session Long userId, @RequestBody AlarmConfigSettingRequest request) {
         AlarmConfig alarmConfig = alarmConfigCoreService.configureAlarm(userId, request);
 
-        return ResponseEntity.ok(Map.of(
-                "alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)
-        ));
+        return ResponseEntity.ok(Map.of("alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)));
     }
 }

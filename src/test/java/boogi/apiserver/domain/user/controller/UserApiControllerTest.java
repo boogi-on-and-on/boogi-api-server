@@ -76,6 +76,38 @@ class UserApiControllerTest {
                         .build();
     }
 
+    @Nested
+    @DisplayName("토큰 유효성 테스트")
+    class ValidateToken {
+
+        @DisplayName("토큰이 유효한 경우")
+        @Test
+        void tokenIsValid() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                            MockMvcRequestBuilders.get("/api/users/token/validation")
+                                    .session(session)
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    ).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.isValid").value(true));
+        }
+
+        @DisplayName("유효하지 않은 경우")
+        @Test
+        void tokenIsInvalid() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+
+            mvc.perform(
+                            MockMvcRequestBuilders.get("/api/users/token/validation")
+                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    ).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.isValid").value(false));
+        }
+    }
+
     @Test
     @DisplayName("유저 프로필 개인정보 조회")
     void userBasicInfo() throws Exception {
