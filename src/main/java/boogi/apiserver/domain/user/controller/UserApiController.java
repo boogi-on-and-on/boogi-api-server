@@ -58,7 +58,7 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/token/validation")
+    @PostMapping("/token/validation")
     public ResponseEntity<Object> validateToken(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 

@@ -87,7 +87,7 @@ class UserApiControllerTest {
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
             mvc.perform(
-                            MockMvcRequestBuilders.get("/api/users/token/validation")
+                            MockMvcRequestBuilders.post("/api/users/token/validation")
                                     .session(session)
                                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     ).andExpect(status().isOk())
@@ -101,7 +101,7 @@ class UserApiControllerTest {
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
             mvc.perform(
-                            MockMvcRequestBuilders.get("/api/users/token/validation")
+                            MockMvcRequestBuilders.post("/api/users/token/validation")
                                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     ).andExpect(status().isOk())
                     .andExpect(jsonPath("$.isValid").value(false));
