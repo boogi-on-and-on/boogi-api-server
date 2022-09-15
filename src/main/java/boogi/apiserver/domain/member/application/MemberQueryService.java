@@ -4,6 +4,7 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -53,5 +54,9 @@ public class MemberQueryService {
 
     public List<BannedMemberDto> getBannedMembers(Long communityId) {
         return memberRepository.findBannedMembers(communityId);
+    }
+
+    public Slice<UserBasicProfileDto> getMentionSearchMembers(Pageable pageable, Long communityId, String name) {
+        return memberRepository.findMentionMember(pageable, communityId, name);
     }
 }

@@ -8,6 +8,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -270,5 +271,54 @@ class MemberRepositoryTest {
         assertThat(persistenceUtil.isLoaded(joinedMembers.get(0).getUser())).isTrue();
         assertThat(joinedMembers.get(0).getUser().getId()).isEqualTo(member1.getUser().getId());
         assertThat(joinedMembers.get(0).getCommunity().getId()).isEqualTo(community.getId());
+    }
+
+    @Test
+    void findMentionMember() {
+        //given
+        Community community = Community.builder().build();
+        communityRepository.save(community);
+
+        User user1 = User.builder()
+                .username("김가나")
+                .build();
+        User user2 = User.builder()
+                .username("김가가")
+                .profileImageUrl("abc/xyz")
+                .tagNumber("1234")
+                .build();
+        User user3 = User.builder()
+                .username("박가나")
+                .build();
+        userRepository.saveAll(List.of(user1, user2, user3));
+
+        Member member1 = Member.builder()
+                .community(community)
+                .user(user1)
+                .build();
+        Member member2 = Member.builder()
+                .community(community)
+                .user(user2)
+                .build();
+        Member member3 = Member.builder()
+                .community(community)
+                .user(user3)
+                .build();
+        memberRepository.saveAll(List.of(member1, member2, member3));
+
+        //when
+        PageRequest pageable = PageRequest.of(0, 3);
+        Slice<UserBasicProfileDto> slice = memberRepository.findMentionMember(pageable, community.getId(), "김");
+
+        //then
+        List<UserBasicProfileDto> members = slice.getContent();
+        assertThat(members.stream().map(UserBasicProfileDto::getId)).containsExactly(member2.getUser().getId(), member1.getUser().getId());
+        assertThat(slice.hasNext()).isFalse();
+
+        UserBasicProfileDto first = members.get(0);
+        assertThat(first.getId()).isEqualTo(member2.getUser().getId());
+        assertThat(first.getProfileImageUrl()).isEqualTo("abc/xyz");
+        assertThat(first.getTagNum()).isEqualTo("1234");
+        assertThat(first.getName()).isEqualTo("김가가");
     }
 }

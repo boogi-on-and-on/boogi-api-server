@@ -2,6 +2,7 @@ package boogi.apiserver.domain.user.dto.response;
 
 import boogi.apiserver.domain.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,8 @@ public class UserBasicProfileDto {
     private String tagNum;
     private String name;
 
-    private UserBasicProfileDto(User user) {
+    @QueryProjection
+    public UserBasicProfileDto(User user) {
         this.id = user.getId();
         this.profileImageUrl = user.getProfileImageUrl();
         this.tagNum = user.getTagNumber();
