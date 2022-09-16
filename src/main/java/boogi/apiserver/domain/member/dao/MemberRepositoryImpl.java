@@ -7,7 +7,10 @@ import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.response.QBannedMemberDto;
 import boogi.apiserver.domain.user.domain.QUser;
+import boogi.apiserver.domain.user.dto.response.QUserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.global.util.PageableUtil;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -17,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -189,5 +193,26 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .join(member.user)
                 .limit(1)
                 .fetchOne();
+    }
+
+    @Override
+    public Slice<UserBasicProfileDto> findMentionMember(Pageable pageable, Long communityId, String name) {
+        List<UserBasicProfileDto> members = queryFactory.select(new QUserBasicProfileDto(member.user))
+                .from(member)
+                .where(
+                        member.community.id.eq(communityId),
+                        member.bannedAt.isNull(),
+                        nameContains(name) //todo: username index 추가
+                ).join(member.user)
+                .orderBy(member.user.username.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return PageableUtil.getSlice(members, pageable);
+    }
+
+    private BooleanExpression nameContains(String name) {
+        return Objects.isNull(name) ? null : member.user.username.contains(name);
     }
 }

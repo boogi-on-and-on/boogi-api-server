@@ -19,7 +19,7 @@ public class LikeApiController {
     private final LikeCoreService likeCoreService;
 
     @DeleteMapping("/{likeId}")
-    public ResponseEntity<Object> doUnlike(@PathVariable Long likeId, @Session Long userId) {
+    public ResponseEntity<Void> doUnlike(@PathVariable Long likeId, @Session Long userId) {
         likeCoreService.doUnlike(likeId, userId);
 
         return ResponseEntity.ok().build();

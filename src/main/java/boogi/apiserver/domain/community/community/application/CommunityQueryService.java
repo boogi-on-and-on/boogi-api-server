@@ -33,7 +33,6 @@ public class CommunityQueryService {
         return community;
     }
 
-    //todo: queryService에서 dto 만들도록 다른 API 수정 (OSIV off라서, LAZY INIT을 Service에서 한다)
     public CommunityMetadataDto getCommunityMetadata(Long communityId) {
         Community community = this.getCommunityWithHashTag(communityId);
 

@@ -2,6 +2,7 @@ package boogi.apiserver.domain.member.dao;
 
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
@@ -31,4 +32,6 @@ public interface MemberRepositoryCustom {
     List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId);
 
     Member findManager(Long communityId);
+
+    Slice<UserBasicProfileDto> findMentionMember(Pageable pageable, Long communityId, String name);
 }

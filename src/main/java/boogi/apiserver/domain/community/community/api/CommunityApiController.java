@@ -114,7 +114,7 @@ public class CommunityApiController {
     }
 
     @PatchMapping("/{communityId}")
-    public ResponseEntity<Object> updateCommunityInfo(@PathVariable Long communityId,
+    public ResponseEntity<Void> updateCommunityInfo(@PathVariable Long communityId,
                                                       @Session Long userId,
                                                       @RequestBody @Validated CommunityUpdateRequest request) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
@@ -125,7 +125,7 @@ public class CommunityApiController {
     }
 
     @DeleteMapping("/{communityId}")
-    public ResponseEntity<Object> shutdown(@PathVariable Long communityId, @Session Long userId) {
+    public ResponseEntity<Void> shutdown(@PathVariable Long communityId, @Session Long userId) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         communityCoreService.shutdown(communityId);

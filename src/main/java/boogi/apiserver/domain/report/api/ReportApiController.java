@@ -22,7 +22,7 @@ public class ReportApiController {
     private final ReportService reportService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> createReport(@Validated @RequestBody CreateReport createReport, @Session Long userId) {
+    public ResponseEntity<Void> createReport(@Validated @RequestBody CreateReport createReport, @Session Long userId) {
         reportService.createReport(createReport, userId);
 
         return ResponseEntity.ok().build();
