@@ -10,8 +10,6 @@ import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-
 import javax.persistence.*;
 
 import static javax.persistence.FetchType.LAZY;
@@ -20,7 +18,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "REPORT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
 public class Report extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
