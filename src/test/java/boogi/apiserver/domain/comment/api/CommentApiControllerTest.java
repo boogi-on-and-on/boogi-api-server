@@ -3,10 +3,11 @@ package boogi.apiserver.domain.comment.api;
 import boogi.apiserver.domain.comment.application.CommentCoreService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
-import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,18 +74,23 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("유저 댓글 슬라이스")
     void userCommentSlice() throws Exception {
-        Comment comment = Comment.builder()
-                .content("내용1")
-                .post(
-                        Post.builder()
-                                .id(1L)
+        UserCommentPage commentPage = UserCommentPage.builder()
+                .pageInfo(PaginationDto.builder()
+                        .nextPage(1)
+                        .hasNext(false)
+                        .build())
+                .comments(List.of(
+                        UserCommentDto
+                                .builder()
+                                .postId(1L)
+                                .createdAt(LocalDateTime.now())
+                                .content("내용1")
                                 .build()
-                )
+                ))
                 .build();
-        SliceImpl<Comment> page = new SliceImpl<>(List.of(comment), Pageable.ofSize(1), false);
 
         given(commentCoreService.getUserComments(anyLong(), any(), any(Pageable.class)))
-                .willReturn(page);
+                .willReturn(commentPage);
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
