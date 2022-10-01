@@ -9,11 +9,11 @@ import boogi.apiserver.domain.community.community.dto.request.CommunityUpdateReq
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequest;
 import boogi.apiserver.domain.community.community.dto.response.CommunityMetadataDto;
+import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
 import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
-import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.application.MemberCoreService;
@@ -401,7 +401,9 @@ class CommunityApiControllerTest {
                     .autoApproval(true)
                     .build();
 
-            given(communityQueryService.getCommunity(anyLong())).willReturn(community);
+            CommunitySettingInfo settingInfo = CommunitySettingInfo.of(community);
+
+            given(communityQueryService.getSettingInfo(anyLong())).willReturn(settingInfo);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -679,18 +681,17 @@ class CommunityApiControllerTest {
         @DisplayName("관리자의 가입요청목록 조회 성공")
         void getJoinRequestList() throws Exception {
 
-            JoinRequest request = JoinRequest.builder()
-                    .id(2L)
-                    .user(User.builder()
-                            .id(1L)
-                            .tagNumber("#0001")
-                            .username("홍길동")
-                            .build())
+            User user = User.builder()
+                    .id(1L)
+                    .tagNumber("#0001")
+                    .username("홍길동")
                     .build();
 
             given(joinRequestQueryService.getAllRequests(anyLong()))
-                    .willReturn(List.of(request));
-
+                    .willReturn(List.of(
+                            Map.of("user", UserBasicProfileDto.of(user),
+                                    "id", 2L)
+                    ));
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);

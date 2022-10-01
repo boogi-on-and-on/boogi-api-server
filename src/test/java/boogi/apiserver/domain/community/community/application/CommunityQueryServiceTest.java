@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class CommunityQueryServiceTest {
     CommunityQueryService communityQueryService;
 
     @Test
-    @DisplayName("커뮤니티 기본 정보 전달")
+    @DisplayName("커뮤니티 기본 정보 조회")
     void communityBasicInfo() {
         //given
         Community community = Community.builder()
@@ -41,5 +42,22 @@ class CommunityQueryServiceTest {
         //when
         Community communityWithHashTag = communityQueryService.getCommunityWithHashTag(anyLong());
         assertThat(communityWithHashTag).isEqualTo(community);
+    }
+
+    @Test
+    @DisplayName("커뮤니티 설정정보 조회")
+    void communitySettingInfo() {
+
+        Community community = Community.builder()
+                .autoApproval(true)
+                .isPrivate(false)
+                .build();
+
+        given(communityRepository.findById(anyLong()))
+                .willReturn(Optional.ofNullable(community));
+
+        CommunitySettingInfo settingInfo = communityQueryService.getSettingInfo(anyLong());
+        assertThat(settingInfo.getIsAuto()).isTrue();
+        assertThat(settingInfo.getIsSecret()).isFalse();
     }
 }
