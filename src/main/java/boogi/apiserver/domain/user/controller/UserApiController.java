@@ -63,8 +63,9 @@ public class UserApiController {
         HttpSession session = request.getSession(false);
 
         Boolean isValid = Objects.nonNull(session);
+        HttpStatus statusCode = isValid ? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("isValid", isValid));
+        return ResponseEntity.status(statusCode).body(Map.of("isValid", isValid));
     }
 
     @GetMapping

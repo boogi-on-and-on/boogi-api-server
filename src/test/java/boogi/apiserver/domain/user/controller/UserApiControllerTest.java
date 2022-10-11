@@ -103,7 +103,7 @@ class UserApiControllerTest {
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/users/token/validation")
                                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    ).andExpect(status().isOk())
+                    ).andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.isValid").value(false));
         }
     }
