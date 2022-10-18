@@ -4,6 +4,8 @@ import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCoreService;
@@ -504,18 +506,24 @@ class CommentCoreServiceTest {
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(2L)
                     .user(user)
                     .build();
 
+            Post post = Post.builder()
+                    .id(3L)
+                    .build();
+
             Comment pComment = Comment.builder()
-                    .id(1L)
+                    .id(3L)
                     .member(member)
+                    .post(post)
                     .parent(null)
                     .build();
             Comment cComment = Comment.builder()
-                    .id(2L)
+                    .id(4L)
                     .member(member)
+                    .post(post)
                     .parent(pComment)
                     .build();
 
@@ -529,13 +537,13 @@ class CommentCoreServiceTest {
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
-            Slice<Comment> userComments = commentCoreService.getUserComments(user.getId(), user.getId(), pageable);
+            UserCommentPage userCommentDto = commentCoreService.getUserComments(user.getId(), user.getId(), pageable);
+            PaginationDto pageInfo = userCommentDto.getPageInfo();
+            List<UserCommentDto> commentsDto = userCommentDto.getComments();
 
-            assertThat(userComments.getContent().size()).isEqualTo(2);
-            assertThat(userComments.getContent().get(0).getId()).isEqualTo(pComment.getId());
-            assertThat(userComments.getContent().get(1).getId()).isEqualTo(cComment.getId());
-            assertThat(userComments.getNumber()).isEqualTo(0);
-            assertThat(userComments.hasNext()).isFalse();
+            assertThat(commentsDto.size()).isEqualTo(2);
+            assertThat(pageInfo.getNextPage()).isEqualTo(1);
+            assertThat(pageInfo.isHasNext()).isFalse();
         }
 
         @Test
@@ -549,21 +557,27 @@ class CommentCoreServiceTest {
                     .build();
 
             Member member1 = Member.builder()
-                    .id(1L)
+                    .id(3L)
                     .user(user1)
                     .build();
             Member member2 = Member.builder()
-                    .id(2L)
+                    .id(4L)
                     .user(user2)
                     .build();
 
+            Post post = Post.builder()
+                    .id(7L)
+                    .build();
+
             Comment pComment = Comment.builder()
-                    .id(1L)
+                    .id(5L)
+                    .post(post)
                     .member(member1)
                     .parent(null)
                     .build();
             Comment cComment = Comment.builder()
-                    .id(2L)
+                    .id(6L)
+                    .post(post)
                     .member(member2)
                     .parent(pComment)
                     .build();
@@ -580,12 +594,15 @@ class CommentCoreServiceTest {
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
-            Slice<Comment> userComments = commentCoreService.getUserComments(user2.getId(), user1.getId(), pageable);
 
-            assertThat(userComments.getContent().size()).isEqualTo(1);
-            assertThat(userComments.getContent().get(0).getId()).isEqualTo(cComment.getId());
-            assertThat(userComments.getNumber()).isEqualTo(0);
-            assertThat(userComments.hasNext()).isFalse();
+            UserCommentPage userCommentDto = commentCoreService.getUserComments(user2.getId(), user1.getId(), pageable);
+            PaginationDto pageInfo = userCommentDto.getPageInfo();
+            List<UserCommentDto> commentsDto = userCommentDto.getComments();
+
+            assertThat(commentsDto.size()).isEqualTo(1);
+            assertThat(commentsDto.get(0).getPostId()).isEqualTo(post.getId());
+            assertThat(pageInfo.getNextPage()).isEqualTo(1);
+            assertThat(pageInfo.isHasNext()).isFalse();
         }
     }
 }
