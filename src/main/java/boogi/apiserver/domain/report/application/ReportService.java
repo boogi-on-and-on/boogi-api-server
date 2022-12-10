@@ -52,12 +52,12 @@ public class ReportService {
         switch (target) {
             case COMMUNITY:
                 targetObject = communityRepository.findCommunityById(id).orElseThrow(() -> {
-                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
+                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.COMMON_NOT_FOUND);
                 });
                 break;
             case POST:
                 Post findPost = postRepository.findPostById(id).orElseThrow(() -> {
-                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
+                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.COMMON_NOT_FOUND);
                 });
 
                 communityId = findPost.getCommunity().getId();
@@ -68,7 +68,7 @@ public class ReportService {
                 break;
             case COMMENT:
                 Comment findComment = commentRepository.findCommentById(id).orElseThrow(() -> {
-                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
+                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.COMMON_NOT_FOUND);
                 });
 
                 communityId = findComment.getPost().getCommunity().getId();
@@ -79,18 +79,18 @@ public class ReportService {
                 break;
             case MESSAGE:
                 Message findMessage = messageRepository.findById(id).orElseThrow(() -> {
-                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.NOT_FOUND);
+                    throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.COMMON_NOT_FOUND);
                 });
 
                 Long senderId = findMessage.getSender().getId();
                 Long receiverId = findMessage.getReceiver().getId();
                 if (senderId.equals(userId) == false && receiverId.equals(userId) == false) {
-                    throw new InvalidValueException("본인과의 쪽지 대화일 경우에만 신고가 가능합니다", ErrorInfo.BAD_REQUEST);
+                    throw new InvalidValueException("본인과의 쪽지 대화일 경우에만 신고가 가능합니다", ErrorInfo.COMMON_BAD_REQUEST);
                 }
                 targetObject = findMessage;
                 break;
             default:
-                throw new InvalidValueException("잘못된 신고 대상입니다", ErrorInfo.BAD_REQUEST);
+                throw new InvalidValueException("잘못된 신고 대상입니다", ErrorInfo.COMMON_BAD_REQUEST);
         }
         newReport = Report.of(
                 targetObject,

@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         log.error("handleHttpRequestMethodNotSupportedException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.RESOURCE_NOT_FOUND);
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.COMMON_RESOURCE_NOT_FOUND);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST,
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.COMMON_BAD_REQUEST,
                 e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleBindException(BindException e) {
         log.error("handleBindException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST,
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.COMMON_BAD_REQUEST,
                 e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleBeanValidationException(Exception e) {
         log.error("handleBeanValidationException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST);
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.COMMON_BAD_REQUEST);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.error("handleMethodArgumentTypeMismatchException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.BAD_REQUEST);
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.COMMON_BAD_REQUEST);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<BasicErrorResponse> handleException(Exception e) {
         log.error("handleException", e);
 
-        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.INTERNAL_SERVER_ERROR);
+        final BasicErrorResponse response = BasicErrorResponse.of(ErrorInfo.COMMON_INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
