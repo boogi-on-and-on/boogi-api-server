@@ -4,7 +4,7 @@ import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
+import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
@@ -44,8 +44,6 @@ public class CommentCoreService {
 
     private final MemberRepository memberRepository;
     private final MemberValidationService memberValidationService;
-
-    private final CommunityValidationService communityValidationService;
 
     private final LikeRepository likeRepository;
     private final LikeCoreService likeCoreService;
@@ -103,11 +101,13 @@ public class CommentCoreService {
     public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postQueryService.getPost(postId);
 
-        Long postedCommunityId = findPost.getCommunity().getId();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunityId)
-                .orElseThrow(NotJoinedMemberException::new);
+        Community postedCommunity = findPost.getCommunity();
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunity.getId())
+                .orElse(null);
 
-        communityValidationService.checkPrivateCommunity(postedCommunityId);
+        if (postedCommunity.isPrivate() && member == null) {
+            throw new NotJoinedMemberException();
+        }
 
         Slice<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
 

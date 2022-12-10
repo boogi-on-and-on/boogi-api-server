@@ -395,10 +395,11 @@ class CommentCoreServiceTest {
         }
 
         @Test
-        @DisplayName("글이 작성된 비공개 커뮤니티에 가입되지 않은 상태로 요청시 NotJoinedMemberException 발생한다.")
+        @DisplayName("비공개 커뮤니티에 가입되지 않은 상태로 해당 커뮤니티에 작성된 글에 달린 댓글들을 요청시 NotJoinedMemberException 발생한다.")
         void getCommentsAtPrivatePostWithoutAuthFail() {
             Community community = Community.builder()
                     .id(1L)
+                    .isPrivate(true)
                     .build();
             Post post = Post.builder()
                     .id(1L)
