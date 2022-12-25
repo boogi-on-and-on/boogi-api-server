@@ -15,7 +15,6 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode
-@ToString
 public class MessageDelete extends TimeBaseEntity implements Serializable  {
 
     @Id

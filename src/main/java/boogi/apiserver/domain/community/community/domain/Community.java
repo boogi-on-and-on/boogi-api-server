@@ -15,7 +15,6 @@ import java.util.List;
 @Table(name = "COMMUNITY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Where(clause = "deleted_at is null")

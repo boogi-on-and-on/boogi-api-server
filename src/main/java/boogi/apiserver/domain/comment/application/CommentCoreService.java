@@ -4,6 +4,7 @@ import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
@@ -180,7 +181,7 @@ public class CommentCoreService {
         return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
     }
 
-    public Slice<Comment> getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
+    public UserCommentPage getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {
@@ -194,6 +195,8 @@ public class CommentCoreService {
                     .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
         }
 
-        return commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
+        Slice<Comment> slice = commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
+
+        return UserCommentPage.of(slice);
     }
 }
