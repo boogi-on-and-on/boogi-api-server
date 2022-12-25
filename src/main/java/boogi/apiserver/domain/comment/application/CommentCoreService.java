@@ -66,7 +66,7 @@ public class CommentCoreService {
         commentValidationService
                 .checkCommentMaxDepthOver(parentCommentId);
 
-        Comment findParentComment = commentRepository.findById(parentCommentId)
+        Comment findParentComment = parentCommentId == null ? null : commentRepository.findById(parentCommentId)
                 .orElse(null);
 
         Comment newComment = Comment.of(findPost, member, findParentComment, createComment.getContent());
