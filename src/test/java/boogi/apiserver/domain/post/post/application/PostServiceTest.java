@@ -57,9 +57,9 @@ import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
-class PostCoreServiceTest {
+class PostServiceTest {
     @InjectMocks
-    PostCoreService postCoreService;
+    PostService postService;
 
     @Mock
     private PostRepository postRepository;
@@ -135,7 +135,7 @@ class PostCoreServiceTest {
                     .willReturn(post);
 
             CreatePost createPost = new CreatePost(community.getId(), "내용", List.of(), List.of(), List.of());
-            Post newPost = postCoreService.createPost(createPost, 1L);
+            Post newPost = postService.createPost(createPost, 1L);
 
             assertThat(newPost).isEqualTo(post);
         }
@@ -181,7 +181,7 @@ class PostCoreServiceTest {
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of());
 
-            PostDetail postDetail = postCoreService.getPostDetail(post.getId(), 1L);
+            PostDetail postDetail = postService.getPostDetail(post.getId(), 1L);
 
             assertThat(postDetail.getId()).isEqualTo(post.getId());
             assertThat(postDetail.getUser().getId()).isEqualTo(user.getId());
@@ -242,7 +242,7 @@ class PostCoreServiceTest {
             given(likeRepository.findPostLikeByPostIdAndMemberId(anyLong(), anyLong()))
                     .willReturn(Optional.of(like));
 
-            PostDetail postDetail = postCoreService.getPostDetail(post.getId(), 1L);
+            PostDetail postDetail = postService.getPostDetail(post.getId(), 1L);
 
             assertThat(postDetail.getId()).isEqualTo(post.getId());
             assertThat(postDetail.getUser().getId()).isEqualTo(user.getId());
@@ -277,7 +277,7 @@ class PostCoreServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
 
-            assertThatThrownBy(() -> postCoreService.getPostDetail(post.getId(), 1L))
+            assertThatThrownBy(() -> postService.getPostDetail(post.getId(), 1L))
                     .isInstanceOf(NotJoinedMemberException.class);
         }
     }
@@ -315,7 +315,7 @@ class PostCoreServiceTest {
 
             UpdatePost updatePost = new UpdatePost("글", List.of(), List.of());
 
-            assertThatThrownBy(() -> postCoreService.updatePost(updatePost, post.getId(), 2L))
+            assertThatThrownBy(() -> postService.updatePost(updatePost, post.getId(), 2L))
                     .isInstanceOf(NotAuthorizedMemberException.class);
         }
 
@@ -367,7 +367,7 @@ class PostCoreServiceTest {
 
             UpdatePost updatePost = new UpdatePost("수정글", List.of(postHashtag.getTag()), List.of(postMedia.getUuid()));
 
-            Post updatedPost = postCoreService.updatePost(updatePost, post.getId(), 1L);
+            Post updatedPost = postService.updatePost(updatePost, post.getId(), 1L);
 
             assertThat(updatedPost.getId()).isEqualTo(post.getId());
             assertThat(updatedPost.getHashtags().size()).isEqualTo(1);
@@ -423,7 +423,7 @@ class PostCoreServiceTest {
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(postMedias);
 
-            postCoreService.deletePost(post.getId(), 1L);
+            postService.deletePost(post.getId(), 1L);
 
             verify(postHashtagCoreService, times(1)).removeTagsByPostId(post.getId());
             verify(postMediaRepository, times(1)).deleteAllInBatch(postMedias);
@@ -459,7 +459,7 @@ class PostCoreServiceTest {
             given(memberValidationService.hasAuthWithoutThrow(anyLong(), anyLong(), any(MemberType.class)))
                     .willReturn(false);
 
-            assertThatThrownBy(() -> postCoreService.deletePost(post.getId(), 2L))
+            assertThatThrownBy(() -> postService.deletePost(post.getId(), 2L))
                     .isInstanceOf(NotAuthorizedMemberException.class);
         }
     }
@@ -513,7 +513,7 @@ class PostCoreServiceTest {
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
 
-            UserPostPage userPostPage = postCoreService.getUserPosts(user.getId(), 1L, pageable);
+            UserPostPage userPostPage = postService.getUserPosts(user.getId(), 1L, pageable);
 
             List<UserPostsDto> userPosts = userPostPage.getPosts();
             assertThat(userPosts.size()).isEqualTo(2);
@@ -584,7 +584,7 @@ class PostCoreServiceTest {
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
 
-            UserPostPage userPostPage = postCoreService.getUserPosts(user1.getId(), 2L, pageable);
+            UserPostPage userPostPage = postService.getUserPosts(user1.getId(), 2L, pageable);
 
             List<UserPostsDto> userPosts = userPostPage.getPosts();
             assertThat(userPosts.size()).isEqualTo(1);

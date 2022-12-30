@@ -43,7 +43,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class PostCoreService {
+public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
@@ -67,6 +67,7 @@ public class PostCoreService {
     public Post createPost(CreatePost createPost, Long userId) {
         Long communityId = createPost.getCommunityId();
         Community community = communityQueryService.getCommunity(communityId);
+        memberValidationService.checkMemberJoinedCommunity(userId, communityId);
         Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId)
                 .orElseThrow(NotJoinedMemberException::new);
 

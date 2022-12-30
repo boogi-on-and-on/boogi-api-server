@@ -10,19 +10,18 @@ import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.post.post.application.PostCoreService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.application.PostService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
 import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
 import boogi.apiserver.domain.post.post.dto.response.*;
+import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
-import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
@@ -36,12 +35,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.*;
-import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.MediaType;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -49,10 +47,15 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static boogi.apiserver.global.constant.HeaderConst.AUTH_TOKEN;
+import static boogi.apiserver.global.constant.SessionInfoConst.USER_ID;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -65,7 +68,7 @@ class PostApiControllerTest {
     private PostQueryService postQueryService;
 
     @MockBean
-    PostCoreService postCoreService;
+    PostService postService;
 
     @MockBean
     LikeCoreService likeCoreService;
@@ -90,29 +93,34 @@ class PostApiControllerTest {
                         .build();
     }
 
+    private MockHttpSession createUserSession(Long sessionUserId) {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(USER_ID, sessionUserId);
+        return session;
+    }
+
     @Test
     @DisplayName("글 생성")
     void testCreatePost() throws Exception {
         CreatePost createPost = new CreatePost(1L, "글", List.of(), List.of(), List.of());
 
         Post post = Post.builder()
-                .id(1L)
+                .id(2L)
                 .build();
 
-        given(postCoreService.createPost(any(CreatePost.class), anyLong()))
+        given(postService.createPost(any(CreatePost.class), anyLong()))
                 .willReturn(post);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(3L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.post("/api/posts/")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        post("/api/posts/")
+                                .contentType(APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(createPost))
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(post.getId()));
+                .andExpect(jsonPath("$.id").value(2L));
     }
 
     @Test
@@ -126,23 +134,23 @@ class PostApiControllerTest {
                 .build();
 
         Member member = Member.builder()
-                .id(1L)
+                .id(2L)
                 .user(user)
                 .memberType(MemberType.MANAGER)
                 .build();
 
         Community community = Community.builder()
-                .id(1L)
+                .id(3L)
                 .communityName("커뮤니티")
                 .build();
 
         PostHashtag postHashtag = PostHashtag.builder()
-                .id(1L)
+                .id(4L)
                 .tag("해시태그")
                 .build();
 
         Post post = Post.builder()
-                .id(1L)
+                .id(5L)
                 .member(member)
                 .community(community)
                 .content("글")
@@ -153,45 +161,47 @@ class PostApiControllerTest {
         post.setCreatedAt(LocalDateTime.now());
 
         PostMedia postMedia = PostMedia.builder()
-                .id(1L)
+                .id(6L)
                 .post(post)
-                .mediaType(boogi.apiserver.domain.post.postmedia.domain.MediaType.IMG)
+                .mediaType(MediaType.IMG)
                 .mediaURL("mediaUrl")
                 .build();
 
-        PostDetail postDetail = new PostDetail(post, List.of(postMedia), Boolean.TRUE, 1L);
+        PostDetail postDetail = new PostDetail(post, List.of(postMedia), Boolean.TRUE, 7L);
 
-        given(postCoreService.getPostDetail(anyLong(), anyLong()))
+        given(postService.getPostDetail(anyLong(), anyLong()))
                 .willReturn(postDetail);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(8L);
+
+        String formattedCreatedTime = CustomDateTimeFormatter
+                .toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/1")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        get("/api/posts/{postId}", 5L)
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(post.getId()))
-                .andExpect(jsonPath("$.user.id").value(user.getId()))
-                .andExpect(jsonPath("$.user.name").value(user.getUsername()))
-                .andExpect(jsonPath("$.user.tagNum").value(user.getTagNumber()))
-                .andExpect(jsonPath("$.user.profileImageUrl").value(user.getProfileImageUrl()))
-                .andExpect(jsonPath("$.member.id").value(member.getId()))
-                .andExpect(jsonPath("$.member.memberType").value(member.getMemberType().toString()))
-                .andExpect(jsonPath("$.community.id").value(community.getId()))
-                .andExpect(jsonPath("$.community.name").value(community.getCommunityName()))
+                .andExpect(jsonPath("$.id").value(5L))
+                .andExpect(jsonPath("$.user.id").value(1L))
+                .andExpect(jsonPath("$.user.name").value("유저"))
+                .andExpect(jsonPath("$.user.tagNum").value("#1"))
+                .andExpect(jsonPath("$.user.profileImageUrl").value("url"))
+                .andExpect(jsonPath("$.member.id").value(2L))
+                .andExpect(jsonPath("$.member.memberType").value("MANAGER"))
+                .andExpect(jsonPath("$.community.id").value(3L))
+                .andExpect(jsonPath("$.community.name").value("커뮤니티"))
                 .andExpect(jsonPath("$.postMedias").isArray())
-                .andExpect(jsonPath("$.postMedias[0].type").value(postMedia.getMediaType().toString()))
-                .andExpect(jsonPath("$.postMedias[0].url").value(postMedia.getMediaURL()))
-                .andExpect(jsonPath("$.likeId").value(1L))
-                .andExpect(jsonPath("$.createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-                .andExpect(jsonPath("$.content").value(post.getContent()))
+                .andExpect(jsonPath("$.postMedias[0].type").value("IMG"))
+                .andExpect(jsonPath("$.postMedias[0].url").value("mediaUrl"))
+                .andExpect(jsonPath("$.likeId").value(7L))
+                .andExpect(jsonPath("$.createdAt").value(formattedCreatedTime))
+                .andExpect(jsonPath("$.content").value("글"))
                 .andExpect(jsonPath("$.hashtags").isArray())
-                .andExpect(jsonPath("$.hashtags[0]").value(postHashtag.getTag()))
-                .andExpect(jsonPath("$.likeCount").value(post.getLikeCount()))
-                .andExpect(jsonPath("$.commentCount").value(post.getCommentCount()))
+                .andExpect(jsonPath("$.hashtags[0]").value("해시태그"))
+                .andExpect(jsonPath("$.likeCount").value(1))
+                .andExpect(jsonPath("$.commentCount").value(0))
                 .andExpect(jsonPath("$.me").value(true));
     }
 
@@ -203,33 +213,31 @@ class PostApiControllerTest {
         Post post = Post.builder()
                 .id(1L)
                 .build();
-        given(postCoreService.updatePost(any(UpdatePost.class), anyLong(), anyLong()))
+        given(postService.updatePost(any(UpdatePost.class), anyLong(), anyLong()))
                 .willReturn(post);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(2L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.patch("/api/posts/" + post.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
+                        patch("/api/posts/{postId}", post.getId())
+                                .contentType(APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(updatePost))
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(post.getId()));
+                .andExpect(jsonPath("$.id").value(1L));
     }
 
     @Test
     @DisplayName("글 삭제")
     void testDeletePost() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(2L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.delete("/api/posts/1")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        delete("/api/posts/{postId}", 1L)
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk());
     }
 
@@ -240,7 +248,7 @@ class PostApiControllerTest {
                 .id(1L)
                 .content("게시글 내용1")
                 .community(UserPostsDto.CommunityDto.builder()
-                        .id(1L)
+                        .id(2L)
                         .name("커뮤니티1")
                         .build())
                 .build();
@@ -250,22 +258,21 @@ class PostApiControllerTest {
                 .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
 
-        given(postCoreService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
+        given(postService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(pageInfo);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(3L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/users")
+                        get("/api/posts/users")
                                 .queryParam("page", "0")
                                 .queryParam("size", "1")
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posts.size()").value(1))
-                .andExpect(jsonPath("$.posts[0].community.id").value("1"))
+                .andExpect(jsonPath("$.posts[0].community.id").value(2L))
                 .andExpect(jsonPath("$.posts[0].community.name").value("커뮤니티1"))
                 .andExpect(jsonPath("$.posts[0].postMedias").doesNotExist())
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
@@ -276,28 +283,27 @@ class PostApiControllerTest {
     @DisplayName("글에 좋아요하기")
     void testDoLikeAtPost() throws Exception {
         Like like = Like.builder()
-                .id(1L)
+                .id(2L)
                 .build();
         given(likeCoreService.doLikeAtPost(anyLong(), anyLong()))
                 .willReturn(like);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(3L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.post("/api/posts/1/likes")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        post("/api/posts/{postId}/likes", 1L)
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(like.getId()));
+                .andExpect(jsonPath("$.id").value(2L));
     }
 
     @Test
     @DisplayName("글에 좋아요 한 유저들 조회하기")
     void testGetLikeMembersAtPost() throws Exception {
         User user = User.builder()
-                .id(1L)
+                .id(2L)
                 .username("유저")
                 .tagNumber("#1")
                 .profileImageUrl("url")
@@ -311,21 +317,20 @@ class PostApiControllerTest {
         given(likeCoreService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembers);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(3L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/1/likes")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        get("/api/posts/{postId}/likes", 1L)
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.members").isArray())
                 .andExpect(jsonPath("$.members.size()").value(1))
-                .andExpect(jsonPath("$.members[0].id").value(user.getId()))
-                .andExpect(jsonPath("$.members[0].name").value(user.getUsername()))
-                .andExpect(jsonPath("$.members[0].tagNum").value(user.getTagNumber()))
-                .andExpect(jsonPath("$.members[0].profileImageUrl").value(user.getProfileImageUrl()))
+                .andExpect(jsonPath("$.members[0].id").value(2L))
+                .andExpect(jsonPath("$.members[0].name").value("유저"))
+                .andExpect(jsonPath("$.members[0].tagNum").value("#1"))
+                .andExpect(jsonPath("$.members[0].profileImageUrl").value("url"))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
     }
@@ -341,15 +346,15 @@ class PostApiControllerTest {
                 .build();
 
         CommentsAtPost.MemberInfo memberInfo = CommentsAtPost.MemberInfo.builder()
-                .id(1L)
+                .id(2L)
                 .memberType(MemberType.MANAGER)
                 .build();
 
         CommentsAtPost.ChildCommentInfo childCommentInfo = CommentsAtPost.ChildCommentInfo.builder()
-                .id(2L)
+                .id(4L)
                 .content("자식댓글")
                 .likeCount(0L)
-                .parentId(1L)
+                .parentId(3L)
                 .user(userInfo)
                 .member(memberInfo)
                 .createdAt(LocalDateTime.now())
@@ -358,7 +363,7 @@ class PostApiControllerTest {
         List<CommentsAtPost.ChildCommentInfo> childCommentInfos = List.of(childCommentInfo);
 
         Comment parentComment = Comment.builder()
-                .id(1L)
+                .id(3L)
                 .content("부모댓글")
                 .build();
         parentComment.setCreatedAt(LocalDateTime.now());
@@ -377,47 +382,51 @@ class PostApiControllerTest {
         List<CommentsAtPost.ParentCommentInfo> parentCommentInfos = List.of(parentCommentInfo);
 
         Pageable pageable = PageRequest.of(0, 1);
-        Page<Comment> page = PageableExecutionUtils.getPage(comments, pageable, () -> comments.size());
+        Slice<Comment> slice = PageableUtil.getSlice(comments, pageable);
 
-        CommentsAtPost commentsAtPost = CommentsAtPost.of(parentCommentInfos, page);
+        CommentsAtPost commentsAtPost = CommentsAtPost.of(parentCommentInfos, slice);
         given(commentCoreService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(commentsAtPost);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(5L);
 
+        String formattedParentCreatedAt = CustomDateTimeFormatter
+                .toString(parentComment.getCreatedAt(), TimePattern.BASIC_FORMAT);
+
+        String formattedChildCreatedAt = CustomDateTimeFormatter
+                .toString(childCommentInfo.getCreatedAt(), TimePattern.BASIC_FORMAT);
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/1/comments")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        get("/api/posts/{postId}/comments", 6L)
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.comments").isArray())
                 .andExpect(jsonPath("$.comments.size()").value(1))
-                .andExpect(jsonPath("$.comments[0].id").value(parentComment.getId()))
-                .andExpect(jsonPath("$.comments[0].user.id").value(userInfo.getId()))
-                .andExpect(jsonPath("$.comments[0].user.name").value(userInfo.getName()))
-                .andExpect(jsonPath("$.comments[0].user.tagNum").value(userInfo.getTagNum()))
-                .andExpect(jsonPath("$.comments[0].user.profileImageUrl").value(userInfo.getProfileImageUrl()))
-                .andExpect(jsonPath("$.comments[0].member.id").value(memberInfo.getId()))
-                .andExpect(jsonPath("$.comments[0].member.memberType").value(memberInfo.getMemberType().toString()))
+                .andExpect(jsonPath("$.comments[0].id").value(3L))
+                .andExpect(jsonPath("$.comments[0].user.id").value(1L))
+                .andExpect(jsonPath("$.comments[0].user.name").value("유저"))
+                .andExpect(jsonPath("$.comments[0].user.tagNum").value("#1"))
+                .andExpect(jsonPath("$.comments[0].user.profileImageUrl").value("url"))
+                .andExpect(jsonPath("$.comments[0].member.id").value(2L))
+                .andExpect(jsonPath("$.comments[0].member.memberType").value("MANAGER"))
                 .andExpect(jsonPath("$.comments[0].likeId").value(nullValue()))
-                .andExpect(jsonPath("$.comments[0].createdAt").value(CustomDateTimeFormatter.toString(parentComment.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-                .andExpect(jsonPath("$.comments[0].content").value(parentComment.getContent()))
+                .andExpect(jsonPath("$.comments[0].createdAt").value(formattedParentCreatedAt))
+                .andExpect(jsonPath("$.comments[0].content").value("부모댓글"))
                 .andExpect(jsonPath("$.comments[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].me").value(false))
                 .andExpect(jsonPath("$.comments[0].child").isArray())
                 .andExpect(jsonPath("$.comments[0].child.size()").value(1))
-                .andExpect(jsonPath("$.comments[0].child[0].id").value(childCommentInfo.getId()))
-                .andExpect(jsonPath("$.comments[0].child[0].user.id").value(userInfo.getId()))
-                .andExpect(jsonPath("$.comments[0].child[0].user.name").value(userInfo.getName()))
-                .andExpect(jsonPath("$.comments[0].child[0].user.tagNum").value(userInfo.getTagNum()))
-                .andExpect(jsonPath("$.comments[0].child[0].user.profileImageUrl").value(userInfo.getProfileImageUrl()))
-                .andExpect(jsonPath("$.comments[0].child[0].member.id").value(memberInfo.getId()))
-                .andExpect(jsonPath("$.comments[0].child[0].member.memberType").value(memberInfo.getMemberType().toString()))
+                .andExpect(jsonPath("$.comments[0].child[0].id").value(4L))
+                .andExpect(jsonPath("$.comments[0].child[0].user.id").value(1L))
+                .andExpect(jsonPath("$.comments[0].child[0].user.name").value("유저"))
+                .andExpect(jsonPath("$.comments[0].child[0].user.tagNum").value("#1"))
+                .andExpect(jsonPath("$.comments[0].child[0].user.profileImageUrl").value("url"))
+                .andExpect(jsonPath("$.comments[0].child[0].member.id").value(2L))
+                .andExpect(jsonPath("$.comments[0].child[0].member.memberType").value("MANAGER"))
                 .andExpect(jsonPath("$.comments[0].child[0].likeId").value(nullValue()))
-                .andExpect(jsonPath("$.comments[0].child[0].createdAt").value(CustomDateTimeFormatter.toString(childCommentInfo.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-                .andExpect(jsonPath("$.comments[0].child[0].content").value(childCommentInfo.getContent()))
+                .andExpect(jsonPath("$.comments[0].child[0].createdAt").value(formattedChildCreatedAt))
+                .andExpect(jsonPath("$.comments[0].child[0].content").value("자식댓글"))
                 .andExpect(jsonPath("$.comments[0].child[0].likeCount").value(0))
                 .andExpect(jsonPath("$.comments[0].child[0].me").value(false))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
@@ -428,7 +437,7 @@ class PostApiControllerTest {
     void 핫한게시물() throws Exception {
         HotPost hotPost1 = HotPost.builder()
                 .postId(1L)
-                .content("내용")
+                .content("내용1")
                 .commentCount(1)
                 .likeCount(1)
                 .communityId(1L)
@@ -437,7 +446,7 @@ class PostApiControllerTest {
 
         HotPost hotPost2 = HotPost.builder()
                 .postId(2L)
-                .content("내용")
+                .content("내용2")
                 .commentCount(2)
                 .likeCount(2)
                 .communityId(2L)
@@ -445,7 +454,7 @@ class PostApiControllerTest {
 
         HotPost hotPost3 = HotPost.builder()
                 .postId(3L)
-                .content("내용")
+                .content("내용3")
                 .commentCount(3)
                 .communityId(3L)
                 .likeCount(3)
@@ -454,21 +463,21 @@ class PostApiControllerTest {
         given(postQueryService.getHotPosts())
                 .willReturn(List.of(hotPost1, hotPost2, hotPost3));
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/hot")
-                                .contentType(MediaType.APPLICATION_JSON)
+                        get("/api/posts/hot")
+                                .contentType(APPLICATION_JSON)
                                 .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"))
+                                .header(AUTH_TOKEN, "AUTH_TOKEN"))
                 .andExpect(jsonPath("$.hots.size()").value(3))
-                .andExpect(jsonPath("$.hots[0].postId").isNumber())
-                .andExpect(jsonPath("$.hots[0].content").isString())
-                .andExpect(jsonPath("$.hots[0].commentCount").isNumber())
-                .andExpect(jsonPath("$.hots[0].likeCount").isNumber())
-                .andExpect(jsonPath("$.hots[0].communityId").isNumber())
-                .andExpect(jsonPath("$.hots[0].hashtags").isArray());
+                .andExpect(jsonPath("$.hots[0].postId").value(1L))
+                .andExpect(jsonPath("$.hots[0].content").value("내용1"))
+                .andExpect(jsonPath("$.hots[0].commentCount").value(1))
+                .andExpect(jsonPath("$.hots[0].likeCount").value(1))
+                .andExpect(jsonPath("$.hots[0].communityId").value(1L))
+                .andExpect(jsonPath("$.hots[0].hashtags").isArray())
+                .andExpect(jsonPath("$.hots[0].hashtags[0]").value("hashtag1"));
     }
 
     @Test
@@ -486,7 +495,6 @@ class PostApiControllerTest {
                                 .url("123")
                                 .type("IMG")
                                 .build(),
-
                         PostMediaMetadataDto.builder()
                                 .url("456")
                                 .type("IMG")
@@ -500,18 +508,16 @@ class PostApiControllerTest {
                         .build())
                 .build();
 
-
-        PageImpl page = new PageImpl(List.of(dto), Pageable.ofSize(1), 1);
+        Slice<SearchPostDto> page = PageableUtil.getSlice(List.of(dto), Pageable.ofSize(1));
         given(postQueryService.getSearchedPosts(any(), any(), anyLong()))
                 .willReturn(page);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = createUserSession(1L);
 
         mvc.perform(
-                        MockMvcRequestBuilders.get("/api/posts/search")
-                                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        get("/api/posts/search")
+                                .contentType(APPLICATION_FORM_URLENCODED_VALUE)
+                                .header(AUTH_TOKEN, "AUTH_TOKEN")
                                 .session(session)
                                 .queryParam("page", "0")
                                 .queryParam("size", "1")

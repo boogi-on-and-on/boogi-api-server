@@ -5,7 +5,7 @@ import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
-import boogi.apiserver.domain.post.post.application.PostCoreService;
+import boogi.apiserver.domain.post.post.application.PostService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
@@ -33,7 +33,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/api/posts")
 public class PostApiController {
 
-    private final PostCoreService postCoreService;
+    private final PostService postService;
     private final PostQueryService postQueryService;
 
     private final LikeCoreService likeCoreService;
@@ -44,7 +44,7 @@ public class PostApiController {
     @ResponseStatus(CREATED)
     public SimpleIdResponse createPost(@Validated @RequestBody CreatePost createPost,
                                        @Session Long sessionUserId) {
-        Post newPost = postCoreService.createPost(createPost, sessionUserId);
+        Post newPost = postService.createPost(createPost, sessionUserId);
 
         return new SimpleIdResponse(newPost.getId());
     }
@@ -52,7 +52,7 @@ public class PostApiController {
     @GetMapping("/{postId}")
     @ResponseStatus(OK)
     public PostDetail getPostDetail(@PathVariable Long postId, @Session Long sessionUserId) {
-        return postCoreService.getPostDetail(postId, sessionUserId);
+        return postService.getPostDetail(postId, sessionUserId);
     }
 
     @PatchMapping("/{postId}")
@@ -60,7 +60,7 @@ public class PostApiController {
     public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePost updatePost,
                                        @PathVariable Long postId,
                                        @Session Long sessionUserId) {
-        Post updatedPost = postCoreService.updatePost(updatePost, postId, sessionUserId);
+        Post updatedPost = postService.updatePost(updatePost, postId, sessionUserId);
 
         return new SimpleIdResponse(updatedPost.getId());
     }
@@ -68,7 +68,7 @@ public class PostApiController {
     @DeleteMapping("/{postId}")
     @ResponseStatus(OK)
     public void deletePost(@PathVariable Long postId, @Session Long sessionUserId) {
-        postCoreService.deletePost(postId, sessionUserId);
+        postService.deletePost(postId, sessionUserId);
     }
 
     @GetMapping("/users")
@@ -78,7 +78,7 @@ public class PostApiController {
                                          Pageable pageable) {
         Long infoUserid = Objects.requireNonNullElse(userId, sessionUserId);
 
-        return postCoreService.getUserPosts(infoUserid, sessionUserId, pageable);
+        return postService.getUserPosts(infoUserid, sessionUserId, pageable);
     }
 
     @GetMapping("/hot")
