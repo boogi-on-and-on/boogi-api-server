@@ -11,24 +11,20 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
-import boogi.apiserver.domain.post.post.dto.response.HotPost;
-import boogi.apiserver.domain.post.post.dto.response.PostDetail;
-import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
-import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.response.*;
 import boogi.apiserver.global.argument_resolver.session.Session;
-import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.dto.SimpleIdResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -45,93 +41,83 @@ public class PostApiController {
     private final CommentCoreService commentCoreService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> createPost(@Validated @RequestBody CreatePost createPost, @Session Long userId) {
-        Post newPost = postCoreService.createPost(createPost, userId);
+    @ResponseStatus(CREATED)
+    public SimpleIdResponse createPost(@Validated @RequestBody CreatePost createPost,
+                                       @Session Long sessionUserId) {
+        Post newPost = postCoreService.createPost(createPost, sessionUserId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "id", newPost.getId()
-        ));
+        return new SimpleIdResponse(newPost.getId());
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetail> getPostDetail(@PathVariable Long postId, @Session Long userId) {
-        PostDetail postDetail = postCoreService.getPostDetail(postId, userId);
-
-        return ResponseEntity.ok().body(postDetail);
+    @ResponseStatus(OK)
+    public PostDetail getPostDetail(@PathVariable Long postId, @Session Long sessionUserId) {
+        return postCoreService.getPostDetail(postId, sessionUserId);
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<Object> updatePost(@Validated @RequestBody UpdatePost updatePost,
-                                             @PathVariable Long postId,
-                                             @Session Long userId) {
-        Post updatedPost = postCoreService.updatePost(updatePost, postId, userId);
+    @ResponseStatus(OK)
+    public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePost updatePost,
+                                       @PathVariable Long postId,
+                                       @Session Long sessionUserId) {
+        Post updatedPost = postCoreService.updatePost(updatePost, postId, sessionUserId);
 
-        return ResponseEntity.ok().body(Map.of(
-                "id", updatedPost.getId()
-        ));
+        return new SimpleIdResponse(updatedPost.getId());
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId, @Session Long userId) {
-        postCoreService.deletePost(postId, userId);
-
-        return ResponseEntity.ok().build();
+    @ResponseStatus(OK)
+    public void deletePost(@PathVariable Long postId, @Session Long sessionUserId) {
+        postCoreService.deletePost(postId, sessionUserId);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<UserPostPage> getUserPostsInfo(@RequestParam(required = false) Long userId,
-                                                         @Session Long sessionUserId,
-                                                         Pageable pageable) {
-        Long id = Objects.requireNonNullElse(userId, sessionUserId);
-//        UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, id);
-        UserPostPage userPostsPage = postCoreService.getUserPosts(id, sessionUserId, pageable);
+    @ResponseStatus(OK)
+    public UserPostPage getUserPostsInfo(@RequestParam(required = false) Long userId,
+                                         @Session Long sessionUserId,
+                                         Pageable pageable) {
+        Long infoUserid = Objects.requireNonNullElse(userId, sessionUserId);
 
-        return ResponseEntity.ok().body(userPostsPage);
+        return postCoreService.getUserPosts(infoUserid, sessionUserId, pageable);
     }
 
     @GetMapping("/hot")
-    public ResponseEntity<Object> getHotPosts() {
-        List<HotPost> hotPosts = postQueryService.getHotPosts();
-
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "hots", hotPosts
-        ));
+    @ResponseStatus(OK)
+    public HotPosts getHotPosts() {
+        return new HotPosts(postQueryService.getHotPosts());
     }
 
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<Object> doLikeAtPost(@PathVariable Long postId, @Session Long userId) {
-        Like newLike = likeCoreService.doLikeAtPost(postId, userId);
+    @ResponseStatus(OK)
+    public SimpleIdResponse doLikeAtPost(@PathVariable Long postId, @Session Long sessionUserId) {
+        Like newLike = likeCoreService.doLikeAtPost(postId, sessionUserId);
 
-        return ResponseEntity.ok().body(Map.of(
-                "id", newLike.getId()
-        ));
+        return new SimpleIdResponse(newLike.getId());
     }
 
     @GetMapping("/{postId}/likes")
-    public ResponseEntity<Object> getLikeMembersAtPost(@PathVariable Long postId, @Session Long userId, Pageable pageable) {
-        LikeMembersAtPost likeMembersAtPost = likeCoreService.getLikeMembersAtPost(postId, userId, pageable);
-
-        return ResponseEntity.ok().body(likeMembersAtPost);
+    @ResponseStatus(OK)
+    public LikeMembersAtPost getLikeMembersAtPost(@PathVariable Long postId,
+                                                  @Session Long sessionUserId,
+                                                  Pageable pageable) {
+        return likeCoreService.getLikeMembersAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<Object> getCommentsAtPost(@PathVariable Long postId, @Session Long userId, Pageable pageable) {
-        CommentsAtPost commentsAtPost = commentCoreService.getCommentsAtPost(postId, userId, pageable);
-
-        return ResponseEntity.ok().body(commentsAtPost);
+    @ResponseStatus(OK)
+    public CommentsAtPost getCommentsAtPost(@PathVariable Long postId,
+                                            @Session Long sessionUserId,
+                                            Pageable pageable) {
+        return commentCoreService.getCommentsAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request,
-                                              Pageable pageable,
-                                              @Session Long userId) {
-        Slice<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
-        PaginationDto pageInfo = PaginationDto.of(page);
-        List<SearchPostDto> dtos = page.getContent();
+    @ResponseStatus(OK)
+    public SearchPosts searchPosts(@ModelAttribute @Validated PostQueryRequest request,
+                                   Pageable pageable,
+                                   @Session Long sessionUserId) {
+        Slice<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, sessionUserId);
 
-        return ResponseEntity.ok(Map.of(
-                "posts", dtos,
-                "pageInfo", pageInfo
-        ));
+        return SearchPosts.from(page);
     }
 }
