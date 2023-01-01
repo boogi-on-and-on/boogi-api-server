@@ -4,6 +4,8 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotViewableMemberException;
+import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
@@ -128,5 +131,76 @@ class MemberQueryServiceTest {
         Boolean hasAuth = memberQueryService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
 
         assertThat(hasAuth).isTrue();
+    }
+
+    @Nested
+    @DisplayName("커뮤니티의 내부를 열람 가능한 멤버를 조회할때")
+    class GetViewableMemberTest {
+
+        private final Community publicCommunity = Community.builder()
+                .id(1L)
+                .isPrivate(false)
+                .build();
+
+        private final Community privateCommunity = Community.builder()
+                .id(1L)
+                .isPrivate(true)
+                .build();
+
+        @Test
+        @DisplayName("공개 커뮤니티에 가입된 멤버의 경우 해당 멤버를 가져온다.")
+        void publicCommunityJoinedMemberSuccess() {
+            Member member = Member.builder()
+                    .id(2L)
+                    .community(publicCommunity)
+                    .build();
+
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.of(member));
+
+            Member viewableMember = memberQueryService.getViewableMember(3L, publicCommunity);
+
+            assertThat(viewableMember.getId()).isEqualTo(2L);
+            assertThat(viewableMember.isJoined()).isTrue();
+        }
+
+        @Test
+        @DisplayName("공개 커뮤니티에 가입하지 않은 멤버의 경우 NullMember를 가져온다.")
+        void publicCommunityNotJoinedMemberSuccess() {
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.empty());
+
+            Member viewableMember = memberQueryService.getViewableMember(2L, publicCommunity);
+
+            assertThat(viewableMember).isEqualTo(new NullMember());
+            assertThat(viewableMember.isJoined()).isFalse();
+        }
+
+        @Test
+        @DisplayName("비공개 커뮤니티에 가입된 멤버의 경우 해당 멤버를 가져온다.")
+        void privateCommunityJoinedMemberSuccess() {
+            Member member = Member.builder()
+                    .id(2L)
+                    .community(privateCommunity)
+                    .build();
+
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.of(member));
+
+            Member viewableMember = memberQueryService.getViewableMember(3L, privateCommunity);
+
+            assertThat(viewableMember.getId()).isEqualTo(2L);
+            assertThat(viewableMember.isJoined()).isTrue();
+        }
+
+        @Test
+        @DisplayName("비공개 커뮤니티에 가입되어있지 않는 멤버일 경우 NotViewableMemberException이 발생한다.")
+        void privateCommunityNotJoinedMemberFail() {
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.empty());
+
+            assertThatThrownBy(() -> memberQueryService.getViewableMember(2L, privateCommunity))
+                    .isInstanceOf(NotViewableMemberException.class);
+        }
     }
 }

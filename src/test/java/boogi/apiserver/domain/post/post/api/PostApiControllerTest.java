@@ -167,12 +167,12 @@ class PostApiControllerTest {
                 .mediaURL("mediaUrl")
                 .build();
 
-        PostDetail postDetail = new PostDetail(post, List.of(postMedia), Boolean.TRUE, 7L);
+        MockHttpSession session = createUserSession(1L);
+
+        PostDetail postDetail = new PostDetail(post, List.of(postMedia), 1L, 7L);
 
         given(postService.getPostDetail(anyLong(), anyLong()))
                 .willReturn(postDetail);
-
-        MockHttpSession session = createUserSession(8L);
 
         String formattedCreatedTime = CustomDateTimeFormatter
                 .toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT);

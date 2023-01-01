@@ -6,13 +6,13 @@ import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.response.HotPost;
 import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
+import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +22,14 @@ import java.util.stream.Collectors;
 public class PostQueryService {
 
     private final PostRepository postRepository;
+
+    public Post getPost(Long postId) {
+        if (postId == null) {
+            throw new IllegalArgumentException("postId는 null일 수 없습니다.");
+        }
+        return postRepository.findById(postId)
+                .orElseThrow(PostNotFoundException::new);
+    }
 
     public UserPostPage getUserPosts(Pageable pageable, Long userId) {
         Slice<Post> userPostSlice = postRepository.getUserPostPage(pageable, userId);
@@ -34,11 +42,6 @@ public class PostQueryService {
                 .stream()
                 .map(HotPost::of)
                 .collect(Collectors.toList());
-    }
-
-    public Post getPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
-        return post;
     }
 
     public List<Post> getLatestPostOfCommunity(Long communityId) {

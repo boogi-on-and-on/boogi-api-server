@@ -122,7 +122,7 @@ public class PostDetail {
         }
     }
 
-    public PostDetail(Post post, List<PostMedia> postMedias, Boolean me, Long likeId) {
+    public PostDetail(Post post, List<PostMedia> postMedias, Long sessionUserId, Long likeId) {
         this.id = post.getId();
         this.user = UserInfo.toDto(post.getMember().getUser());
         this.member = MemberInfo.toDto(post.getMember());
@@ -140,6 +140,6 @@ public class PostDetail {
                 .collect(Collectors.toList());
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
-        this.me = me;
+        this.me = post.isAuthor(sessionUserId);
     }
 }

@@ -5,14 +5,13 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
 import boogi.apiserver.domain.community.community.dto.response.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +21,11 @@ public class CommunityQueryService {
     private final CommunityRepository communityRepository;
 
     public Community getCommunity(Long communityId) {
-        Community community = communityRepository.findById(communityId).orElseThrow(EntityNotFoundException::new);
-        return community;
+        if (communityId == null) {
+            throw new IllegalArgumentException("communityId는 null일 수 없습니다.");
+        }
+        return communityRepository.findById(communityId)
+                .orElseThrow(CommunityNotFoundException::new);
     }
 
     public Community getCommunityWithHashTag(Long communityId) {

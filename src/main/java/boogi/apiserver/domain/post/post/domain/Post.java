@@ -93,4 +93,13 @@ public class Post extends TimeBaseEntity {
         this.content = content;
         this.hashtags = hashtags;
     }
+
+    public boolean isAuthor(Long userId) {
+        Long postUserId = getMember().getUser().getId();
+        return postUserId.equals(userId);
+    }
+
+    public Long getCommunityId() {
+        return getCommunity().getId();
+    }
 }

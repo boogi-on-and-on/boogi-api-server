@@ -1,9 +1,13 @@
 package boogi.apiserver.domain.member.application;
 
+import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotViewableMemberException;
+import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +29,22 @@ public class MemberQueryService {
     private final MemberRepository memberRepository;
 
     public Member getMember(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(EntityNotFoundException::new);
+        return memberRepository.findById(memberId)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    public Member getJoinedMember(Long userId, Long communityId) {
+        return memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
+    }
+
+    public Member getViewableMember(Long userId, Community community) {
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId())
+                .orElse(new NullMember());
+
+        if (community.isPrivate() && !member.isJoined()) {
+            throw new NotViewableMemberException();
+        }
         return member;
     }
 

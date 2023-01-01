@@ -4,19 +4,17 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCoreService;
-import boogi.apiserver.domain.like.dao.LikeRepository;
-import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.like.application.LikeQueryService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
-import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
@@ -38,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,14 +44,15 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
-    private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
-    private final CommunityRepository communityRepository;
     private final PostMediaRepository postMediaRepository;
     private final UserRepository userRepository;
 
     private final MemberValidationService memberValidationService;
 
+    private final PostQueryService postQueryService;
+    private final MemberQueryService memberQueryService;
+    private final LikeQueryService likeQueryService;
     private final CommunityQueryService communityQueryService;
     private final PostMediaQueryService postMediaQueryService;
 
@@ -67,25 +65,21 @@ public class PostService {
     public Post createPost(CreatePost createPost, Long userId) {
         Long communityId = createPost.getCommunityId();
         Community community = communityQueryService.getCommunity(communityId);
-        memberValidationService.checkMemberJoinedCommunity(userId, communityId);
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, communityId)
-                .orElseThrow(NotJoinedMemberException::new);
-
-        List<PostMedia> findPostMedias = postMediaQueryService
-                .getUnmappedPostMediasByUUID(createPost.getPostMediaIds());
+        Member member = memberQueryService.getJoinedMember(userId, communityId);
 
         Post savedPost = postRepository.save(
-                Post.of(community, member, createPost.getContent()));
+                Post.of(community, member, createPost.getContent())
+        );
 
         postHashtagCoreService.addTags(savedPost.getId(), createPost.getHashtags());
-
-        findPostMedias.stream()
+        postMediaQueryService.getUnmappedPostMediasByUUID(createPost.getPostMediaIds()).stream()
                 .forEach(pm -> pm.mapPost(savedPost));
 
-        List<Long> mentionedUserIds = createPost.getMentionedUserIds();
-        if (mentionedUserIds.isEmpty() == false) {
-            sendPushNotification.mentionNotification(mentionedUserIds, savedPost.getId(), MentionType.POST);
-        }
+        sendPushNotification.mentionNotification(
+                createPost.getMentionedUserIds(),
+                savedPost.getId(),
+                MentionType.POST
+        );
 
         return savedPost;
     }
@@ -94,44 +88,23 @@ public class PostService {
         Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
 
-        Community postedCommunity = findPost.getCommunity();
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunity.getId())
-                .orElse(null);
-
-        if (postedCommunity.isPrivate() && member == null) {
-            throw new NotJoinedMemberException();
-        }
-
+        Member member = memberQueryService.getViewableMember(userId, findPost.getCommunity());
         List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
 
-        Long findLikeId = null;
-        if (member != null) {
-            Optional<Like> possibleLike = likeRepository.
-                    findPostLikeByPostIdAndMemberId(postId, member.getId());
-            if (possibleLike.isPresent()) {
-                findLikeId = possibleLike.get().getId();
-            }
-        }
-
-        Long postUserId = findPost.getMember().getUser().getId();
-        Boolean me = postUserId.equals(userId) ? Boolean.TRUE : Boolean.FALSE;
-
-        return new PostDetail(findPost, findPostMedias, me, findLikeId);
+        return new PostDetail(
+                findPost,
+                findPostMedias,
+                userId,
+                likeQueryService.getPostLikeIdForView(postId, member)
+        );
     }
 
     @Transactional
     public Post updatePost(UpdatePost updatePost, Long postId, Long userId) {
-        Post findPost = postRepository.findPostById(postId).orElseThrow(() -> {
-            throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
-        });
+        Post findPost = postQueryService.getPost(postId);
+        communityQueryService.getCommunity(findPost.getCommunityId());
 
-        communityRepository.findCommunityById(findPost.getCommunity().getId())
-                .orElseThrow(() -> {
-                    throw new EntityNotFoundException("해당 커뮤니티가 존재하지 않습니다");
-                });
-
-        Long postedUserId = findPost.getMember().getUser().getId();
-        if (postedUserId.equals(userId) == false) {
+        if (!findPost.isAuthor(userId)) {
             throw new NotAuthorizedMemberException("해당 글의 수정 권한이 없습니다");
         }
 
@@ -156,25 +129,22 @@ public class PostService {
         postMediaRepository.deleteAll(diffPostMedias);
 
         List<PostMedia> newPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(newPostMediaIds);
-        newPostMedias.stream()
-                .forEach(pm -> pm.mapPost(findPost));
+        newPostMedias.stream().forEach(pm -> pm.mapPost(findPost));
 
         return findPost;
     }
 
     @Transactional
     public void deletePost(Long postId, Long userId) {
-        Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId)
-                .orElseThrow(() -> {
-                    throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
-                });
+        Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId).orElseThrow(() -> {
+            throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
+        });
 
         Long findPostId = findPost.getId();
         Long postedCommunityId = findPost.getCommunity().getId();
         Long postedUserId = findPost.getMember().getUser().getId();
 
-        if (postedUserId.equals(userId) == false &&
-                memberValidationService.hasAuthWithoutThrow(userId, postedCommunityId, MemberType.SUB_MANAGER) == false) {
+        if (postedUserId.equals(userId) == false && memberValidationService.hasAuthWithoutThrow(userId, postedCommunityId, MemberType.SUB_MANAGER) == false) {
             throw new NotAuthorizedMemberException();
         }
 
@@ -195,15 +165,13 @@ public class PostService {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {
-            findMemberIds = memberRepository
-                    .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
+            findMemberIds = memberRepository.findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
         } else {
             userRepository.findUserById(userId).orElseThrow(() -> {
                 throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
             });
 
-            findMemberIds = memberRepository
-                    .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
+            findMemberIds = memberRepository.findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
         }
 
         Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);

@@ -3,20 +3,19 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
-import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
@@ -49,7 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -74,16 +74,10 @@ class PostServiceTest {
     private CommentRepository commentRepository;
 
     @Mock
-    private CommunityRepository communityRepository;
-
-    @Mock
     private PostMediaRepository postMediaRepository;
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private CommunityValidationService communityValidationService;
 
     @Mock
     private MemberValidationService memberValidationService;
@@ -95,10 +89,19 @@ class PostServiceTest {
     private LikeCoreService likeCoreService;
 
     @Mock
+    private LikeQueryService likeQueryService;
+
+    @Mock
     private PostMediaQueryService postMediaQueryService;
 
     @Mock
     private CommunityQueryService communityQueryService;
+
+    @Mock
+    private PostQueryService postQueryService;
+
+    @Mock
+    private MemberQueryService memberQueryService;
 
     @Mock
     private SendPushNotification sendPushNotification;
@@ -118,24 +121,24 @@ class PostServiceTest {
                     .willReturn(community);
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(2L)
                     .community(community)
                     .build();
-            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.of(member));
-
-            given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
-                    .willReturn(List.of());
+            given(memberQueryService.getJoinedMember(anyLong(), anyLong()))
+                    .willReturn(member);
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(3L)
                     .community(community)
                     .build();
             given(postRepository.save(any(Post.class)))
                     .willReturn(post);
 
+            given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
+                    .willReturn(List.of());
+
             CreatePost createPost = new CreatePost(community.getId(), "내용", List.of(), List.of(), List.of());
-            Post newPost = postService.createPost(createPost, 1L);
+            Post newPost = postService.createPost(createPost, 4L);
 
             assertThat(newPost).isEqualTo(post);
         }
@@ -153,17 +156,17 @@ class PostServiceTest {
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(2L)
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(3L)
                     .user(user)
                     .community(community)
                     .build();
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(4L)
                     .content("글")
                     .member(member)
                     .community(community)
@@ -175,18 +178,21 @@ class PostServiceTest {
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
-            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.of(member));
+            given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
+                    .willReturn(member);
+
+            given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))
+                    .willReturn(null);
 
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of());
 
             PostDetail postDetail = postService.getPostDetail(post.getId(), 1L);
 
-            assertThat(postDetail.getId()).isEqualTo(post.getId());
-            assertThat(postDetail.getUser().getId()).isEqualTo(user.getId());
-            assertThat(postDetail.getMember().getId()).isEqualTo(member.getId());
-            assertThat(postDetail.getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(postDetail.getId()).isEqualTo(4L);
+            assertThat(postDetail.getUser().getId()).isEqualTo(1L);
+            assertThat(postDetail.getMember().getId()).isEqualTo(3L);
+            assertThat(postDetail.getCommunity().getId()).isEqualTo(2L);
             assertThat(postDetail.getLikeId()).isNull();
             assertThat(postDetail.getCreatedAt()).isEqualTo(post.getCreatedAt());
             assertThat(postDetail.getContent()).isEqualTo(post.getContent());
@@ -203,17 +209,17 @@ class PostServiceTest {
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(2L)
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(3L)
                     .user(user)
                     .community(community)
                     .build();
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(4L)
                     .content("글")
                     .member(member)
                     .community(community)
@@ -225,11 +231,11 @@ class PostServiceTest {
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
-            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.of(member));
+            given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
+                    .willReturn(member);
 
             PostMedia postMedia = PostMedia.builder()
-                    .id(1L)
+                    .id(5L)
                     .mediaType(MediaType.IMG)
                     .mediaURL("url")
                     .build();
@@ -237,48 +243,26 @@ class PostServiceTest {
                     .willReturn(List.of(postMedia));
 
             Like like = Like.builder()
-                    .id(1L)
+                    .id(6L)
                     .build();
-            given(likeRepository.findPostLikeByPostIdAndMemberId(anyLong(), anyLong()))
-                    .willReturn(Optional.of(like));
+            given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))
+                    .willReturn(like.getId());
 
             PostDetail postDetail = postService.getPostDetail(post.getId(), 1L);
 
-            assertThat(postDetail.getId()).isEqualTo(post.getId());
-            assertThat(postDetail.getUser().getId()).isEqualTo(user.getId());
-            assertThat(postDetail.getMember().getId()).isEqualTo(member.getId());
-            assertThat(postDetail.getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(postDetail.getId()).isEqualTo(4L);
+            assertThat(postDetail.getUser().getId()).isEqualTo(1L);
+            assertThat(postDetail.getMember().getId()).isEqualTo(3L);
+            assertThat(postDetail.getCommunity().getId()).isEqualTo(2L);
             assertThat(postDetail.getPostMedias().size()).isEqualTo(1);
-            assertThat(postDetail.getPostMedias().get(0).getType()).isEqualTo(postMedia.getMediaType());
-            assertThat(postDetail.getPostMedias().get(0).getUrl()).isEqualTo(postMedia.getMediaURL());
-            assertThat(postDetail.getLikeId()).isEqualTo(like.getId());
+            assertThat(postDetail.getPostMedias().get(0).getType()).isEqualTo(MediaType.IMG);
+            assertThat(postDetail.getPostMedias().get(0).getUrl()).isEqualTo("url");
+            assertThat(postDetail.getLikeId()).isEqualTo(6L);
             assertThat(postDetail.getCreatedAt()).isEqualTo(post.getCreatedAt());
-            assertThat(postDetail.getContent()).isEqualTo(post.getContent());
+            assertThat(postDetail.getContent()).isEqualTo("글");
             assertThat(postDetail.getLikeCount()).isEqualTo(1);
             assertThat(postDetail.getCommentCount()).isEqualTo(0);
             assertThat(postDetail.getMe()).isTrue();
-        }
-
-        @Test
-        @DisplayName("글이 작성된 비공개 커뮤니티에 비가입상태로 조회시 NotJoinedMemberException 발생한다.")
-        void notJoinedPrivateCommunityFail() {
-            Community community = Community.builder()
-                    .isPrivate(true)
-                    .id(1L)
-                    .build();
-
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
-            given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
-                    .willReturn(Optional.of(post));
-
-            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.empty());
-
-            assertThatThrownBy(() -> postService.getPostDetail(post.getId(), 1L))
-                    .isInstanceOf(NotJoinedMemberException.class);
         }
     }
 
@@ -294,24 +278,24 @@ class PostServiceTest {
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(2L)
                     .user(user)
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(3L)
                     .build();
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(4L)
                     .member(member)
                     .community(community)
                     .build();
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(Optional.of(post));
+            given(postQueryService.getPost(anyLong()))
+                    .willReturn(post);
 
-            given(communityRepository.findCommunityById(anyLong()))
-                    .willReturn(Optional.of(community));
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
 
             UpdatePost updatePost = new UpdatePost("글", List.of(), List.of());
 
@@ -327,36 +311,36 @@ class PostServiceTest {
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(2L)
                     .user(user)
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(3L)
                     .build();
-            given(communityRepository.findCommunityById(anyLong()))
-                    .willReturn(Optional.of(community));
+            given(communityQueryService.getCommunity(anyLong()))
+                    .willReturn(community);
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(4L)
                     .member(member)
                     .community(community)
                     .content("글")
                     .postMedias(new ArrayList<>())
                     .hashtags(new ArrayList<>())
                     .build();
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(Optional.of(post));
+            given(postQueryService.getPost(anyLong()))
+                    .willReturn(post);
 
             PostHashtag postHashtag = PostHashtag.builder()
-                    .id(1L)
+                    .id(5L)
                     .tag("해시태그")
                     .post(post)
                     .build();
             given(postHashtagCoreService.addTags(anyLong(), anyList()))
                     .willReturn(List.of(postHashtag));
             PostMedia postMedia = PostMedia.builder()
-                    .id(1L)
+                    .id(6L)
                     .uuid("uuid")
                     .build();
             given(postMediaRepository.findByPostId(anyLong()))
@@ -369,14 +353,16 @@ class PostServiceTest {
 
             Post updatedPost = postService.updatePost(updatePost, post.getId(), 1L);
 
-            assertThat(updatedPost.getId()).isEqualTo(post.getId());
+            assertThat(updatedPost.getId()).isEqualTo(4L);
+            assertThat(updatedPost.getContent()).isEqualTo("수정글");
+
             assertThat(updatedPost.getHashtags().size()).isEqualTo(1);
-            assertThat(updatedPost.getHashtags().get(0).getId()).isEqualTo(postHashtag.getId());
-            assertThat(updatedPost.getHashtags().get(0).getTag()).isEqualTo(postHashtag.getTag());
+            assertThat(updatedPost.getHashtags().get(0).getId()).isEqualTo(5L);
+            assertThat(updatedPost.getHashtags().get(0).getTag()).isEqualTo("해시태그");
+
             assertThat(updatedPost.getPostMedias().size()).isEqualTo(1);
-            assertThat(updatedPost.getPostMedias().get(0).getId()).isEqualTo(postMedia.getId());
-            assertThat(updatedPost.getPostMedias().get(0).getUuid()).isEqualTo(postMedia.getUuid());
-            assertThat(updatedPost.getContent()).isEqualTo(updatePost.getContent());
+            assertThat(updatedPost.getPostMedias().get(0).getId()).isEqualTo(6L);
+            assertThat(updatedPost.getPostMedias().get(0).getUuid()).isEqualTo("uuid");
         }
     }
 

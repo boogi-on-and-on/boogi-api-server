@@ -51,6 +51,10 @@ public class Member extends TimeBaseEntity {
         this.memberType = memberType;
     }
 
+    public boolean isJoined() {
+        return true;
+    }
+
     private Member(Community community, User user, MemberType type) {
         this.community = community;
         this.user = user;
