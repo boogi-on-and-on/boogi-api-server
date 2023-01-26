@@ -25,7 +25,7 @@ import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
@@ -46,10 +46,10 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
     private final PostMediaRepository postMediaRepository;
-    private final UserRepository userRepository;
 
     private final MemberValidationService memberValidationService;
 
+    private final UserQueryService userQueryService;
     private final PostQueryService postQueryService;
     private final MemberQueryService memberQueryService;
     private final LikeQueryService likeQueryService;
@@ -154,21 +154,19 @@ public class PostService {
     }
 
     public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
-        List<Long> findMemberIds;
-
-        if (userId.equals(sessionUserId)) {
-            findMemberIds = memberRepository.findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
-        } else {
-            userRepository.findUserById(userId).orElseThrow(() -> {
-                throw new EntityNotFoundException("해당 유저가 존재하지 않습니다.");
-            });
-
-            findMemberIds = memberRepository.findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
-        }
+        List<Long> findMemberIds = getMemberIdsForQueryUserPost(userId, sessionUserId);
 
         Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
 
         return UserPostPage.of(userPostPage);
+    }
+
+    private List<Long> getMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
+        if (userId.equals(sessionUserId)) {
+            return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
+        }
+        userQueryService.getUser(userId);
+        return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
     }
 
     private boolean canNotUpdatePost(Long userId, Post findPost) {

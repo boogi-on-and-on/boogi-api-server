@@ -14,6 +14,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -141,8 +142,29 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Long> findMemberIdsForQueryUserPostByUserIdAndSessionUserId(Long userId, Long sessionUserId) {
+    public List<Long> findMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
         QMember memberSub = new QMember("memberSub");
+
+        JPQLQuery<Long> sameJoinedCommunityIds = JPAExpressions
+                .select(memberSub.community.id)
+                .from(memberSub)
+                .where(
+                        memberSub.user.id.in(userId, sessionUserId),
+                        memberSub.bannedAt.isNull()
+                )
+                .groupBy(memberSub.community.id)
+                .having(memberSub.community.id.count().lt(2));
+
+        JPQLQuery<Long> privateCommunityFromSameJoinedCommunity = JPAExpressions
+                .select(community.id)
+                .from(community)
+                .where(
+                        community.isPrivate.isTrue(),
+                        community.deletedAt.isNull(),
+                        community.id.in(
+                                sameJoinedCommunityIds
+                        )
+                );
 
         return queryFactory.select(member.id)
                 .from(member)
@@ -150,30 +172,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.user.id.eq(userId),
                         member.bannedAt.isNull(),
                         member.community.id.notIn(
-                                JPAExpressions
-                                        .select(community.id)
-                                        .from(community)
-                                        .where(
-                                                community.isPrivate.isTrue(),
-                                                community.deletedAt.isNull(),
-                                                community.id.in(
-                                                        JPAExpressions
-                                                                .select(memberSub.community.id)
-                                                                .from(memberSub)
-                                                                .where(
-                                                                        memberSub.user.id.in(userId, sessionUserId),
-                                                                        memberSub.bannedAt.isNull()
-                                                                )
-                                                                .groupBy(memberSub.community.id)
-                                                                .having(memberSub.community.id.count().lt(2))
-                                                )
-                                        )
+                                privateCommunityFromSameJoinedCommunity
                         )
                 ).fetch();
     }
 
     @Override
-    public List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId) {
+    public List<Long> findMemberIdsForQueryUserPost(Long sessionUserId) {
         return queryFactory.select(member.id)
                 .from(member)
                 .where(

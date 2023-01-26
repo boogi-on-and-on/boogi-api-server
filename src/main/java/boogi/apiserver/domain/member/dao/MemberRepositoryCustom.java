@@ -27,9 +27,9 @@ public interface MemberRepositoryCustom {
 
     List<Member> findAlreadyJoinedMemberByUserId(List<Long> userIds, Long communityId);
 
-    List<Long> findMemberIdsForQueryUserPostByUserIdAndSessionUserId(Long userId, Long sessionUserId);
+    List<Long> findMemberIdsForQueryUserPost(Long userId, Long sessionUserId);
 
-    List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId);
+    List<Long> findMemberIdsForQueryUserPost(Long sessionUserId);
 
     Member findManager(Long communityId);
 

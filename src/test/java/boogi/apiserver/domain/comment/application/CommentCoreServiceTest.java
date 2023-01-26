@@ -521,7 +521,7 @@ class CommentCoreServiceTest {
                     .build();
 
             List<Long> findMemberIds = List.of(member.getId());
-            given(memberRepository.findMemberIdsForQueryUserPostBySessionUserId(anyLong()))
+            given(memberRepository.findMemberIdsForQueryUserPost(anyLong()))
                     .willReturn(findMemberIds);
 
             Pageable pageable = PageRequest.of(0, 2);
@@ -572,7 +572,7 @@ class CommentCoreServiceTest {
                     .willReturn(Optional.of(user2));
 
             List<Long> findMemberIds = List.of(member2.getId());
-            given(memberRepository.findMemberIdsForQueryUserPostByUserIdAndSessionUserId(anyLong(), anyLong()))
+            given(memberRepository.findMemberIdsForQueryUserPost(anyLong(), anyLong()))
                     .willReturn(findMemberIds);
 
             Pageable pageable = PageRequest.of(0, 2);

@@ -27,9 +27,10 @@ import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,10 +39,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ class PostServiceTest {
     private PostMediaRepository postMediaRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserQueryService userQueryService;
 
     @Mock
     private MemberValidationService memberValidationService;
@@ -462,39 +462,39 @@ class PostServiceTest {
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(2L)
                     .build();
 
             Member member1 = Member.builder()
-                    .id(1L)
+                    .id(3L)
                     .user(user)
                     .build();
             Member member2 = Member.builder()
-                    .id(2L)
+                    .id(4L)
                     .user(user)
                     .build();
 
             LocalDateTime now = LocalDateTime.now();
             Post post1 = Post.builder()
-                    .id(1L)
+                    .id(5L)
                     .community(community)
                     .member(member1)
                     .hashtags(List.of())
                     .build();
             post1.setCreatedAt(now);
             Post post2 = Post.builder()
-                    .id(2L)
+                    .id(6L)
                     .community(community)
                     .member(member2)
                     .hashtags(List.of())
                     .build();
             post2.setCreatedAt(now);
             List<Post> posts = List.of(post1, post2);
-            given(memberRepository.findMemberIdsForQueryUserPostBySessionUserId(anyLong()))
+            given(memberRepository.findMemberIdsForQueryUserPost(anyLong()))
                     .willReturn(List.of(member1.getId(), member2.getId()));
 
             Pageable pageable = PageRequest.of(0, 2);
-            Page<Post> postPage = PageableExecutionUtils.getPage(posts, pageable, () -> posts.size());
+            Slice<Post> postPage = PageableUtil.getSlice(posts, pageable);
 
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
@@ -503,11 +503,11 @@ class PostServiceTest {
 
             List<UserPostsDto> userPosts = userPostPage.getPosts();
             assertThat(userPosts.size()).isEqualTo(2);
-            assertThat(userPosts.get(0).getId()).isEqualTo(post1.getId());
-            assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(userPosts.get(0).getId()).isEqualTo(5L);
+            assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(2L);
             assertThat(userPosts.get(0).getCreatedAt()).isEqualTo(now.toString());
-            assertThat(userPosts.get(1).getId()).isEqualTo(post2.getId());
-            assertThat(userPosts.get(1).getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(userPosts.get(1).getId()).isEqualTo(6L);
+            assertThat(userPosts.get(1).getCommunity().getId()).isEqualTo(2L);
             assertThat(userPosts.get(1).getCreatedAt()).isEqualTo(now.toString());
 
             PaginationDto pageInfo = userPostPage.getPageInfo();
@@ -523,49 +523,49 @@ class PostServiceTest {
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(2L)
                     .isPrivate(false)
                     .build();
             Community pCommunity = Community.builder()
-                    .id(2L)
+                    .id(3L)
                     .isPrivate(true)
                     .build();
 
             Member member1 = Member.builder()
-                    .id(1L)
+                    .id(4L)
                     .user(user1)
                     .community(pCommunity)
                     .build();
             Member member2 = Member.builder()
-                    .id(2L)
+                    .id(5L)
                     .user(user1)
                     .community(community)
                     .build();
 
             LocalDateTime now = LocalDateTime.now();
             Post post1 = Post.builder()
-                    .id(1L)
+                    .id(6L)
                     .community(pCommunity)
                     .member(member1)
                     .hashtags(List.of())
                     .build();
             post1.setCreatedAt(now);
             Post post2 = Post.builder()
-                    .id(2L)
+                    .id(7L)
                     .community(community)
                     .member(member2)
                     .hashtags(List.of())
                     .build();
             post2.setCreatedAt(now);
-            given(userRepository.findUserById(anyLong()))
-                    .willReturn(Optional.of(user1));
+            given(userQueryService.getUser(anyLong()))
+                    .willReturn(user1);
 
             List<Post> posts = List.of(post2);
-            given(memberRepository.findMemberIdsForQueryUserPostByUserIdAndSessionUserId(anyLong(), anyLong()))
+            given(memberRepository.findMemberIdsForQueryUserPost(anyLong(), anyLong()))
                     .willReturn(List.of(member2.getId()));
 
             Pageable pageable = PageRequest.of(0, 2);
-            Page<Post> postPage = PageableExecutionUtils.getPage(posts, pageable, () -> posts.size());
+            Slice<Post> postPage = PageableUtil.getSlice(posts, pageable);
 
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
@@ -574,8 +574,8 @@ class PostServiceTest {
 
             List<UserPostsDto> userPosts = userPostPage.getPosts();
             assertThat(userPosts.size()).isEqualTo(1);
-            assertThat(userPosts.get(0).getId()).isEqualTo(post2.getId());
-            assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(userPosts.get(0).getId()).isEqualTo(7L);
+            assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(2L);
             assertThat(userPosts.get(0).getCreatedAt()).isEqualTo(now.toString());
 
             PaginationDto pageInfo = userPostPage.getPageInfo();

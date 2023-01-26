@@ -3,12 +3,11 @@ package boogi.apiserver.domain.user.application;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -18,9 +17,8 @@ public class UserQueryService {
     private final UserRepository userRepository;
 
     public User getUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(EntityNotFoundException::new);
-        return user;
+        return userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public User getUserByEmail(String email) {

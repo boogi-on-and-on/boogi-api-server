@@ -185,13 +185,13 @@ public class CommentCoreService {
 
         if (userId.equals(sessionUserId)) {
             findMemberIds = memberRepository
-                    .findMemberIdsForQueryUserPostBySessionUserId(sessionUserId);
+                    .findMemberIdsForQueryUserPost(sessionUserId);
         } else {
             userRepository.findUserById(userId).orElseThrow(() ->
                     new EntityNotFoundException("해당 유저가 존재하지 않습니다."));
 
             findMemberIds = memberRepository
-                    .findMemberIdsForQueryUserPostByUserIdAndSessionUserId(userId, sessionUserId);
+                    .findMemberIdsForQueryUserPost(userId, sessionUserId);
         }
 
         return commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
