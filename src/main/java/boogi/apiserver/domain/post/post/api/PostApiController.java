@@ -5,8 +5,8 @@ import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
-import boogi.apiserver.domain.post.post.application.PostService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.application.PostService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -50,13 +49,11 @@ public class PostApiController {
     }
 
     @GetMapping("/{postId}")
-    @ResponseStatus(OK)
     public PostDetail getPostDetail(@PathVariable Long postId, @Session Long sessionUserId) {
         return postService.getPostDetail(postId, sessionUserId);
     }
 
     @PatchMapping("/{postId}")
-    @ResponseStatus(OK)
     public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePost updatePost,
                                        @PathVariable Long postId,
                                        @Session Long sessionUserId) {
@@ -66,13 +63,11 @@ public class PostApiController {
     }
 
     @DeleteMapping("/{postId}")
-    @ResponseStatus(OK)
     public void deletePost(@PathVariable Long postId, @Session Long sessionUserId) {
         postService.deletePost(postId, sessionUserId);
     }
 
     @GetMapping("/users")
-    @ResponseStatus(OK)
     public UserPostPage getUserPostsInfo(@RequestParam(required = false) Long userId,
                                          @Session Long sessionUserId,
                                          Pageable pageable) {
@@ -82,13 +77,11 @@ public class PostApiController {
     }
 
     @GetMapping("/hot")
-    @ResponseStatus(OK)
     public HotPosts getHotPosts() {
         return new HotPosts(postQueryService.getHotPosts());
     }
 
     @PostMapping("/{postId}/likes")
-    @ResponseStatus(OK)
     public SimpleIdResponse doLikeAtPost(@PathVariable Long postId, @Session Long sessionUserId) {
         Like newLike = likeCoreService.doLikeAtPost(postId, sessionUserId);
 
@@ -96,7 +89,6 @@ public class PostApiController {
     }
 
     @GetMapping("/{postId}/likes")
-    @ResponseStatus(OK)
     public LikeMembersAtPost getLikeMembersAtPost(@PathVariable Long postId,
                                                   @Session Long sessionUserId,
                                                   Pageable pageable) {
@@ -104,7 +96,6 @@ public class PostApiController {
     }
 
     @GetMapping("/{postId}/comments")
-    @ResponseStatus(OK)
     public CommentsAtPost getCommentsAtPost(@PathVariable Long postId,
                                             @Session Long sessionUserId,
                                             Pageable pageable) {
@@ -112,7 +103,6 @@ public class PostApiController {
     }
 
     @GetMapping("/search")
-    @ResponseStatus(OK)
     public SearchPosts searchPosts(@ModelAttribute @Validated PostQueryRequest request,
                                    Pageable pageable,
                                    @Session Long sessionUserId) {
