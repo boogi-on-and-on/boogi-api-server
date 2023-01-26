@@ -14,6 +14,7 @@ import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.HasNotUpdateAuthorityException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -24,6 +25,7 @@ import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.webclient.push.MentionType;
@@ -34,7 +36,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -105,31 +106,27 @@ public class PostService {
         communityQueryService.getCommunity(findPost.getCommunityId());
 
         if (!findPost.isAuthor(userId)) {
-            throw new NotAuthorizedMemberException("해당 글의 수정 권한이 없습니다");
+            throw new HasNotUpdateAuthorityException();
         }
 
         postHashtagCoreService.removeTagsByPostId(postId);
-        List<PostHashtag> newPostHashtags = postHashtagCoreService.addTags(postId, updatePost.getHashtags());
+        List<PostHashtag> newPostHashtags = postHashtagCoreService
+                .addTags(postId, updatePost.getHashtags());
 
         findPost.updatePost(updatePost.getContent(), newPostHashtags);
 
-        List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
-        List<String> newPostMediaIds = updatePost.getPostMediaIds();
+        PostMedias findPostMedias = new PostMedias(
+                postMediaRepository.findByPostId(postId)
+        );
 
-        List<PostMedia> diffPostMedias = new ArrayList<>();
-
-        for (PostMedia postMedia : findPostMedias) {
-            String uid = postMedia.getUuid();
-            if (newPostMediaIds.contains(uid)) {
-                newPostMediaIds.remove(uid);
-            } else {
-                diffPostMedias.add(postMedia);
-            }
-        }
-        postMediaRepository.deleteAll(diffPostMedias);
-
-        List<PostMedia> newPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(newPostMediaIds);
-        newPostMedias.stream().forEach(pm -> pm.mapPost(findPost));
+        List<String> postMediaIds = updatePost.getPostMediaIds();
+        postMediaRepository.deleteAll(
+                findPostMedias.excludedPostMedia(postMediaIds)
+        );
+        List<PostMedia> findNewPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(
+                findPostMedias.newPostMediaIds(postMediaIds)
+        );
+        findNewPostMedias.stream().forEach(pm -> pm.mapPost(findPost));
 
         return findPost;
     }
