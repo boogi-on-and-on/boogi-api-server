@@ -107,7 +107,7 @@ public class LikeCoreService {
     }
 
     @Transactional
-    public void removeAllPostLikes(Long postId) {
+    public void removePostLikes(Long postId) {
         likeRepository.deleteAllPostLikeByPostId(postId);
     }
 

@@ -89,4 +89,8 @@ public class MemberValidationService {
 
         return hasAuth;
     }
+
+    public boolean hasSubManagerAuthority(Long userId, Long communityId) {
+        return hasAuthWithoutThrow(userId, communityId, MemberType.SUB_MANAGER);
+    }
 }

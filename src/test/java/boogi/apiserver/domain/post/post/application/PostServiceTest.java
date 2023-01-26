@@ -14,7 +14,7 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.HasNotDeleteAuthorityException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -378,16 +378,16 @@ class PostServiceTest {
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(2L)
                     .user(user)
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(3L)
                     .build();
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(4L)
                     .member(member)
                     .community(community)
                     .commentCount(1)
@@ -396,14 +396,14 @@ class PostServiceTest {
                     .willReturn(Optional.of(post));
 
             Comment comment = Comment.builder()
-                    .id(1L)
+                    .id(5L)
                     .post(post)
                     .build();
-            given(commentRepository.findAllByPostId(anyLong()))
+            given(commentRepository.findByPostId(anyLong()))
                     .willReturn(List.of(comment));
 
             PostMedia postMedia = PostMedia.builder()
-                    .id(1L)
+                    .id(6L)
                     .build();
             List<PostMedia> postMedias = List.of(postMedia);
             given(postMediaRepository.findByPostId(anyLong()))
@@ -411,7 +411,7 @@ class PostServiceTest {
 
             postService.deletePost(post.getId(), 1L);
 
-            verify(postHashtagCoreService, times(1)).removeTagsByPostId(post.getId());
+            verify(postHashtagCoreService, times(1)).removeTagsByPostId(4L);
             verify(postMediaRepository, times(1)).deleteAllInBatch(postMedias);
             verify(postRepository, times(1)).delete(post);
 
@@ -426,27 +426,27 @@ class PostServiceTest {
                     .build();
 
             Member member = Member.builder()
-                    .id(1L)
+                    .id(2L)
                     .user(user)
                     .build();
 
             Community community = Community.builder()
-                    .id(1L)
+                    .id(3L)
                     .build();
 
             Post post = Post.builder()
-                    .id(1L)
+                    .id(4L)
                     .member(member)
                     .community(community)
                     .build();
             given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
-            given(memberValidationService.hasAuthWithoutThrow(anyLong(), anyLong(), any(MemberType.class)))
+            given(memberValidationService.hasSubManagerAuthority(anyLong(), anyLong()))
                     .willReturn(false);
 
             assertThatThrownBy(() -> postService.deletePost(post.getId(), 2L))
-                    .isInstanceOf(NotAuthorizedMemberException.class);
+                    .isInstanceOf(HasNotDeleteAuthorityException.class);
         }
     }
 

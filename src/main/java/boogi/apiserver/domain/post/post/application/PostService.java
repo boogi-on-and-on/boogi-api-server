@@ -2,7 +2,6 @@ package boogi.apiserver.domain.post.post.application;
 
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
-import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
@@ -13,15 +12,15 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.HasNotDeleteAuthorityException;
 import boogi.apiserver.domain.member.exception.HasNotUpdateAuthorityException;
-import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePost;
 import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
 import boogi.apiserver.domain.post.post.dto.response.PostDetail;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
+import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -105,7 +104,7 @@ public class PostService {
         Post findPost = postQueryService.getPost(postId);
         communityQueryService.getCommunity(findPost.getCommunityId());
 
-        if (!findPost.isAuthor(userId)) {
+        if (canNotUpdatePost(userId, findPost)) {
             throw new HasNotUpdateAuthorityException();
         }
 
@@ -133,24 +132,20 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long postId, Long userId) {
-        Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId).orElseThrow(() -> {
-            throw new EntityNotFoundException("해당 글이 존재하지 않습니다");
-        });
+        Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId)
+                .orElseThrow(PostNotFoundException::new);
 
-        Long findPostId = findPost.getId();
-        Long postedCommunityId = findPost.getCommunity().getId();
-        Long postedUserId = findPost.getMember().getUser().getId();
-
-        if (postedUserId.equals(userId) == false && memberValidationService.hasAuthWithoutThrow(userId, postedCommunityId, MemberType.SUB_MANAGER) == false) {
-            throw new NotAuthorizedMemberException();
+        if (canNotDeletePost(userId, findPost)) {
+            throw new HasNotDeleteAuthorityException();
         }
 
+        Long findPostId = findPost.getId();
         postHashtagCoreService.removeTagsByPostId(findPostId);
 
-        List<Comment> findComments = commentRepository.findAllByPostId(postId);
-        findComments.stream().forEach(c -> c.deleteComment());
+        commentRepository.findByPostId(postId).stream()
+                .forEach(c -> c.deleteComment());
 
-        likeCoreService.removeAllPostLikes(findPostId);
+        likeCoreService.removePostLikes(findPostId);
 
         List<PostMedia> postMedias = postMediaRepository.findByPostId(postId);
         postMediaRepository.deleteAllInBatch(postMedias);
@@ -174,5 +169,14 @@ public class PostService {
         Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
 
         return UserPostPage.of(userPostPage);
+    }
+
+    private boolean canNotUpdatePost(Long userId, Post findPost) {
+        return !findPost.isAuthor(userId);
+    }
+
+    private boolean canNotDeletePost(Long userId, Post findPost) {
+        return !findPost.isAuthor(userId)
+                && !memberValidationService.hasSubManagerAuthority(userId, findPost.getCommunityId());
     }
 }
