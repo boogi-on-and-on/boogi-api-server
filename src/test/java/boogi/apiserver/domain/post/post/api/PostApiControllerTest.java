@@ -461,7 +461,7 @@ class PostApiControllerTest {
                 .build();
 
         given(postQueryService.getHotPosts())
-                .willReturn(HotPosts.of(List.of(hotPost1, hotPost2, hotPost3)));
+                .willReturn(HotPosts.from(List.of(hotPost1, hotPost2, hotPost3)));
 
         MockHttpSession session = createUserSession(1L);
 

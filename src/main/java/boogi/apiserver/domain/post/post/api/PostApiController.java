@@ -45,7 +45,7 @@ public class PostApiController {
                                        @Session Long sessionUserId) {
         Post newPost = postService.createPost(createPost, sessionUserId);
 
-        return new SimpleIdResponse(newPost.getId());
+        return SimpleIdResponse.from(newPost.getId());
     }
 
     @GetMapping("/{postId}")
@@ -59,7 +59,7 @@ public class PostApiController {
                                        @Session Long sessionUserId) {
         Post updatedPost = postService.updatePost(updatePost, postId, sessionUserId);
 
-        return new SimpleIdResponse(updatedPost.getId());
+        return SimpleIdResponse.from(updatedPost.getId());
     }
 
     @DeleteMapping("/{postId}")
@@ -85,7 +85,7 @@ public class PostApiController {
     public SimpleIdResponse doLikeAtPost(@PathVariable Long postId, @Session Long sessionUserId) {
         Like newLike = likeCoreService.doLikeAtPost(postId, sessionUserId);
 
-        return new SimpleIdResponse(newLike.getId());
+        return SimpleIdResponse.from(newLike.getId());
     }
 
     @GetMapping("/{postId}/likes")

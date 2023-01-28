@@ -19,7 +19,7 @@ public class HotPosts {
         this.hots = hots;
     }
 
-    public static HotPosts of(List<HotPost> hots) {
+    public static HotPosts from(List<HotPost> hots) {
         return new HotPosts(hots);
     }
 }

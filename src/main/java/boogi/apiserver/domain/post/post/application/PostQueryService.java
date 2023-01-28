@@ -60,7 +60,7 @@ public class PostQueryService {
     public HotPosts getHotPosts() {
         List<Post> hotPosts = postRepository.getHotPosts();
         List<HotPost> hots = HotPost.mapOf(hotPosts);
-        return HotPosts.of(hots);
+        return HotPosts.from(hots);
     }
 
     public List<Post> getLatestPostOfCommunity(Long communityId) {
@@ -78,7 +78,7 @@ public class PostQueryService {
     public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds = getMemberIdsForQueryUserPost(userId, sessionUserId);
         Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
-        return UserPostPage.of(userPostPage);
+        return UserPostPage.from(userPostPage);
     }
 
     private List<Long> getMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {

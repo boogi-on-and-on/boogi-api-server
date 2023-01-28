@@ -24,7 +24,7 @@ public class UserPostPage {
         this.pageInfo = PaginationDto.of(page);
     }
 
-    public static UserPostPage of(Slice<Post> page) {
+    public static UserPostPage from(Slice<Post> page) {
         return new UserPostPage(page);
     }
 

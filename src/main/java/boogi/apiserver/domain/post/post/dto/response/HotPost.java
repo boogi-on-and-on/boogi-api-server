@@ -39,13 +39,13 @@ public class HotPost {
         }
     }
 
-    public static HotPost of(Post post) {
+    public static HotPost from(Post post) {
         return new HotPost(post);
     }
 
     public static List<HotPost> mapOf(List<Post> posts) {
         return posts.stream()
-                .map(HotPost::of)
+                .map(HotPost::from)
                 .collect(Collectors.toList());
     }
 }
