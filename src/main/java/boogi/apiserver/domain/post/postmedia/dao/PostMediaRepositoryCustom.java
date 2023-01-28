@@ -1,12 +1,13 @@
 package boogi.apiserver.domain.post.postmedia.dao;
 
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 
 import java.util.List;
 
 public interface PostMediaRepositoryCustom {
 
-    List<PostMedia> findUnmappedPostMediasByUUIDs(List<String> postMediaIds);
+    PostMedias findUnmappedPostMediasByUUIDs(List<String> postMediaIds);
 
     List<PostMedia> findByPostId(Long postId);
 }

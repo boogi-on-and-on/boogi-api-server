@@ -1,14 +1,18 @@
 package boogi.apiserver.domain.post.postmedia.vo;
 
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public class PostMedias {
+
+    public static final PostMedias EMPTY = new PostMedias(List.of());
 
     private final List<PostMedia> postMedias;
 
@@ -29,6 +33,19 @@ public class PostMedias {
         List<String> newPostMediaIds = new ArrayList<>(postMediaIds);
         newPostMediaIds.removeAll(convertToUUIDList());
         return newPostMediaIds;
+    }
+
+    public void mapPost(Post post) {
+        this.postMedias.stream()
+                .forEach(pm -> pm.mapPost(post));
+    }
+
+    public boolean isSameSize(List<?> postMedias) {
+        return this.postMedias.size() == postMedias.size();
+    }
+
+    public List<PostMedia> getPostMedias() {
+        return Collections.unmodifiableList(postMedias);
     }
 
     private List<String> convertToUUIDList() {

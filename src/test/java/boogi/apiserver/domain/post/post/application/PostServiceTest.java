@@ -19,6 +19,7 @@ import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
@@ -108,7 +109,7 @@ class PostServiceTest {
                     .willReturn(post);
 
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
-                    .willReturn(List.of());
+                    .willReturn(PostMedias.EMPTY);
 
             CreatePost createPost = new CreatePost(community.getId(), "내용", List.of(), List.of(), List.of());
             Post newPost = postService.createPost(createPost, 4L);
@@ -198,7 +199,7 @@ class PostServiceTest {
                     .willReturn(List.of());
 
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
-                    .willReturn(List.of(postMedia));
+                    .willReturn(new PostMedias(List.of(postMedia)));
 
             UpdatePost updatePost = new UpdatePost("수정글", List.of(postHashtag.getTag()), List.of(postMedia.getUuid()));
 

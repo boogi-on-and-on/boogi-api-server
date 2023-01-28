@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.postmedia.application;
 
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,9 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.anyList;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class PostMediaQueryServiceTest {
@@ -33,10 +35,10 @@ class PostMediaQueryServiceTest {
         @Test
         @DisplayName("입력한 PostMedia의 UUID가 없을때 빈 리스트를 반환한다.")
         void getUnmappedPostMediasByUUIDEmptyArrSuccess() {
-            List<PostMedia> unmappedPostMedias = postMediaQueryService
+            PostMedias unmappedPostMedias = postMediaQueryService
                     .getUnmappedPostMediasByUUID(List.of());
 
-            assertThat(unmappedPostMedias.isEmpty()).isTrue();
+            assertThat(unmappedPostMedias.getPostMedias().isEmpty()).isTrue();
         }
 
         @Test
@@ -50,19 +52,19 @@ class PostMediaQueryServiceTest {
                     .id(2L)
                     .uuid("5678")
                     .build();
-            List<PostMedia> postMedias = List.of(postMedia1, postMedia2);
+            PostMedias postMedias = new PostMedias(List.of(postMedia1, postMedia2));
 
             given(postMediaRepository.findUnmappedPostMediasByUUIDs(anyList()))
                     .willReturn(postMedias);
 
-            List<PostMedia> unmappedPostMedias = postMediaQueryService
+            PostMedias unmappedPostMedias = postMediaQueryService
                     .getUnmappedPostMediasByUUID(List.of(postMedia1.getUuid(), postMedia2.getUuid()));
 
-            assertThat(unmappedPostMedias.size()).isEqualTo(2);
-            assertThat(unmappedPostMedias.get(0).getId()).isEqualTo(postMedia1.getId());
-            assertThat(unmappedPostMedias.get(0).getUuid()).isEqualTo(postMedia1.getUuid());
-            assertThat(unmappedPostMedias.get(1).getId()).isEqualTo(postMedia2.getId());
-            assertThat(unmappedPostMedias.get(1).getUuid()).isEqualTo(postMedia2.getUuid());
+            List<PostMedia> unmappedPostMediaList = unmappedPostMedias.getPostMedias();
+
+            assertThat(unmappedPostMediaList.size()).isEqualTo(2);
+            assertThat(unmappedPostMediaList).extracting("id").containsExactly(1L, 2L);
+            assertThat(unmappedPostMediaList).extracting("uuid").containsExactly("1234", "5678");
         }
 
         @Test
@@ -76,7 +78,7 @@ class PostMediaQueryServiceTest {
                     .id(2L)
                     .uuid("5678")
                     .build();
-            List<PostMedia> postMedias = List.of(postMedia1);
+            PostMedias postMedias = new PostMedias(List.of(postMedia1));
 
             given(postMediaRepository.findUnmappedPostMediasByUUIDs(anyList()))
                     .willReturn(postMedias);

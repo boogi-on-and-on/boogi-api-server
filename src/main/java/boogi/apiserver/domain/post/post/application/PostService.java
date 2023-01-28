@@ -61,8 +61,8 @@ public class PostService {
         );
 
         postHashtagCoreService.addTags(savedPost.getId(), createPost.getHashtags());
-        postMediaQueryService.getUnmappedPostMediasByUUID(createPost.getPostMediaIds()).stream()
-                .forEach(pm -> pm.mapPost(savedPost));
+        postMediaQueryService.getUnmappedPostMediasByUUID(createPost.getPostMediaIds())
+                .mapPost(savedPost);
 
         sendPushNotification.mentionNotification(
                 createPost.getMentionedUserIds(),
@@ -96,10 +96,10 @@ public class PostService {
         postMediaRepository.deleteAll(
                 findPostMedias.excludedPostMedia(postMediaIds)
         );
-        List<PostMedia> findNewPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(
+        PostMedias findNewPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(
                 findPostMedias.newPostMediaIds(postMediaIds)
         );
-        findNewPostMedias.stream().forEach(pm -> pm.mapPost(findPost));
+        findNewPostMedias.mapPost(findPost);
 
         return findPost;
     }

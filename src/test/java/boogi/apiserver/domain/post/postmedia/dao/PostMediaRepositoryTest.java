@@ -4,6 +4,7 @@ import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.utils.PersistenceUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,15 +90,16 @@ class PostMediaRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         List<String> postMediaUUIDs = List.of(postMedia1.getUuid(), postMedia2.getUuid(), postMedia3.getUuid());
-        List<PostMedia> unmappedPostMedias = postMediaRepository
-                .findUnmappedPostMediasByUUIDs(postMediaUUIDs);
+        PostMedias unmappedPostMedias = postMediaRepository.findUnmappedPostMediasByUUIDs(postMediaUUIDs);
 
-        assertThat(unmappedPostMedias.size()).isEqualTo(2);
-        assertThat(unmappedPostMedias.get(0).getId()).isEqualTo(postMedia1.getId());
-        assertThat(unmappedPostMedias.get(0).getPost()).isNull();
-        assertThat(unmappedPostMedias.get(0).getUuid()).isEqualTo(postMedia1.getUuid());
-        assertThat(unmappedPostMedias.get(1).getId()).isEqualTo(postMedia2.getId());
-        assertThat(unmappedPostMedias.get(1).getPost()).isNull();
-        assertThat(unmappedPostMedias.get(1).getUuid()).isEqualTo(postMedia2.getUuid());
+        List<PostMedia> unmappedPostMediaList = unmappedPostMedias.getPostMedias();
+
+        assertThat(unmappedPostMediaList.size()).isEqualTo(2);
+        assertThat(unmappedPostMediaList.get(0).getId()).isEqualTo(postMedia1.getId());
+        assertThat(unmappedPostMediaList.get(0).getPost()).isNull();
+        assertThat(unmappedPostMediaList.get(0).getUuid()).isEqualTo("1234");
+        assertThat(unmappedPostMediaList.get(1).getId()).isEqualTo(postMedia2.getId());
+        assertThat(unmappedPostMediaList.get(1).getPost()).isNull();
+        assertThat(unmappedPostMediaList.get(1).getUuid()).isEqualTo("2345");
     }
 }

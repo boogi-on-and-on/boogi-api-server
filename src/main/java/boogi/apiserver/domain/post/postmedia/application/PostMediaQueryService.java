@@ -1,13 +1,12 @@
 package boogi.apiserver.domain.post.postmedia.application;
 
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
-import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,13 +16,13 @@ public class PostMediaQueryService {
 
     private final PostMediaRepository postMediaRepository;
 
-    public List<PostMedia> getUnmappedPostMediasByUUID(List<String> postMediaIds) {
+    public PostMedias getUnmappedPostMediasByUUID(List<String> postMediaIds) {
         if (postMediaIds == null || postMediaIds.isEmpty())
-            return new ArrayList<>();
+            return PostMedias.EMPTY;
 
-        List<PostMedia> findPostMedias = postMediaRepository.findUnmappedPostMediasByUUIDs(postMediaIds);
+        PostMedias findPostMedias = postMediaRepository.findUnmappedPostMediasByUUIDs(postMediaIds);
 
-        if (postMediaIds.size() != findPostMedias.size()) {
+        if (!findPostMedias.isSameSize(postMediaIds)) {
             throw new InvalidValueException("잘못된 요청입니다");
         }
         return findPostMedias;
