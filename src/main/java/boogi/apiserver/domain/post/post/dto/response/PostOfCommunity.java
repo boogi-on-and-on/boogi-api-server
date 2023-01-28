@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Data
-@NoArgsConstructor
 @Builder
 @AllArgsConstructor
 public class PostOfCommunity {

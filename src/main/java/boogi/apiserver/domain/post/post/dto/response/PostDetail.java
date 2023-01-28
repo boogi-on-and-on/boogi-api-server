@@ -128,7 +128,7 @@ public class PostDetail {
         this.member = MemberInfo.toDto(post.getMember());
         this.community = CommunityInfo.toDto(post.getCommunity());
         this.postMedias = postMedias.isEmpty() ? null : postMedias.stream()
-                .map(pm -> PostMediaInfo.toDto(pm))
+                .map(PostMediaInfo::toDto)
                 .collect(Collectors.toList());
         this.likeId = likeId;
         this.createdAt = post.getCreatedAt();
