@@ -50,7 +50,7 @@ public class PostApiController {
 
     @GetMapping("/{postId}")
     public PostDetail getPostDetail(@PathVariable Long postId, @Session Long sessionUserId) {
-        return postService.getPostDetail(postId, sessionUserId);
+        return postQueryService.getPostDetail(postId, sessionUserId);
     }
 
     @PatchMapping("/{postId}")
@@ -73,12 +73,12 @@ public class PostApiController {
                                          Pageable pageable) {
         Long infoUserid = Objects.requireNonNullElse(userId, sessionUserId);
 
-        return postService.getUserPosts(infoUserid, sessionUserId, pageable);
+        return postQueryService.getUserPosts(infoUserid, sessionUserId, pageable);
     }
 
     @GetMapping("/hot")
     public HotPosts getHotPosts() {
-        return new HotPosts(postQueryService.getHotPosts());
+        return postQueryService.getHotPosts();
     }
 
     @PostMapping("/{postId}/likes")

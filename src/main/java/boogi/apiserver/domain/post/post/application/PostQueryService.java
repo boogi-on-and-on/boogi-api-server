@@ -1,12 +1,18 @@
 package boogi.apiserver.domain.post.post.application;
 
+import boogi.apiserver.domain.like.application.LikeQueryService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.response.HotPost;
-import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
-import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.response.*;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
+import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -14,14 +20,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostQueryService {
 
+    private final MemberRepository memberRepository;
+    private final PostMediaRepository postMediaRepository;
     private final PostRepository postRepository;
+
+    private final UserQueryService userQueryService;
+    private final MemberQueryService memberQueryService;
+    private final LikeQueryService likeQueryService;
 
     public Post getPost(Long postId) {
         if (postId == null) {
@@ -31,17 +42,25 @@ public class PostQueryService {
                 .orElseThrow(PostNotFoundException::new);
     }
 
-    public UserPostPage getUserPosts(Pageable pageable, Long userId) {
-        Slice<Post> userPostSlice = postRepository.getUserPostPage(pageable, userId);
+    public PostDetail getPostDetail(Long postId, Long userId) {
+        Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
 
-        return UserPostPage.of(userPostSlice);
+        Member member = memberQueryService.getViewableMember(userId, findPost.getCommunity());
+        List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
+
+        return new PostDetail(
+                findPost,
+                findPostMedias,
+                userId,
+                likeQueryService.getPostLikeIdForView(postId, member)
+        );
     }
 
-    public List<HotPost> getHotPosts() {
-        return postRepository.getHotPosts()
-                .stream()
-                .map(HotPost::of)
-                .collect(Collectors.toList());
+    public HotPosts getHotPosts() {
+        List<Post> hotPosts = postRepository.getHotPosts();
+        List<HotPost> hots = HotPost.mapOf(hotPosts);
+        return HotPosts.of(hots);
     }
 
     public List<Post> getLatestPostOfCommunity(Long communityId) {
@@ -54,5 +73,19 @@ public class PostQueryService {
 
     public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         return postRepository.getSearchedPosts(pageable, request, userId);
+    }
+
+    public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
+        List<Long> findMemberIds = getMemberIdsForQueryUserPost(userId, sessionUserId);
+        Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
+        return UserPostPage.of(userPostPage);
+    }
+
+    private List<Long> getMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
+        if (userId.equals(sessionUserId)) {
+            return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
+        }
+        userQueryService.getUser(userId);
+        return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
     }
 }

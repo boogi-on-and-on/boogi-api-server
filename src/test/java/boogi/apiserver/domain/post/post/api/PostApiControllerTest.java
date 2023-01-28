@@ -171,7 +171,7 @@ class PostApiControllerTest {
 
         PostDetail postDetail = new PostDetail(post, List.of(postMedia), 1L, 7L);
 
-        given(postService.getPostDetail(anyLong(), anyLong()))
+        given(postQueryService.getPostDetail(anyLong(), anyLong()))
                 .willReturn(postDetail);
 
         String formattedCreatedTime = CustomDateTimeFormatter
@@ -258,7 +258,7 @@ class PostApiControllerTest {
                 .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
 
-        given(postService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
+        given(postQueryService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(pageInfo);
 
         MockHttpSession session = createUserSession(3L);
@@ -461,7 +461,7 @@ class PostApiControllerTest {
                 .build();
 
         given(postQueryService.getHotPosts())
-                .willReturn(List.of(hotPost1, hotPost2, hotPost3));
+                .willReturn(HotPosts.of(List.of(hotPost1, hotPost2, hotPost3)));
 
         MockHttpSession session = createUserSession(1L);
 

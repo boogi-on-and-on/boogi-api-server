@@ -123,7 +123,7 @@ class ReportServiceTest {
                     .id(1L)
                     .community(community)
                     .build();
-            given(postRepository.findPostById(anyLong()))
+            given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
             Comment comment = Comment.builder()
@@ -165,7 +165,7 @@ class ReportServiceTest {
                     .id(1L)
                     .community(community)
                     .build();
-            given(postRepository.findPostById(anyLong()))
+            given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
             given(communityQueryService.getCommunity(anyLong()))

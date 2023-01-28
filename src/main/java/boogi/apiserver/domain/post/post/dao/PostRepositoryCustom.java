@@ -11,8 +11,6 @@ import java.util.Optional;
 
 public interface PostRepositoryCustom {
 
-    Slice<Post> getUserPostPage(Pageable pageable, Long userId);
-
     List<Post> getHotPosts();
 
     List<Post> getLatestPostOfCommunity(Long communityId);
@@ -24,8 +22,6 @@ public interface PostRepositoryCustom {
     Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId);
 
     Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
-
-    Optional<Post> findPostById(Long postId);
 
     Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable);
 }

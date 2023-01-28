@@ -42,4 +42,10 @@ public class HotPost {
     public static HotPost of(Post post) {
         return new HotPost(post);
     }
+
+    public static List<HotPost> mapOf(List<Post> posts) {
+        return posts.stream()
+                .map(HotPost::of)
+                .collect(Collectors.toList());
+    }
 }

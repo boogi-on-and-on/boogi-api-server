@@ -56,7 +56,7 @@ public class ReportService {
                 });
                 break;
             case POST:
-                Post findPost = postRepository.findPostById(id).orElseThrow(() -> {
+                Post findPost = postRepository.findById(id).orElseThrow(() -> {
                     throw new EntityNotFoundException("해당 신고 대상이 존재하지 않습니다", ErrorInfo.COMMON_NOT_FOUND);
                 });
 
