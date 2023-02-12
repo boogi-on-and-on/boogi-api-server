@@ -5,11 +5,13 @@ import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,12 +39,11 @@ class AlarmConfigCoreServiceTest {
         given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
                 .willReturn(null);
 
-        User user = User.builder()
-                .id(1L)
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         given(userQueryService.getUser(any()))
                 .willReturn(user);
-
         //when
         AlarmConfig alarmConfig = alarmConfigCoreService.findOrElseCreateAlarmConfig(user.getId());
 

@@ -13,6 +13,7 @@ import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
 import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -283,17 +285,15 @@ class UserApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        AlarmConfig alarmConfig = AlarmConfig.builder()
-                .message(null)
-                .notice(true)
-                .joinRequest(true)
-                .comment(false)
-                .mention(true)
-                .build();
+        final AlarmConfig config = TestEmptyEntityGenerator.AlarmConfig();
+        ReflectionTestUtils.setField(config, "notice", true);
+        ReflectionTestUtils.setField(config, "joinRequest", true);
+        ReflectionTestUtils.setField(config, "comment", false);
+        ReflectionTestUtils.setField(config, "mention", true);
 
 
         given(alarmConfigCoreService.findOrElseCreateAlarmConfig(anyLong()))
-                .willReturn(alarmConfig);
+                .willReturn(config);
 
         mvc.perform(
                         MockMvcRequestBuilders.get("/api/users/config/notifications")
