@@ -120,7 +120,7 @@ class CommentApiControllerTest {
 
         final Comment newComment = TestEmptyEntityGenerator.Comment();
         ReflectionTestUtils.setField(newComment, "id", 1L);
-        
+
         given(commentCoreService.createComment(any(CreateComment.class), eq(1L)))
                 .willReturn(newComment);
 
@@ -140,9 +140,9 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글에 좋아요 하기")
     void testDoLikeAtComment() throws Exception {
-        Like like = Like.builder()
-                .id(1L)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "id", 1L);
+
         given(likeCoreService.doLikeAtComment(anyLong(), anyLong()))
                 .willReturn(like);
 

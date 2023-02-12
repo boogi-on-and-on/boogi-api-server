@@ -323,16 +323,16 @@ class CommentCoreServiceTest {
             ReflectionTestUtils.setField(cComment2, "post", post);
             ReflectionTestUtils.setField(cComment2, "parent", pComment2);
 
-            Like like1 = Like.builder()
-                    .id(1L)
-                    .member(member)
-                    .comment(pComment1)
-                    .build();
-            Like like2 = Like.builder()
-                    .id(2L)
-                    .member(member)
-                    .comment(cComment1)
-                    .build();
+            final Like like1 = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like1, "id", 1L);
+            ReflectionTestUtils.setField(like1, "member", member);
+            ReflectionTestUtils.setField(like1, "comment", pComment1);
+
+            final Like like2 = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like2, "id", 2L);
+            ReflectionTestUtils.setField(like2, "member", member);
+            ReflectionTestUtils.setField(like2, "comment", cComment1);
+
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))

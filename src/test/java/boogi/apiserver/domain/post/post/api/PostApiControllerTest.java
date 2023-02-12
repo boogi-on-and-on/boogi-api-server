@@ -276,9 +276,9 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글에 좋아요하기")
     void testDoLikeAtPost() throws Exception {
-        Like like = Like.builder()
-                .id(1L)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "id", 1L);
+
         given(likeCoreService.doLikeAtPost(anyLong(), anyLong()))
                 .willReturn(like);
 

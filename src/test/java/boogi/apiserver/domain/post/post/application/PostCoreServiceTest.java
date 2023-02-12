@@ -236,9 +236,9 @@ class PostCoreServiceTest {
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of(postMedia));
 
-            Like like = Like.builder()
-                    .id(1L)
-                    .build();
+            final Like like = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like, "id", 1L);
+
             given(likeRepository.findPostLikeByPostIdAndMemberId(anyLong(), anyLong()))
                     .willReturn(Optional.of(like));
 

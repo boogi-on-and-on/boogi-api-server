@@ -211,11 +211,11 @@ class LikeCoreServiceTest {
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);
 
-            Like like = Like.builder()
-                    .id(1L)
-                    .comment(comment)
-                    .member(member)
-                    .build();
+            final Like like = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like, "id", 1L);
+            ReflectionTestUtils.setField(like, "comment", comment);
+            ReflectionTestUtils.setField(like, "member", member);
+
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
@@ -242,11 +242,11 @@ class LikeCoreServiceTest {
                     .likeCount(1)
                     .build();
 
-            Like like = Like.builder()
-                    .id(1L)
-                    .post(post)
-                    .member(member)
-                    .build();
+            final Like like = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like, "id", 1L);
+            ReflectionTestUtils.setField(like, "post", post);
+            ReflectionTestUtils.setField(like, "member", member);
+
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
@@ -271,11 +271,11 @@ class LikeCoreServiceTest {
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);
 
-            Like like = Like.builder()
-                    .id(1L)
-                    .comment(comment)
-                    .member(member)
-                    .build();
+            final Like like = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like, "id", 1L);
+            ReflectionTestUtils.setField(like, "comment", comment);
+            ReflectionTestUtils.setField(like, "member", member);
+
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
@@ -311,11 +311,11 @@ class LikeCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 
-            Like like = Like.builder()
-                    .id(1L)
-                    .member(member)
-                    .post(post)
-                    .build();
+            final Like like = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like, "id", 1L);
+            ReflectionTestUtils.setField(like, "post", post);
+            ReflectionTestUtils.setField(like, "member", member);
+
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
 
@@ -398,11 +398,12 @@ class LikeCoreServiceTest {
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(comment));
 
-            Like like = Like.builder()
-                    .id(1L)
-                    .member(member)
-                    .comment(comment)
-                    .build();
+
+            final Like like = TestEmptyEntityGenerator.Like();
+            ReflectionTestUtils.setField(like, "id", 1L);
+            ReflectionTestUtils.setField(like, "comment", comment);
+            ReflectionTestUtils.setField(like, "member", member);
+
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
 

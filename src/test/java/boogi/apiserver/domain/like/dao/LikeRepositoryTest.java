@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -62,12 +63,12 @@ class LikeRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Like like1 = Like.builder()
-                .post(post)
-                .build();
-        Like like2 = Like.builder()
-                .post(post)
-                .build();
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "post", post);
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "post", post);
+
         likeRepository.saveAll(List.of(like1, like2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -94,12 +95,12 @@ class LikeRepositoryTest {
         final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
-        Like like1 = Like.builder()
-                .post(post)
-                .build();
-        Like like2 = Like.builder()
-                .comment(comment)
-                .build();
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "post", post);
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "comment", comment);
+
         likeRepository.saveAll(List.of(like1, like2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -122,12 +123,12 @@ class LikeRepositoryTest {
         final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
-        Like like1 = Like.builder()
-                .post(post)
-                .build();
-        Like like2 = Like.builder()
-                .comment(comment)
-                .build();
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "post", post);
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "comment", comment);
+
         likeRepository.saveAll(List.of(like1, like2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -154,10 +155,10 @@ class LikeRepositoryTest {
         assertThat(likeRepository.existsLikeByPostIdAndMemberId(post.getId(), member.getId()))
                 .isFalse();
 
-        Like like = Like.builder()
-                .post(post)
-                .member(member)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "post", post);
+        ReflectionTestUtils.setField(like, "member", member);
+
         likeRepository.save(like);
 
         persistenceUtil.cleanPersistenceContext();
@@ -179,10 +180,10 @@ class LikeRepositoryTest {
         assertThat(likeRepository.existsLikeByCommentIdAndMemberId(comment.getId(), member.getId()))
                 .isFalse();
 
-        Like like = Like.builder()
-                .comment(comment)
-                .member(member)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "comment", comment);
+        ReflectionTestUtils.setField(like, "member", member);
+
         likeRepository.save(like);
 
         persistenceUtil.cleanPersistenceContext();
@@ -198,9 +199,9 @@ class LikeRepositoryTest {
                 .build();
         memberRepository.save(member);
 
-        Like like = Like.builder()
-                .member(member)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "member", member);
+
         likeRepository.save(like);
 
         persistenceUtil.cleanPersistenceContext();
@@ -225,10 +226,10 @@ class LikeRepositoryTest {
                 .build();
         memberRepository.save(member);
 
-        Like like = Like.builder()
-                .post(post)
-                .member(member)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "post", post);
+        ReflectionTestUtils.setField(like, "member", member);
+
         likeRepository.save(like);
 
         persistenceUtil.cleanPersistenceContext();
@@ -256,14 +257,14 @@ class LikeRepositoryTest {
         List<Comment> comments = List.of(comment1, comment2);
         commentRepository.saveAll(comments);
 
-        Like like1 = Like.builder()
-                .comment(comment1)
-                .member(member)
-                .build();
-        Like like2 = Like.builder()
-                .comment(comment2)
-                .member(member)
-                .build();
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "comment", comment1);
+        ReflectionTestUtils.setField(like1, "member", member);
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "comment", comment2);
+        ReflectionTestUtils.setField(like2, "member", member);
+
         likeRepository.saveAll(List.of(like1, like2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -291,18 +292,19 @@ class LikeRepositoryTest {
                 .build();
         memberRepository.save(member);
 
-        Like like1 = Like.builder()
-                .post(post)
-                .member(member)
-                .build();
-        like1.setCreatedAt(LocalDateTime.now().minusHours(2));
-        Like like2 = Like.builder()
-                .post(post)
-                .member(member)
-                .build();
-        like2.setCreatedAt(LocalDateTime.now().minusHours(1));
-        Like like3 = Like.builder()
-                .build();
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "post", post);
+        ReflectionTestUtils.setField(like1, "member", member);
+        ReflectionTestUtils.setField(like1, "createdAt", LocalDateTime.now().minusHours(2));
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "post", post);
+        ReflectionTestUtils.setField(like2, "member", member);
+        ReflectionTestUtils.setField(like2, "createdAt", LocalDateTime.now().minusHours(1));
+
+        final Like like3 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like3, "createdAt", LocalDateTime.now());
+
         like3.setCreatedAt(LocalDateTime.now());
         likeRepository.saveAll(List.of(like1, like2, like3));
 
@@ -340,19 +342,19 @@ class LikeRepositoryTest {
                 .build();
         memberRepository.save(member);
 
-        Like like1 = Like.builder()
-                .comment(comment)
-                .member(member)
-                .build();
-        like1.setCreatedAt(LocalDateTime.now().minusHours(2));
-        Like like2 = Like.builder()
-                .comment(comment)
-                .member(member)
-                .build();
-        like2.setCreatedAt(LocalDateTime.now().minusHours(1));
-        Like like3 = Like.builder()
-                .build();
-        like3.setCreatedAt(LocalDateTime.now());
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "comment", comment);
+        ReflectionTestUtils.setField(like1, "member", member);
+        ReflectionTestUtils.setField(like1, "createdAt", LocalDateTime.now().minusHours(2));
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "comment", comment);
+        ReflectionTestUtils.setField(like2, "member", member);
+        ReflectionTestUtils.setField(like2, "createdAt", LocalDateTime.now().minusHours(2));
+
+        final Like like3 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like3, "createdAt", LocalDateTime.now());
+
         likeRepository.saveAll(List.of(like1, like2, like3));
 
         persistenceUtil.cleanPersistenceContext();
@@ -389,12 +391,13 @@ class LikeRepositoryTest {
         List<Comment> comments = List.of(comment1, comment2);
         commentRepository.saveAll(comments);
 
-        Like like1 = Like.builder()
-                .comment(comment1)
-                .build();
-        Like like2 = Like.builder()
-                .comment(comment1)
-                .build();
+
+        final Like like1 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like1, "comment", comment1);
+
+        final Like like2 = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like2, "comment", comment1);
+
         likeRepository.saveAll(List.of(like1, like2));
 
         persistenceUtil.cleanPersistenceContext();
