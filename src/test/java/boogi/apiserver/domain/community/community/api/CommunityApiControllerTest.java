@@ -504,16 +504,15 @@ class CommunityApiControllerTest {
             final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
             ReflectionTestUtils.setField(postHashtag1, "tag", "t1");
 
-            final PostMedia build = PostMedia.builder()
-                    .mediaURL("123")
-                    .mediaType(IMG)
-                    .build();
+            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia, "mediaURL", "123");
+            ReflectionTestUtils.setField(postMedia, "mediaType", IMG);
 
             final Post post = TestEmptyEntityGenerator.Post();
             ReflectionTestUtils.setField(post, "id", 1L);
             ReflectionTestUtils.setField(post, "content", "내용1");
             ReflectionTestUtils.setField(post, "likeCount", 1);
-            ReflectionTestUtils.setField(post, "postMedias", List.of(build));
+            ReflectionTestUtils.setField(post, "postMedias", List.of(postMedia));
             ReflectionTestUtils.setField(post, "commentCount", 1);
             ReflectionTestUtils.setField(post, "member", member);
             ReflectionTestUtils.setField(post, "community", community);

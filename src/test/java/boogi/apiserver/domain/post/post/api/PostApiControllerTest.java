@@ -150,12 +150,11 @@ class PostApiControllerTest {
         ReflectionTestUtils.setField(post, "hashtags", List.of(postHashtag));
         ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
 
-        PostMedia postMedia = PostMedia.builder()
-                .id(1L)
-                .post(post)
-                .mediaType(boogi.apiserver.domain.post.postmedia.domain.MediaType.IMG)
-                .mediaURL("mediaUrl")
-                .build();
+        final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia, "id", 1L);
+        ReflectionTestUtils.setField(postMedia, "post", post);
+        ReflectionTestUtils.setField(postMedia, "mediaURL", "123");
+        ReflectionTestUtils.setField(postMedia, "mediaType", boogi.apiserver.domain.post.postmedia.domain.MediaType.IMG);
 
         PostDetail postDetail = new PostDetail(post, List.of(postMedia), Boolean.TRUE, 1L);
 

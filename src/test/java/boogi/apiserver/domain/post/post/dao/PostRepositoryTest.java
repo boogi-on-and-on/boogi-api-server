@@ -111,11 +111,12 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
-        PostMedia postMedia = PostMedia.builder()
-                .post(post1)
-                .mediaURL("123")
-                .mediaType(MediaType.IMG)
-                .build();
+
+        final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia, "post", post1);
+        ReflectionTestUtils.setField(postMedia, "mediaURL", "123");
+        ReflectionTestUtils.setField(postMedia, "mediaType", MediaType.IMG);
+
         postMediaRepository.save(postMedia);
 
         final PostHashtag hashtagOfPost1 = TestEmptyEntityGenerator.PostHashtag();
@@ -350,11 +351,11 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
-        PostMedia postMedia1 = PostMedia.builder()
-                .post(post1)
-                .mediaURL("123")
-                .mediaType(MediaType.IMG)
-                .build();
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "post", post1);
+        ReflectionTestUtils.setField(postMedia1, "mediaURL", "123");
+        ReflectionTestUtils.setField(postMedia1, "mediaType", MediaType.IMG);
+
         postMediaRepository.save(postMedia1);
 
         final PostHashtag p1_t1 = TestEmptyEntityGenerator.PostHashtag();
@@ -438,16 +439,16 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(p1, p2, p3));
 
-        PostMedia postMedia1 = PostMedia.builder()
-                .post(p3)
-                .mediaType(MediaType.IMG)
-                .mediaURL("123")
-                .build();
-        PostMedia postMedia2 = PostMedia.builder()
-                .post(p3)
-                .mediaType(MediaType.IMG)
-                .mediaURL("456")
-                .build();
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "post", p3);
+        ReflectionTestUtils.setField(postMedia1, "mediaURL", "123");
+        ReflectionTestUtils.setField(postMedia1, "mediaType", MediaType.IMG);
+
+        final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia2, "post", p3);
+        ReflectionTestUtils.setField(postMedia2, "mediaURL", "456");
+        ReflectionTestUtils.setField(postMedia2, "mediaType", MediaType.IMG);
+
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2));
 
         PostHashtag p1_ht1 = PostHashtag.of("헤헤", p1);

@@ -15,8 +15,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "POST_MEDIA")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @Where(clause = "deleted_at is null")
 @SQLDelete(sql = "UPDATE post_media SET deleted_at = now() WHERE post_media_id = ?")
 public class PostMedia extends TimeBaseEntity {

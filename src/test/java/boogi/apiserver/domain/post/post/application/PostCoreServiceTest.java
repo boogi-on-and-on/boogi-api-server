@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static boogi.apiserver.domain.post.postmedia.domain.MediaType.IMG;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -225,11 +226,11 @@ class PostCoreServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            PostMedia postMedia = PostMedia.builder()
-                    .id(1L)
-                    .mediaType(MediaType.IMG)
-                    .mediaURL("url")
-                    .build();
+
+            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia, "id", 1L);
+            ReflectionTestUtils.setField(postMedia, "mediaURL", "url");
+            ReflectionTestUtils.setField(postMedia, "mediaType", MediaType.IMG);
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of(postMedia));
 
@@ -346,10 +347,11 @@ class PostCoreServiceTest {
 
             given(postHashtagCoreService.addTags(anyLong(), anyList()))
                     .willReturn(List.of(postHashtag));
-            PostMedia postMedia = PostMedia.builder()
-                    .id(1L)
-                    .uuid("uuid")
-                    .build();
+
+            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia, "id", 1L);
+            ReflectionTestUtils.setField(postMedia, "uuid", "uuid");
+
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of());
 
@@ -405,9 +407,9 @@ class PostCoreServiceTest {
             given(commentRepository.findAllByPostId(anyLong()))
                     .willReturn(List.of(comment));
 
-            PostMedia postMedia = PostMedia.builder()
-                    .id(1L)
-                    .build();
+            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia, "id", 1L);
+
             List<PostMedia> postMedias = List.of(postMedia);
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(postMedias);
