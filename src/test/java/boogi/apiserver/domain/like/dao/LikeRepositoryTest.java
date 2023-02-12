@@ -9,6 +9,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,8 +91,7 @@ class LikeRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment = Comment.builder()
-                .build();
+        final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
         Like like1 = Like.builder()
@@ -119,8 +119,7 @@ class LikeRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment = Comment.builder()
-                .build();
+        final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
         Like like1 = Like.builder()
@@ -170,8 +169,7 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("CommentId와 MemberId로 좋아요가 존재하는지 여부만 확인한다.")
     void testexistsLikeByCommentIdAndMemberId() {
-        Comment comment = Comment.builder()
-                .build();
+        final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
         Member member = Member.builder()
@@ -252,10 +250,9 @@ class LikeRepositoryTest {
                 .build();
         memberRepository.save(member);
 
-        Comment comment1 = Comment.builder()
-                .build();
-        Comment comment2 = Comment.builder()
-                .build();
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+
         List<Comment> comments = List.of(comment1, comment2);
         commentRepository.saveAll(comments);
 
@@ -336,8 +333,7 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("댓글에 한 좋아요들을 오래된 순으로 페이지네이션해서 fetch join으로 Member와 같이 CommentId로 조회한다.")
     void testFindCommentLikePageWithMemberByCommentId() {
-        Comment comment = Comment.builder()
-                .build();
+        final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
         Member member = Member.builder()
@@ -386,10 +382,10 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("CommentId와 댓글에 한 좋아요 개수를 매핑한 Map을 좋아요 개수가 0인 경우를 제외하고 CommentId들로 조회한다.")
     void testGetCommentLikeCountsByCommentIds() {
-        Comment comment1 = Comment.builder()
-                .build();
-        Comment comment2 = Comment.builder()
-                .build();
+
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+
         List<Comment> comments = List.of(comment1, comment2);
         commentRepository.saveAll(comments);
 

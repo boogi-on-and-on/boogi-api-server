@@ -18,6 +18,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -149,10 +151,10 @@ class LikeCoreServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .member(member)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "member", member);
+
             given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
                     .willReturn(Optional.of(comment));
 
@@ -180,10 +182,10 @@ class LikeCoreServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .member(member)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "member", member);
+
             given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
                     .willReturn(Optional.of(comment));
 
@@ -210,9 +212,8 @@ class LikeCoreServiceTest {
                     .user(user)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
 
             Like like = Like.builder()
                     .id(1L)
@@ -271,9 +272,8 @@ class LikeCoreServiceTest {
                     .user(user)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
 
             Like like = Like.builder()
                     .id(1L)
@@ -397,11 +397,11 @@ class LikeCoreServiceTest {
                     .community(community)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .member(member)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "post", post);
+            ReflectionTestUtils.setField(comment, "member", member);
+
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(comment));
 
@@ -447,10 +447,11 @@ class LikeCoreServiceTest {
                     .community(community)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .build();
+
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "post", post);
+
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(comment));
 

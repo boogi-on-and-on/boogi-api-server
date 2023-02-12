@@ -27,6 +27,7 @@ import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +41,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -357,11 +359,11 @@ class PostApiControllerTest {
                 .build();
         List<CommentsAtPost.ChildCommentInfo> childCommentInfos = List.of(childCommentInfo);
 
-        Comment parentComment = Comment.builder()
-                .id(1L)
-                .content("부모댓글")
-                .build();
-        parentComment.setCreatedAt(LocalDateTime.now());
+        final Comment parentComment = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(parentComment, "id", 1L);
+        ReflectionTestUtils.setField(parentComment, "content", "부모댓글");
+        ReflectionTestUtils.setField(parentComment, "createdAt", LocalDateTime.now());
+
         List<Comment> comments = List.of(parentComment);
 
         CommentsAtPost.ParentCommentInfo parentCommentInfo = CommentsAtPost.ParentCommentInfo.builder()

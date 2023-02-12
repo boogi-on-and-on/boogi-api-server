@@ -13,6 +13,7 @@ import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -116,9 +118,9 @@ class CommentApiControllerTest {
     void testCreateComment() throws Exception {
         CreateComment createComment = new CreateComment(1L, null, null, null);
 
-        Comment newComment = Comment.builder()
-                .id(1L)
-                .build();
+        final Comment newComment = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(newComment, "id", 1L);
+        
         given(commentCoreService.createComment(any(CreateComment.class), eq(1L)))
                 .willReturn(newComment);
 

@@ -9,12 +9,14 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -64,23 +66,21 @@ class CommentRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment1 = Comment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        comment1.setCreatedAt(LocalDateTime.now().minusHours(3));
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment1, "member", member);
+        ReflectionTestUtils.setField(comment1, "post", post);
+        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(3));
 
-        Comment comment2 = Comment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        comment2.setCreatedAt(LocalDateTime.now().minusHours(2));
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment2, "member", member);
+        ReflectionTestUtils.setField(comment2, "post", post);
+        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(2));
 
-        Comment comment3 = Comment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        comment3.setCreatedAt(LocalDateTime.now().minusHours(1));
+        final Comment comment3 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment3, "member", member);
+        ReflectionTestUtils.setField(comment3, "post", post);
+        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now().minusHours(1));
+
 
         commentRepository.saveAll(List.of(comment1, comment2, comment3));
 
@@ -126,17 +126,16 @@ class CommentRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment1 = Comment.builder()
-                .post(post)
-                .member(member)
-                .build();
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment1, "member", member);
+        ReflectionTestUtils.setField(comment1, "post", post);
         commentRepository.save(comment1);
 
-        Comment comment2 = Comment.builder()
-                .post(post)
-                .member(member)
-                .parent(comment1)
-                .build();
+
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment2, "member", member);
+        ReflectionTestUtils.setField(comment2, "post", post);
+        ReflectionTestUtils.setField(comment2, "parent", comment1);
         commentRepository.save(comment2);
 
         persistenceUtil.cleanPersistenceContext();
@@ -171,28 +170,27 @@ class CommentRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment1 = Comment.builder()
-                .post(post)
-                .member(member)
-                .child(false)
-                .build();
-        comment1.setCreatedAt(LocalDateTime.now().minusHours(2));
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment1, "member", member);
+        ReflectionTestUtils.setField(comment1, "post", post);
+        ReflectionTestUtils.setField(comment1, "child", false);
+        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(2));
         commentRepository.save(comment1);
 
-        Comment comment2 = Comment.builder()
-                .post(post)
-                .member(member)
-                .parent(comment1)
-                .child(true)
-                .build();
-        comment2.setCreatedAt(LocalDateTime.now().minusHours(1));
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment2, "member", member);
+        ReflectionTestUtils.setField(comment2, "post", post);
+        ReflectionTestUtils.setField(comment2, "parent", comment1);
+        ReflectionTestUtils.setField(comment2, "child", true);
+        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(1));
         commentRepository.save(comment2);
 
-        Comment comment3 = Comment.builder()
-                .post(post)
-                .member(member)
-                .child(false)
-                .build();
+        final Comment comment3 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment3, "member", member);
+        ReflectionTestUtils.setField(comment3, "post", post);
+        ReflectionTestUtils.setField(comment3, "child", false);
+        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now());
+
         comment3.setCreatedAt(LocalDateTime.now());
         commentRepository.save(comment3);
 
@@ -230,38 +228,39 @@ class CommentRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment1 = Comment.builder()
-                .post(post)
-                .member(member)
-                .child(false)
-                .build();
-        comment1.setCreatedAt(LocalDateTime.now().minusHours(2));
+
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment1, "member", member);
+        ReflectionTestUtils.setField(comment1, "post", post);
+        ReflectionTestUtils.setField(comment1, "child", false);
+        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(2));
+
         commentRepository.save(comment1);
 
-        Comment comment2 = Comment.builder()
-                .post(post)
-                .member(member)
-                .parent(comment1)
-                .child(true)
-                .build();
-        comment2.setCreatedAt(LocalDateTime.now().minusHours(1));
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment2, "member", member);
+        ReflectionTestUtils.setField(comment2, "post", post);
+        ReflectionTestUtils.setField(comment2, "child", true);
+        ReflectionTestUtils.setField(comment2, "parent", comment1);
+        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(1));
+
         commentRepository.save(comment2);
 
-        Comment comment3 = Comment.builder()
-                .post(post)
-                .member(member)
-                .child(false)
-                .build();
-        comment3.setCreatedAt(LocalDateTime.now());
+        final Comment comment3 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment3, "member", member);
+        ReflectionTestUtils.setField(comment3, "post", post);
+        ReflectionTestUtils.setField(comment3, "child", false);
+        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now());
+
         commentRepository.save(comment3);
 
-        Comment comment4 = Comment.builder()
-                .post(post)
-                .member(member)
-                .parent(comment1)
-                .child(true)
-                .build();
-        comment4.setCreatedAt(LocalDateTime.now());
+        final Comment comment4 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment4, "member", member);
+        ReflectionTestUtils.setField(comment4, "post", post);
+        ReflectionTestUtils.setField(comment4, "child", true);
+        ReflectionTestUtils.setField(comment4, "parent", comment1);
+        ReflectionTestUtils.setField(comment4, "createdAt", LocalDateTime.now());
+
         commentRepository.save(comment4);
 
         persistenceUtil.cleanPersistenceContext();
@@ -291,10 +290,9 @@ class CommentRepositoryTest {
     @Test
     @DisplayName("삭제되지 않은 댓글의 경우만 가져온다.")
     void testFindCommentById() {
-        Comment comment1 = Comment.builder()
-                .build();
-        Comment comment2 = Comment.builder()
-                .build();
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+
         comment2.deleteComment();
         commentRepository.saveAll(List.of(comment1, comment2));
 
@@ -322,46 +320,46 @@ class CommentRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Comment comment1 = Comment.builder()
-                .post(post)
-                .member(member1)
-                .child(false)
-                .build();
-        comment1.setCreatedAt(LocalDateTime.now().minusHours(3));
+        final Comment comment1 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment1, "post", post);
+        ReflectionTestUtils.setField(comment1, "child", false);
+        ReflectionTestUtils.setField(comment1, "member", member1);
+        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(3));
+
         commentRepository.save(comment1);
 
-        Comment comment2 = Comment.builder()
-                .post(post)
-                .member(member2)
-                .parent(comment1)
-                .child(true)
-                .build();
-        comment2.setCreatedAt(LocalDateTime.now().minusHours(2));
+        final Comment comment2 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment2, "post", post);
+        ReflectionTestUtils.setField(comment2, "member", member2);
+        ReflectionTestUtils.setField(comment2, "parent", comment1);
+        ReflectionTestUtils.setField(comment2, "child", true);
+        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(2));
+
         commentRepository.save(comment2);
 
-        Comment comment3 = Comment.builder()
-                .post(post)
-                .member(member2)
-                .child(false)
-                .build();
-        comment3.setCreatedAt(LocalDateTime.now().minusHours(1));
+        final Comment comment3 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment3, "post", post);
+        ReflectionTestUtils.setField(comment3, "member", member2);
+        ReflectionTestUtils.setField(comment3, "child", false);
+        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now().minusHours(1));
+
         commentRepository.save(comment3);
 
-        Comment comment4 = Comment.builder()
-                .post(post)
-                .member(member1)
-                .parent(comment1)
-                .child(true)
-                .build();
-        comment4.setCreatedAt(LocalDateTime.now());
+        final Comment comment4 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment4, "post", post);
+        ReflectionTestUtils.setField(comment4, "member", member1);
+        ReflectionTestUtils.setField(comment4, "parent", comment1);
+        ReflectionTestUtils.setField(comment4, "child", true);
+        ReflectionTestUtils.setField(comment4, "createdAt", LocalDateTime.now());
+
         commentRepository.save(comment4);
 
-        Comment comment5 = Comment.builder()
-                .post(post)
-                .member(member1)
-                .child(false)
-                .build();
-        comment5.setCreatedAt(LocalDateTime.now());
+        final Comment comment5 = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(comment5, "post", post);
+        ReflectionTestUtils.setField(comment5, "member", member1);
+        ReflectionTestUtils.setField(comment5, "child", false);
+        ReflectionTestUtils.setField(comment5, "createdAt", LocalDateTime.now());
+
         comment5.deleteComment();
         commentRepository.save(comment5);
 

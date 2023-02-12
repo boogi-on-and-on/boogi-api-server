@@ -32,6 +32,7 @@ import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -409,10 +411,10 @@ class PostCoreServiceTest {
             given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "post", post);
+
             given(commentRepository.findAllByPostId(anyLong()))
                     .willReturn(List.of(comment));
 

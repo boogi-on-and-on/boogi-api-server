@@ -19,6 +19,7 @@ import boogi.apiserver.domain.report.dto.request.CreateReport;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -86,10 +88,10 @@ class ReportServiceTest {
                     .community(community)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "post", post);
+
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
@@ -126,10 +128,10 @@ class ReportServiceTest {
             given(postRepository.findPostById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            Comment comment = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 1L);
+            ReflectionTestUtils.setField(comment, "post", post);
+
             given(commentRepository.findCommentById(anyLong()))
                     .willReturn(Optional.of(comment));
 

@@ -24,6 +24,7 @@ import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -129,13 +131,11 @@ class CommentCoreServiceTest {
                     .community(community)
                     .build();
 
-            Comment parentComment = Comment.builder()
-                    .id(4L)
-                    .parent(null)
-                    .member(member)
-                    .post(post)
-                    .content("부모댓글")
-                    .build();
+            final Comment parentComment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(parentComment, "id", 4L);
+            ReflectionTestUtils.setField(parentComment, "member", member);
+            ReflectionTestUtils.setField(parentComment, "post", post);
+            ReflectionTestUtils.setField(parentComment, "content", "부모댓글");
 
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(parentComment));
@@ -180,12 +180,12 @@ class CommentCoreServiceTest {
                     .commentCount(1)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(5L)
-                    .content("댓글")
-                    .member(member)
-                    .post(post)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 5L);
+            ReflectionTestUtils.setField(comment, "member", member);
+            ReflectionTestUtils.setField(comment, "post", post);
+            ReflectionTestUtils.setField(comment, "content", "댓글");
+
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
 
@@ -223,12 +223,12 @@ class CommentCoreServiceTest {
                     .commentCount(1)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(5L)
-                    .content("댓글")
-                    .member(member1)
-                    .post(post)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 5L);
+            ReflectionTestUtils.setField(comment, "member", member1);
+            ReflectionTestUtils.setField(comment, "post", post);
+            ReflectionTestUtils.setField(comment, "content", "댓글");
+
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
 
@@ -268,12 +268,12 @@ class CommentCoreServiceTest {
                     .commentCount(1)
                     .build();
 
-            Comment comment = Comment.builder()
-                    .id(5L)
-                    .content("댓글")
-                    .member(member)
-                    .post(post)
-                    .build();
+            final Comment comment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(comment, "id", 5L);
+            ReflectionTestUtils.setField(comment, "member", member);
+            ReflectionTestUtils.setField(comment, "post", post);
+            ReflectionTestUtils.setField(comment, "content", "댓글");
+
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
 
@@ -307,30 +307,27 @@ class CommentCoreServiceTest {
                     .community(community)
                     .build();
 
-            Comment pComment1 = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .member(member)
-                    .parent(null)
-                    .build();
-            Comment pComment2 = Comment.builder()
-                    .id(2L)
-                    .post(post)
-                    .member(member)
-                    .parent(null)
-                    .build();
-            Comment cComment1 = Comment.builder()
-                    .id(3L)
-                    .post(post)
-                    .member(member)
-                    .parent(pComment1)
-                    .build();
-            Comment cComment2 = Comment.builder()
-                    .id(4L)
-                    .post(post)
-                    .member(member)
-                    .parent(pComment2)
-                    .build();
+            final Comment pComment1 = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(pComment1, "id", 1L);
+            ReflectionTestUtils.setField(pComment1, "member", member);
+            ReflectionTestUtils.setField(pComment1, "post", post);
+
+            final Comment pComment2 = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(pComment2, "id", 2L);
+            ReflectionTestUtils.setField(pComment2, "member", member);
+            ReflectionTestUtils.setField(pComment2, "post", post);
+
+            final Comment cComment1 = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(cComment1, "id", 3L);
+            ReflectionTestUtils.setField(cComment1, "member", member);
+            ReflectionTestUtils.setField(cComment1, "post", post);
+            ReflectionTestUtils.setField(cComment1, "parent", pComment1);
+
+            final Comment cComment2 = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(cComment2, "id", 4L);
+            ReflectionTestUtils.setField(cComment2, "member", member);
+            ReflectionTestUtils.setField(cComment2, "post", post);
+            ReflectionTestUtils.setField(cComment2, "parent", pComment2);
 
             Like like1 = Like.builder()
                     .id(1L)
@@ -441,19 +438,18 @@ class CommentCoreServiceTest {
                     .commentCount(2)
                     .build();
 
-            Comment pComment1 = Comment.builder()
-                    .id(1L)
-                    .post(post)
-                    .member(member)
-                    .parent(null)
-                    .build();
+            final Comment pComment1 = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(pComment1, "id", 1L);
+            ReflectionTestUtils.setField(pComment1, "member", member);
+            ReflectionTestUtils.setField(pComment1, "post", post);
+
             pComment1.deleteComment();
-            Comment cComment1 = Comment.builder()
-                    .id(3L)
-                    .post(post)
-                    .member(member)
-                    .parent(pComment1)
-                    .build();
+
+            final Comment cComment1 = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(cComment1, "id", 3L);
+            ReflectionTestUtils.setField(cComment1, "member", member);
+            ReflectionTestUtils.setField(cComment1, "post", post);
+            ReflectionTestUtils.setField(cComment1, "parent", pComment1);
 
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
@@ -514,18 +510,17 @@ class CommentCoreServiceTest {
                     .id(3L)
                     .build();
 
-            Comment pComment = Comment.builder()
-                    .id(3L)
-                    .member(member)
-                    .post(post)
-                    .parent(null)
-                    .build();
-            Comment cComment = Comment.builder()
-                    .id(4L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment)
-                    .build();
+            final Comment pComment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(pComment, "id", 3L);
+            ReflectionTestUtils.setField(pComment, "member", member);
+            ReflectionTestUtils.setField(pComment, "post", post);
+
+            final Comment cComment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(cComment, "id", 4L);
+            ReflectionTestUtils.setField(cComment, "member", member);
+            ReflectionTestUtils.setField(cComment, "post", post);
+            ReflectionTestUtils.setField(cComment, "parent", pComment);
+
 
             List<Long> findMemberIds = List.of(member.getId());
             given(memberRepository.findMemberIdsForQueryUserPostBySessionUserId(anyLong()))
@@ -569,18 +564,17 @@ class CommentCoreServiceTest {
                     .id(7L)
                     .build();
 
-            Comment pComment = Comment.builder()
-                    .id(5L)
-                    .post(post)
-                    .member(member1)
-                    .parent(null)
-                    .build();
-            Comment cComment = Comment.builder()
-                    .id(6L)
-                    .post(post)
-                    .member(member2)
-                    .parent(pComment)
-                    .build();
+            final Comment pComment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(pComment, "id", 5L);
+            ReflectionTestUtils.setField(pComment, "member", member1);
+            ReflectionTestUtils.setField(pComment, "post", post);
+
+            final Comment cComment = TestEmptyEntityGenerator.Comment();
+            ReflectionTestUtils.setField(cComment, "id", 6L);
+            ReflectionTestUtils.setField(cComment, "member", member2);
+            ReflectionTestUtils.setField(cComment, "post", post);
+            ReflectionTestUtils.setField(cComment, "parent", pComment);
+
             given(userRepository.findUserById(anyLong()))
                     .willReturn(Optional.of(user2));
 
