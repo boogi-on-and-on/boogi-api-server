@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +41,8 @@ class CommunityHashtagServiceTest {
         @DisplayName("저장 성공")
         void success() {
             //given
-            Community community = Community.builder()
-                    .id(1L)
-                    .hashtags(new ArrayList<>())
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);

@@ -10,6 +10,7 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,9 +69,9 @@ class MemberCoreServiceTest {
                 .build();
         given(userQueryService.getUser(anyLong()))
                 .willReturn(user);
-        Community community = Community.builder()
-                .id(2L)
-                .build();
+
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 2L);
         given(communityQueryService.getCommunity(anyLong()))
                 .willReturn(community);
 
@@ -96,9 +98,9 @@ class MemberCoreServiceTest {
         given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(u1, u2));
 
-        Community community = Community.builder()
-                .id(1L)
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
+
         given(communityQueryService.getCommunity(anyLong()))
                 .willReturn(community);
 
@@ -168,9 +170,9 @@ class MemberCoreServiceTest {
                 .id(2L)
                 .build();
 
-        Community community = Community.builder()
-                .id(3L)
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 3L);
+
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(Optional.of(community));
 

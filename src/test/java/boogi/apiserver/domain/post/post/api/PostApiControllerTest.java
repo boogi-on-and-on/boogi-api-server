@@ -133,10 +133,9 @@ class PostApiControllerTest {
                 .memberType(MemberType.MANAGER)
                 .build();
 
-        Community community = Community.builder()
-                .id(1L)
-                .communityName("커뮤니티")
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
+        ReflectionTestUtils.setField(community, "communityName", "커뮤니티");
 
         PostHashtag postHashtag = PostHashtag.builder()
                 .id(1L)

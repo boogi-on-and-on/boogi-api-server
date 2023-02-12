@@ -35,6 +35,7 @@ import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,6 +50,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -139,9 +141,9 @@ class CommunityApiControllerTest {
                     .hashtags(hashtags)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+
 
             given(communityCoreService.createCommunity(any(), any(), anyLong())).willReturn(community);
 
@@ -200,16 +202,16 @@ class CommunityApiControllerTest {
         given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                 .willReturn(member);
 
-        Community community = Community.builder()
-                .id(1L)
-                .communityName("커뮤니티1")
-                .description("반가워")
-                .isPrivate(false)
-                .hashtags(List.of(CommunityHashtag.builder().tag("테그1").build()))
-                .memberCount(3)
-                .category(CommunityCategory.ACADEMIC)
-                .build();
-        community.setCreatedAt(LocalDateTime.now());
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
+        ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
+        ReflectionTestUtils.setField(community, "description", "반가워");
+        ReflectionTestUtils.setField(community, "isPrivate", false);
+        ReflectionTestUtils.setField(community, "hashtags", List.of(CommunityHashtag.builder().tag("테그1").build()));
+        ReflectionTestUtils.setField(community, "memberCount", 3);
+        ReflectionTestUtils.setField(community, "category", CommunityCategory.ACADEMIC);
+        ReflectionTestUtils.setField(community, "createdAt", LocalDateTime.now());
+
         given(communityQueryService.getCommunityWithHashTag(anyLong()))
                 .willReturn(community);
 
@@ -396,10 +398,9 @@ class CommunityApiControllerTest {
         @DisplayName("설정정보 조회")
         void getSettingInfo() throws Exception {
 
-            Community community = Community.builder()
-                    .isPrivate(true)
-                    .autoApproval(true)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "isPrivate", true);
+            ReflectionTestUtils.setField(community, "autoApproval", true);
 
             CommunitySettingInfo settingInfo = CommunitySettingInfo.of(community);
 
@@ -452,9 +453,9 @@ class CommunityApiControllerTest {
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(null);
 
-            Community community = Community.builder()
-                    .isPrivate(true)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "isPrivate", true);
+
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
@@ -475,9 +476,9 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("커뮤니티 게시글 목록 조회")
         void getCommunityPostList() throws Exception {
-            Community community = Community.builder()
-                    .communityName("커뮤니티1")
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
+
             community.setCreatedAt(LocalDateTime.now());
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
@@ -792,9 +793,8 @@ class CommunityApiControllerTest {
                 .id(2L)
                 .build();
 
-        Community community = Community.builder()
-                .id(1L)
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
 
         Member member = Member.builder()
                 .id(2L)

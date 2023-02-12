@@ -11,6 +11,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +65,8 @@ class JoinRequestCoreServiceTest {
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
-            Community community = Community.builder().id(1L).build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
@@ -87,7 +90,9 @@ class JoinRequestCoreServiceTest {
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
-            Community community = Community.builder().id(1L).build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
@@ -111,9 +116,12 @@ class JoinRequestCoreServiceTest {
         @Test
         @DisplayName("요청승인 id의 매칭 실패")
         void unmatch() {
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 2L);
+
             JoinRequest request = JoinRequest.builder()
                     .id(1L)
-                    .community(Community.builder().id(2L).build())
+                    .community(community)
                     .user(User.builder().id(3L).build())
                     .build();
 
@@ -132,7 +140,8 @@ class JoinRequestCoreServiceTest {
             User u1 = User.builder().id(1L).build();
             User u2 = User.builder().id(2L).build();
 
-            Community community = Community.builder().id(3L).build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 3L);
 
             JoinRequest jr1 = JoinRequest.of(u1, community);
             JoinRequest jr2 = JoinRequest.of(u2, community);
@@ -175,7 +184,8 @@ class JoinRequestCoreServiceTest {
             User u1 = User.builder().id(1L).build();
             User u2 = User.builder().id(2L).build();
 
-            Community community = Community.builder().id(3L).build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 3L);
 
             JoinRequest jr1 = JoinRequest.of(u1, community);
             JoinRequest jr2 = JoinRequest.of(u2, community);

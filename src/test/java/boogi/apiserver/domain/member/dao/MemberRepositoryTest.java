@@ -10,6 +10,7 @@ import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -79,10 +81,9 @@ class MemberRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Community community1 = Community.builder()
-                .build();
-        Community community2 = Community.builder()
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+        final Community community2 = TestEmptyEntityGenerator.Community();
+
         communityRepository.saveAll(List.of(community1, community2));
 
         Member member1 = Member.builder()
@@ -106,7 +107,7 @@ class MemberRepositoryTest {
     @Test
     void findJoinedMember() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         User user = User.builder().build();
@@ -154,7 +155,7 @@ class MemberRepositoryTest {
     @Test
     void findAnyMemberExceptManager() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         Member manager = Member.builder()
@@ -179,7 +180,7 @@ class MemberRepositoryTest {
 
     @Test
     void findBannedMembers() {
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         User user1 = User.builder()
@@ -216,7 +217,7 @@ class MemberRepositoryTest {
 
     @Test
     void findAlreadyJoinedUser() {
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         User u1 = User.builder().build();
@@ -246,8 +247,7 @@ class MemberRepositoryTest {
                 .build();
         userRepository.saveAll(List.of(user1, user2));
 
-        Community community = Community.builder()
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         Member member1 = Member.builder()
@@ -276,7 +276,7 @@ class MemberRepositoryTest {
     @Test
     void findMentionMember() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         User user1 = User.builder()

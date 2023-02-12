@@ -76,9 +76,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("해당 글의 좋아요 수가 1 증가하고, 좋아요가 생성된다.")
         void doLikeAtPostSuccess() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(1L)
@@ -107,9 +106,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("해당 멤버가 해당 글에 이미 좋아요를 누른 경우 AlreadyDoLikeException 발생한다.")
         void alreadyDoLikeFail() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(1L)
@@ -140,9 +138,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("해당 댓글에 좋아요가 생성된다.")
         void doLikeAtCommentSuccess() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member = Member.builder()
                     .id(1L)
@@ -170,9 +167,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("해당 멤버가 해당 댓글에 이미 좋아요를 누른 경우 AlreadyDoLikeException 발생한다.")
         void alreadyDoLikeFail() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member = Member.builder()
                     .id(1L)
@@ -298,10 +294,9 @@ class LikeCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .isPrivate(false)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", false);
 
             Member member = Member.builder()
                     .id(1L)
@@ -348,10 +343,9 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("비공개 커뮤니티에 비가입상태로 요청했을때 NotJoinedException 발생한다.")
         void notJoinedMemberInPrivateCommunityRequestFail() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .isPrivate(true)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", true);
 
             Post post = Post.builder()
                     .id(1L)
@@ -381,10 +375,9 @@ class LikeCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .isPrivate(false)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", false);
 
             Member member = Member.builder()
                     .id(1L)
@@ -437,10 +430,9 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("비공개 커뮤니티에 비가입상태로 요청했을때 NotJoinedException 발생한다.")
         void notJoinedMemberInPrivateCommunityRequestFail() {
-            Community community = Community.builder()
-                    .isPrivate(true)
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", true);
 
             Post post = Post.builder()
                     .id(1L)

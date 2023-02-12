@@ -9,12 +9,14 @@ import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequ
 import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -43,25 +45,22 @@ class CommunityRepositoryTest {
         void ThereIsSearchKeyword() {
 
             //given
-            Community c1 = Community.builder()
-                    .communityName("커뮤니티1")
-                    .isPrivate(true)
-                    .category(CommunityCategory.ACADEMIC)
-                    .memberCount(12)
-                    .hashtags(new ArrayList<>())
-                    .description("소개")
-                    .build();
-            c1.setCreatedAt(LocalDateTime.now());
+            final Community c1 = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(c1, "communityName", "커뮤니티1");
+            ReflectionTestUtils.setField(c1, "isPrivate", true);
+            ReflectionTestUtils.setField(c1, "category", CommunityCategory.ACADEMIC);
+            ReflectionTestUtils.setField(c1, "memberCount", 12);
+            ReflectionTestUtils.setField(c1, "description", "소개");
+            ReflectionTestUtils.setField(c1, "createdAt", LocalDateTime.now());
 
-            Community c2 = Community.builder()
-                    .communityName("커뮤니티2")
-                    .isPrivate(true)
-                    .category(CommunityCategory.ACADEMIC)
-                    .memberCount(23)
-                    .hashtags(new ArrayList<>())
-                    .description("안녕")
-                    .build();
-            c2.setCreatedAt(LocalDateTime.now().minusDays(2));
+            final Community c2 = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(c2, "communityName", "커뮤니티2");
+            ReflectionTestUtils.setField(c2, "isPrivate", true);
+            ReflectionTestUtils.setField(c2, "category", CommunityCategory.ACADEMIC);
+            ReflectionTestUtils.setField(c2, "memberCount", 23);
+            ReflectionTestUtils.setField(c2, "description", "안녕");
+            ReflectionTestUtils.setField(c2, "createdAt", LocalDateTime.now().minusDays(2));
+
 
             communityRepository.saveAll(List.of(c1, c2));
 
@@ -101,26 +100,22 @@ class CommunityRepositoryTest {
         @Test
         @DisplayName("커뮤니티 검색 키워드가 없는 경우")
         void ThereIsNoSearchKeyword() {
-            //given
-            Community c1 = Community.builder()
-                    .communityName("커뮤니티1")
-                    .isPrivate(true)
-                    .category(CommunityCategory.ACADEMIC)
-                    .memberCount(12)
-                    .hashtags(new ArrayList<>())
-                    .description("소개")
-                    .build();
-            c1.setCreatedAt(LocalDateTime.now());
+            final Community c1 = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(c1, "communityName", "커뮤니티1");
+            ReflectionTestUtils.setField(c1, "isPrivate", true);
+            ReflectionTestUtils.setField(c1, "category", CommunityCategory.ACADEMIC);
+            ReflectionTestUtils.setField(c1, "memberCount", 12);
+            ReflectionTestUtils.setField(c1, "description", "소개");
+            ReflectionTestUtils.setField(c1, "createdAt", LocalDateTime.now());
 
-            Community c2 = Community.builder()
-                    .communityName("커뮤니티2")
-                    .isPrivate(true)
-                    .category(CommunityCategory.ACADEMIC)
-                    .memberCount(23)
-                    .hashtags(new ArrayList<>())
-                    .description("안녕")
-                    .build();
-            c2.setCreatedAt(LocalDateTime.now().minusDays(2));
+            //given
+            final Community c2 = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(c2, "communityName", "커뮤니티2");
+            ReflectionTestUtils.setField(c2, "isPrivate", true);
+            ReflectionTestUtils.setField(c2, "category", CommunityCategory.ACADEMIC);
+            ReflectionTestUtils.setField(c2, "memberCount", 23);
+            ReflectionTestUtils.setField(c2, "description", "안녕");
+            ReflectionTestUtils.setField(c2, "createdAt", LocalDateTime.now().minusDays(2));
 
             communityRepository.saveAll(List.of(c1, c2));
 

@@ -18,12 +18,14 @@ import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -73,9 +75,9 @@ class PostRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Community community = Community.builder()
-                .communityName("커뮤니티1")
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
+
         communityRepository.save(community);
 
         Member member1 = Member.builder()
@@ -160,10 +162,11 @@ class PostRepositoryTest {
     @Test
     void getHotPosts() {
         //given
-        Community community1 = Community.builder().build();
-        Community community2 = Community.builder()
-                .isPrivate(true)
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community2, "isPrivate", true);
+
         communityRepository.saveAll(List.of(community1, community2));
 
         Post post1 = Post.builder()
@@ -283,7 +286,7 @@ class PostRepositoryTest {
     @Disabled
     void getLatestPostOfCommunity() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         Post p0 = Post.builder().community(community).build();
@@ -317,7 +320,7 @@ class PostRepositoryTest {
 
     @Test
     void getPostsOfCommunity() {
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         User user1 = User.builder().build();
@@ -395,14 +398,13 @@ class PostRepositoryTest {
     @Test
     void getSearchedPosts() {
         //given
-        Community community1 = Community.builder()
-                .communityName("안녕")
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community1, "communityName", "안녕");
 
-        Community community2 = Community.builder()
-                .isPrivate(true)
-                .communityName("비밀커뮤니티")
-                .build();
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community2, "isPrivate", true);
+        ReflectionTestUtils.setField(community2, "communityName", "비밀커뮤니티");
+
         communityRepository.saveAll(List.of(community1, community2));
 
         User user = User.builder()
@@ -510,8 +512,8 @@ class PostRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Community community = Community.builder()
-                .build();
+
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         Member member = Member.builder()
@@ -551,8 +553,7 @@ class PostRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Community community = Community.builder()
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         Member member = Member.builder()
@@ -622,12 +623,9 @@ class PostRepositoryTest {
     @Test
     @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
     void testGetLatestPostByCommunityIds() {
-        Community community1 = Community.builder()
-                .build();
-        Community community2 = Community.builder()
-                .build();
-        Community community3 = Community.builder()
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        final Community community3 = TestEmptyEntityGenerator.Community();
         communityRepository.saveAll(List.of(community1, community2, community3));
 
         Post post1 = Post.builder()

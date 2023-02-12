@@ -6,6 +6,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCoreService;
@@ -113,9 +114,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("성공적으로 글이 생성된다.")
         void createPostSuccess() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
@@ -154,9 +154,8 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member = Member.builder()
                     .id(1L)
@@ -204,9 +203,8 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member = Member.builder()
                     .id(1L)
@@ -264,10 +262,9 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("글이 작성된 비공개 커뮤니티에 비가입상태로 조회시 NotJoinedMemberException 발생한다.")
         void notJoinedPrivateCommunityFail() {
-            Community community = Community.builder()
-                    .isPrivate(true)
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", true);
 
             Post post = Post.builder()
                     .id(1L)
@@ -300,9 +297,8 @@ class PostCoreServiceTest {
                     .user(user)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(1L)
@@ -333,9 +329,9 @@ class PostCoreServiceTest {
                     .user(user)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(Optional.of(community));
 
@@ -398,9 +394,8 @@ class PostCoreServiceTest {
                     .user(user)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(1L)
@@ -446,9 +441,8 @@ class PostCoreServiceTest {
                     .user(user)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(1L)
@@ -477,9 +471,8 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member1 = Member.builder()
                     .id(1L)
@@ -538,14 +531,14 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .isPrivate(false)
-                    .build();
-            Community pCommunity = Community.builder()
-                    .id(2L)
-                    .isPrivate(true)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", false);
+
+            final Community pCommunity = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(pCommunity, "id", 2L);
+            ReflectionTestUtils.setField(pCommunity, "isPrivate", true);
+
 
             Member member1 = Member.builder()
                     .id(1L)

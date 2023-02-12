@@ -6,6 +6,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,15 +41,13 @@ class MemberQueryServiceTest {
                 .id(1L)
                 .build();
 
-        Community community1 = Community.builder()
-                .id(2L)
-                .communityName("커뮤니티1")
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community1, "id", 2L);
+        ReflectionTestUtils.setField(community1, "communityName", "커뮤니티1");
 
-        Community community2 = Community.builder()
-                .id(3L)
-                .communityName("커뮤니티2")
-                .build();
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community2, "id", 3L);
+        ReflectionTestUtils.setField(community2, "communityName", "커뮤니티2");
 
         Member member1 = Member.builder()
                 .id(4L)

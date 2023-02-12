@@ -78,10 +78,9 @@ class ReportServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .isPrivate(false)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", false);
 
             Post post = Post.builder()
                     .id(1L)
@@ -116,10 +115,9 @@ class ReportServiceTest {
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
-            Community community = Community.builder()
-                    .isPrivate(true)
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", true);
 
             Post post = Post.builder()
                     .id(1L)
@@ -158,10 +156,9 @@ class ReportServiceTest {
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .isPrivate(false)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "isPrivate", false);
 
             Post post = Post.builder()
                     .id(1L)
@@ -190,9 +187,9 @@ class ReportServiceTest {
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(Optional.of(community));
 

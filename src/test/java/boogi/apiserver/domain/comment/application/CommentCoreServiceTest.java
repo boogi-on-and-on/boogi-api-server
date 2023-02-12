@@ -87,9 +87,8 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("parentCommentId를 null로 주면 부모 댓글이 생성된다.")
         void createParentCommentSuccess() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(2L)
@@ -114,9 +113,8 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("ParentCommentId에 부모 댓글의 Id값을 주면 자식 댓글이 생성된다.")
         void createChildCommentSuccess() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Post post = Post.builder()
                     .id(2L)
@@ -165,9 +163,8 @@ class CommentCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(2L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 2L);
 
             Member member = Member.builder()
                     .id(3L)
@@ -208,9 +205,8 @@ class CommentCoreServiceTest {
                     .id(2L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(2L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 2L);
 
             Member member1 = Member.builder()
                     .id(3L)
@@ -253,9 +249,8 @@ class CommentCoreServiceTest {
                     .id(2L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(2L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 2L);
 
             Member member = Member.builder()
                     .id(3L)
@@ -292,9 +287,8 @@ class CommentCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member = Member.builder()
                     .id(1L)
@@ -396,9 +390,9 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("글이 작성된 비공개 커뮤니티에 가입되지 않은 상태로 요청시 NotJoinedMemberException 발생한다.")
         void getCommentsAtPrivatePostWithoutAuthFail() {
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+
             Post post = Post.builder()
                     .id(1L)
                     .community(community)
@@ -422,9 +416,8 @@ class CommentCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             Member member = Member.builder()
                     .id(1L)

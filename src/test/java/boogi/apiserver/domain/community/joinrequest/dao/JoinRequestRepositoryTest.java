@@ -7,6 +7,7 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ class JoinRequestRepositoryTest {
     @DisplayName("전체 요청 찾기")
     void getAllRequests() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
         User user1 = User.builder().build();
