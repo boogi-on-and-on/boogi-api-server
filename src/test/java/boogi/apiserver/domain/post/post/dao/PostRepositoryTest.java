@@ -7,6 +7,7 @@ import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
@@ -80,15 +81,13 @@ class PostRepositoryTest {
 
         communityRepository.save(community);
 
-        Member member1 = Member.builder()
-                .user(user)
-                .community(community)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "user", user);
+        ReflectionTestUtils.setField(member1, "community", community);
 
-        Member member2 = Member.builder()
-                .user(user)
-                .community(community)
-                .build();
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "user", user);
+        ReflectionTestUtils.setField(member2, "community", community);
 
         memberRepository.saveAll(List.of(member1, member2));
 
@@ -326,14 +325,14 @@ class PostRepositoryTest {
 
         userRepository.saveAll(List.of(user1, user2));
 
-        Member member1 = Member.builder()
-                .community(community)
-                .user(user1)
-                .build();
-        Member member2 = Member.builder()
-                .community(community)
-                .user(user2)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "user", user1);
+        ReflectionTestUtils.setField(member1, "community", community);
+
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "user", user2);
+        ReflectionTestUtils.setField(member2, "community", community);
+
         memberRepository.saveAll(List.of(member1, member2));
 
         Post post1 = Post.builder()
@@ -412,15 +411,13 @@ class PostRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Member member1 = Member.builder()
-                .user(user)
-                .community(community1)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "user", user);
+        ReflectionTestUtils.setField(member1, "community", community1);
 
-        Member member2 = Member.builder()
-                .user(user)
-                .community(community2)
-                .build();
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "user", user);
+        ReflectionTestUtils.setField(member2, "community", community2);
         memberRepository.saveAll(List.of(member1, member2));
 
         Post p1 = Post.builder()
@@ -514,10 +511,10 @@ class PostRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Member member = Member.builder()
-                .user(user)
-                .community(community)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "user", user);
+        ReflectionTestUtils.setField(member, "community", community);
+
         memberRepository.save(member);
 
         Post post = Post.builder()
@@ -554,10 +551,10 @@ class PostRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Member member = Member.builder()
-                .user(user)
-                .community(community)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "user", user);
+        ReflectionTestUtils.setField(member, "community", community);
+
         memberRepository.save(member);
 
         Post post = Post.builder()
@@ -587,10 +584,9 @@ class PostRepositoryTest {
     @Test
     @DisplayName("memberId들로 해당 멤버들이 작성한 글을 최근 작성일순으로 페이지네이션해서 조회한다.")
     void testGetUserPostPageByMemberIds() {
-        Member member1 = Member.builder()
-                .build();
-        Member member2 = Member.builder()
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        final Member member2 = TestEmptyEntityGenerator.Member();
+
         memberRepository.saveAll(List.of(member1, member2));
 
         Post post1 = Post.builder()

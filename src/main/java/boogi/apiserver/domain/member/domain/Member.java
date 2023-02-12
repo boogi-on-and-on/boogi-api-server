@@ -14,8 +14,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Member extends TimeBaseEntity {
 
     @Id

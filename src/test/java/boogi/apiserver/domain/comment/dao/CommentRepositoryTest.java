@@ -4,6 +4,7 @@ import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
@@ -56,9 +57,9 @@ class CommentRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Member member = Member.builder()
-                .user(user)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "user", user);
+
         memberRepository.save(member);
 
         Post post = Post.builder()
@@ -118,8 +119,8 @@ class CommentRepositoryTest {
     @Test
     @DisplayName("fetch join으로 댓글에 member도 같이 가져온다.")
     void testFindCommentWithMemberByCommentId() {
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         Post post = Post.builder()
@@ -162,8 +163,7 @@ class CommentRepositoryTest {
     @Test
     @DisplayName("한 post에 달린 부모 댓글만 페이지네이션하고 오래된 순으로 member와 같이 가져온다.")
     void testFindParentCommentsWithMemberByPostId() {
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
         memberRepository.save(member);
 
         Post post = Post.builder()
@@ -220,8 +220,7 @@ class CommentRepositoryTest {
     @Test
     @DisplayName("부모 댓글들에 달린 자식 댓글들을 오래된 순으로 member와 같이 가져온다.")
     void testFindChildCommentsWithMemberByParentCommentIds() {
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
         memberRepository.save(member);
 
         Post post = Post.builder()
@@ -307,12 +306,10 @@ class CommentRepositoryTest {
     @Test
     @DisplayName("멤버가 작성한 삭제되지 않은 댓글들을 최근순으로 페이지네이션해서 가져온다.")
     void testGetUserCommentPageByMemberIds() {
-        Member member1 = Member.builder()
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
         memberRepository.save(member1);
 
-        Member member2 = Member.builder()
-                .build();
+        final Member member2 = TestEmptyEntityGenerator.Member();
         memberRepository.save(member2);
 
         Post post = Post.builder()

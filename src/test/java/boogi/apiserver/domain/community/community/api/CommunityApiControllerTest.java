@@ -196,9 +196,10 @@ class CommunityApiControllerTest {
     @Test
     @DisplayName("커뮤니티 상세조회 (글 목록 조회)")
     void communityDetailWithPosts() throws Exception {
-        Member member = Member.builder()
-                .memberType(MemberType.NORMAL)
-                .build();
+
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+
         given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                 .willReturn(member);
 
@@ -493,10 +494,9 @@ class CommunityApiControllerTest {
                     .tagNumber("#0001")
                     .build();
 
-            Member member = Member.builder()
-                    .user(user)
-                    .memberType(MemberType.NORMAL)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+            ReflectionTestUtils.setField(member, "user", user);
 
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
@@ -571,11 +571,11 @@ class CommunityApiControllerTest {
                 .department("컴공")
                 .build();
 
-        Member member = Member.builder()
-                .id(2L)
-                .user(user)
-                .memberType(MemberType.NORMAL)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "id", 2L);
+        ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+        ReflectionTestUtils.setField(member, "user", user);
+
         member.setCreatedAt(LocalDateTime.now());
 
         PageImpl<Member> page = new PageImpl<>(List.of(member), Pageable.ofSize(1), 1);
@@ -803,11 +803,10 @@ class CommunityApiControllerTest {
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 1L);
 
-        Member member = Member.builder()
-                .id(2L)
-                .community(community)
-                .user(user)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "id", 2L);
+        ReflectionTestUtils.setField(member, "community", community);
+        ReflectionTestUtils.setField(member, "user", user);
 
         List<Member> membersWithoutMe = List.of(member);
         given(memberCoreService.getJoinedMembersAll(anyLong(), anyLong()))

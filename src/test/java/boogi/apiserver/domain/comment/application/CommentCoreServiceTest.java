@@ -90,6 +90,8 @@ class CommentCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
+            final Member member = TestEmptyEntityGenerator.Member();
+
             Post post = Post.builder()
                     .id(2L)
                     .community(community)
@@ -98,7 +100,7 @@ class CommentCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.of(Member.builder().build()));
+                    .willReturn(Optional.of(member));
 
             CreateComment createComment = new CreateComment(post.getId(), null, "hello", List.of());
 
@@ -124,10 +126,10 @@ class CommentCoreServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 
-            Member member = Member.builder()
-                    .id(3L)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 3L);
+            ReflectionTestUtils.setField(member, "community", community);
+
 
             final Comment parentComment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(parentComment, "id", 4L);
@@ -166,11 +168,10 @@ class CommentCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
 
-            Member member = Member.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 3L);
+            ReflectionTestUtils.setField(member, "user", user);
+            ReflectionTestUtils.setField(member, "community", community);
 
             Post post = Post.builder()
                     .id(4L)
@@ -208,11 +209,10 @@ class CommentCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
 
-            Member member1 = Member.builder()
-                    .id(3L)
-                    .user(user1)
-                    .community(community)
-                    .build();
+            final Member member1 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member1, "id", 3L);
+            ReflectionTestUtils.setField(member1, "user", user1);
+            ReflectionTestUtils.setField(member1, "community", community);
 
             Post post = Post.builder()
                     .id(4L)
@@ -252,11 +252,10 @@ class CommentCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
 
-            Member member = Member.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 3L);
+            ReflectionTestUtils.setField(member, "user", user);
+            ReflectionTestUtils.setField(member, "community", community);
 
             Post post = Post.builder()
                     .id(4L)
@@ -290,11 +289,10 @@ class CommentCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
+            ReflectionTestUtils.setField(member, "community", community);
 
             Post post = Post.builder()
                     .id(1L)
@@ -419,11 +417,10 @@ class CommentCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
+            ReflectionTestUtils.setField(member, "community", community);
 
             Post post = Post.builder()
                     .id(1L)
@@ -494,10 +491,9 @@ class CommentCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(2L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 2L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             Post post = Post.builder()
                     .id(3L)
@@ -544,14 +540,13 @@ class CommentCoreServiceTest {
                     .id(2L)
                     .build();
 
-            Member member1 = Member.builder()
-                    .id(3L)
-                    .user(user1)
-                    .build();
-            Member member2 = Member.builder()
-                    .id(4L)
-                    .user(user2)
-                    .build();
+            final Member member1 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member1, "id", 3L);
+            ReflectionTestUtils.setField(member1, "user", user1);
+
+            final Member member2 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member2, "id", 4L);
+            ReflectionTestUtils.setField(member2, "user", user2);
 
             Post post = Post.builder()
                     .id(7L)

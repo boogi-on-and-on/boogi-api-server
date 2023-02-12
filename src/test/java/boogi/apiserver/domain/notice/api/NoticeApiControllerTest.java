@@ -15,6 +15,7 @@ import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -146,7 +147,7 @@ class NoticeApiControllerTest {
         void allCommunityNotice() throws Exception {
             Notice notice = Notice.builder()
                     .id(1L)
-                    .member(Member.builder().build())
+                    .member(TestEmptyEntityGenerator.Member())
                     .title("제목")
                     .content("내용")
                     .build();

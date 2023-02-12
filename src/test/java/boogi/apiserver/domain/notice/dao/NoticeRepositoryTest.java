@@ -95,7 +95,8 @@ class NoticeRepositoryTest {
         User user = User.builder().build();
         userRepository.save(user);
 
-        Member member = Member.builder().user(user).build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "user", user);
         memberRepository.save(member);
 
         final Community community = TestEmptyEntityGenerator.Community();

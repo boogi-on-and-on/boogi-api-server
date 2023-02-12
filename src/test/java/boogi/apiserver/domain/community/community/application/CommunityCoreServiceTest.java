@@ -55,7 +55,8 @@ class CommunityCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            Member member = Member.builder().build();
+            final Member member = TestEmptyEntityGenerator.Member();
+
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.of(member));
 
@@ -74,7 +75,8 @@ class CommunityCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            Member member = Member.builder().build();
+            final Member member = TestEmptyEntityGenerator.Member();
+
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.empty());
 

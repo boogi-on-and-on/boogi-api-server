@@ -87,9 +87,9 @@ class LikeCoreServiceTest {
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
@@ -117,9 +117,8 @@ class LikeCoreServiceTest {
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -141,10 +140,10 @@ class LikeCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "community", community);
+
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
@@ -170,10 +169,9 @@ class LikeCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "community", community);
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -203,10 +201,9 @@ class LikeCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);
@@ -231,10 +228,9 @@ class LikeCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             Post post = Post.builder()
                     .id(1L)
@@ -263,10 +259,9 @@ class LikeCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);
@@ -298,11 +293,10 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", false);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
+            ReflectionTestUtils.setField(member, "community", community);
 
             Post post = Post.builder()
                     .id(1L)
@@ -379,11 +373,10 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", false);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
+            ReflectionTestUtils.setField(member, "community", community);
 
             Post post = Post.builder()
                     .id(1L)

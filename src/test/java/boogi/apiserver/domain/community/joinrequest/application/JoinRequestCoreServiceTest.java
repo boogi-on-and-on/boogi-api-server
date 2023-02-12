@@ -151,23 +151,22 @@ class JoinRequestCoreServiceTest {
             given(joinRequestRepository.getRequestsByIds(any()))
                     .willReturn(List.of(jr1, jr2));
 
-            Member m1 = Member.builder()
-                    .id(1L)
-                    .user(u1)
-                    .community(community)
-                    .build();
+            final Member m1 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(m1, "id", 1L);
+            ReflectionTestUtils.setField(m1, "user", u1);
+            ReflectionTestUtils.setField(m1, "community", community);
 
-            Member m2 = Member.builder()
-                    .id(2L)
-                    .user(u2)
-                    .community(community)
-                    .build();
+            final Member m2 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(m2, "id", 2L);
+            ReflectionTestUtils.setField(m2, "user", u2);
+            ReflectionTestUtils.setField(m2, "community", community);
+
             given(memberCoreService.joinMemberInBatch(any(), anyLong(), any()))
                     .willReturn(List.of(m1, m2));
 
-            Member manager = Member.builder()
-                    .id(1L)
-                    .build();
+            final Member manager = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(manager, "id", 1L);
+
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(manager);
             //when
@@ -195,9 +194,9 @@ class JoinRequestCoreServiceTest {
             given(joinRequestRepository.getRequestsByIds(any()))
                     .willReturn(List.of(jr1, jr2));
 
-            Member manager = Member.builder()
-                    .id(1L)
-                    .build();
+            final Member manager = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(manager, "id", 1L);
+
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(manager);
 

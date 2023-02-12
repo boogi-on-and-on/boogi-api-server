@@ -123,11 +123,10 @@ class MemberCoreServiceTest {
         @Test
         @DisplayName("이미 차단한 멤버인 경우")
         void alreadyBanned() {
-            Member member = Member.builder()
-                    .id(1L)
-                    .bannedAt(LocalDateTime.now())
-                    .build();
 
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "bannedAt", LocalDateTime.now());
 
             given(memberQueryService.getMember(anyLong()))
                     .willReturn(member);
@@ -144,9 +143,8 @@ class MemberCoreServiceTest {
         @DisplayName("차단 안된 멤버를 차단해제 하는경우")
         void failRelease() {
             //given
-            Member member = Member.builder()
-                    .id(1L)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
 
             given(memberQueryService.getMember(anyLong()))
                     .willReturn(member);
@@ -176,16 +174,16 @@ class MemberCoreServiceTest {
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(Optional.of(community));
 
-        Member member1 = Member.builder()
-                .id(4L)
-                .user(user1)
-                .community(community)
-                .build();
-        Member member2 = Member.builder()
-                .id(5L)
-                .user(user2)
-                .community(community)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "id", 4L);
+        ReflectionTestUtils.setField(member1, "user", user1);
+        ReflectionTestUtils.setField(member1, "community", community);
+
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "id", 5L);
+        ReflectionTestUtils.setField(member2, "user", user2);
+        ReflectionTestUtils.setField(member2, "community", community);
+
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                 .willReturn(Optional.of(member1));
 

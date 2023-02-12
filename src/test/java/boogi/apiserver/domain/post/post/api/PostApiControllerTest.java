@@ -127,11 +127,10 @@ class PostApiControllerTest {
                 .profileImageUrl("url")
                 .build();
 
-        Member member = Member.builder()
-                .id(1L)
-                .user(user)
-                .memberType(MemberType.MANAGER)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "id", 1L);
+        ReflectionTestUtils.setField(member, "user", user);
+        ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
 
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 1L);

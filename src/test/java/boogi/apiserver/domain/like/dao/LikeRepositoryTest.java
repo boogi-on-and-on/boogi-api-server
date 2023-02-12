@@ -148,8 +148,7 @@ class LikeRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
         memberRepository.save(member);
 
         assertThat(likeRepository.existsLikeByPostIdAndMemberId(post.getId(), member.getId()))
@@ -173,8 +172,8 @@ class LikeRepositoryTest {
         final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         assertThat(likeRepository.existsLikeByCommentIdAndMemberId(comment.getId(), member.getId()))
@@ -195,8 +194,8 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("LikeId로 Like를 fetch join으로 Member와 함께 조회한다.")
     void testFindLikeWithMemberById() {
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         final Like like = TestEmptyEntityGenerator.Like();
@@ -222,8 +221,8 @@ class LikeRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         final Like like = TestEmptyEntityGenerator.Like();
@@ -247,8 +246,8 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("해당 댓글들에 한 좋아요들을 CommentId들과 MemberId를 가지고 조회한다.")
     void testFindCommentLikesByCommentIdsAndMemberId() {
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         final Comment comment1 = TestEmptyEntityGenerator.Comment();
@@ -288,8 +287,8 @@ class LikeRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         final Like like1 = TestEmptyEntityGenerator.Like();
@@ -338,8 +337,8 @@ class LikeRepositoryTest {
         final Comment comment = TestEmptyEntityGenerator.Comment();
         commentRepository.save(comment);
 
-        Member member = Member.builder()
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+
         memberRepository.save(member);
 
         final Like like1 = TestEmptyEntityGenerator.Like();

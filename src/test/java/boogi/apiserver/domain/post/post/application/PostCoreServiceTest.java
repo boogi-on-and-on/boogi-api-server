@@ -119,10 +119,10 @@ class PostCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "community", community);
+
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
@@ -157,11 +157,10 @@ class PostCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "community", community);
+            ReflectionTestUtils.setField(member, "user", user);
 
             Post post = Post.builder()
                     .id(1L)
@@ -206,11 +205,10 @@ class PostCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .community(community)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "community", community);
+            ReflectionTestUtils.setField(member, "user", user);
 
             Post post = Post.builder()
                     .id(1L)
@@ -292,10 +290,9 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -324,10 +321,9 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -389,10 +385,9 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -436,10 +431,9 @@ class PostCoreServiceTest {
                     .id(1L)
                     .build();
 
-            Member member = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "user", user);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -474,14 +468,14 @@ class PostCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Member member1 = Member.builder()
-                    .id(1L)
-                    .user(user)
-                    .build();
-            Member member2 = Member.builder()
-                    .id(2L)
-                    .user(user)
-                    .build();
+            final Member member1 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member1, "id", 1L);
+            ReflectionTestUtils.setField(member1, "user", user);
+
+            final Member member2 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member2, "id", 2L);
+            ReflectionTestUtils.setField(member2, "user", user);
+
 
             LocalDateTime now = LocalDateTime.now();
             Post post1 = Post.builder()
@@ -539,17 +533,15 @@ class PostCoreServiceTest {
             ReflectionTestUtils.setField(pCommunity, "id", 2L);
             ReflectionTestUtils.setField(pCommunity, "isPrivate", true);
 
+            final Member member1 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member1, "id", 1L);
+            ReflectionTestUtils.setField(member1, "user", user1);
+            ReflectionTestUtils.setField(member1, "community", pCommunity);
 
-            Member member1 = Member.builder()
-                    .id(1L)
-                    .user(user1)
-                    .community(pCommunity)
-                    .build();
-            Member member2 = Member.builder()
-                    .id(2L)
-                    .user(user1)
-                    .community(community)
-                    .build();
+            final Member member2 = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member2, "id", 1L);
+            ReflectionTestUtils.setField(member2, "user", user1);
+            ReflectionTestUtils.setField(member2, "community", community);
 
             LocalDateTime now = LocalDateTime.now();
             Post post1 = Post.builder()

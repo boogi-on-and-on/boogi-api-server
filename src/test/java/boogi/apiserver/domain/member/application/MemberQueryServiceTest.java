@@ -49,17 +49,15 @@ class MemberQueryServiceTest {
         ReflectionTestUtils.setField(community2, "id", 3L);
         ReflectionTestUtils.setField(community2, "communityName", "커뮤니티2");
 
-        Member member1 = Member.builder()
-                .id(4L)
-                .user(user)
-                .community(community1)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "id", 4L);
+        ReflectionTestUtils.setField(member1, "user", user);
+        ReflectionTestUtils.setField(member1, "community", community1);
 
-        Member member2 = Member.builder()
-                .id(5L)
-                .user(user)
-                .community(community2)
-                .build();
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "id", 4L);
+        ReflectionTestUtils.setField(member2, "user", user);
+        ReflectionTestUtils.setField(member2, "community", community2);
 
         given(memberRepository.findByUserId(anyLong()))
                 .willReturn(List.of(member1, member2));
@@ -87,7 +85,8 @@ class MemberQueryServiceTest {
         @DisplayName("가입정보 조회 성공")
         void success() {
             //given
-            Member member = Member.builder().build();
+            final Member member = TestEmptyEntityGenerator.Member();
+
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -118,9 +117,9 @@ class MemberQueryServiceTest {
     @Test
     @DisplayName("특정 유저의 권한이 같은지 확인")
     void checkMyAuth() {
-        Member member = Member.builder()
-                .memberType(MemberType.MANAGER)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
+
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                 .willReturn(Optional.of(member));

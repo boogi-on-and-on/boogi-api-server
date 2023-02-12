@@ -47,8 +47,11 @@ class NoticeCoreServiceTest {
         @Test
         @DisplayName("생성 권한 없는 경우")
         void hasNoAuth() {
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                    .willReturn(Member.builder().memberType(MemberType.NORMAL).build());
+                    .willReturn(member);
 
             assertThatThrownBy(() -> {
                 noticeCoreService.create(Map.of(), anyLong(), anyLong());
@@ -60,7 +63,9 @@ class NoticeCoreServiceTest {
         @Test
         @DisplayName("생성 성공")
         void success() {
-            Member member = Member.builder().memberType(MemberType.SUB_MANAGER).build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.SUB_MANAGER);
+
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
 

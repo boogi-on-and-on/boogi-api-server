@@ -76,7 +76,7 @@ public class TestEmptyEntityGenerator {
     }
 
     public static Member Member() {
-        return (Member) reflect("member.domain.member");
+        return (Member) reflect("member.domain.Member");
     }
 
     public static MessageBlock MessageBlock() {
