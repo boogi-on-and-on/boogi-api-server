@@ -2,14 +2,17 @@ package boogi.apiserver.domain.community.joinrequest.application;
 
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
+import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -39,13 +42,12 @@ class JoinRequestQueryServiceTest {
                 .username("이름")
                 .build();
 
-        JoinRequest request = JoinRequest.builder()
-                .id(2L)
-                .user(user)
-                .build();
+        final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
+        ReflectionTestUtils.setField(joinRequest, "id", 2L);
+        ReflectionTestUtils.setField(joinRequest, "user", user);
 
         given(joinRequestRepository.getAllRequests(anyLong()))
-                .willReturn(List.of(request));
+                .willReturn(List.of(joinRequest));
 
         List<Map<String, Object>> allRequests = joinRequestQueryService.getAllRequests(anyLong());
 

@@ -70,11 +70,11 @@ class JoinRequestCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            JoinRequest request = JoinRequest.builder()
-                    .status(JoinRequestStatus.PENDING)
-                    .build();
+            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
+            ReflectionTestUtils.setField(joinRequest, "status", JoinRequestStatus.PENDING);
+
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                    .willReturn(Optional.of(request));
+                    .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
                 joinRequestCoreService.request(user.getId(), community.getId());
@@ -96,11 +96,11 @@ class JoinRequestCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            JoinRequest request = JoinRequest.builder()
-                    .status(JoinRequestStatus.CONFIRM)
-                    .build();
+            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
+            ReflectionTestUtils.setField(joinRequest, "status", JoinRequestStatus.CONFIRM);
+
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                    .willReturn(Optional.of(request));
+                    .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
                 joinRequestCoreService.request(user.getId(), community.getId());
@@ -119,14 +119,16 @@ class JoinRequestCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
 
-            JoinRequest request = JoinRequest.builder()
-                    .id(1L)
-                    .community(community)
-                    .user(User.builder().id(3L).build())
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 3L);
+
+            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
+            ReflectionTestUtils.setField(joinRequest, "id", 1L);
+            ReflectionTestUtils.setField(joinRequest, "community", community);
+            ReflectionTestUtils.setField(joinRequest, "user", user);
 
             given(joinRequestQueryService.getJoinRequest(anyLong()))
-                    .willReturn(request);
+                    .willReturn(joinRequest);
 
             assertThatThrownBy(() -> {
                 joinRequestCoreService.confirmUser(1L, 1L, 1L);

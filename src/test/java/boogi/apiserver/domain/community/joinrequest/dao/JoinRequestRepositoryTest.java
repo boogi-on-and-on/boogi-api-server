@@ -11,6 +11,7 @@ import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -39,16 +40,16 @@ class JoinRequestRepositoryTest {
         User user2 = User.builder().build();
         userRepository.saveAll(List.of(user1, user2));
 
-        JoinRequest r1 = JoinRequest.builder()
-                .community(community)
-                .status(JoinRequestStatus.PENDING)
-                .user(user1)
-                .build();
-        JoinRequest r2 = JoinRequest.builder()
-                .community(community)
-                .status(JoinRequestStatus.CONFIRM)
-                .user(user2)
-                .build();
+        final JoinRequest r1 = TestEmptyEntityGenerator.JoinRequest();
+        ReflectionTestUtils.setField(r1, "community", community);
+        ReflectionTestUtils.setField(r1, "status", JoinRequestStatus.PENDING);
+        ReflectionTestUtils.setField(r1, "user", user1);
+
+        final JoinRequest r2 = TestEmptyEntityGenerator.JoinRequest();
+        ReflectionTestUtils.setField(r2, "community", community);
+        ReflectionTestUtils.setField(r2, "status", JoinRequestStatus.CONFIRM);
+        ReflectionTestUtils.setField(r2, "user", user2);
+
         joinRequestRepository.saveAll(List.of(r1, r2));
 
         //when
