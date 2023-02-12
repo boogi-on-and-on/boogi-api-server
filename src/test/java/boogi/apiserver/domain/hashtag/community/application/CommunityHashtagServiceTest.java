@@ -48,14 +48,14 @@ class CommunityHashtagServiceTest {
                     .willReturn(community);
 
             List<String> tags = List.of("테그1", "테그2");
-            CommunityHashtag hashtag1 = CommunityHashtag.builder()
-                    .tag("테그1")
-                    .community(community)
-                    .build();
-            CommunityHashtag hashtag2 = CommunityHashtag.builder()
-                    .tag("테그2")
-                    .community(community)
-                    .build();
+
+            final CommunityHashtag hashtag1 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag1, "tag", "테그1");
+            ReflectionTestUtils.setField(hashtag1, "community", community);
+
+            final CommunityHashtag hashtag2 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag2, "tag", "테그2");
+            ReflectionTestUtils.setField(hashtag2, "community", community);
 
             given(communityHashtagRepository.saveAll(any()))
                     .willReturn(List.of(hashtag1, hashtag2));

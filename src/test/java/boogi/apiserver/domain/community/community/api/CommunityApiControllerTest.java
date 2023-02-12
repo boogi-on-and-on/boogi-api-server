@@ -202,12 +202,16 @@ class CommunityApiControllerTest {
         given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                 .willReturn(member);
 
+
+        final CommunityHashtag hashtag = TestEmptyEntityGenerator.CommunityHashtag();
+        ReflectionTestUtils.setField(hashtag, "tag", "테그1");
+
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 1L);
         ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
         ReflectionTestUtils.setField(community, "description", "반가워");
         ReflectionTestUtils.setField(community, "isPrivate", false);
-        ReflectionTestUtils.setField(community, "hashtags", List.of(CommunityHashtag.builder().tag("테그1").build()));
+        ReflectionTestUtils.setField(community, "hashtags", List.of(hashtag));
         ReflectionTestUtils.setField(community, "memberCount", 3);
         ReflectionTestUtils.setField(community, "category", CommunityCategory.ACADEMIC);
         ReflectionTestUtils.setField(community, "createdAt", LocalDateTime.now());
