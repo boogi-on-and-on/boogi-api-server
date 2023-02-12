@@ -301,7 +301,6 @@ class LikeRepositoryTest {
         final Like like3 = TestEmptyEntityGenerator.Like();
         ReflectionTestUtils.setField(like3, "createdAt", LocalDateTime.now());
 
-        like3.setCreatedAt(LocalDateTime.now());
         likeRepository.saveAll(List.of(like1, like2, like3));
 
         persistenceUtil.cleanPersistenceContext();

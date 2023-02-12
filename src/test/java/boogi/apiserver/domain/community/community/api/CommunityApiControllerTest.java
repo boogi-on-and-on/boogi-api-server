@@ -483,8 +483,8 @@ class CommunityApiControllerTest {
         void getCommunityPostList() throws Exception {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
+            ReflectionTestUtils.setField(community, "createdAt", LocalDateTime.now());
 
-            community.setCreatedAt(LocalDateTime.now());
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
@@ -573,8 +573,7 @@ class CommunityApiControllerTest {
         ReflectionTestUtils.setField(member, "id", 2L);
         ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
         ReflectionTestUtils.setField(member, "user", user);
-
-        member.setCreatedAt(LocalDateTime.now());
+        ReflectionTestUtils.setField(member, "createdAt", LocalDateTime.now());
 
         PageImpl<Member> page = new PageImpl<>(List.of(member), Pageable.ofSize(1), 1);
         given(memberQueryService.getCommunityJoinedMembers(any(), anyLong())).willReturn(page);
