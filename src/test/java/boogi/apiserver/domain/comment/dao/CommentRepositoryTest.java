@@ -187,7 +187,6 @@ class CommentRepositoryTest {
         ReflectionTestUtils.setField(comment3, "child", false);
         ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now());
 
-        comment3.setCreatedAt(LocalDateTime.now());
         commentRepository.save(comment3);
 
         persistenceUtil.cleanPersistenceContext();
