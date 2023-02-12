@@ -161,9 +161,8 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("작성자 본인이 요청할때 댓글과 모든 좋아요를 삭제한다.")
         void commentorDeleteCommentSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
@@ -197,13 +196,11 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("해당 커뮤니티 (부)관리자가 요청할때 댓글과 모든 좋아요를 삭제한다.")
         void managerDeleteCommentSuccess() {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
+            final User user1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user1, "id", 1L);
 
-            User user2 = User.builder()
-                    .id(2L)
-                    .build();
+            final User user2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user2, "id", 2L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
@@ -240,12 +237,11 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("권한이 없는 멤버가 삭제요청시 NotAuthorizedMemberException 발생")
         void notAuthorizedMemberDeleteCommentFail() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
-            User user2 = user.builder()
-                    .id(2L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
+            final User user2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user2, "id", 2L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 2L);
@@ -279,9 +275,9 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("부모 댓글 개수를 기준으로 페이지네이션해서 가져온다.")
         void getCommentsAtPostSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -406,9 +402,9 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("삭제된 부모 댓글에 자식 댓글이 존재하는 경우 부모 댓글 content에 '삭제된 댓글입니다'가 들어있다.")
         void testDeletedParentCommentWhenExistChildComment() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -482,9 +478,9 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("댓글 작성한 유저 == 세션 유저, 해당 유저가 작성한 댓글들을 페이지네이션해서 가져온다.")
         void commenterAndSessionUserEqualSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 2L);
@@ -527,12 +523,11 @@ class CommentCoreServiceTest {
         @Test
         @DisplayName("댓글 작성한 유저 != 세션 유저, 동시에 가입되지 않은 비공개 커뮤니티의 글에 작성된 댓글은 가져오지 않는다.")
         void commenterAndSessionUserNotEqualSuccess() {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
-            User user2 = User.builder()
-                    .id(2L)
-                    .build();
+            final User user1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user1, "id", 1L);
+
+            final User user2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user2, "id", 2L);
 
             final Member member1 = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member1, "id", 3L);

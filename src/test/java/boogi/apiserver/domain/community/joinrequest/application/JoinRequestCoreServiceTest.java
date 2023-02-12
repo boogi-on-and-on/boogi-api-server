@@ -61,7 +61,9 @@ class JoinRequestCoreServiceTest {
         @Test
         @DisplayName("이미 요청한 경우")
         void alreadyRequested() {
-            User user = User.builder().id(1L).build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
@@ -86,7 +88,9 @@ class JoinRequestCoreServiceTest {
         @Test
         @DisplayName("이미 가입한 경우")
         void alreadyJoined() {
-            User user = User.builder().id(1L).build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
@@ -139,8 +143,10 @@ class JoinRequestCoreServiceTest {
         @DisplayName("유저 여러개 승인하기")
         void confirmManyRequest() {
             //given
-            User u1 = User.builder().id(1L).build();
-            User u2 = User.builder().id(2L).build();
+            final User u1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(u1, "id", 1L);
+            final User u2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(u2, "id", 2L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 3L);
@@ -182,8 +188,10 @@ class JoinRequestCoreServiceTest {
         @DisplayName("여러개 승인 거부하기")
         void rejectManyRequest() {
             //given
-            User u1 = User.builder().id(1L).build();
-            User u2 = User.builder().id(2L).build();
+            final User u1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(u1, "id", 1L);
+            final User u2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(u2, "id", 2L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 3L);

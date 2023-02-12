@@ -54,7 +54,8 @@ class AlarmConfigCoreServiceTest {
     @Test
     void 알림_설정_변경() {
         //given
-        AlarmConfig alarmConfig = AlarmConfig.of(User.builder().build());
+        final User user = TestEmptyEntityGenerator.User();
+        AlarmConfig alarmConfig = AlarmConfig.of(user);
 
         given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
                 .willReturn(alarmConfig);

@@ -64,9 +64,9 @@ class MemberCoreServiceTest {
     @Test
     void 멤버_가입_성공() {
         //given
-        User user = User.builder()
-                .id(1L)
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         given(userQueryService.getUser(anyLong()))
                 .willReturn(user);
 
@@ -88,12 +88,11 @@ class MemberCoreServiceTest {
     @DisplayName("멤버 2명이상 추가")
     void joinMany() {
         //given
-        User u1 = User.builder()
-                .id(1L)
-                .build();
-        User u2 = User.builder()
-                .id(2L)
-                .build();
+        final User u1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(u1, "id", 1L);
+
+        final User u2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(u2, "id", 2L);
 
         given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(u1, u2));
@@ -161,12 +160,11 @@ class MemberCoreServiceTest {
     @Test
     @DisplayName("나를 제외한 커뮤니티에 가입된 모든 멤버들을 조회한다.")
     void testGetJoinedMembersAllWithoutMeSuccess() {
-        User user1 = User.builder()
-                .id(1L)
-                .build();
-        User user2 = User.builder()
-                .id(2L)
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user1, "id", 1L);
+
+        final User user2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user2, "id", 2L);
 
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 3L);

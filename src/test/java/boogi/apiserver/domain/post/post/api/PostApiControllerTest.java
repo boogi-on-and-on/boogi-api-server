@@ -119,12 +119,12 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글 상세 조회하기")
     void testGetPostDetail() throws Exception {
-        User user = User.builder()
-                .id(1L)
-                .username("유저")
-                .tagNumber("#1")
-                .profileImageUrl("url")
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "username", "유저");
+        ReflectionTestUtils.setField(user, "tagNumber", "#1");
+        ReflectionTestUtils.setField(user, "profileImageUrl", "url");
+
 
         final Member member = TestEmptyEntityGenerator.Member();
         ReflectionTestUtils.setField(member, "id", 1L);
@@ -293,12 +293,13 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글에 좋아요 한 유저들 조회하기")
     void testGetLikeMembersAtPost() throws Exception {
-        User user = User.builder()
-                .id(1L)
-                .username("유저")
-                .tagNumber("#1")
-                .profileImageUrl("url")
-                .build();
+
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "username", "유저");
+        ReflectionTestUtils.setField(user, "tagNumber", "#1");
+        ReflectionTestUtils.setField(user, "profileImageUrl", "url");
+
         List<User> users = List.of(user);
 
         Pageable pageable = PageRequest.of(0, 1);

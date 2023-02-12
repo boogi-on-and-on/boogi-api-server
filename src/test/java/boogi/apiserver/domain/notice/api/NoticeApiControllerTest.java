@@ -157,11 +157,12 @@ class NoticeApiControllerTest {
             ReflectionTestUtils.setField(notice, "member", member);
             ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
 
-            CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, User.builder()
-                    .tagNumber("#0001")
-                    .username("김")
-                    .id(3L)
-                    .build());
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 3L);
+            ReflectionTestUtils.setField(user, "username", "김");
+            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+
+            CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, user);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);

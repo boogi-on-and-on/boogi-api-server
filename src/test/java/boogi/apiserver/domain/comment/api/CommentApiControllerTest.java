@@ -175,11 +175,11 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글에 좋아요한 멤버 목록 조회")
     void testGetLikeMembersAtComment() throws Exception {
-        User user1 = User.builder()
-                .id(1L)
-                .username("유저1")
-                .tagNumber("#0001")
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user1, "id", 1L);
+        ReflectionTestUtils.setField(user1, "username", "유저");
+        ReflectionTestUtils.setField(user1, "tagNumber", "#0001");
+
         List<User> users = List.of(user1);
 
         List<LikeMembersAtComment.UserInfo> userInfos = users.stream()

@@ -32,17 +32,17 @@ class MessageBlockRepositoryTest {
     @DisplayName("차단한 멤버 목록 조회하기")
     void getBlockedUsers() {
         //given
-        User u1 = User.builder()
-                .username("탈퇴당한유저1")
-                .tagNumber("#0001")
-                .build();
-        User u2 = User.builder()
-                .username("탈퇴당한유저2")
-                .tagNumber("#0001")
-                .build();
-        User user = User.builder()
-                .username("유저")
-                .build();
+        final User u1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(u1, "username", "탈퇴당한유저1");
+        ReflectionTestUtils.setField(u1, "tagNumber", "#0001");
+
+        final User u2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(u2, "username", "탈퇴당한유저2");
+        ReflectionTestUtils.setField(u2, "tagNumber", "#0001");
+
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "username", "유저");
+
         userRepository.saveAll(List.of(u1, u2, user));
 
         final MessageBlock block1 = TestEmptyEntityGenerator.MessageBlock();
@@ -72,8 +72,9 @@ class MessageBlockRepositoryTest {
     @DisplayName("userId로 messageBlock 로우 가져오기")
     void getMessageBlockByUserId() {
         //given
-        User user = User.builder().build();
-        User blockedUser = User.builder().build();
+        final User user = TestEmptyEntityGenerator.User();
+        final User blockedUser = TestEmptyEntityGenerator.User();
+
         userRepository.saveAll(List.of(user, blockedUser));
 
         final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
@@ -93,9 +94,10 @@ class MessageBlockRepositoryTest {
     @DisplayName("2개 이상 userId로 messageBlock 로우 가져오기")
     void getMessageBlocksByUserIds() {
         //given
-        User user = User.builder().build();
-        User blockedUser1 = User.builder().build();
-        User blockedUser2 = User.builder().build();
+        final User user = TestEmptyEntityGenerator.User();
+        final User blockedUser1 = TestEmptyEntityGenerator.User();
+        final User blockedUser2 = TestEmptyEntityGenerator.User();
+
         userRepository.saveAll(List.of(user, blockedUser1, blockedUser2));
 
         final MessageBlock block1 = TestEmptyEntityGenerator.MessageBlock();
@@ -119,8 +121,9 @@ class MessageBlockRepositoryTest {
     @DisplayName("messageBlock의 block update bulk")
     void updateBulkBlockedStatus() {
         //given
-        User blockedUser1 = User.builder().build();
-        User blockedUser2 = User.builder().build();
+        final User blockedUser1 = TestEmptyEntityGenerator.User();
+        final User blockedUser2 = TestEmptyEntityGenerator.User();
+
         userRepository.saveAll(List.of(blockedUser1, blockedUser2));
 
         final MessageBlock block1 = TestEmptyEntityGenerator.MessageBlock();

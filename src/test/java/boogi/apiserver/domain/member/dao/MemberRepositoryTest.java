@@ -53,8 +53,7 @@ class MemberRepositoryTest {
 
     @Test
     void getMemberIdsByUserId() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
 
         final Member member1 = TestEmptyEntityGenerator.Member();
         ReflectionTestUtils.setField(member1, "user", user);
@@ -75,8 +74,7 @@ class MemberRepositoryTest {
 
     @Test
     void findMembersWhatIJoined() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
         final Community community1 = TestEmptyEntityGenerator.Community();
@@ -107,7 +105,7 @@ class MemberRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user = User.builder().build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
         final Member manager = TestEmptyEntityGenerator.Member();
@@ -178,15 +176,14 @@ class MemberRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user1 = User.builder()
-                .username("홍길동")
-                .tagNumber("#0001")
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user1, "username", "홍길동");
+        ReflectionTestUtils.setField(user1, "tagNumber", "#0001");
 
-        User user2 = User.builder()
-                .username("가나다")
-                .tagNumber("#0001")
-                .build();
+        final User user2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user2, "username", "가나다");
+        ReflectionTestUtils.setField(user2, "tagNumber", "#0001");
+
         userRepository.saveAll(List.of(user1, user2));
 
         final Member m1 = TestEmptyEntityGenerator.Member();
@@ -213,8 +210,9 @@ class MemberRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User u1 = User.builder().build();
-        User u2 = User.builder().build();
+        final User u1 = TestEmptyEntityGenerator.User();
+        final User u2 = TestEmptyEntityGenerator.User();
+
         userRepository.saveAll(List.of(u1, u2));
 
         final Member m1 = TestEmptyEntityGenerator.Member();
@@ -233,10 +231,8 @@ class MemberRepositoryTest {
     @Test
     @DisplayName("해당 커뮤니티에 가입된 삭제되지 않은 모든 멤버를 User와 함께 조회한다.")
     void testFindJoinedMembersAllWithUserByCommunityId() {
-        User user1 = User.builder()
-                .build();
-        User user2 = User.builder()
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        final User user2 = TestEmptyEntityGenerator.User();
         userRepository.saveAll(List.of(user1, user2));
 
         final Community community = TestEmptyEntityGenerator.Community();
@@ -271,17 +267,18 @@ class MemberRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user1 = User.builder()
-                .username("김가나")
-                .build();
-        User user2 = User.builder()
-                .username("김가가")
-                .profileImageUrl("abc/xyz")
-                .tagNumber("1234")
-                .build();
-        User user3 = User.builder()
-                .username("박가나")
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user1, "username", "김가나");
+
+        final User user2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user2, "username", "김가가");
+        ReflectionTestUtils.setField(user2, "profileImageUrl", "abc/xyz");
+        ReflectionTestUtils.setField(user2, "tagNumber", "1234");
+
+        final User user3 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user3, "username", "박가나");
+
+
         userRepository.saveAll(List.of(user1, user2, user3));
 
         final Member member1 = TestEmptyEntityGenerator.Member();

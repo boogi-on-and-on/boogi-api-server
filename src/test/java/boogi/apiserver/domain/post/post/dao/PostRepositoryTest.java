@@ -72,8 +72,7 @@ class PostRepositoryTest {
 
     @Test
     void getUserPostPage() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
         final Community community = TestEmptyEntityGenerator.Community();
@@ -319,8 +318,8 @@ class PostRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user1 = User.builder().build();
-        User user2 = User.builder().build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        final User user2 = TestEmptyEntityGenerator.User();
 
         userRepository.saveAll(List.of(user1, user2));
 
@@ -401,11 +400,11 @@ class PostRepositoryTest {
 
         communityRepository.saveAll(List.of(community1, community2));
 
-        User user = User.builder()
-                .username("김")
-                .tagNumber("#0001")
-                .department("컴공")
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "username", "김");
+        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+        ReflectionTestUtils.setField(user, "department", "컴공");
+
         userRepository.save(user);
 
         final Member member1 = TestEmptyEntityGenerator.Member();
@@ -495,8 +494,7 @@ class PostRepositoryTest {
     @Test
     @DisplayName("postId로 Post를 Member, User, Community와 함께 fetch join해서 조회한다.")
     void testGetPostWithUserAndMemberAndCommunityByPostId() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
 
@@ -536,8 +534,7 @@ class PostRepositoryTest {
     @Test
     @DisplayName("postId로 Post를 Member, Community와 함께 fetch join해서 조회한다.")
     void testGetPostWithCommunityAndMemberByPostId() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
         final Community community = TestEmptyEntityGenerator.Community();

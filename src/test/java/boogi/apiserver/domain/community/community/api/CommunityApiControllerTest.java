@@ -488,11 +488,10 @@ class CommunityApiControllerTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            User user = User.builder()
-                    .id(1L)
-                    .username("홍길동")
-                    .tagNumber("#0001")
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+            ReflectionTestUtils.setField(user, "username", "홍길동");
+            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
@@ -564,12 +563,11 @@ class CommunityApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        User user = User.builder()
-                .id(1L)
-                .username("김가나")
-                .tagNumber("#0001")
-                .department("컴공")
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "username", "김가나");
+        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+        ReflectionTestUtils.setField(user, "department", "컴공");
 
         final Member member = TestEmptyEntityGenerator.Member();
         ReflectionTestUtils.setField(member, "id", 2L);
@@ -688,12 +686,10 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("관리자의 가입요청목록 조회 성공")
         void getJoinRequestList() throws Exception {
-
-            User user = User.builder()
-                    .id(1L)
-                    .tagNumber("#0001")
-                    .username("홍길동")
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+            ReflectionTestUtils.setField(user, "username", "홍길동");
+            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
 
             given(joinRequestQueryService.getAllRequests(anyLong()))
                     .willReturn(List.of(
@@ -796,9 +792,8 @@ class CommunityApiControllerTest {
     @Test
     @DisplayName("해당 커뮤니티에 가입된 모든 멤버 가져오기")
     void testGetMembersAll() throws Exception {
-        User user = User.builder()
-                .id(2L)
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 2L);
 
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 1L);

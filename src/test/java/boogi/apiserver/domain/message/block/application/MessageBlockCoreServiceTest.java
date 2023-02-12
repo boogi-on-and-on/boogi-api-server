@@ -81,11 +81,14 @@ class MessageBlockCoreServiceTest {
     @DisplayName("row 업데이트만 진행하는 경우")
     void updateMessageBlock() {
         //given
-        User user = User.builder().id(1L).build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         given(userQueryService.getUser(anyLong()))
                 .willReturn(user);
 
-        User blockedUser = User.builder().id(2L).build();
+        final User blockedUser = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(blockedUser, "id", 2L);
 
         final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
         ReflectionTestUtils.setField(block, "id", 3L);
@@ -110,14 +113,18 @@ class MessageBlockCoreServiceTest {
     @DisplayName("차단하기 페어 추가")
     void insertMessageBlock() {
         //given
-        User user = User.builder().id(1L).build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         given(userQueryService.getUser(anyLong()))
                 .willReturn(user);
 
         given(messageBlockRepository.getMessageBlocksByUserIds(anyLong(), any()))
                 .willReturn(List.of());
 
-        User blockedUser = User.builder().id(2L).build();
+        final User blockedUser = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(blockedUser, "id", 2L);
+
         given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(blockedUser));
 

@@ -75,9 +75,8 @@ class ReportServiceTest {
         @Test
         @DisplayName("댓글 신고 생성에 성공한다.")
         void createCommentReportSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -109,9 +108,9 @@ class ReportServiceTest {
         @Test
         @DisplayName("신고할 댓글 및 글이 달린 비공개 커뮤니티에 멤버가 아닐 경우 NotJoinedMemberException가 발생한다.")
         void createReportAtCommentOrCommunityWhenNotJoinedPrivateCommunityFail() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
@@ -150,9 +149,9 @@ class ReportServiceTest {
         @Test
         @DisplayName("글 신고 생성에 성공한다.")
         void createPostReportSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
@@ -181,9 +180,9 @@ class ReportServiceTest {
         @Test
         @DisplayName("커뮤니티 신고 생성에 성공한다.")
         void createCommunityReportSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
+
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user);
 
@@ -202,15 +201,13 @@ class ReportServiceTest {
         @Test
         @DisplayName("쪽지 신고 생성에 성공한다.")
         void createMessageReportSuccess() {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
+            final User user1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user1, "id", 1L);
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user1);
 
-            User user2 = User.builder()
-                    .id(2L)
-                    .build();
+            final User user2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user2, "id", 2L);
 
             final Message message = TestEmptyEntityGenerator.Message();
             ReflectionTestUtils.setField(message, "id", 1L);
@@ -229,15 +226,13 @@ class ReportServiceTest {
         @Test
         @DisplayName("본인이 포함되어 있는 쪽지가 아닐때 쪽지 신고시 InvalidValueException 발생한다.")
         void createMessageReportNotMyMessageFail() {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
+            final User user1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user1, "id", 1L);
             given(userQueryService.getUser(anyLong()))
                     .willReturn(user1);
 
-            User user2 = User.builder()
-                    .id(2L)
-                    .build();
+            final User user2 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user2, "id", 2L);
 
             final Message message = TestEmptyEntityGenerator.Message();
             ReflectionTestUtils.setField(message, "id", 1L);

@@ -36,8 +36,9 @@ class JoinRequestRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user1 = User.builder().build();
-        User user2 = User.builder().build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        final User user2 = TestEmptyEntityGenerator.User();
+
         userRepository.saveAll(List.of(user1, user2));
 
         final JoinRequest r1 = TestEmptyEntityGenerator.JoinRequest();

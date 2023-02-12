@@ -53,8 +53,7 @@ class CommentRepositoryTest {
 
     @Test
     void getUserCommentPage() {
-        User user = User.builder()
-                .build();
+        User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
         final Member member = TestEmptyEntityGenerator.Member();

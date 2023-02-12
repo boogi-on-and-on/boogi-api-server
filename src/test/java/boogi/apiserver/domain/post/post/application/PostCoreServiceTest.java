@@ -150,9 +150,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("글이 작성된 공개 커뮤니티에 비가입상태로 조회시 성공한다.")
         void notJoinedUserRequestSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -198,9 +197,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("글이 작성된 공개 커뮤니티에 가입상태로 조회시 성공한다.")
         void joinedUserRequestSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -286,9 +284,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("글 작성자 본인이 아닌 유저가 요청하는 경우 NotAuthorizedException 발생한다.")
         void notAuthorizedFail() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -317,9 +314,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("성공적으로 수정된다.")
         void UpdatePostSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -380,9 +376,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("성공적으로 삭제된다.")
         void deletePostSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -426,9 +421,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("글 작성자가 본인이 아니거나, 해당 커뮤니티 (부)매니저가 아닐 경우 NotAuthorizedMemberException 발생한다.")
         void notAuthorizedMemberFail() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -460,9 +454,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("본인 세션으로 본인의 작성글들을 요청한 경우 본인의 작성글을 페이지네이션해서 조회한다.")
         void myPostRequestWithMySessionUserSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -519,9 +512,8 @@ class PostCoreServiceTest {
         @Test
         @DisplayName("세션 유저와 요청한 유저가 다른 경우 세션 유저가 비가입된 비공개 커뮤니티의 글을 제외하고 페이지네이션해서 조회한다.")
         void othersPostRequestWithMySessionUserSuccess() {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
+            final User user1 = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user1, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);

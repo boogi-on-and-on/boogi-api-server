@@ -35,12 +35,11 @@ class JoinRequestQueryServiceTest {
     @Test
     @DisplayName("커뮤니티 가입요청 목록 조회")
     void communityJoinRequestList() {
-        User user = User.builder()
-                .id(1L)
-                .profileImageUrl("image")
-                .tagNumber("#0001")
-                .username("이름")
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "username", "이름");
+        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+        ReflectionTestUtils.setField(user, "profileImageUrl", "image");
 
         final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
         ReflectionTestUtils.setField(joinRequest, "id", 2L);

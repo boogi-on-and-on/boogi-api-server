@@ -37,9 +37,8 @@ class MemberQueryServiceTest {
     void myCommunityList() {
 
         //given
-        User user = User.builder()
-                .id(1L)
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
 
         final Community community1 = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community1, "id", 2L);

@@ -99,7 +99,7 @@ class NoticeRepositoryTest {
     @DisplayName("커뮤니티의 전체 공지사항 조회")
     void getAllNotices_community() {
         //given
-        User user = User.builder().build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
         final Member member = TestEmptyEntityGenerator.Member();

@@ -120,9 +120,13 @@ class MemberValidationServiceTest {
     @Test
     @DisplayName("이미 가입한 멤버가 있는경우(배치 가입)")
     void alreadyJoinedMemberInBatch() {
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 2L);
+
         final Member member = TestEmptyEntityGenerator.Member();
         ReflectionTestUtils.setField(member, "id", 1L);
-        ReflectionTestUtils.setField(member, "user", User.builder().id(2L).build());
+        ReflectionTestUtils.setField(member, "user", user);
+
 
         given(memberRepository.findAlreadyJoinedMemberByUserId(any(), anyLong()))
                 .willReturn(List.of(member));

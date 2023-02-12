@@ -196,9 +196,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("댓글 좋아요 취소는 좋아요가 삭제된다.")
         void doUnlikeAtCommentSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -223,9 +222,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("글 좋아요 취소는 해당 글의 좋아요 수가 1 감소하고, 좋아요가 삭제된다.")
         void doUnlikeAtPostSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -253,9 +251,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("요청한 세션 유저와 좋아요 한 유저가 서로 다를 경우 NotAuthorizedMemberException 발생한다.")
         void requestedUserAndLikedUserNotSameFail() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
@@ -283,9 +280,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
@@ -363,9 +359,8 @@ class LikeCoreServiceTest {
         @Test
         @DisplayName("댓글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
