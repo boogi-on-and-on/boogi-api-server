@@ -137,10 +137,10 @@ class PostApiControllerTest {
         ReflectionTestUtils.setField(community, "id", 1L);
         ReflectionTestUtils.setField(community, "communityName", "커뮤니티");
 
-        PostHashtag postHashtag = PostHashtag.builder()
-                .id(1L)
-                .tag("해시태그")
-                .build();
+
+        final PostHashtag postHashtag = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(postHashtag, "id", 1L);
+        ReflectionTestUtils.setField(postHashtag, "tag", "해시태그");
 
         Post post = Post.builder()
                 .id(1L)

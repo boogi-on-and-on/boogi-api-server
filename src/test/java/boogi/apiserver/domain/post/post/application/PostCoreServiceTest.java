@@ -346,11 +346,11 @@ class PostCoreServiceTest {
             given(postRepository.findPostById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            PostHashtag postHashtag = PostHashtag.builder()
-                    .id(1L)
-                    .tag("해시태그")
-                    .post(post)
-                    .build();
+            final PostHashtag postHashtag = TestEmptyEntityGenerator.PostHashtag();
+            ReflectionTestUtils.setField(postHashtag, "id", 1L);
+            ReflectionTestUtils.setField(postHashtag, "post", post);
+            ReflectionTestUtils.setField(postHashtag, "tag", "해시태그");
+
             given(postHashtagCoreService.addTags(anyLong(), anyList()))
                     .willReturn(List.of(postHashtag));
             PostMedia postMedia = PostMedia.builder()

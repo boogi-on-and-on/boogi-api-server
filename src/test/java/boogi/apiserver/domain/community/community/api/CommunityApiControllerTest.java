@@ -501,6 +501,9 @@ class CommunityApiControllerTest {
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
 
+            final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
+            ReflectionTestUtils.setField(postHashtag1, "tag", "t1");
+
             Post post = Post.builder()
                     .id(1L)
                     .content("내용1")
@@ -513,7 +516,7 @@ class CommunityApiControllerTest {
                     .member(member)
                     .likes(List.of())
                     .community(community)
-                    .hashtags(List.of(PostHashtag.builder().tag("t1").build()))
+                    .hashtags(List.of(postHashtag1))
                     .build();
             post.setCreatedAt(LocalDateTime.now());
 

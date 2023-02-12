@@ -122,15 +122,13 @@ class PostRepositoryTest {
                 .build();
         postMediaRepository.save(postMedia);
 
-        PostHashtag hashtagOfPost1 = PostHashtag.builder()
-                .post(post1)
-                .tag("게시글1의 해시태그1")
-                .build();
+        final PostHashtag hashtagOfPost1 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(hashtagOfPost1, "post", post1);
+        ReflectionTestUtils.setField(hashtagOfPost1, "tag", "게시글1의 해시태그1");
 
-        PostHashtag hashtagOfPost2 = PostHashtag.builder()
-                .post(post1)
-                .tag("게시글1의 해시태그2")
-                .build();
+        final PostHashtag hashtagOfPost2 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(hashtagOfPost2, "post", post1);
+        ReflectionTestUtils.setField(hashtagOfPost2, "tag", "게시글1의 해시태그2");
 
         postHashtagRepository.saveAll(List.of(hashtagOfPost1, hashtagOfPost2));
 
@@ -364,14 +362,14 @@ class PostRepositoryTest {
                 .build();
         postMediaRepository.save(postMedia1);
 
-        PostHashtag p1_t1 = PostHashtag.builder()
-                .post(post2)
-                .tag("post2태그1")
-                .build();
-        PostHashtag p1_t2 = PostHashtag.builder()
-                .post(post2)
-                .tag("post2태그2")
-                .build();
+        final PostHashtag p1_t1 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(p1_t1, "post", post2);
+        ReflectionTestUtils.setField(p1_t1, "tag", "post2태그1");
+
+        final PostHashtag p1_t2 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(p1_t2, "post", post2);
+        ReflectionTestUtils.setField(p1_t2, "tag", "post2태그2");
+
         postHashtagRepository.saveAll(List.of(p1_t1, p1_t2));
 
         persistenceUtil.cleanPersistenceContext();

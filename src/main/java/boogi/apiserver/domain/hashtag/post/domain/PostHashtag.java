@@ -10,8 +10,6 @@ import javax.persistence.*;
 @Table(name = "POST_HASHTAG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostHashtag extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
