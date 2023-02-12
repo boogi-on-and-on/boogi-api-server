@@ -220,11 +220,11 @@ class CommunityApiControllerTest {
         given(communityQueryService.getCommunityWithHashTag(anyLong()))
                 .willReturn(community);
 
-        Notice notice = Notice.builder()
-                .id(1L)
-                .title("노티스")
-                .build();
-        notice.setCreatedAt(LocalDateTime.now());
+        final Notice notice = TestEmptyEntityGenerator.Notice();
+        ReflectionTestUtils.setField(notice, "id", 1L);
+        ReflectionTestUtils.setField(notice, "title", "노티스");
+        ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
                 .willReturn(List.of(notice));
 

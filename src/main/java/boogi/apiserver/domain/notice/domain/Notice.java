@@ -13,8 +13,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "NOTICE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notice extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

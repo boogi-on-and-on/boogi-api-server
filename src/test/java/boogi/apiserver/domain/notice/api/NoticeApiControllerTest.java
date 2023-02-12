@@ -28,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -84,12 +85,14 @@ class NoticeApiControllerTest {
         @Test
         @DisplayName("전체 공지 조회")
         void allAppNotice() throws Exception {
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .title("제목")
-                    .content("내용")
-                    .build();
-            notice.setCreatedAt(LocalDateTime.now());
+
+
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+            ReflectionTestUtils.setField(notice, "title", "제목");
+            ReflectionTestUtils.setField(notice, "content", "내용");
+            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
             NoticeDetailDto noticeDetailDto = NoticeDetailDto.of(notice);
 
             MockHttpSession session = new MockHttpSession();
@@ -121,9 +124,9 @@ class NoticeApiControllerTest {
                     .communityId(1L)
                     .build();
 
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .build();
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+
             given(noticeCoreService.create(any(), anyLong(), anyLong()))
                     .willReturn(notice);
 
@@ -145,13 +148,15 @@ class NoticeApiControllerTest {
         @Test
         @DisplayName("전체 공지 조회")
         void allCommunityNotice() throws Exception {
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .member(TestEmptyEntityGenerator.Member())
-                    .title("제목")
-                    .content("내용")
-                    .build();
-            notice.setCreatedAt(LocalDateTime.now());
+            final Member member = TestEmptyEntityGenerator.Member();
+
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+            ReflectionTestUtils.setField(notice, "title", "제목");
+            ReflectionTestUtils.setField(notice, "content", "내용");
+            ReflectionTestUtils.setField(notice, "member", member);
+            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
             CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, User.builder()
                     .tagNumber("#0001")
                     .username("김")

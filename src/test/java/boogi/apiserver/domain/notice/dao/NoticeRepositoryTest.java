@@ -17,6 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,11 +52,14 @@ class NoticeRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Notice notice1 = Notice.builder().build();
-        Notice notice2 = Notice.builder().build();
-        Notice notice3 = Notice.builder().build();
-        Notice notice4 = Notice.builder().build();
-        Notice notice5 = Notice.builder().community(community).build();
+        final Notice notice1 = TestEmptyEntityGenerator.Notice();
+        final Notice notice2 = TestEmptyEntityGenerator.Notice();
+        final Notice notice3 = TestEmptyEntityGenerator.Notice();
+        final Notice notice4 = TestEmptyEntityGenerator.Notice();
+
+        final Notice notice5 = TestEmptyEntityGenerator.Notice();
+        ReflectionTestUtils.setField(notice5, "community", community);
+
         noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
 
         //when
@@ -73,11 +77,14 @@ class NoticeRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Notice notice1 = Notice.builder().build();
-        Notice notice2 = Notice.builder().build();
-        Notice notice3 = Notice.builder().build();
-        Notice notice4 = Notice.builder().build();
-        Notice notice5 = Notice.builder().community(community).build();
+        final Notice notice1 = TestEmptyEntityGenerator.Notice();
+        final Notice notice2 = TestEmptyEntityGenerator.Notice();
+        final Notice notice3 = TestEmptyEntityGenerator.Notice();
+        final Notice notice4 = TestEmptyEntityGenerator.Notice();
+
+        final Notice notice5 = TestEmptyEntityGenerator.Notice();
+        ReflectionTestUtils.setField(notice5, "community", community);
+
         noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
 
         //when
@@ -102,11 +109,15 @@ class NoticeRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Notice notice1 = Notice.builder().build();
-        Notice notice2 = Notice.builder().build();
-        Notice notice3 = Notice.builder().build();
-        Notice notice4 = Notice.builder().build();
-        Notice notice5 = Notice.builder().member(member).community(community).build();
+        final Notice notice1 = TestEmptyEntityGenerator.Notice();
+        final Notice notice2 = TestEmptyEntityGenerator.Notice();
+        final Notice notice3 = TestEmptyEntityGenerator.Notice();
+        final Notice notice4 = TestEmptyEntityGenerator.Notice();
+
+        final Notice notice5 = TestEmptyEntityGenerator.Notice();
+        ReflectionTestUtils.setField(notice5, "community", community);
+        ReflectionTestUtils.setField(notice5, "member", member);
+
         noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
 
         //when
