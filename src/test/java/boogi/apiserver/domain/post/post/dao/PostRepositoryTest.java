@@ -91,26 +91,23 @@ class PostRepositoryTest {
 
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post post1 = Post.builder()
-                .community(community)
-                .content("게시글1")
-                .member(member1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community);
+        ReflectionTestUtils.setField(post1, "content", "게시글1");
+        ReflectionTestUtils.setField(post1, "member", member1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now().minusDays(1));
 
-        Post post2 = Post.builder()
-                .community(community)
-                .content("게시글2")
-                .member(member2)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community);
+        ReflectionTestUtils.setField(post2, "content", "게시글2");
+        ReflectionTestUtils.setField(post2, "member", member2);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now().minusDays(2));
 
-        Post post3 = Post.builder()
-                .community(community)
-                .content("게시글3")
-                .member(member2)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now().minusDays(3));
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community);
+        ReflectionTestUtils.setField(post3, "content", "게시글3");
+        ReflectionTestUtils.setField(post3, "member", member2);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now().minusDays(3));
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
@@ -166,37 +163,33 @@ class PostRepositoryTest {
 
         communityRepository.saveAll(List.of(community1, community2));
 
-        Post post1 = Post.builder()
-                .community(community1)
-                .content("게시글1")
-                .likeCount(10)
-                .commentCount(1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now().minusDays(10));
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community1);
+        ReflectionTestUtils.setField(post1, "content", "게시글1");
+        ReflectionTestUtils.setField(post1, "likeCount", 10);
+        ReflectionTestUtils.setField(post1, "commentCount", 1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now().minusDays(10));
 
-        Post post2 = Post.builder()
-                .community(community2)
-                .content("게시글2_리스팅안됨")
-                .likeCount(100)
-                .commentCount(1)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now());
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community2);
+        ReflectionTestUtils.setField(post2, "content", "게시글2_리스팅안됨");
+        ReflectionTestUtils.setField(post2, "likeCount", 100);
+        ReflectionTestUtils.setField(post2, "commentCount", 1);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now());
 
-        Post post3 = Post.builder()
-                .community(community1)
-                .content("게시글3")
-                .likeCount(2)
-                .commentCount(1)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now());
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community1);
+        ReflectionTestUtils.setField(post3, "content", "게시글3");
+        ReflectionTestUtils.setField(post3, "likeCount", 2);
+        ReflectionTestUtils.setField(post3, "commentCount", 1);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now());
 
-        Post post4 = Post.builder()
-                .community(community1)
-                .content("게시글4")
-                .likeCount(2)
-                .commentCount(10)
-                .build();
-        post4.setCreatedAt(LocalDateTime.now());
+        final Post post4 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post4, "community", community1);
+        ReflectionTestUtils.setField(post4, "content", "게시글4");
+        ReflectionTestUtils.setField(post4, "likeCount", 2);
+        ReflectionTestUtils.setField(post4, "commentCount", 10);
+        ReflectionTestUtils.setField(post4, "createdAt", LocalDateTime.now());
 
         postRepository.saveAll(List.of(post1, post2, post3, post4));
 
@@ -286,21 +279,26 @@ class PostRepositoryTest {
         final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Post p0 = Post.builder().community(community).build();
-        p0.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post p0 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p0, "community", community);
+        ReflectionTestUtils.setField(p0, "createdAt", LocalDateTime.now().minusDays(1));
 
-        Post p1 = Post.builder().community(community).build();
-        p1.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post p1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p1, "community", community);
+        ReflectionTestUtils.setField(p1, "createdAt", LocalDateTime.now().minusDays(2));
 
-        Post p2 = Post.builder().community(community).build();
-        p2.setCreatedAt(LocalDateTime.now().minusDays(3));
+        final Post p2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p2, "community", community);
+        ReflectionTestUtils.setField(p2, "createdAt", LocalDateTime.now().minusDays(3));
 
-        Post p3 = Post.builder().community(community).build();
-        p3.setCreatedAt(LocalDateTime.now().minusDays(4));
+        final Post p3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p3, "community", community);
+        ReflectionTestUtils.setField(p3, "createdAt", LocalDateTime.now().minusDays(4));
 
-        Post p4 = Post.builder().community(community).build();
-        p4.setCreatedAt(LocalDateTime.now().minusDays(5));
-//        p4.setCanceledAt(LocalDateTime.now());
+        final Post p4 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p4, "community", community);
+        ReflectionTestUtils.setField(p4, "createdAt", LocalDateTime.now().minusDays(5));
+
 
         postRepository.saveAll(List.of(p0, p1, p2, p3, p4));
 
@@ -335,22 +333,20 @@ class PostRepositoryTest {
 
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post post1 = Post.builder()
-                .community(community)
-                .member(member1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now());
-        Post post2 = Post.builder()
-                .community(community)
-                .member(member2)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community);
+        ReflectionTestUtils.setField(post1, "member", member1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now());
 
-        Post post3 = Post.builder()
-                .community(community)
-                .member(member2)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community);
+        ReflectionTestUtils.setField(post2, "member", member2);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now().minusDays(1));
+
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community);
+        ReflectionTestUtils.setField(post3, "member", member2);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now().minusDays(2));
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
@@ -420,30 +416,25 @@ class PostRepositoryTest {
         ReflectionTestUtils.setField(member2, "community", community2);
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post p1 = Post.builder()
-                .community(community1)
-                .member(member1)
-                .commentCount(1)
-                .likeCount(3)
-                .hashtags(new ArrayList<>())
-                .build();
-        p1.setCreatedAt(LocalDateTime.now());
+        final Post p1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p1, "community", community1);
+        ReflectionTestUtils.setField(p1, "member", member1);
+        ReflectionTestUtils.setField(p1, "commentCount", 1);
+        ReflectionTestUtils.setField(p1, "likeCount", 3);
+        ReflectionTestUtils.setField(p1, "createdAt", LocalDateTime.now());
 
-        Post p2 = Post.builder()
-                .community(community1)
-                .member(member1)
-                .hashtags(new ArrayList<>())
-                .build();
-        p2.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post p2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p2, "community", community1);
+        ReflectionTestUtils.setField(p2, "member", member1);
+        ReflectionTestUtils.setField(p2, "createdAt", LocalDateTime.now().minusDays(1));
 
-        Post p3 = Post.builder()
-                .community(community2)
-                .member(member2)
-                .commentCount(1)
-                .likeCount(2)
-                .hashtags(new ArrayList<>())
-                .build();
-        p3.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post p3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p3, "community", community2);
+        ReflectionTestUtils.setField(p3, "member", member2);
+        ReflectionTestUtils.setField(p3, "commentCount", 1);
+        ReflectionTestUtils.setField(p3, "likeCount", 2);
+        ReflectionTestUtils.setField(p3, "createdAt", LocalDateTime.now().minusDays(2));
+
 
         postRepository.saveAll(List.of(p1, p2, p3));
 
@@ -517,10 +508,10 @@ class PostRepositoryTest {
 
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .member(member)
-                .community(community)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "community", community);
+        ReflectionTestUtils.setField(post, "member", member);
+
         postRepository.save(post);
 
         persistenceUtil.cleanPersistenceContext();
@@ -557,10 +548,10 @@ class PostRepositoryTest {
 
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .member(member)
-                .community(community)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "community", community);
+        ReflectionTestUtils.setField(post, "member", member);
+
         postRepository.save(post);
 
         persistenceUtil.cleanPersistenceContext();
@@ -589,14 +580,14 @@ class PostRepositoryTest {
 
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post post1 = Post.builder()
-                .member(member1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now());
-        Post post2 = Post.builder()
-                .member(member2)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now());
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "member", member1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now());
+
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "member", member2);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now());
+
         postRepository.saveAll(List.of(post1, post2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -622,18 +613,18 @@ class PostRepositoryTest {
         final Community community3 = TestEmptyEntityGenerator.Community();
         communityRepository.saveAll(List.of(community1, community2, community3));
 
-        Post post1 = Post.builder()
-                .community(community1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now());
-        Post post2 = Post.builder()
-                .community(community1)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now());
-        Post post3 = Post.builder()
-                .community(community2)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now());
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now());
+
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community1);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now());
+
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community2);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now());
+
         postRepository.saveAll(List.of(post1, post2, post3));
 
         persistenceUtil.cleanPersistenceContext();

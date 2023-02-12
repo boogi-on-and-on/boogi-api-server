@@ -228,11 +228,11 @@ class CommunityApiControllerTest {
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
                 .willReturn(List.of(notice));
 
-        Post post = Post.builder()
-                .id(4L)
-                .content("글")
-                .build();
-        post.setCreatedAt(LocalDateTime.now());
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "id", 4L);
+        ReflectionTestUtils.setField(post, "content", "글");
+        ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+
         given(postQueryService.getLatestPostOfCommunity(anyLong()))
                 .willReturn(List.of(post));
 
@@ -504,21 +504,22 @@ class CommunityApiControllerTest {
             final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
             ReflectionTestUtils.setField(postHashtag1, "tag", "t1");
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .content("내용1")
-                    .likeCount(1)
-                    .postMedias(List.of(PostMedia.builder()
-                            .mediaURL("123")
-                            .mediaType(IMG)
-                            .build()))
-                    .commentCount(1)
-                    .member(member)
-                    .likes(List.of())
-                    .community(community)
-                    .hashtags(List.of(postHashtag1))
+            final PostMedia build = PostMedia.builder()
+                    .mediaURL("123")
+                    .mediaType(IMG)
                     .build();
-            post.setCreatedAt(LocalDateTime.now());
+
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "content", "내용1");
+            ReflectionTestUtils.setField(post, "likeCount", 1);
+            ReflectionTestUtils.setField(post, "postMedias", List.of(build));
+            ReflectionTestUtils.setField(post, "commentCount", 1);
+            ReflectionTestUtils.setField(post, "member", member);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "hashtags", List.of(postHashtag1));
+            ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+
 
             PageImpl<Post> page = new PageImpl(List.of(post), Pageable.ofSize(1), 1);
             given(postQueryService.getPostsOfCommunity(any(), anyLong()))

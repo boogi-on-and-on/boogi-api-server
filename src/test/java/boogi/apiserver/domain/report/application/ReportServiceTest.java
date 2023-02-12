@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -82,10 +83,9 @@ class ReportServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", false);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
 
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);
@@ -119,10 +119,10 @@ class ReportServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", true);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+
             given(postRepository.findPostById(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -160,10 +160,10 @@ class ReportServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", false);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+
             given(postRepository.findPostById(anyLong()))
                     .willReturn(Optional.of(post));
 

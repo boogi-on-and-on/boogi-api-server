@@ -97,9 +97,8 @@ class PostApiControllerTest {
     void testCreatePost() throws Exception {
         CreatePost createPost = new CreatePost(1L, "글", List.of(), List.of(), List.of());
 
-        Post post = Post.builder()
-                .id(1L)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "id", 1L);
 
         given(postCoreService.createPost(any(CreatePost.class), anyLong()))
                 .willReturn(post);
@@ -141,16 +140,15 @@ class PostApiControllerTest {
         ReflectionTestUtils.setField(postHashtag, "id", 1L);
         ReflectionTestUtils.setField(postHashtag, "tag", "해시태그");
 
-        Post post = Post.builder()
-                .id(1L)
-                .member(member)
-                .community(community)
-                .content("글")
-                .likeCount(1)
-                .commentCount(0)
-                .hashtags(List.of(postHashtag))
-                .build();
-        post.setCreatedAt(LocalDateTime.now());
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "id", 1L);
+        ReflectionTestUtils.setField(post, "member", member);
+        ReflectionTestUtils.setField(post, "community", community);
+        ReflectionTestUtils.setField(post, "content", "글");
+        ReflectionTestUtils.setField(post, "likeCount", 1);
+        ReflectionTestUtils.setField(post, "commentCount", 0);
+        ReflectionTestUtils.setField(post, "hashtags", List.of(postHashtag));
+        ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
 
         PostMedia postMedia = PostMedia.builder()
                 .id(1L)
@@ -200,9 +198,9 @@ class PostApiControllerTest {
     void testUpdatePost() throws Exception {
         UpdatePost updatePost = new UpdatePost("글 수정", List.of(), List.of());
 
-        Post post = Post.builder()
-                .id(1L)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "id", 1L);
+
         given(postCoreService.updatePost(any(UpdatePost.class), anyLong(), anyLong()))
                 .willReturn(post);
 

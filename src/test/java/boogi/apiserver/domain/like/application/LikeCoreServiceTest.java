@@ -79,11 +79,11 @@ class LikeCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .likeCount(0)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "likeCount", 0);
+
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -109,11 +109,10 @@ class LikeCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .likeCount(0)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -232,11 +231,10 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(member, "id", 1L);
             ReflectionTestUtils.setField(member, "user", user);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .member(member)
-                    .likeCount(1)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "member", member);
+            ReflectionTestUtils.setField(post, "likeCount", 1);
 
             final Like like = TestEmptyEntityGenerator.Like();
             ReflectionTestUtils.setField(like, "id", 1L);
@@ -298,10 +296,10 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(member, "user", user);
             ReflectionTestUtils.setField(member, "community", community);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 
@@ -341,10 +339,10 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", true);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 
@@ -378,10 +376,9 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(member, "user", user);
             ReflectionTestUtils.setField(member, "community", community);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
 
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);
@@ -428,11 +425,9 @@ class LikeCoreServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", true);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
-
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
 
             final Comment comment = TestEmptyEntityGenerator.Comment();
             ReflectionTestUtils.setField(comment, "id", 1L);

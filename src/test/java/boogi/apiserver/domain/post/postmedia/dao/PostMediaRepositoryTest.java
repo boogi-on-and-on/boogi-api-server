@@ -5,6 +5,7 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,10 +42,8 @@ class PostMediaRepositoryTest {
     @Disabled
         //MYSQL native 쿼리로 인한 h2 테스트 불가능
     void testGetPostMediasByLatestPostIds() {
-        Post post1 = Post.builder()
-                .build();
-        Post post2 = Post.builder()
-                .build();
+        Post post1 = TestEmptyEntityGenerator.Post();
+        Post post2 = TestEmptyEntityGenerator.Post();
         postRepository.saveAll(List.of(post1, post2));
 
         PostMedia postMedia1 = PostMedia.builder()
@@ -70,8 +69,7 @@ class PostMediaRepositoryTest {
     @Test
     @DisplayName("PostMedia의 UUID로 Post가 세팅되지 않은 PostMedia들을 조회한다.")
     void testFindUnmappedPostMediasByUUIDs() {
-        Post post = Post.builder()
-                .build();
+        Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         PostMedia postMedia1 = PostMedia.builder()

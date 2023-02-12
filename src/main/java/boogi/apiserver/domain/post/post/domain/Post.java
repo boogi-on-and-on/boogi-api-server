@@ -21,8 +21,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Where(clause = "deleted_at is null")
 @SQLDelete(sql = "UPDATE post SET deleted_at = now(), likeCount = 0 WHERE post_id = ?")
 public class Post extends TimeBaseEntity {

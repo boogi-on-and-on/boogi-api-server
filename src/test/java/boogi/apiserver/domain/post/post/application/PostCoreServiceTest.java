@@ -129,10 +129,9 @@ class PostCoreServiceTest {
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
                     .willReturn(List.of());
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
             given(postRepository.save(any(Post.class)))
                     .willReturn(post);
 
@@ -162,16 +161,16 @@ class PostCoreServiceTest {
             ReflectionTestUtils.setField(member, "community", community);
             ReflectionTestUtils.setField(member, "user", user);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .content("글")
-                    .member(member)
-                    .community(community)
-                    .likeCount(0)
-                    .commentCount(0)
-                    .hashtags(List.of())
-                    .build();
-            post.setCreatedAt(LocalDateTime.now());
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "content", "글");
+            ReflectionTestUtils.setField(post, "member", member);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "likeCount", 0);
+            ReflectionTestUtils.setField(post, "commentCount", 0);
+            ReflectionTestUtils.setField(post, "hashtags", List.of());
+            ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -210,16 +209,16 @@ class PostCoreServiceTest {
             ReflectionTestUtils.setField(member, "community", community);
             ReflectionTestUtils.setField(member, "user", user);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .content("글")
-                    .member(member)
-                    .community(community)
-                    .likeCount(1)
-                    .commentCount(0)
-                    .hashtags(List.of())
-                    .build();
-            post.setCreatedAt(LocalDateTime.now());
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "content", "글");
+            ReflectionTestUtils.setField(post, "member", member);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "likeCount", 1);
+            ReflectionTestUtils.setField(post, "commentCount", 0);
+            ReflectionTestUtils.setField(post, "hashtags", List.of());
+            ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -264,10 +263,10 @@ class PostCoreServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "isPrivate", true);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -297,11 +296,11 @@ class PostCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .member(member)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "member", member);
+
             given(postRepository.findPostById(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -331,14 +330,12 @@ class PostCoreServiceTest {
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(Optional.of(community));
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .member(member)
-                    .community(community)
-                    .content("글")
-                    .postMedias(new ArrayList<>())
-                    .hashtags(new ArrayList<>())
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "member", member);
+            ReflectionTestUtils.setField(post, "content", "글");
+
             given(postRepository.findPostById(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -392,12 +389,12 @@ class PostCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .member(member)
-                    .community(community)
-                    .commentCount(1)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "member", member);
+            ReflectionTestUtils.setField(post, "commentCount", 1);
+
             given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -438,11 +435,11 @@ class PostCoreServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            Post post = Post.builder()
-                    .id(1L)
-                    .member(member)
-                    .community(community)
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            ReflectionTestUtils.setField(post, "community", community);
+            ReflectionTestUtils.setField(post, "member", member);
+
             given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -478,20 +475,19 @@ class PostCoreServiceTest {
 
 
             LocalDateTime now = LocalDateTime.now();
-            Post post1 = Post.builder()
-                    .id(1L)
-                    .community(community)
-                    .member(member1)
-                    .hashtags(List.of())
-                    .build();
-            post1.setCreatedAt(now);
-            Post post2 = Post.builder()
-                    .id(2L)
-                    .community(community)
-                    .member(member2)
-                    .hashtags(List.of())
-                    .build();
-            post2.setCreatedAt(now);
+
+            final Post post1 = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post1, "id", 1L);
+            ReflectionTestUtils.setField(post1, "community", community);
+            ReflectionTestUtils.setField(post1, "member", member1);
+            ReflectionTestUtils.setField(post1, "createdAt", now);
+
+            final Post post2 = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post2, "id", 2L);
+            ReflectionTestUtils.setField(post2, "community", community);
+            ReflectionTestUtils.setField(post2, "member", member2);
+            ReflectionTestUtils.setField(post2, "createdAt", now);
+
             List<Post> posts = List.of(post1, post2);
             given(memberRepository.findMemberIdsForQueryUserPostBySessionUserId(anyLong()))
                     .willReturn(List.of(member1.getId(), member2.getId()));
@@ -544,20 +540,19 @@ class PostCoreServiceTest {
             ReflectionTestUtils.setField(member2, "community", community);
 
             LocalDateTime now = LocalDateTime.now();
-            Post post1 = Post.builder()
-                    .id(1L)
-                    .community(pCommunity)
-                    .member(member1)
-                    .hashtags(List.of())
-                    .build();
-            post1.setCreatedAt(now);
-            Post post2 = Post.builder()
-                    .id(2L)
-                    .community(community)
-                    .member(member2)
-                    .hashtags(List.of())
-                    .build();
-            post2.setCreatedAt(now);
+
+            final Post post1 = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post1, "id", 1L);
+            ReflectionTestUtils.setField(post1, "community", pCommunity);
+            ReflectionTestUtils.setField(post1, "member", member1);
+            ReflectionTestUtils.setField(post1, "createdAt", now);
+
+            final Post post2 = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post2, "id", 2L);
+            ReflectionTestUtils.setField(post2, "community", community);
+            ReflectionTestUtils.setField(post2, "member", member2);
+            ReflectionTestUtils.setField(post2, "createdAt", now);
+
             given(userRepository.findUserById(anyLong()))
                     .willReturn(Optional.of(user1));
 

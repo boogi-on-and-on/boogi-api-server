@@ -62,9 +62,8 @@ class CommentRepositoryTest {
 
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .member(member)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "member", member);
         postRepository.save(post);
 
         final Comment comment1 = TestEmptyEntityGenerator.Comment();
@@ -123,8 +122,7 @@ class CommentRepositoryTest {
 
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         final Comment comment1 = TestEmptyEntityGenerator.Comment();
@@ -166,8 +164,7 @@ class CommentRepositoryTest {
         final Member member = TestEmptyEntityGenerator.Member();
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         final Comment comment1 = TestEmptyEntityGenerator.Comment();
@@ -223,8 +220,7 @@ class CommentRepositoryTest {
         final Member member = TestEmptyEntityGenerator.Member();
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
 
@@ -312,9 +308,8 @@ class CommentRepositoryTest {
         final Member member2 = TestEmptyEntityGenerator.Member();
         memberRepository.save(member2);
 
-        Post post = Post.builder()
-                .commentCount(5)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "commentCount", 5);
         postRepository.save(post);
 
         final Comment comment1 = TestEmptyEntityGenerator.Comment();

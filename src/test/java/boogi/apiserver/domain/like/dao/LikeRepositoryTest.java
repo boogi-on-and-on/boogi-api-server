@@ -59,8 +59,7 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("글에 한 모든 좋아요들을 PostId로 조회한다.")
     void testFindPostLikesByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         final Like like1 = TestEmptyEntityGenerator.Like();
@@ -88,8 +87,8 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("PostId로 해당 글에 한 좋아요들을 모두 삭제한다.")
     void testDeleteAllPostLikeByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ;
         postRepository.save(post);
 
         final Comment comment = TestEmptyEntityGenerator.Comment();
@@ -116,8 +115,8 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("CommentId로 해당 댓글에 한 좋아요들을 모두 삭제한다.")
     void testDeleteAllCommentLikeByCommentId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ;
         postRepository.save(post);
 
         final Comment comment = TestEmptyEntityGenerator.Comment();
@@ -144,8 +143,7 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("PostId와 MemberId로 좋아요가 존재하는지 여부만 확인한다.")
     void testExistsLikeByPostIdAndMemberId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         final Member member = TestEmptyEntityGenerator.Member();
@@ -217,8 +215,8 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("해당 글에 한 좋아요를 PostId와 MemberId를 가지고 조회한다.")
     void testFindPostLikeByPostIdAndMemberId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+
         postRepository.save(post);
 
         final Member member = TestEmptyEntityGenerator.Member();
@@ -283,8 +281,7 @@ class LikeRepositoryTest {
     @Test
     @DisplayName("글에 한 좋아요들을 오래된 순으로 페이지네이션해서 fetch join으로 Member와 같이 PostId로 조회한다.")
     void testFindPostLikePageWithMemberByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         final Member member = TestEmptyEntityGenerator.Member();

@@ -42,8 +42,7 @@ class PostHashtagRepositoryTest {
     @Test
     @DisplayName("postId로 해당 글에 달린 PostHashtag들을 조회한다.")
     void testFindPostHashtagByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
         final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
@@ -71,8 +70,7 @@ class PostHashtagRepositoryTest {
     @Test
     @DisplayName("postId로 해당 글에 달린 PostHashtag들을 전부 삭제한다(Hard Delete).")
     void testDeleteAllByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
 
