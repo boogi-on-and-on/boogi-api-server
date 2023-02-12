@@ -4,11 +4,13 @@ package boogi.apiserver.domain.alarm.alarm.application;
 import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmListDto;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,12 +31,12 @@ class AlarmQueryServiceTest {
     @Test
     void 알림목록_조회() {
         //given
-        Alarm alarm = Alarm.builder()
-                .id(1L)
-                .head("해드1")
-                .body("바디1")
-                .build();
-        alarm.setCreatedAt(LocalDateTime.now());
+
+        final Alarm alarm = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm, "id", 1L);
+        ReflectionTestUtils.setField(alarm, "head", "해드1");
+        ReflectionTestUtils.setField(alarm, "body", "바디1");
+        ReflectionTestUtils.setField(alarm, "createdAt", LocalDateTime.now());
 
         given(alarmRepository.getAlarms(anyLong()))
                 .willReturn(List.of(alarm));

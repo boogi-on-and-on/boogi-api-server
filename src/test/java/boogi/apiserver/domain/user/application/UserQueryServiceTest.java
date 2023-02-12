@@ -3,12 +3,14 @@ package boogi.apiserver.domain.user.application;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -29,13 +31,12 @@ class UserQueryServiceTest {
     @DisplayName("유저 상세정보 조회")
     void userBasicInfo() {
         // given
-        User user = User.builder()
-                .id(1L)
-                .username("김선도")
-                .department("컴퓨터공학부")
-                .tagNumber("#0001")
-                .introduce("반갑습니다")
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "username", "김선도");
+        ReflectionTestUtils.setField(user, "department", "컴퓨터공학부");
+        ReflectionTestUtils.setField(user, "introduce", "반갑습니다");
+        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
 
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));

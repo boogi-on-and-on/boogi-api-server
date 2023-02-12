@@ -10,6 +10,7 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,14 +64,14 @@ class MemberCoreServiceTest {
     @Test
     void 멤버_가입_성공() {
         //given
-        User user = User.builder()
-                .id(1L)
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         given(userQueryService.getUser(anyLong()))
                 .willReturn(user);
-        Community community = Community.builder()
-                .id(2L)
-                .build();
+
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 2L);
         given(communityQueryService.getCommunity(anyLong()))
                 .willReturn(community);
 
@@ -86,19 +88,18 @@ class MemberCoreServiceTest {
     @DisplayName("멤버 2명이상 추가")
     void joinMany() {
         //given
-        User u1 = User.builder()
-                .id(1L)
-                .build();
-        User u2 = User.builder()
-                .id(2L)
-                .build();
+        final User u1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(u1, "id", 1L);
+
+        final User u2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(u2, "id", 2L);
 
         given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(u1, u2));
 
-        Community community = Community.builder()
-                .id(1L)
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
+
         given(communityQueryService.getCommunity(anyLong()))
                 .willReturn(community);
 
@@ -121,11 +122,10 @@ class MemberCoreServiceTest {
         @Test
         @DisplayName("이미 차단한 멤버인 경우")
         void alreadyBanned() {
-            Member member = Member.builder()
-                    .id(1L)
-                    .bannedAt(LocalDateTime.now())
-                    .build();
 
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "bannedAt", LocalDateTime.now());
 
             given(memberQueryService.getMember(anyLong()))
                     .willReturn(member);
@@ -142,9 +142,8 @@ class MemberCoreServiceTest {
         @DisplayName("차단 안된 멤버를 차단해제 하는경우")
         void failRelease() {
             //given
-            Member member = Member.builder()
-                    .id(1L)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "id", 1L);
 
             given(memberQueryService.getMember(anyLong()))
                     .willReturn(member);
@@ -161,29 +160,28 @@ class MemberCoreServiceTest {
     @Test
     @DisplayName("나를 제외한 커뮤니티에 가입된 모든 멤버들을 조회한다.")
     void testGetJoinedMembersAllWithoutMeSuccess() {
-        User user1 = User.builder()
-                .id(1L)
-                .build();
-        User user2 = User.builder()
-                .id(2L)
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user1, "id", 1L);
 
-        Community community = Community.builder()
-                .id(3L)
-                .build();
+        final User user2 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user2, "id", 2L);
+
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 3L);
+
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(Optional.of(community));
 
-        Member member1 = Member.builder()
-                .id(4L)
-                .user(user1)
-                .community(community)
-                .build();
-        Member member2 = Member.builder()
-                .id(5L)
-                .user(user2)
-                .community(community)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "id", 4L);
+        ReflectionTestUtils.setField(member1, "user", user1);
+        ReflectionTestUtils.setField(member1, "community", community);
+
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "id", 5L);
+        ReflectionTestUtils.setField(member2, "user", user2);
+        ReflectionTestUtils.setField(member2, "community", community);
+
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                 .willReturn(Optional.of(member1));
 

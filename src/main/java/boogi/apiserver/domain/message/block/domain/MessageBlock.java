@@ -12,8 +12,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "MESSAGE_BLOCK")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MessageBlock extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,6 +4,7 @@ import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,10 +53,8 @@ class PostHashtagCoreServiceTest {
         @Test
         @DisplayName("태그들과 postId를 입력하면 해시태그들이 추가된 후 해시태그들을 반환한다.")
         void addTagsSuccess() {
-            Post post = Post.builder()
-                    .id(1L)
-                    .hashtags(new ArrayList<>())
-                    .build();
+            final Post post = TestEmptyEntityGenerator.Post();
+            ReflectionTestUtils.setField(post, "id", 1L);
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 

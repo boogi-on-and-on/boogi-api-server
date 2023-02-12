@@ -4,12 +4,14 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,10 +33,9 @@ class CommunityQueryServiceTest {
     @DisplayName("커뮤니티 기본 정보 조회")
     void communityBasicInfo() {
         //given
-        Community community = Community.builder()
-                .id(1L)
-                .hashtags(List.of(CommunityHashtag.builder().build()))
-                .build();
+
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
 
         given(communityRepository.findById(anyLong()))
                 .willReturn(Optional.of(community));
@@ -47,11 +48,9 @@ class CommunityQueryServiceTest {
     @Test
     @DisplayName("커뮤니티 설정정보 조회")
     void communitySettingInfo() {
-
-        Community community = Community.builder()
-                .autoApproval(true)
-                .isPrivate(false)
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "autoApproval", true);
+        ReflectionTestUtils.setField(community, "isPrivate", false);
 
         given(communityRepository.findById(anyLong()))
                 .willReturn(Optional.ofNullable(community));

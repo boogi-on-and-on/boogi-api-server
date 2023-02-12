@@ -4,9 +4,11 @@ import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -30,29 +32,32 @@ class AlarmRepositoryTest {
     @Disabled
     void 알람목록() {
         //given
-        User user1 = User.builder().build();
-        userRepository.save(user1);
 
-        Alarm alarm1 = Alarm.builder()
-                .body("바디1")
-                .head("헤드1")
-                .user(user1)
-                .build();
-        alarm1.setCreatedAt(LocalDateTime.now());
+        User user = TestEmptyEntityGenerator.User();
+        userRepository.save(user);
 
-        Alarm alarm2 = Alarm.builder()
-                .body("바디2")
-                .head("헤드2")
-                .user(user1)
-                .build();
-        alarm2.setCreatedAt(LocalDateTime.now().minusDays(1));
+        Alarm alarm = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm, "user", user);
 
-        Alarm alarm3 = Alarm.builder()
-                .body("바디3")
-                .head("헤드3")
-                .user(user1)
-                .build();
-//        alarm3.setCanceledAt(LocalDateTime.now());
+        final Alarm alarm1 = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm1, "head", "해드1");
+        ReflectionTestUtils.setField(alarm1, "body", "바디1");
+        ReflectionTestUtils.setField(alarm1, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(alarm1, "user", user);
+
+
+        final Alarm alarm2 = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm2, "head", "해드2");
+        ReflectionTestUtils.setField(alarm2, "body", "바디2");
+        ReflectionTestUtils.setField(alarm2, "createdAt", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(alarm2, "user", user);
+
+        final Alarm alarm3 = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm3, "head", "해드3");
+        ReflectionTestUtils.setField(alarm3, "body", "바디3");
+        ReflectionTestUtils.setField(alarm3, "createdAt", LocalDateTime.now().minusDays(2));
+        ReflectionTestUtils.setField(alarm3, "user", user);
+
 
         alarmRepository.saveAll(List.of(alarm1, alarm2, alarm3));
 
@@ -60,15 +65,9 @@ class AlarmRepositoryTest {
         em.clear();
 
         //when
-        List<Alarm> alarms = alarmRepository.getAlarms(user1.getId());
-        assertThat(alarms.size()).isEqualTo(2);
+        List<Alarm> alarms = alarmRepository.getAlarms(user.getId());
 
-        Alarm first = alarms.get(0);
-        Alarm second = alarms.get(1);
-
-        assertThat(first.getId()).isEqualTo(alarm1.getId());
-        assertThat(second.getId()).isEqualTo(alarm2.getId());
-
+        assertThat(alarms.stream().map(Alarm::getId))
+                .containsExactly(alarm1.getId(), alarm2.getId(), alarm3.getId());
     }
-
 }

@@ -12,8 +12,6 @@ import java.util.List;
 @Table(name = "USER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User extends TimeBaseEntity {
 
     @Id

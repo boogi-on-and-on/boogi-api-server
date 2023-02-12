@@ -5,8 +5,10 @@ import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,12 +24,11 @@ class AlarmConfigRepositoryTest {
     @Test
     void getAlarmConfigByUserId() {
         //given
-        User user = User.builder().build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
-        AlarmConfig alarmConfig = AlarmConfig.builder()
-                .user(user)
-                .build();
+        final AlarmConfig alarmConfig = TestEmptyEntityGenerator.AlarmConfig();
+        ReflectionTestUtils.setField(alarmConfig, "user", user);
         alarmConfigRepository.save(alarmConfig);
 
         //when

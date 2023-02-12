@@ -3,6 +3,7 @@ package boogi.apiserver.domain.post.postmedia.application;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -42,14 +44,14 @@ class PostMediaQueryServiceTest {
         @Test
         @DisplayName("입력한 PostMedia의 UUID의 개수만큼 리스트로 반환한다.")
         void getUnmappedPostMediasByUUIDSuccess() {
-            PostMedia postMedia1 = PostMedia.builder()
-                    .id(1L)
-                    .uuid("1234")
-                    .build();
-            PostMedia postMedia2 = PostMedia.builder()
-                    .id(2L)
-                    .uuid("5678")
-                    .build();
+            final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia1, "id", 1L);
+            ReflectionTestUtils.setField(postMedia1, "uuid", "1234");
+
+            final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia2, "id", 2L);
+            ReflectionTestUtils.setField(postMedia2, "uuid", "5678");
+
             List<PostMedia> postMedias = List.of(postMedia1, postMedia2);
 
             given(postMediaRepository.findUnmappedPostMediasByUUIDs(anyList()))
@@ -68,14 +70,14 @@ class PostMediaQueryServiceTest {
         @Test
         @DisplayName("입력한 PostMedia의 UUID의 개수와 조회한 PostMedia의 개수가 다르면 InvalidValueException 발생한다.")
         void getUnmappedPostMediasByUUIDFail() {
-            PostMedia postMedia1 = PostMedia.builder()
-                    .id(1L)
-                    .uuid("1234")
-                    .build();
-            PostMedia postMedia2 = PostMedia.builder()
-                    .id(2L)
-                    .uuid("5678")
-                    .build();
+            final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia1, "id", 1L);
+            ReflectionTestUtils.setField(postMedia1, "uuid", "1234");
+
+            final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+            ReflectionTestUtils.setField(postMedia2, "id", 2L);
+            ReflectionTestUtils.setField(postMedia2, "uuid", "5678");
+
             List<PostMedia> postMedias = List.of(postMedia1);
 
             given(postMediaRepository.findUnmappedPostMediasByUUIDs(anyList()))

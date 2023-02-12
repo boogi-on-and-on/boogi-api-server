@@ -9,6 +9,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Map;
 
@@ -45,8 +47,11 @@ class NoticeCoreServiceTest {
         @Test
         @DisplayName("생성 권한 없는 경우")
         void hasNoAuth() {
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
-                    .willReturn(Member.builder().memberType(MemberType.NORMAL).build());
+                    .willReturn(member);
 
             assertThatThrownBy(() -> {
                 noticeCoreService.create(Map.of(), anyLong(), anyLong());
@@ -58,11 +63,14 @@ class NoticeCoreServiceTest {
         @Test
         @DisplayName("생성 성공")
         void success() {
-            Member member = Member.builder().memberType(MemberType.SUB_MANAGER).build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.SUB_MANAGER);
+
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
 
-            Community community = Community.builder().build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 

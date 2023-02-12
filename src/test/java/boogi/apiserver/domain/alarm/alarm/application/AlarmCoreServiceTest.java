@@ -1,19 +1,24 @@
 package boogi.apiserver.domain.alarm.alarm.application;
 
+import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class AlarmCoreServiceTest {
@@ -24,12 +29,17 @@ class AlarmCoreServiceTest {
     @InjectMocks
     AlarmCoreService alarmCoreService;
 
+    @Mock
+    AlarmRepository alarmRepository;
+
     @Test
     void 알림_삭제권한_없을때() {
         //given
-        Alarm alarm = Alarm.builder()
-                .user(User.builder().id(1L).build())
-                .build();
+        User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        Alarm alarm = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm, "user", user);
 
         given(alarmQueryService.getAlarm(anyLong()))
                 .willReturn(alarm);
@@ -47,9 +57,11 @@ class AlarmCoreServiceTest {
     @Disabled
     void 알림_삭제성공() {
         //given
-        Alarm alarm = Alarm.builder()
-                .user(User.builder().id(1L).build())
-                .build();
+        User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        Alarm alarm = TestEmptyEntityGenerator.Alarm();
+        ReflectionTestUtils.setField(alarm, "user", user);
 
         given(alarmQueryService.getAlarm(anyLong()))
                 .willReturn(alarm);
@@ -58,6 +70,6 @@ class AlarmCoreServiceTest {
         alarmCoreService.deleteAlarm(1L, anyLong());
 
         //then
-//        assertThat(alarm.getCanceledAt()).isNotNull();
+        verify(alarmRepository, times(1)).delete(any());
     }
 }

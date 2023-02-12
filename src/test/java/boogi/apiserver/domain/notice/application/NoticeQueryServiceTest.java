@@ -4,6 +4,7 @@ import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.response.NoticeDto;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,11 +39,11 @@ class NoticeQueryServiceTest {
         @DisplayName("최근공지 조회")
         void lastCreatedNotice() {
             //given
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .title("제목")
-                    .build();
-            notice.setCreatedAt(LocalDateTime.now());
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+            ReflectionTestUtils.setField(notice, "title", "제목");
+            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
 
             given(noticeRepository.getLatestNotice())
                     .willReturn(List.of(notice));
@@ -60,12 +62,11 @@ class NoticeQueryServiceTest {
         @DisplayName("전체 공지사항 조회")
         void allNotice() {
             //given
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .title("제목")
-                    .content("내용")
-                    .build();
-            notice.setCreatedAt(LocalDateTime.now());
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+            ReflectionTestUtils.setField(notice, "title", "제목");
+            ReflectionTestUtils.setField(notice, "content", "내용");
+            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
 
             given(noticeRepository.getAllNotices())
                     .willReturn(List.of(notice));

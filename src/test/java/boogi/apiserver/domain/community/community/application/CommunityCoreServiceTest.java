@@ -6,6 +6,7 @@ import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,14 +49,14 @@ class CommunityCoreServiceTest {
         @DisplayName("폐쇄 실패")
         void failBlockCommunity() {
             //given
-            Community community = Community.builder()
-                    .id(1L)
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            Member member = Member.builder().build();
+            final Member member = TestEmptyEntityGenerator.Member();
+
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.of(member));
 
@@ -73,7 +75,8 @@ class CommunityCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            Member member = Member.builder().build();
+            final Member member = TestEmptyEntityGenerator.Member();
+
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.empty());
 
@@ -105,12 +108,16 @@ class CommunityCoreServiceTest {
         @DisplayName("이전 테그와 새로운 테그가 같은 경우")
         void sameCommunityTag() {
             //given
-            Community community = Community.builder()
-                    .id(1L)
-                    .hashtags(List.of(
-                            CommunityHashtag.builder().tag("테그2").build(),
-                            CommunityHashtag.builder().tag("테그1").build()
-                    )).build();
+
+            final CommunityHashtag hashtag1 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag1, "tag", "테그1");
+
+            final CommunityHashtag hashtag2 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag2, "tag", "테그2");
+
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "hashtags", List.of(hashtag2, hashtag1));
 
             given(communityQueryService.getCommunity(anyLong())).willReturn(community);
 
@@ -130,12 +137,15 @@ class CommunityCoreServiceTest {
         @DisplayName("테그를 삭제하는 경우")
         void deleteAllPrevTag() {
             //given
-            Community community = Community.builder()
-                    .id(1L)
-                    .hashtags(List.of(
-                            CommunityHashtag.builder().tag("테그2").build(),
-                            CommunityHashtag.builder().tag("테그1").build()
-                    )).build();
+            final CommunityHashtag hashtag1 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag1, "tag", "테그1");
+
+            final CommunityHashtag hashtag2 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag2, "tag", "테그2");
+
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "hashtags", List.of(hashtag2, hashtag1));
 
             given(communityQueryService.getCommunity(any())).willReturn(community);
 
@@ -152,13 +162,21 @@ class CommunityCoreServiceTest {
         void deleteAllPrevTagAndInsertNewTag() {
             //given
             List<CommunityHashtag> prevHashtags = new ArrayList<>();
-            prevHashtags.add(CommunityHashtag.builder().id(1L).tag("테그2").build());
-            prevHashtags.add(CommunityHashtag.builder().id(2L).tag("테그1").build());
 
-            Community community = Community.builder()
-                    .id(1L)
-                    .hashtags(prevHashtags)
-                    .build();
+            final CommunityHashtag hashtag1 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag1, "id", 1L);
+            ReflectionTestUtils.setField(hashtag1, "tag", "테그1");
+
+            final CommunityHashtag hashtag2 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag2, "id", 2L);
+            ReflectionTestUtils.setField(hashtag2, "tag", "테그2");
+
+            prevHashtags.add(hashtag2);
+            prevHashtags.add(hashtag1);
+
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
+            ReflectionTestUtils.setField(community, "hashtags", prevHashtags);
 
             given(communityQueryService.getCommunity(any())).willReturn(community);
 
