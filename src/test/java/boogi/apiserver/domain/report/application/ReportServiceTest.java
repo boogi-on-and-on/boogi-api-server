@@ -212,11 +212,11 @@ class ReportServiceTest {
                     .id(2L)
                     .build();
 
-            Message message = Message.builder()
-                    .id(1L)
-                    .sender(user1)
-                    .receiver(user2)
-                    .build();
+            final Message message = TestEmptyEntityGenerator.Message();
+            ReflectionTestUtils.setField(message, "id", 1L);
+            ReflectionTestUtils.setField(message, "sender", user1);
+            ReflectionTestUtils.setField(message, "receiver", user2);
+
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
@@ -239,11 +239,11 @@ class ReportServiceTest {
                     .id(2L)
                     .build();
 
-            Message message = Message.builder()
-                    .id(1L)
-                    .sender(user1)
-                    .receiver(user2)
-                    .build();
+            final Message message = TestEmptyEntityGenerator.Message();
+            ReflectionTestUtils.setField(message, "id", 1L);
+            ReflectionTestUtils.setField(message, "sender", user1);
+            ReflectionTestUtils.setField(message, "receiver", user2);
+
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 

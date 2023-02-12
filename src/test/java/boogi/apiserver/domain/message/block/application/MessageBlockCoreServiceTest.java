@@ -7,12 +7,14 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -42,9 +44,9 @@ class MessageBlockCoreServiceTest {
     @DisplayName("메시지 이미 차단한 경우")
     void alreadyBlockMemberMessage() {
         //given
-        MessageBlock block = MessageBlock.builder()
-                .blocked(false)
-                .build();
+
+        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block, "blocked", false);
 
         given(messageBlockRepository.getMessageBlockByUserId(anyLong(), anyLong()))
                 .willReturn(block);
@@ -62,7 +64,8 @@ class MessageBlockCoreServiceTest {
     @DisplayName("메시지 차단 해제 성공")
     void unblockMemberMessage() {
         //given
-        MessageBlock block = MessageBlock.builder().blocked(true).build();
+        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block, "blocked", true);
 
         given(messageBlockRepository.getMessageBlockByUserId(anyLong(), anyLong()))
                 .willReturn(block);
@@ -83,12 +86,12 @@ class MessageBlockCoreServiceTest {
                 .willReturn(user);
 
         User blockedUser = User.builder().id(2L).build();
-        MessageBlock block = MessageBlock.builder()
-                .id(3L)
-                .user(user)
-                .blockedUser(blockedUser)
-                .blocked(false)
-                .build();
+
+        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block, "id", 3L);
+        ReflectionTestUtils.setField(block, "user", user);
+        ReflectionTestUtils.setField(block, "blockedUser", blockedUser);
+        ReflectionTestUtils.setField(block, "blocked", false);
 
         given(messageBlockRepository.getMessageBlocksByUserIds(anyLong(), any()))
                 .willReturn(List.of(block));

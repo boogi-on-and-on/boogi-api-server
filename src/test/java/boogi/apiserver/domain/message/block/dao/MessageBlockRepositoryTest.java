@@ -5,9 +5,11 @@ import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -43,16 +45,16 @@ class MessageBlockRepositoryTest {
                 .build();
         userRepository.saveAll(List.of(u1, u2, user));
 
-        MessageBlock block1 = MessageBlock.builder()
-                .user(user)
-                .blockedUser(u1)
-                .blocked(true)
-                .build();
-        MessageBlock block2 = MessageBlock.builder()
-                .user(user)
-                .blockedUser(u2)
-                .blocked(false)
-                .build();
+        final MessageBlock block1 = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block1, "user", user);
+        ReflectionTestUtils.setField(block1, "blockedUser", u1);
+        ReflectionTestUtils.setField(block1, "blocked", true);
+
+        final MessageBlock block2 = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block2, "user", user);
+        ReflectionTestUtils.setField(block2, "blockedUser", u2);
+        ReflectionTestUtils.setField(block2, "blocked", false);
+
         messageBlockRepository.saveAll(List.of(block1, block2));
 
         //when
@@ -74,10 +76,10 @@ class MessageBlockRepositoryTest {
         User blockedUser = User.builder().build();
         userRepository.saveAll(List.of(user, blockedUser));
 
-        MessageBlock block = MessageBlock.builder()
-                .user(user)
-                .blockedUser(blockedUser)
-                .build();
+        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block, "user", user);
+        ReflectionTestUtils.setField(block, "blockedUser", blockedUser);
+
         messageBlockRepository.save(block);
 
         //when
@@ -96,14 +98,14 @@ class MessageBlockRepositoryTest {
         User blockedUser2 = User.builder().build();
         userRepository.saveAll(List.of(user, blockedUser1, blockedUser2));
 
-        MessageBlock block1 = MessageBlock.builder()
-                .user(user)
-                .blockedUser(blockedUser1)
-                .build();
-        MessageBlock block2 = MessageBlock.builder()
-                .user(user)
-                .blockedUser(blockedUser2)
-                .build();
+        final MessageBlock block1 = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block1, "user", user);
+        ReflectionTestUtils.setField(block1, "blockedUser", blockedUser1);
+
+        final MessageBlock block2 = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block2, "user", user);
+        ReflectionTestUtils.setField(block2, "blockedUser", blockedUser2);
+
         messageBlockRepository.saveAll(List.of(block1, block2));
 
         //when
@@ -121,14 +123,14 @@ class MessageBlockRepositoryTest {
         User blockedUser2 = User.builder().build();
         userRepository.saveAll(List.of(blockedUser1, blockedUser2));
 
-        MessageBlock block1 = MessageBlock.builder()
-                .blocked(false)
-                .blockedUser(blockedUser1)
-                .build();
-        MessageBlock block2 = MessageBlock.builder()
-                .blocked(null)
-                .blockedUser(blockedUser2)
-                .build();
+        final MessageBlock block1 = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block1, "blocked", false);
+        ReflectionTestUtils.setField(block1, "blockedUser", blockedUser1);
+
+        final MessageBlock block2 = TestEmptyEntityGenerator.MessageBlock();
+        ReflectionTestUtils.setField(block2, "blocked", null);
+        ReflectionTestUtils.setField(block2, "blockedUser", blockedUser2);
+
         messageBlockRepository.saveAll(List.of(block1, block2));
 
         //when
