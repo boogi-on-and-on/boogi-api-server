@@ -161,16 +161,14 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         member.createdAt.isNull()
                 ).fetch();
 
-        QPost _post = new QPost("postSub");
         Predicate[] where = {
                 post.community.isPrivate.ne(true).or(post.community.id.in(memberJoinedCommunityIds)),
                 post.community.deletedAt.isNull(),
                 post.deletedAt.isNull(),
                 post.id.in(
-                        JPAExpressions.select(_post.id)
-                                .from(_post)
+                        JPAExpressions.select(postHashtag.post.id)
+                                .from(postHashtag)
                                 .where(postHashtag.tag.eq(request.getKeyword()))
-                                .innerJoin(_post.hashtags, postHashtag)
                 )
         };
 
