@@ -22,7 +22,6 @@ import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
 import boogi.apiserver.domain.post.post.dto.response.PostOfCommunity;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -136,10 +135,10 @@ public class CommunityApiController {
     public ResponseEntity<Object> getSettingInfo(@PathVariable Long communityId, @Session Long userId) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        Community community = communityQueryService.getCommunity(communityId);
+        CommunitySettingInfo settingInfo = communityQueryService.getSettingInfo(communityId);
 
         return ResponseEntity.ok(Map.of(
-                "settingInfo", CommunitySettingInfo.of(community)
+                "settingInfo", settingInfo
         ));
     }
 
@@ -247,18 +246,11 @@ public class CommunityApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-
     @GetMapping("/{communityId}/requests")
     public ResponseEntity<Object> getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
-        List<Map<String, Object>> requests = joinRequestQueryService.getAllRequests(communityId)
-                .stream()
-                .map(r -> Map.of(
-                        "user", UserBasicProfileDto.of(r.getUser()),
-                        "id", r.getId())
-                )
-                .collect(Collectors.toList());
+        List<Map<String, Object>> requests = joinRequestQueryService.getAllRequests(communityId);
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "requests", requests

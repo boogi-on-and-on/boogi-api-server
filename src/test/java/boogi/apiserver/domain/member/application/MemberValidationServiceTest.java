@@ -8,6 +8,7 @@ import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +43,11 @@ class MemberValidationServiceTest {
         @DisplayName("이미 가입한 멤버인 경우")
         void alreadyJoined() {
             //given
+
+            final Member member = TestEmptyEntityGenerator.Member();
+
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.of(Member.builder().build()));
+                    .willReturn(Optional.of(member));
 
             //then
             assertThatThrownBy(() -> {
@@ -72,10 +77,8 @@ class MemberValidationServiceTest {
         @Test
         @DisplayName("멤버가 관리자 권한 없는 경우")
         void NoMemberAuth() {
-            Member member = Member
-                    .builder()
-                    .memberType(MemberType.NORMAL)
-                    .build();
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -88,11 +91,8 @@ class MemberValidationServiceTest {
         @Test
         @DisplayName("부매니저이상의 권한이 있는 경우")
         void greaterThanSubManagerAuth() {
-            Member member = Member
-                    .builder()
-                    .memberType(MemberType.MANAGER)
-                    .build();
-
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -105,11 +105,8 @@ class MemberValidationServiceTest {
         @Test
         @DisplayName("매니저 권한이 있는 경우")
         void hasManagerAuth() {
-            Member member = Member
-                    .builder()
-                    .memberType(MemberType.MANAGER)
-                    .build();
-
+            final Member member = TestEmptyEntityGenerator.Member();
+            ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -123,10 +120,14 @@ class MemberValidationServiceTest {
     @Test
     @DisplayName("이미 가입한 멤버가 있는경우(배치 가입)")
     void alreadyJoinedMemberInBatch() {
-        Member member = Member.builder()
-                .id(1L)
-                .user(User.builder().id(2L).build())
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "id", 2L);
+
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "id", 1L);
+        ReflectionTestUtils.setField(member, "user", user);
+
+
         given(memberRepository.findAlreadyJoinedMemberByUserId(any(), anyLong()))
                 .willReturn(List.of(member));
 

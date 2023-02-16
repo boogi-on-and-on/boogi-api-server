@@ -7,9 +7,11 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -31,23 +33,24 @@ class JoinRequestRepositoryTest {
     @DisplayName("전체 요청 찾기")
     void getAllRequests() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user1 = User.builder().build();
-        User user2 = User.builder().build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        final User user2 = TestEmptyEntityGenerator.User();
+
         userRepository.saveAll(List.of(user1, user2));
 
-        JoinRequest r1 = JoinRequest.builder()
-                .community(community)
-                .status(JoinRequestStatus.PENDING)
-                .user(user1)
-                .build();
-        JoinRequest r2 = JoinRequest.builder()
-                .community(community)
-                .status(JoinRequestStatus.CONFIRM)
-                .user(user2)
-                .build();
+        final JoinRequest r1 = TestEmptyEntityGenerator.JoinRequest();
+        ReflectionTestUtils.setField(r1, "community", community);
+        ReflectionTestUtils.setField(r1, "status", JoinRequestStatus.PENDING);
+        ReflectionTestUtils.setField(r1, "user", user1);
+
+        final JoinRequest r2 = TestEmptyEntityGenerator.JoinRequest();
+        ReflectionTestUtils.setField(r2, "community", community);
+        ReflectionTestUtils.setField(r2, "status", JoinRequestStatus.CONFIRM);
+        ReflectionTestUtils.setField(r2, "user", user2);
+
         joinRequestRepository.saveAll(List.of(r1, r2));
 
         //when

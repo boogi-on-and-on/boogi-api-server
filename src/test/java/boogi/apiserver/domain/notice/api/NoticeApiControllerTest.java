@@ -15,6 +15,7 @@ import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -83,12 +85,14 @@ class NoticeApiControllerTest {
         @Test
         @DisplayName("전체 공지 조회")
         void allAppNotice() throws Exception {
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .title("제목")
-                    .content("내용")
-                    .build();
-            notice.setCreatedAt(LocalDateTime.now());
+
+
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+            ReflectionTestUtils.setField(notice, "title", "제목");
+            ReflectionTestUtils.setField(notice, "content", "내용");
+            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
             NoticeDetailDto noticeDetailDto = NoticeDetailDto.of(notice);
 
             MockHttpSession session = new MockHttpSession();
@@ -120,9 +124,9 @@ class NoticeApiControllerTest {
                     .communityId(1L)
                     .build();
 
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .build();
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+
             given(noticeCoreService.create(any(), anyLong(), anyLong()))
                     .willReturn(notice);
 
@@ -144,18 +148,21 @@ class NoticeApiControllerTest {
         @Test
         @DisplayName("전체 공지 조회")
         void allCommunityNotice() throws Exception {
-            Notice notice = Notice.builder()
-                    .id(1L)
-                    .member(Member.builder().build())
-                    .title("제목")
-                    .content("내용")
-                    .build();
-            notice.setCreatedAt(LocalDateTime.now());
-            CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, User.builder()
-                    .tagNumber("#0001")
-                    .username("김")
-                    .id(3L)
-                    .build());
+            final Member member = TestEmptyEntityGenerator.Member();
+
+            final Notice notice = TestEmptyEntityGenerator.Notice();
+            ReflectionTestUtils.setField(notice, "id", 1L);
+            ReflectionTestUtils.setField(notice, "title", "제목");
+            ReflectionTestUtils.setField(notice, "content", "내용");
+            ReflectionTestUtils.setField(notice, "member", member);
+            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
+            final User user = TestEmptyEntityGenerator.User();
+            ReflectionTestUtils.setField(user, "id", 3L);
+            ReflectionTestUtils.setField(user, "username", "김");
+            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+
+            CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, user);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);

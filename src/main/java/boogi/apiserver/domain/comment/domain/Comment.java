@@ -15,9 +15,6 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "COMMENT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @Where(clause = "deleted_at is null")
 public class Comment extends TimeBaseEntity {
     @Id

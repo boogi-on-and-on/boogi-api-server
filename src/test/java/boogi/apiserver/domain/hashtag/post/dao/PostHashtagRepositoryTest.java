@@ -5,11 +5,13 @@ import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -40,18 +42,17 @@ class PostHashtagRepositoryTest {
     @Test
     @DisplayName("postId로 해당 글에 달린 PostHashtag들을 조회한다.")
     void testFindPostHashtagByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
-        PostHashtag postHashtag1 = PostHashtag.builder()
-                .post(post)
-                .build();
-        PostHashtag postHashtag2 = PostHashtag.builder()
-                .post(post)
-                .build();
-        PostHashtag postHashtag3 = PostHashtag.builder()
-                .build();
+        final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(postHashtag1, "post", post);
+
+        final PostHashtag postHashtag2 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(postHashtag2, "post", post);
+
+        final PostHashtag postHashtag3 = TestEmptyEntityGenerator.PostHashtag();
+
         postHashtagRepository.saveAll(List.of(postHashtag1, postHashtag2, postHashtag3));
 
         persistenceUtil.cleanPersistenceContext();
@@ -69,18 +70,19 @@ class PostHashtagRepositoryTest {
     @Test
     @DisplayName("postId로 해당 글에 달린 PostHashtag들을 전부 삭제한다(Hard Delete).")
     void testDeleteAllByPostId() {
-        Post post = Post.builder()
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
-        PostHashtag postHashtag1 = PostHashtag.builder()
-                .post(post)
-                .build();
-        PostHashtag postHashtag2 = PostHashtag.builder()
-                .post(post)
-                .build();
-        PostHashtag postHashtag3 = PostHashtag.builder()
-                .build();
+
+        final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(postHashtag1, "post", post);
+
+        final PostHashtag postHashtag2 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(postHashtag2, "post", post);
+
+        final PostHashtag postHashtag3 = TestEmptyEntityGenerator.PostHashtag();
+
+
         postHashtagRepository.saveAll(List.of(postHashtag1, postHashtag2, postHashtag3));
 
         persistenceUtil.cleanPersistenceContext();

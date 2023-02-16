@@ -1,11 +1,13 @@
 package boogi.apiserver.domain.post.postmedia.vo;
 
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,15 +22,14 @@ class PostMediasTest {
 
     @BeforeAll
     void init() {
-        PostMedia postMedia1 = PostMedia.builder()
-                .uuid("123")
-                .build();
-        PostMedia postMedia2 = PostMedia.builder()
-                .uuid("456")
-                .build();
-        PostMedia postMedia3 = PostMedia.builder()
-                .uuid("789")
-                .build();
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "uuid", "123");
+
+        final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia2, "uuid", "456");
+
+        final PostMedia postMedia3 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia3, "uuid", "789");
 
         postMedias = new PostMedias(
                 List.of(postMedia1, postMedia2, postMedia3)

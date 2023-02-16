@@ -13,10 +13,7 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "LIKES")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@Builder
-@ToString
 public class Like extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

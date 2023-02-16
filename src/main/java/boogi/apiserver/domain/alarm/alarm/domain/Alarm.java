@@ -10,9 +10,6 @@ import javax.persistence.*;
 @Table(name = "ALARM")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public class Alarm extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

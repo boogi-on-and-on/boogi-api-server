@@ -3,15 +3,17 @@ package boogi.apiserver.domain.comment.api;
 import boogi.apiserver.domain.comment.application.CommentCoreService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
-import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,15 +24,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,18 +76,23 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("유저 댓글 슬라이스")
     void userCommentSlice() throws Exception {
-        Comment comment = Comment.builder()
-                .content("내용1")
-                .post(
-                        Post.builder()
-                                .id(1L)
+        UserCommentPage commentPage = UserCommentPage.builder()
+                .pageInfo(PaginationDto.builder()
+                        .nextPage(1)
+                        .hasNext(false)
+                        .build())
+                .comments(List.of(
+                        UserCommentDto
+                                .builder()
+                                .postId(1L)
+                                .createdAt(LocalDateTime.now())
+                                .content("내용1")
                                 .build()
-                )
+                ))
                 .build();
-        SliceImpl<Comment> page = new SliceImpl<>(List.of(comment), Pageable.ofSize(1), false);
 
         given(commentCoreService.getUserComments(anyLong(), any(), any(Pageable.class)))
-                .willReturn(page);
+                .willReturn(commentPage);
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -110,9 +118,9 @@ class CommentApiControllerTest {
     void testCreateComment() throws Exception {
         CreateComment createComment = new CreateComment(1L, null, null, null);
 
-        Comment newComment = Comment.builder()
-                .id(1L)
-                .build();
+        final Comment newComment = TestEmptyEntityGenerator.Comment();
+        ReflectionTestUtils.setField(newComment, "id", 1L);
+
         given(commentCoreService.createComment(any(CreateComment.class), eq(1L)))
                 .willReturn(newComment);
 
@@ -132,9 +140,9 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글에 좋아요 하기")
     void testDoLikeAtComment() throws Exception {
-        Like like = Like.builder()
-                .id(1L)
-                .build();
+        final Like like = TestEmptyEntityGenerator.Like();
+        ReflectionTestUtils.setField(like, "id", 1L);
+
         given(likeCoreService.doLikeAtComment(anyLong(), anyLong()))
                 .willReturn(like);
 
@@ -167,11 +175,11 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글에 좋아요한 멤버 목록 조회")
     void testGetLikeMembersAtComment() throws Exception {
-        User user1 = User.builder()
-                .id(1L)
-                .username("유저1")
-                .tagNumber("#0001")
-                .build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user1, "id", 1L);
+        ReflectionTestUtils.setField(user1, "username", "유저");
+        ReflectionTestUtils.setField(user1, "tagNumber", "#0001");
+
         List<User> users = List.of(user1);
 
         List<LikeMembersAtComment.UserInfo> userInfos = users.stream()

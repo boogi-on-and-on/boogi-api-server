@@ -6,8 +6,10 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -42,20 +44,18 @@ class PostMediaRepositoryTest {
     @Disabled
         //MYSQL native 쿼리로 인한 h2 테스트 불가능
     void testGetPostMediasByLatestPostIds() {
-        Post post1 = Post.builder()
-                .build();
-        Post post2 = Post.builder()
-                .build();
+        Post post1 = TestEmptyEntityGenerator.Post();
+        Post post2 = TestEmptyEntityGenerator.Post();
         postRepository.saveAll(List.of(post1, post2));
 
-        PostMedia postMedia1 = PostMedia.builder()
-                .post(post1)
-                .build();
-        postMedia1.setCreatedAt(LocalDateTime.now());
-        PostMedia postMedia2 = PostMedia.builder()
-                .post(post1)
-                .build();
-        postMedia2.setCreatedAt(LocalDateTime.now());
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "post", post1);
+        ReflectionTestUtils.setField(postMedia1, "createdAt", LocalDateTime.now());
+
+        final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia2, "post", post1);
+        ReflectionTestUtils.setField(postMedia2, "createdAt", LocalDateTime.now());
+
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -71,20 +71,19 @@ class PostMediaRepositoryTest {
     @Test
     @DisplayName("PostMedia의 UUID로 Post가 세팅되지 않은 PostMedia들을 조회한다.")
     void testFindUnmappedPostMediasByUUIDs() {
-        Post post = Post.builder()
-                .build();
+        Post post = TestEmptyEntityGenerator.Post();
         postRepository.save(post);
 
-        PostMedia postMedia1 = PostMedia.builder()
-                .uuid("1234")
-                .build();
-        PostMedia postMedia2 = PostMedia.builder()
-                .uuid("2345")
-                .build();
-        PostMedia postMedia3 = PostMedia.builder()
-                .uuid("3456")
-                .post(post)
-                .build();
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "uuid", "1234");
+
+        final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia2, "uuid", "2345");
+
+        final PostMedia postMedia3 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia3, "uuid", "3456");
+        ReflectionTestUtils.setField(postMedia3, "post", post);
+
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2, postMedia3));
 
         persistenceUtil.cleanPersistenceContext();

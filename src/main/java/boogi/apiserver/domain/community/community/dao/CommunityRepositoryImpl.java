@@ -62,17 +62,12 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 privateEq(condition.getIsPrivate()),
                 categoryEq(condition.getCategory()),
 
-                //todo: 상관쿼리 작동 원인 찾고 해결
-                // 아래 서브쿼리는 독립적으로 작동할 수 있는 비상관쿼리
-                // 그런데, or query로 하면 상관 서브쿼리로 작동..
-                // and로 하면 비상관쿼리로 작동한다.
-
-                community.communityName.contains(condition.getKeyword()).or(
-                        community.id.in(JPAExpressions.select(_community.id)
-                                .from(_community)
-                                .where(communityHashtag.tag.eq(condition.getKeyword()))
-                                .innerJoin(_community.hashtags, communityHashtag))
-                )};
+                community.communityName.contains(keyword).or(
+                        community.id.in(JPAExpressions.select(communityHashtag.community.id)
+                                .from(communityHashtag)
+                                .where(communityHashtag.tag.eq(keyword)))
+                )
+        };
 
         List<Community> communities = queryFactory.selectFrom(community)
                 .where(where)

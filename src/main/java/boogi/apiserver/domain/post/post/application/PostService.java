@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.post.application;
 
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
@@ -61,8 +62,9 @@ public class PostService {
         );
 
         postHashtagCoreService.addTags(savedPost.getId(), createPost.getHashtags());
-        postMediaQueryService.getUnmappedPostMediasByUUID(createPost.getPostMediaIds())
-                .mapPost(savedPost);
+        PostMedias unmappedPostMedias = postMediaQueryService
+                .getUnmappedPostMediasByUUID(createPost.getPostMediaIds());
+        unmappedPostMedias.mapPost(savedPost);
 
         sendPushNotification.mentionNotification(
                 createPost.getMentionedUserIds(),
@@ -117,7 +119,7 @@ public class PostService {
         postHashtagCoreService.removeTagsByPostId(findPostId);
 
         commentRepository.findByPostId(postId).stream()
-                .forEach(c -> c.deleteComment());
+                .forEach(Comment::deleteComment);
 
         likeCoreService.removePostLikes(findPostId);
 

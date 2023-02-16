@@ -5,6 +5,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
 import boogi.apiserver.domain.like.application.LikeCoreService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
@@ -64,7 +65,7 @@ public class CommentCoreService {
         commentValidationService
                 .checkCommentMaxDepthOver(parentCommentId);
 
-        Comment findParentComment = commentRepository.findById(parentCommentId)
+        Comment findParentComment = parentCommentId == null ? null : commentRepository.findById(parentCommentId)
                 .orElse(null);
 
         Comment newComment = Comment.of(findPost, member, findParentComment, createComment.getContent());
@@ -180,7 +181,7 @@ public class CommentCoreService {
         return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
     }
 
-    public Slice<Comment> getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
+    public UserCommentPage getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {
@@ -194,6 +195,8 @@ public class CommentCoreService {
                     .findMemberIdsForQueryUserPost(userId, sessionUserId);
         }
 
-        return commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
+        Slice<Comment> slice = commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
+
+        return UserCommentPage.of(slice);
     }
 }

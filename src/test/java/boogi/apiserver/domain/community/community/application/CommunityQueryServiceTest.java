@@ -2,13 +2,16 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,13 +30,12 @@ class CommunityQueryServiceTest {
     CommunityQueryService communityQueryService;
 
     @Test
-    @DisplayName("커뮤니티 기본 정보 전달")
+    @DisplayName("커뮤니티 기본 정보 조회")
     void communityBasicInfo() {
         //given
-        Community community = Community.builder()
-                .id(1L)
-                .hashtags(List.of(CommunityHashtag.builder().build()))
-                .build();
+
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "id", 1L);
 
         given(communityRepository.findById(anyLong()))
                 .willReturn(Optional.of(community));
@@ -41,5 +43,20 @@ class CommunityQueryServiceTest {
         //when
         Community communityWithHashTag = communityQueryService.getCommunityWithHashTag(anyLong());
         assertThat(communityWithHashTag).isEqualTo(community);
+    }
+
+    @Test
+    @DisplayName("커뮤니티 설정정보 조회")
+    void communitySettingInfo() {
+        final Community community = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community, "autoApproval", true);
+        ReflectionTestUtils.setField(community, "isPrivate", false);
+
+        given(communityRepository.findById(anyLong()))
+                .willReturn(Optional.ofNullable(community));
+
+        CommunitySettingInfo settingInfo = communityQueryService.getSettingInfo(anyLong());
+        assertThat(settingInfo.getIsAuto()).isTrue();
+        assertThat(settingInfo.getIsSecret()).isFalse();
     }
 }

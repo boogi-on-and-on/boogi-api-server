@@ -4,6 +4,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,23 +41,21 @@ class CommunityHashtagServiceTest {
         @DisplayName("저장 성공")
         void success() {
             //given
-            Community community = Community.builder()
-                    .id(1L)
-                    .hashtags(new ArrayList<>())
-                    .build();
+            final Community community = TestEmptyEntityGenerator.Community();
+            ReflectionTestUtils.setField(community, "id", 1L);
 
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
             List<String> tags = List.of("테그1", "테그2");
-            CommunityHashtag hashtag1 = CommunityHashtag.builder()
-                    .tag("테그1")
-                    .community(community)
-                    .build();
-            CommunityHashtag hashtag2 = CommunityHashtag.builder()
-                    .tag("테그2")
-                    .community(community)
-                    .build();
+
+            final CommunityHashtag hashtag1 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag1, "tag", "테그1");
+            ReflectionTestUtils.setField(hashtag1, "community", community);
+
+            final CommunityHashtag hashtag2 = TestEmptyEntityGenerator.CommunityHashtag();
+            ReflectionTestUtils.setField(hashtag2, "tag", "테그2");
+            ReflectionTestUtils.setField(hashtag2, "community", community);
 
             given(communityHashtagRepository.saveAll(any()))
                     .willReturn(List.of(hashtag1, hashtag2));

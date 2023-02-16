@@ -18,15 +18,16 @@ import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,43 +70,40 @@ class PostRepositoryTest {
     @Test
     void getHotPosts() {
         //given
-        Community community1 = Community.builder().build();
-        Community community2 = Community.builder()
-                .isPrivate(true)
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community2, "isPrivate", true);
+
         communityRepository.saveAll(List.of(community1, community2));
 
-        Post post1 = Post.builder()
-                .community(community1)
-                .content("게시글1")
-                .likeCount(10)
-                .commentCount(1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now().minusDays(10));
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community1);
+        ReflectionTestUtils.setField(post1, "content", "게시글1");
+        ReflectionTestUtils.setField(post1, "likeCount", 10);
+        ReflectionTestUtils.setField(post1, "commentCount", 1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now().minusDays(10));
 
-        Post post2 = Post.builder()
-                .community(community2)
-                .content("게시글2_리스팅안됨")
-                .likeCount(100)
-                .commentCount(1)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now());
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community2);
+        ReflectionTestUtils.setField(post2, "content", "게시글2_리스팅안됨");
+        ReflectionTestUtils.setField(post2, "likeCount", 100);
+        ReflectionTestUtils.setField(post2, "commentCount", 1);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now());
 
-        Post post3 = Post.builder()
-                .community(community1)
-                .content("게시글3")
-                .likeCount(2)
-                .commentCount(1)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now());
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community1);
+        ReflectionTestUtils.setField(post3, "content", "게시글3");
+        ReflectionTestUtils.setField(post3, "likeCount", 2);
+        ReflectionTestUtils.setField(post3, "commentCount", 1);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now());
 
-        Post post4 = Post.builder()
-                .community(community1)
-                .content("게시글4")
-                .likeCount(2)
-                .commentCount(10)
-                .build();
-        post4.setCreatedAt(LocalDateTime.now());
+        final Post post4 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post4, "community", community1);
+        ReflectionTestUtils.setField(post4, "content", "게시글4");
+        ReflectionTestUtils.setField(post4, "likeCount", 2);
+        ReflectionTestUtils.setField(post4, "commentCount", 10);
+        ReflectionTestUtils.setField(post4, "createdAt", LocalDateTime.now());
 
         postRepository.saveAll(List.of(post1, post2, post3, post4));
 
@@ -192,24 +190,29 @@ class PostRepositoryTest {
     @Disabled
     void getLatestPostOfCommunity() {
         //given
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Post p0 = Post.builder().community(community).build();
-        p0.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post p0 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p0, "community", community);
+        ReflectionTestUtils.setField(p0, "createdAt", LocalDateTime.now().minusDays(1));
 
-        Post p1 = Post.builder().community(community).build();
-        p1.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post p1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p1, "community", community);
+        ReflectionTestUtils.setField(p1, "createdAt", LocalDateTime.now().minusDays(2));
 
-        Post p2 = Post.builder().community(community).build();
-        p2.setCreatedAt(LocalDateTime.now().minusDays(3));
+        final Post p2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p2, "community", community);
+        ReflectionTestUtils.setField(p2, "createdAt", LocalDateTime.now().minusDays(3));
 
-        Post p3 = Post.builder().community(community).build();
-        p3.setCreatedAt(LocalDateTime.now().minusDays(4));
+        final Post p3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p3, "community", community);
+        ReflectionTestUtils.setField(p3, "createdAt", LocalDateTime.now().minusDays(4));
 
-        Post p4 = Post.builder().community(community).build();
-        p4.setCreatedAt(LocalDateTime.now().minusDays(5));
-//        p4.setCanceledAt(LocalDateTime.now());
+        final Post p4 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p4, "community", community);
+        ReflectionTestUtils.setField(p4, "createdAt", LocalDateTime.now().minusDays(5));
+
 
         postRepository.saveAll(List.of(p0, p1, p2, p3, p4));
 
@@ -226,58 +229,56 @@ class PostRepositoryTest {
 
     @Test
     void getPostsOfCommunity() {
-        Community community = Community.builder().build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        User user1 = User.builder().build();
-        User user2 = User.builder().build();
+        final User user1 = TestEmptyEntityGenerator.User();
+        final User user2 = TestEmptyEntityGenerator.User();
 
         userRepository.saveAll(List.of(user1, user2));
 
-        Member member1 = Member.builder()
-                .community(community)
-                .user(user1)
-                .build();
-        Member member2 = Member.builder()
-                .community(community)
-                .user(user2)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "user", user1);
+        ReflectionTestUtils.setField(member1, "community", community);
+
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "user", user2);
+        ReflectionTestUtils.setField(member2, "community", community);
+
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post post1 = Post.builder()
-                .community(community)
-                .member(member1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now());
-        Post post2 = Post.builder()
-                .community(community)
-                .member(member2)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community);
+        ReflectionTestUtils.setField(post1, "member", member1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now());
 
-        Post post3 = Post.builder()
-                .community(community)
-                .member(member2)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community);
+        ReflectionTestUtils.setField(post2, "member", member2);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now().minusDays(1));
+
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community);
+        ReflectionTestUtils.setField(post3, "member", member2);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now().minusDays(2));
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
-        PostMedia postMedia1 = PostMedia.builder()
-                .post(post1)
-                .mediaURL("123")
-                .mediaType(MediaType.IMG)
-                .build();
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "post", post1);
+        ReflectionTestUtils.setField(postMedia1, "mediaURL", "123");
+        ReflectionTestUtils.setField(postMedia1, "mediaType", MediaType.IMG);
+
         postMediaRepository.save(postMedia1);
 
-        PostHashtag p1_t1 = PostHashtag.builder()
-                .post(post2)
-                .tag("post2태그1")
-                .build();
-        PostHashtag p1_t2 = PostHashtag.builder()
-                .post(post2)
-                .tag("post2태그2")
-                .build();
+        final PostHashtag p1_t1 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(p1_t1, "post", post2);
+        ReflectionTestUtils.setField(p1_t1, "tag", "post2태그1");
+
+        final PostHashtag p1_t2 = TestEmptyEntityGenerator.PostHashtag();
+        ReflectionTestUtils.setField(p1_t2, "post", post2);
+        ReflectionTestUtils.setField(p1_t2, "tag", "post2태그2");
+
         postHashtagRepository.saveAll(List.of(p1_t1, p1_t2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -304,71 +305,63 @@ class PostRepositoryTest {
     @Test
     void getSearchedPosts() {
         //given
-        Community community1 = Community.builder()
-                .communityName("안녕")
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community1, "communityName", "안녕");
 
-        Community community2 = Community.builder()
-                .isPrivate(true)
-                .communityName("비밀커뮤니티")
-                .build();
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        ReflectionTestUtils.setField(community2, "isPrivate", true);
+        ReflectionTestUtils.setField(community2, "communityName", "비밀커뮤니티");
+
         communityRepository.saveAll(List.of(community1, community2));
 
-        User user = User.builder()
-                .username("김")
-                .tagNumber("#0001")
-                .department("컴공")
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
+        ReflectionTestUtils.setField(user, "username", "김");
+        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+        ReflectionTestUtils.setField(user, "department", "컴공");
+
         userRepository.save(user);
 
-        Member member1 = Member.builder()
-                .user(user)
-                .community(community1)
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member1, "user", user);
+        ReflectionTestUtils.setField(member1, "community", community1);
 
-        Member member2 = Member.builder()
-                .user(user)
-                .community(community2)
-                .build();
+        final Member member2 = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member2, "user", user);
+        ReflectionTestUtils.setField(member2, "community", community2);
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post p1 = Post.builder()
-                .community(community1)
-                .member(member1)
-                .commentCount(1)
-                .likeCount(3)
-                .hashtags(new ArrayList<>())
-                .build();
-        p1.setCreatedAt(LocalDateTime.now());
+        final Post p1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p1, "community", community1);
+        ReflectionTestUtils.setField(p1, "member", member1);
+        ReflectionTestUtils.setField(p1, "commentCount", 1);
+        ReflectionTestUtils.setField(p1, "likeCount", 3);
+        ReflectionTestUtils.setField(p1, "createdAt", LocalDateTime.now());
 
-        Post p2 = Post.builder()
-                .community(community1)
-                .member(member1)
-                .hashtags(new ArrayList<>())
-                .build();
-        p2.setCreatedAt(LocalDateTime.now().minusDays(1));
+        final Post p2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p2, "community", community1);
+        ReflectionTestUtils.setField(p2, "member", member1);
+        ReflectionTestUtils.setField(p2, "createdAt", LocalDateTime.now().minusDays(1));
 
-        Post p3 = Post.builder()
-                .community(community2)
-                .member(member2)
-                .commentCount(1)
-                .likeCount(2)
-                .hashtags(new ArrayList<>())
-                .build();
-        p3.setCreatedAt(LocalDateTime.now().minusDays(2));
+        final Post p3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(p3, "community", community2);
+        ReflectionTestUtils.setField(p3, "member", member2);
+        ReflectionTestUtils.setField(p3, "commentCount", 1);
+        ReflectionTestUtils.setField(p3, "likeCount", 2);
+        ReflectionTestUtils.setField(p3, "createdAt", LocalDateTime.now().minusDays(2));
+
 
         postRepository.saveAll(List.of(p1, p2, p3));
 
-        PostMedia postMedia1 = PostMedia.builder()
-                .post(p3)
-                .mediaType(MediaType.IMG)
-                .mediaURL("123")
-                .build();
-        PostMedia postMedia2 = PostMedia.builder()
-                .post(p3)
-                .mediaType(MediaType.IMG)
-                .mediaURL("456")
-                .build();
+        final PostMedia postMedia1 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia1, "post", p3);
+        ReflectionTestUtils.setField(postMedia1, "mediaURL", "123");
+        ReflectionTestUtils.setField(postMedia1, "mediaType", MediaType.IMG);
+
+        final PostMedia postMedia2 = TestEmptyEntityGenerator.PostMedia();
+        ReflectionTestUtils.setField(postMedia2, "post", p3);
+        ReflectionTestUtils.setField(postMedia2, "mediaURL", "456");
+        ReflectionTestUtils.setField(postMedia2, "mediaType", MediaType.IMG);
+
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2));
 
         PostHashtag p1_ht1 = PostHashtag.of("헤헤", p1);
@@ -415,24 +408,23 @@ class PostRepositoryTest {
     @Test
     @DisplayName("postId로 Post를 Member, User, Community와 함께 fetch join해서 조회한다.")
     void testGetPostWithUserAndMemberAndCommunityByPostId() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
-        Community community = Community.builder()
-                .build();
+
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Member member = Member.builder()
-                .user(user)
-                .community(community)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "user", user);
+        ReflectionTestUtils.setField(member, "community", community);
+
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .member(member)
-                .community(community)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "community", community);
+        ReflectionTestUtils.setField(post, "member", member);
+
         postRepository.save(post);
 
         persistenceUtil.cleanPersistenceContext();
@@ -456,24 +448,22 @@ class PostRepositoryTest {
     @Test
     @DisplayName("postId로 Post를 Member, Community와 함께 fetch join해서 조회한다.")
     void testGetPostWithCommunityAndMemberByPostId() {
-        User user = User.builder()
-                .build();
+        final User user = TestEmptyEntityGenerator.User();
         userRepository.save(user);
 
-        Community community = Community.builder()
-                .build();
+        final Community community = TestEmptyEntityGenerator.Community();
         communityRepository.save(community);
 
-        Member member = Member.builder()
-                .user(user)
-                .community(community)
-                .build();
+        final Member member = TestEmptyEntityGenerator.Member();
+        ReflectionTestUtils.setField(member, "user", user);
+        ReflectionTestUtils.setField(member, "community", community);
+
         memberRepository.save(member);
 
-        Post post = Post.builder()
-                .member(member)
-                .community(community)
-                .build();
+        final Post post = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post, "community", community);
+        ReflectionTestUtils.setField(post, "member", member);
+
         postRepository.save(post);
 
         persistenceUtil.cleanPersistenceContext();
@@ -497,20 +487,19 @@ class PostRepositoryTest {
     @Test
     @DisplayName("memberId들로 해당 멤버들이 작성한 글을 최근 작성일순으로 페이지네이션해서 조회한다.")
     void testGetUserPostPageByMemberIds() {
-        Member member1 = Member.builder()
-                .build();
-        Member member2 = Member.builder()
-                .build();
+        final Member member1 = TestEmptyEntityGenerator.Member();
+        final Member member2 = TestEmptyEntityGenerator.Member();
+
         memberRepository.saveAll(List.of(member1, member2));
 
-        Post post1 = Post.builder()
-                .member(member1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now());
-        Post post2 = Post.builder()
-                .member(member2)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now());
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "member", member1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now());
+
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "member", member2);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now());
+
         postRepository.saveAll(List.of(post1, post2));
 
         persistenceUtil.cleanPersistenceContext();
@@ -531,26 +520,23 @@ class PostRepositoryTest {
     @Test
     @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
     void testGetLatestPostByCommunityIds() {
-        Community community1 = Community.builder()
-                .build();
-        Community community2 = Community.builder()
-                .build();
-        Community community3 = Community.builder()
-                .build();
+        final Community community1 = TestEmptyEntityGenerator.Community();
+        final Community community2 = TestEmptyEntityGenerator.Community();
+        final Community community3 = TestEmptyEntityGenerator.Community();
         communityRepository.saveAll(List.of(community1, community2, community3));
 
-        Post post1 = Post.builder()
-                .community(community1)
-                .build();
-        post1.setCreatedAt(LocalDateTime.now());
-        Post post2 = Post.builder()
-                .community(community1)
-                .build();
-        post2.setCreatedAt(LocalDateTime.now());
-        Post post3 = Post.builder()
-                .community(community2)
-                .build();
-        post3.setCreatedAt(LocalDateTime.now());
+        final Post post1 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post1, "community", community1);
+        ReflectionTestUtils.setField(post1, "createdAt", LocalDateTime.now());
+
+        final Post post2 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post2, "community", community1);
+        ReflectionTestUtils.setField(post2, "createdAt", LocalDateTime.now());
+
+        final Post post3 = TestEmptyEntityGenerator.Post();
+        ReflectionTestUtils.setField(post3, "community", community2);
+        ReflectionTestUtils.setField(post3, "createdAt", LocalDateTime.now());
+
         postRepository.saveAll(List.of(post1, post2, post3));
 
         persistenceUtil.cleanPersistenceContext();
