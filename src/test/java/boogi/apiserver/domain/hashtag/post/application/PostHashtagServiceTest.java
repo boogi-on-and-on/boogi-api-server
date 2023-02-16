@@ -14,20 +14,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-class PostHashtagCoreServiceTest {
+class PostHashtagServiceTest {
 
     @InjectMocks
-    PostHashtagCoreService postHashtagCoreService;
+    PostHashtagService postHashtagService;
 
     @Mock
     private PostQueryService postQueryService;
@@ -43,8 +40,8 @@ class PostHashtagCoreServiceTest {
         @Test
         @DisplayName("입력된 태그가 빈 리스트나 null일시 null을 반환한다.")
         void addEmptyTagsListSuccess() {
-            List<PostHashtag> postHashtags1 = postHashtagCoreService.addTags(1L, List.of());
-            List<PostHashtag> postHashtags2 = postHashtagCoreService.addTags(1L, null);
+            List<PostHashtag> postHashtags1 = postHashtagService.addTags(1L, List.of());
+            List<PostHashtag> postHashtags2 = postHashtagService.addTags(1L, null);
 
             assertThat(postHashtags1).isNull();
             assertThat(postHashtags2).isNull();
@@ -59,7 +56,7 @@ class PostHashtagCoreServiceTest {
                     .willReturn(post);
 
             List<String> tags = List.of("tag1", "tag2");
-            List<PostHashtag> postHashtags = postHashtagCoreService.addTags(1L, tags);
+            List<PostHashtag> postHashtags = postHashtagService.addTags(1L, tags);
 
             assertThat(postHashtags.size()).isEqualTo(2);
             assertThat(postHashtags.get(0).getPost().getId()).isEqualTo(post.getId());

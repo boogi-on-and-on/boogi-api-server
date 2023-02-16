@@ -12,7 +12,7 @@ import java.util.Objects;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AlarmCoreService {
+public class AlarmService {
 
     private final AlarmQueryService alarmQueryService;
 

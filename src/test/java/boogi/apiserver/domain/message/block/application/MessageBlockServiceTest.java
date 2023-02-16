@@ -26,7 +26,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-class MessageBlockCoreServiceTest {
+class MessageBlockServiceTest {
 
     @Mock
     MessageBlockRepository messageBlockRepository;
@@ -38,7 +38,7 @@ class MessageBlockCoreServiceTest {
     UserQueryService userQueryService;
 
     @InjectMocks
-    MessageBlockCoreService messageBlockCoreService;
+    MessageBlockService messageBlockService;
 
     @Test
     @DisplayName("메시지 이미 차단한 경우")
@@ -54,7 +54,7 @@ class MessageBlockCoreServiceTest {
         //then
         assertThatThrownBy(() -> {
             //when
-            messageBlockCoreService.releaseUser(anyLong(), anyLong());
+            messageBlockService.releaseUser(anyLong(), anyLong());
         })
                 .isInstanceOf(InvalidValueException.class)
                 .hasMessage("차단되지 않은 유저입니다.");
@@ -71,7 +71,7 @@ class MessageBlockCoreServiceTest {
                 .willReturn(block);
 
         //when
-        messageBlockCoreService.releaseUser(anyLong(), anyLong());
+        messageBlockService.releaseUser(anyLong(), anyLong());
 
         //then
         assertThat(block.getBlocked()).isFalse();
@@ -100,7 +100,7 @@ class MessageBlockCoreServiceTest {
                 .willReturn(List.of(block));
 
         //when
-        messageBlockCoreService.blockUsers(anyLong(), List.of(blockedUser.getId()));
+        messageBlockService.blockUsers(anyLong(), List.of(blockedUser.getId()));
 
         //then
         then(messageBlockRepository).should(times(1)).updateBulkBlockedStatus(any());
@@ -129,7 +129,7 @@ class MessageBlockCoreServiceTest {
                 .willReturn(List.of(blockedUser));
 
         //when
-        messageBlockCoreService.blockUsers(user.getId(), List.of(blockedUser.getId()));
+        messageBlockService.blockUsers(user.getId(), List.of(blockedUser.getId()));
 
         //then
         then(messageBlockRepository).should(times(0)).updateBulkBlockedStatus(any());

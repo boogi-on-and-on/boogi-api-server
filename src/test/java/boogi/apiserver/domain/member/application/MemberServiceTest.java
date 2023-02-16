@@ -33,10 +33,10 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class MemberCoreServiceTest {
+class MemberServiceTest {
 
     @InjectMocks
-    MemberCoreService memberCoreService;
+    MemberService memberService;
 
     @Mock
     MemberRepository memberRepository;
@@ -76,7 +76,7 @@ class MemberCoreServiceTest {
                 .willReturn(community);
 
         //when
-        Member member = memberCoreService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
+        Member member = memberService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
 
         //then
         assertThat(member.getCommunity().getId()).isEqualTo(community.getId());
@@ -104,7 +104,7 @@ class MemberCoreServiceTest {
                 .willReturn(community);
 
         //when
-        List<Member> members = memberCoreService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
+        List<Member> members = memberService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
 
         //then
         assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))
@@ -131,7 +131,7 @@ class MemberCoreServiceTest {
                     .willReturn(member);
 
             assertThatThrownBy(() -> {
-                memberCoreService.banMember(member.getId());
+                memberService.banMember(member.getId());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("이미 차단된 멤버입니다.");
@@ -151,7 +151,7 @@ class MemberCoreServiceTest {
             //then
             assertThatThrownBy(() -> {
                 //when
-                memberCoreService.releaseMember(member.getId());
+                memberService.releaseMember(member.getId());
             }).isInstanceOf(InvalidValueException.class);
         }
 
@@ -189,7 +189,7 @@ class MemberCoreServiceTest {
         given(memberRepository.findJoinedMembersAllWithUserByCommunityId(anyLong()))
                 .willReturn(members);
 
-        List<Member> result = memberCoreService.getJoinedMembersAll(community.getId(), user1.getId());
+        List<Member> result = memberService.getJoinedMembersAll(community.getId(), user1.getId());
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getId()).isEqualTo(member2.getId());

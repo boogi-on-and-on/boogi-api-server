@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.message.message.api;
 
-import boogi.apiserver.domain.message.message.application.MessageCoreService;
+import boogi.apiserver.domain.message.message.application.MessageService;
 import boogi.apiserver.domain.message.message.dto.request.SendMessage;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
@@ -19,11 +19,11 @@ import java.util.Map;
 @RequestMapping("/api/messages")
 public class MessageApiController {
 
-    private final MessageCoreService messageCoreService;
+    private final MessageService messageService;
 
     @PostMapping("/")
     public ResponseEntity<Object> sendMessage(@RequestBody SendMessage sendMessage, @Session Long userId) {
-        Long sendedMessageId = messageCoreService.sendMessage(sendMessage, userId).getId();
+        Long sendedMessageId = messageService.sendMessage(sendMessage, userId).getId();
 
         return ResponseEntity.ok().body(Map.of(
                 "id", sendedMessageId
@@ -32,14 +32,14 @@ public class MessageApiController {
 
     @GetMapping("/")
     public ResponseEntity<MessageRoomResponse> getMessageRooms(@Session Long userId) {
-        MessageRoomResponse messageRooms = messageCoreService.getMessageRooms(userId);
+        MessageRoomResponse messageRooms = messageService.getMessageRooms(userId);
 
         return ResponseEntity.ok().body(messageRooms);
     }
 
     @GetMapping("/{opponentId}")
     public ResponseEntity<MessageResponse> getMessages(@PathVariable Long opponentId, @Session Long userId, Pageable pageable) {
-        MessageResponse messageResponse = messageCoreService.getMessagesByOpponentId(opponentId, userId, pageable);
+        MessageResponse messageResponse = messageService.getMessagesByOpponentId(opponentId, userId, pageable);
 
         return ResponseEntity.ok().body(messageResponse);
     }

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class LikeCoreService {
+public class LikeService {
 
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;

@@ -1,10 +1,10 @@
 package boogi.apiserver.domain.comment.api;
 
-import boogi.apiserver.domain.comment.application.CommentCoreService;
+import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
-import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
 import boogi.apiserver.global.argument_resolver.session.Session;
@@ -26,9 +26,9 @@ import java.util.Objects;
 @RequestMapping("/api/comments")
 public class CommentApiController {
 
-    private final CommentCoreService commentCoreService;
+    private final CommentService commentService;
 
-    private final LikeCoreService likeCoreService;
+    private final LikeService likeService;
 
     private final SendPushNotification sendPushNotification;
 
@@ -37,14 +37,14 @@ public class CommentApiController {
                                                                @Session Long sessionUserId,
                                                                Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-        UserCommentPage userComments = commentCoreService.getUserComments(id, sessionUserId, pageable);
+        UserCommentPage userComments = commentService.getUserComments(id, sessionUserId, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(userComments);
     }
 
     @PostMapping("/")
     public ResponseEntity<Object> createComment(@Validated @RequestBody CreateComment createComment, @Session Long userId) {
-        Comment newComment = commentCoreService.createComment(createComment, userId);
+        Comment newComment = commentService.createComment(createComment, userId);
 
         sendPushNotification.commentNotification(newComment.getId());
 
@@ -55,7 +55,7 @@ public class CommentApiController {
 
     @PostMapping("/{commentId}/likes")
     public ResponseEntity<Object> doLikeAtComment(@PathVariable Long commentId, @Session Long userId) {
-        Like newLike = likeCoreService.doLikeAtComment(commentId, userId);
+        Like newLike = likeService.doLikeAtComment(commentId, userId);
 
         return ResponseEntity.ok().body(Map.of(
                 "id", newLike.getId()
@@ -64,14 +64,14 @@ public class CommentApiController {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, @Session Long userId) {
-        commentCoreService.deleteComment(commentId, userId);
+        commentService.deleteComment(commentId, userId);
 
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{commentId}/likes")
     public ResponseEntity<Object> getLikeMembersAtComment(@PathVariable Long commentId, @Session Long userId, Pageable pageable) {
-        LikeMembersAtComment likeMembersAtComment = likeCoreService.getLikeMembersAtComment(commentId, userId, pageable);
+        LikeMembersAtComment likeMembersAtComment = likeService.getLikeMembersAtComment(commentId, userId, pageable);
 
         return ResponseEntity.ok().body(likeMembersAtComment);
     }

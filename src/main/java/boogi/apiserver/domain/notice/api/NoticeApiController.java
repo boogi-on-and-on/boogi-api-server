@@ -3,7 +3,7 @@ package boogi.apiserver.domain.notice.api;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.notice.application.NoticeCoreService;
+import boogi.apiserver.domain.notice.application.NoticeService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
@@ -30,7 +30,7 @@ public class NoticeApiController {
     private final NoticeQueryService noticeQueryService;
     private final MemberQueryService memberQueryService;
 
-    private final NoticeCoreService noticeCoreService;
+    private final NoticeService noticeService;
 
     private final MemberValidationService memberValidationService;
 
@@ -57,7 +57,7 @@ public class NoticeApiController {
     public ResponseEntity<Object> createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
         memberValidationService.hasAuth(userId, request.getCommunityId(), MemberType.SUB_MANAGER);
 
-        Notice notice = noticeCoreService.create(Map.of(
+        Notice notice = noticeService.create(Map.of(
                 "title", request.getTitle(),
                 "content", request.getContent()
         ), userId, request.getCommunityId());

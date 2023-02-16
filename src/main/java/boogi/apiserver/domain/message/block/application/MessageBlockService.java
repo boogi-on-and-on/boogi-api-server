@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MessageBlockCoreService {
+public class MessageBlockService {
 
     private final MessageBlockRepository messageBlockRepository;
     private final UserRepository userRepository;

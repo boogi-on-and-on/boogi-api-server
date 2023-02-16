@@ -5,7 +5,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
-import boogi.apiserver.domain.member.application.MemberCoreService;
+import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -31,16 +31,16 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class JoinRequestCoreServiceTest {
+class JoinRequestServiceTest {
 
     @InjectMocks
-    JoinRequestCoreService joinRequestCoreService;
+    JoinRequestService joinRequestService;
 
     @Mock
     JoinRequestRepository joinRequestRepository;
 
     @Mock
-    MemberCoreService memberCoreService;
+    MemberService memberService;
 
     @Mock
     JoinRequestQueryService joinRequestQueryService;
@@ -79,7 +79,7 @@ class JoinRequestCoreServiceTest {
                     .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
-                joinRequestCoreService.request(user.getId(), community.getId());
+                joinRequestService.request(user.getId(), community.getId());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("이미 요청한 커뮤니티입니다.");
@@ -107,7 +107,7 @@ class JoinRequestCoreServiceTest {
                     .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
-                joinRequestCoreService.request(user.getId(), community.getId());
+                joinRequestService.request(user.getId(), community.getId());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("이미 가입한 커뮤니티입니다.");
@@ -135,7 +135,7 @@ class JoinRequestCoreServiceTest {
                     .willReturn(joinRequest);
 
             assertThatThrownBy(() -> {
-                joinRequestCoreService.confirmUser(1L, 1L, 1L);
+                joinRequestService.confirmUser(1L, 1L, 1L);
             }).isInstanceOf(InvalidValueException.class);
         }
 
@@ -167,7 +167,7 @@ class JoinRequestCoreServiceTest {
             ReflectionTestUtils.setField(m2, "user", u2);
             ReflectionTestUtils.setField(m2, "community", community);
 
-            given(memberCoreService.joinMemberInBatch(any(), anyLong(), any()))
+            given(memberService.joinMemberInBatch(any(), anyLong(), any()))
                     .willReturn(List.of(m1, m2));
 
             final Member manager = TestEmptyEntityGenerator.Member();
@@ -176,7 +176,7 @@ class JoinRequestCoreServiceTest {
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(manager);
             //when
-            joinRequestCoreService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
+            joinRequestService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
 
             //then
             assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.CONFIRM);
@@ -209,7 +209,7 @@ class JoinRequestCoreServiceTest {
                     .willReturn(manager);
 
             //when
-            joinRequestCoreService.rejectUserInBatch(anyLong(), any(), community.getId());
+            joinRequestService.rejectUserInBatch(anyLong(), any(), community.getId());
             assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
             assertThat(jr2.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
         }

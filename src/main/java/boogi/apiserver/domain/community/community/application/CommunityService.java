@@ -3,10 +3,10 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
-import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagCoreService;
+import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagService;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
-import boogi.apiserver.domain.member.application.MemberCoreService;
+import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CommunityCoreService {
+public class CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final CommunityHashtagRepository communityHashtagRepository;
     private final PostMediaRepository postMediaRepository;
 
-    private final CommunityHashtagCoreService communityHashtagCoreService;
-    private final MemberCoreService memberCoreService;
+    private final CommunityHashtagService communityHashtagService;
+    private final MemberService memberService;
 
     private final CommunityValidationService communityValidationService;
 
@@ -48,9 +48,9 @@ public class CommunityCoreService {
         communityValidationService.checkPreviousExistsCommunityName(community.getCommunityName());
 
         communityRepository.save(community);
-        communityHashtagCoreService.addTags(community.getId(), tags);
+        communityHashtagService.addTags(community.getId(), tags);
 
-        memberCoreService.joinMember(userId, community.getId(), MemberType.MANAGER);
+        memberService.joinMember(userId, community.getId(), MemberType.MANAGER);
 
         return community;
     }

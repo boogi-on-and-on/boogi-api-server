@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class NoticeCoreServiceTest {
+class NoticeServiceTest {
     @Mock
     NoticeRepository noticeRepository;
 
@@ -38,7 +38,7 @@ class NoticeCoreServiceTest {
     MemberQueryService memberQueryService;
 
     @InjectMocks
-    NoticeCoreService noticeCoreService;
+    NoticeService noticeService;
 
     @Nested
     @DisplayName("공지사항 생성 테스트")
@@ -54,7 +54,7 @@ class NoticeCoreServiceTest {
                     .willReturn(member);
 
             assertThatThrownBy(() -> {
-                noticeCoreService.create(Map.of(), anyLong(), anyLong());
+                noticeService.create(Map.of(), anyLong(), anyLong());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("관리자가 아닙니다.");
@@ -74,7 +74,7 @@ class NoticeCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong()))
                     .willReturn(community);
 
-            Notice notice = noticeCoreService.create(
+            Notice notice = noticeService.create(
                     Map.of("content", "내용",
                             "title", "제목"
                     ),

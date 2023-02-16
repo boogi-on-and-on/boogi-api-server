@@ -1,14 +1,14 @@
 package boogi.apiserver.domain.community.community.api;
 
-import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.request.*;
 import boogi.apiserver.domain.community.community.dto.response.*;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
-import boogi.apiserver.domain.member.application.MemberCoreService;
+import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -47,9 +47,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/communities")
 public class CommunityApiController {
 
-    private final JoinRequestCoreService joinRequestCoreService;
-    private final CommunityCoreService communityCoreService;
-    private final MemberCoreService memberCoreService;
+    private final JoinRequestService joinRequestService;
+    private final CommunityService communityService;
+    private final MemberService memberService;
 
     private final MemberValidationService memberValidationService;
 
@@ -66,7 +66,7 @@ public class CommunityApiController {
         String _category = request.getCategory();
         CommunityCategory category = CommunityCategory.valueOf(_category);
         Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(), request.getAutoApproval(), category);
-        Long communityId = communityCoreService.createCommunity(community, request.getHashtags(), userId).getId();
+        Long communityId = communityService.createCommunity(community, request.getHashtags(), userId).getId();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "communityId", communityId
@@ -118,7 +118,7 @@ public class CommunityApiController {
                                                       @RequestBody @Validated CommunityUpdateRequest request) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        communityCoreService.update(communityId, request.getDescription(), request.getHashtags());
+        communityService.update(communityId, request.getDescription(), request.getHashtags());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -127,7 +127,7 @@ public class CommunityApiController {
     public ResponseEntity<Void> shutdown(@PathVariable Long communityId, @Session Long userId) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        communityCoreService.shutdown(communityId);
+        communityService.shutdown(communityId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -152,10 +152,10 @@ public class CommunityApiController {
         Boolean isAuto = request.getIsAutoApproval();
         Boolean isSecret = request.getIsSecret();
         if (Objects.nonNull(isAuto)) {
-            communityCoreService.changeApproval(communityId, isAuto);
+            communityService.changeApproval(communityId, isAuto);
         }
         if (Objects.nonNull(isSecret)) {
-            communityCoreService.changeScope(communityId, isSecret);
+            communityService.changeScope(communityId, isSecret);
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -216,7 +216,7 @@ public class CommunityApiController {
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         Long banMemberId = body.get("memberId");
-        memberCoreService.banMember(banMemberId);
+        memberService.banMember(banMemberId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -229,7 +229,7 @@ public class CommunityApiController {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Long memberId = request.get("memberId");
-        memberCoreService.releaseMember(memberId);
+        memberService.releaseMember(memberId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -241,7 +241,7 @@ public class CommunityApiController {
     ) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        memberCoreService.delegeteMember(request.getMemberId(), request.getType());
+        memberService.delegeteMember(request.getMemberId(), request.getType());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -259,7 +259,7 @@ public class CommunityApiController {
 
     @PostMapping("/{communityId}/requests")
     public ResponseEntity<Object> joinRequest(@Session Long userId, @PathVariable Long communityId) {
-        Long requestId = joinRequestCoreService.request(userId, communityId);
+        Long requestId = joinRequestService.request(userId, communityId);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "requestId", requestId
         ));
@@ -274,7 +274,7 @@ public class CommunityApiController {
 
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestCoreService.confirmUserInBatch(managerUserId, requestIds, communityId);
+        joinRequestService.confirmUserInBatch(managerUserId, requestIds, communityId);
 
         sendPushNotification.joinNotification(requestIds);
 
@@ -290,7 +290,7 @@ public class CommunityApiController {
 
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestCoreService.rejectUserInBatch(managerUserId, requestIds, communityId);
+        joinRequestService.rejectUserInBatch(managerUserId, requestIds, communityId);
 
         sendPushNotification.rejectNotification(requestIds);
 
@@ -310,7 +310,7 @@ public class CommunityApiController {
 
     @GetMapping("{communityId}/members/all")
     public ResponseEntity<JoinedMembersDto> getMembersAll(@PathVariable Long communityId, @Session Long userId) {
-        List<Member> joinedMembers = memberCoreService.getJoinedMembersAll(communityId, userId);
+        List<Member> joinedMembers = memberService.getJoinedMembersAll(communityId, userId);
 
         return ResponseEntity.ok().body(JoinedMembersDto.of(joinedMembers));
     }

@@ -1,11 +1,11 @@
 package boogi.apiserver.domain.comment.api;
 
-import boogi.apiserver.domain.comment.application.CommentCoreService;
+import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
-import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
 import boogi.apiserver.domain.user.domain.User;
@@ -48,10 +48,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CommentApiControllerTest {
 
     @MockBean
-    CommentCoreService commentCoreService;
+    CommentService commentService;
 
     @MockBean
-    LikeCoreService likeCoreService;
+    LikeService likeService;
 
     @MockBean
     SendPushNotification sendPushNotification;
@@ -91,7 +91,7 @@ class CommentApiControllerTest {
                 ))
                 .build();
 
-        given(commentCoreService.getUserComments(anyLong(), any(), any(Pageable.class)))
+        given(commentService.getUserComments(anyLong(), any(), any(Pageable.class)))
                 .willReturn(commentPage);
 
         MockHttpSession session = new MockHttpSession();
@@ -121,7 +121,7 @@ class CommentApiControllerTest {
         final Comment newComment = TestEmptyEntityGenerator.Comment();
         ReflectionTestUtils.setField(newComment, "id", 1L);
 
-        given(commentCoreService.createComment(any(CreateComment.class), eq(1L)))
+        given(commentService.createComment(any(CreateComment.class), eq(1L)))
                 .willReturn(newComment);
 
         MockHttpSession session = new MockHttpSession();
@@ -143,7 +143,7 @@ class CommentApiControllerTest {
         final Like like = TestEmptyEntityGenerator.Like();
         ReflectionTestUtils.setField(like, "id", 1L);
 
-        given(likeCoreService.doLikeAtComment(anyLong(), anyLong()))
+        given(likeService.doLikeAtComment(anyLong(), anyLong()))
                 .willReturn(like);
 
         MockHttpSession session = new MockHttpSession();
@@ -190,7 +190,7 @@ class CommentApiControllerTest {
                 .members(userInfos)
                 .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
                 .build();
-        given(likeCoreService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
+        given(likeService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembersAtComment);
 
         MockHttpSession session = new MockHttpSession();

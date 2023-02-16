@@ -4,7 +4,7 @@ package boogi.apiserver.domain.notice.api;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.notice.application.NoticeCoreService;
+import boogi.apiserver.domain.notice.application.NoticeService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
@@ -56,7 +56,7 @@ class NoticeApiControllerTest {
     MemberQueryService memberQueryService;
 
     @MockBean
-    NoticeCoreService noticeCoreService;
+    NoticeService noticeService;
 
     @MockBean
     MemberValidationService memberValidationService;
@@ -127,7 +127,7 @@ class NoticeApiControllerTest {
             final Notice notice = TestEmptyEntityGenerator.Notice();
             ReflectionTestUtils.setField(notice, "id", 1L);
 
-            given(noticeCoreService.create(any(), anyLong(), anyLong()))
+            given(noticeService.create(any(), anyLong(), anyLong()))
                     .willReturn(notice);
 
             mvc.perform(

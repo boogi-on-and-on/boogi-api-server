@@ -1,12 +1,12 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfo;
-import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
-import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
+import boogi.apiserver.domain.message.block.application.MessageBlockService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -37,10 +37,10 @@ public class UserApiController {
     private final UserQueryService userQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
 
-    private final CommunityCoreService communityCoreService;
+    private final CommunityService communityService;
 
-    private final MessageBlockCoreService messageBlockCoreService;
-    private final AlarmConfigCoreService alarmConfigCoreService;
+    private final MessageBlockService messageBlockService;
+    private final AlarmConfigService alarmConfigService;
 
     @PostMapping("/token/{email}")
     public ResponseEntity<Void> issueToken(HttpServletRequest request, @PathVariable String email) {
@@ -77,7 +77,7 @@ public class UserApiController {
 
     @GetMapping("/communities/joined")
     public ResponseEntity<Object> getUserJoinedCommunitiesInfo(@Session Long userId) {
-        JoinedCommunities joinedCommunities = communityCoreService.getJoinedCommunitiesWithLatestPost(userId);
+        JoinedCommunities joinedCommunities = communityService.getJoinedCommunitiesWithLatestPost(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(joinedCommunities);
     }
@@ -92,28 +92,28 @@ public class UserApiController {
     @PostMapping("/messages/unblock")
     public ResponseEntity<Void> releaseUser(@Session Long userId, @RequestBody HashMap<String, String> request) {
         Long blockedUserId = Long.getLong(request.get("blockedUserId"));
-        messageBlockCoreService.releaseUser(userId, blockedUserId);
+        messageBlockService.releaseUser(userId, blockedUserId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/messages/block")
     public ResponseEntity<Void> blockUsers(@Session Long userId, @Validated @RequestBody BlockMessageUsersRequest request) {
-        messageBlockCoreService.blockUsers(userId, request.getBlockUserIds());
+        messageBlockService.blockUsers(userId, request.getBlockUserIds());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/config/notifications")
     public ResponseEntity<Object> getAlarmConfig(@Session Long userId) {
-        AlarmConfig alarmConfig = alarmConfigCoreService.findOrElseCreateAlarmConfig(userId);
+        AlarmConfig alarmConfig = alarmConfigService.findOrElseCreateAlarmConfig(userId);
 
         return ResponseEntity.ok(Map.of("alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)));
     }
 
     @PostMapping("/config/notifications")
     public ResponseEntity<Object> configureAlarm(@Session Long userId, @RequestBody AlarmConfigSettingRequest request) {
-        AlarmConfig alarmConfig = alarmConfigCoreService.configureAlarm(userId, request);
+        AlarmConfig alarmConfig = alarmConfigService.configureAlarm(userId, request);
 
         return ResponseEntity.ok(Map.of("alarmInfo", AlarmConfigSettingInfo.of(alarmConfig)));
     }

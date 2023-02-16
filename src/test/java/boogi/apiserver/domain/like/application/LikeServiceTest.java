@@ -44,10 +44,10 @@ import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
-class LikeCoreServiceTest {
+class LikeServiceTest {
 
     @InjectMocks
-    LikeCoreService likeCoreService;
+    LikeService likeService;
 
     @Mock
     private LikeRepository likeRepository;
@@ -96,7 +96,7 @@ class LikeCoreServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoPostLike(anyLong(), anyLong()))
                     .willReturn(false);
 
-            Like newLike = likeCoreService.doLikeAtPost(post.getId(), 1L);
+            Like newLike = likeService.doLikeAtPost(post.getId(), 1L);
 
             assertThat(newLike.getPost().getId()).isEqualTo(post.getId());
             assertThat(newLike.getMember().getId()).isEqualTo(member.getId());
@@ -125,7 +125,7 @@ class LikeCoreServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoPostLike(anyLong(), anyLong()))
                     .willReturn(true);
 
-            assertThatThrownBy(() -> likeCoreService.doLikeAtPost(post.getId(), 1L))
+            assertThatThrownBy(() -> likeService.doLikeAtPost(post.getId(), 1L))
                     .isInstanceOf(AlreadyDoLikeException.class);
         }
     }
@@ -156,7 +156,7 @@ class LikeCoreServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoCommentLike(anyLong(), anyLong()))
                     .willReturn(false);
 
-            Like newLike = likeCoreService.doLikeAtComment(comment.getId(), 1L);
+            Like newLike = likeService.doLikeAtComment(comment.getId(), 1L);
 
             assertThat(newLike.getComment().getId()).isEqualTo(comment.getId());
             assertThat(newLike.getMember().getId()).isEqualTo(member.getId());
@@ -185,7 +185,7 @@ class LikeCoreServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoCommentLike(anyLong(), anyLong()))
                     .willReturn(true);
 
-            assertThatThrownBy(() -> likeCoreService.doLikeAtComment(comment.getId(), 1L))
+            assertThatThrownBy(() -> likeService.doLikeAtComment(comment.getId(), 1L))
                     .isInstanceOf(AlreadyDoLikeException.class);
         }
     }
@@ -214,7 +214,7 @@ class LikeCoreServiceTest {
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
-            likeCoreService.doUnlike(like.getId(), 1L);
+            likeService.doUnlike(like.getId(), 1L);
 
             verify(likeRepository, times(1)).delete(any(Like.class));
         }
@@ -242,7 +242,7 @@ class LikeCoreServiceTest {
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
-            likeCoreService.doUnlike(like.getId(), 1L);
+            likeService.doUnlike(like.getId(), 1L);
 
             assertThat(post.getLikeCount()).isZero();
             verify(likeRepository, times(1)).delete(any(Like.class));
@@ -269,7 +269,7 @@ class LikeCoreServiceTest {
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
-            assertThatThrownBy(() -> likeCoreService.doUnlike(like.getId(), 2L))
+            assertThatThrownBy(() -> likeService.doUnlike(like.getId(), 2L))
                     .isInstanceOf(NotAuthorizedMemberException.class);
         }
     }
@@ -317,7 +317,7 @@ class LikeCoreServiceTest {
             given(userRepository.findUsersByIds(anyList()))
                     .willReturn(users);
 
-            LikeMembersAtPost likeMembers = likeCoreService
+            LikeMembersAtPost likeMembers = likeService
                     .getLikeMembersAtPost(post.getId(), 2L, pageable);
 
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);
@@ -347,7 +347,7 @@ class LikeCoreServiceTest {
 
             Pageable pageable = PageRequest.of(0, 1);
 
-            assertThatThrownBy(() -> likeCoreService
+            assertThatThrownBy(() -> likeService
                     .getLikeMembersAtPost(post.getId(), 2L, pageable))
                     .isInstanceOf(NotJoinedMemberException.class);
         }
@@ -402,7 +402,7 @@ class LikeCoreServiceTest {
             given(userRepository.findUsersByIds(anyList()))
                     .willReturn(users);
 
-            LikeMembersAtComment likeMembers = likeCoreService
+            LikeMembersAtComment likeMembers = likeService
                     .getLikeMembersAtComment(comment.getId(), 2L, pageable);
 
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);
@@ -436,7 +436,7 @@ class LikeCoreServiceTest {
 
             Pageable pageable = PageRequest.of(0, 1);
 
-            assertThatThrownBy(() -> likeCoreService
+            assertThatThrownBy(() -> likeService
                     .getLikeMembersAtComment(comment.getId(), 2L, pageable))
                     .isInstanceOf(NotJoinedMemberException.class);
         }

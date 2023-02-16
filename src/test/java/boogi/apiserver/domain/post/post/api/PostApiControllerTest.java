@@ -1,11 +1,11 @@
 package boogi.apiserver.domain.post.post.api;
 
-import boogi.apiserver.domain.comment.application.CommentCoreService;
+import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.member.domain.Member;
@@ -73,10 +73,10 @@ class PostApiControllerTest {
     PostService postService;
 
     @MockBean
-    LikeCoreService likeCoreService;
+    LikeService likeService;
 
     @MockBean
-    CommentCoreService commentCoreService;
+    CommentService commentService;
 
     private MockMvc mvc;
 
@@ -282,7 +282,7 @@ class PostApiControllerTest {
         final Like like = TestEmptyEntityGenerator.Like();
         ReflectionTestUtils.setField(like, "id", 2L);
 
-        given(likeCoreService.doLikeAtPost(anyLong(), anyLong()))
+        given(likeService.doLikeAtPost(anyLong(), anyLong()))
                 .willReturn(like);
 
         MockHttpSession session = createUserSession(3L);
@@ -311,7 +311,7 @@ class PostApiControllerTest {
         Slice<User> page = PageableUtil.getSlice(users, pageable);
 
         LikeMembersAtPost likeMembers = new LikeMembersAtPost(users, page);
-        given(likeCoreService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
+        given(likeService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembers);
 
         MockHttpSession session = createUserSession(3L);
@@ -382,7 +382,7 @@ class PostApiControllerTest {
         Slice<Comment> slice = PageableUtil.getSlice(comments, pageable);
 
         CommentsAtPost commentsAtPost = CommentsAtPost.of(parentCommentInfos, slice);
-        given(commentCoreService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
+        given(commentService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(commentsAtPost);
 
         MockHttpSession session = createUserSession(5L);

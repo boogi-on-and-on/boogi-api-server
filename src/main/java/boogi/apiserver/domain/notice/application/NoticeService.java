@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class NoticeCoreService {
+public class NoticeService {
 
     private final NoticeRepository noticeRepository;
 

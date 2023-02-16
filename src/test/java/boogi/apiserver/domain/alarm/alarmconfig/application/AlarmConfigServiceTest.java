@@ -22,7 +22,7 @@ import static org.mockito.Mockito.times;
 
 
 @ExtendWith(MockitoExtension.class)
-class AlarmConfigCoreServiceTest {
+class AlarmConfigServiceTest {
 
     @Mock
     AlarmConfigRepository alarmConfigRepository;
@@ -31,7 +31,7 @@ class AlarmConfigCoreServiceTest {
     UserQueryService userQueryService;
 
     @InjectMocks
-    AlarmConfigCoreService alarmConfigCoreService;
+    AlarmConfigService alarmConfigService;
 
     @Test
     void 알림_없어서_생성() {
@@ -45,7 +45,7 @@ class AlarmConfigCoreServiceTest {
         given(userQueryService.getUser(any()))
                 .willReturn(user);
         //when
-        AlarmConfig alarmConfig = alarmConfigCoreService.findOrElseCreateAlarmConfig(user.getId());
+        AlarmConfig alarmConfig = alarmConfigService.findOrElseCreateAlarmConfig(user.getId());
 
         //then
         then(alarmConfigRepository).should(times(1)).save(any());
@@ -69,7 +69,7 @@ class AlarmConfigCoreServiceTest {
                 .build();
 
         //when
-        alarmConfigCoreService.configureAlarm(anyLong(), config);
+        alarmConfigService.configureAlarm(anyLong(), config);
 
         //then
         assertThat(alarmConfig.getMessage()).isFalse();

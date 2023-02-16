@@ -6,9 +6,9 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
+import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -81,10 +81,10 @@ class PostServiceTest {
     private MemberValidationService memberValidationService;
 
     @Mock
-    private PostHashtagCoreService postHashtagCoreService;
+    private PostHashtagService postHashtagService;
 
     @Mock
-    private LikeCoreService likeCoreService;
+    private LikeService likeService;
 
     @Mock
     private MemberQueryService memberQueryService;
@@ -135,7 +135,7 @@ class PostServiceTest {
             CreatePost createPost = new CreatePost(community.getId(), "내용", List.of(), List.of(), List.of());
             Post newPost = postService.createPost(createPost, 1L);
 
-            verify(postHashtagCoreService, times(1)).addTags(anyLong(), anyList());
+            verify(postHashtagService, times(1)).addTags(anyLong(), anyList());
 
             assertThat(newPost).isEqualTo(post);
         }
@@ -205,7 +205,7 @@ class PostServiceTest {
             ReflectionTestUtils.setField(postHashtag, "post", post);
             ReflectionTestUtils.setField(postHashtag, "tag", "해시태그");
 
-            given(postHashtagCoreService.addTags(anyLong(), anyList()))
+            given(postHashtagService.addTags(anyLong(), anyList()))
                     .willReturn(List.of(postHashtag));
 
             final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
@@ -275,7 +275,7 @@ class PostServiceTest {
 
             postService.deletePost(post.getId(), 1L);
 
-            verify(postHashtagCoreService, times(1)).removeTagsByPostId(post.getId());
+            verify(postHashtagService, times(1)).removeTagsByPostId(post.getId());
             verify(postMediaRepository, times(1)).deleteAllInBatch(postMedias);
             verify(postRepository, times(1)).delete(post);
 

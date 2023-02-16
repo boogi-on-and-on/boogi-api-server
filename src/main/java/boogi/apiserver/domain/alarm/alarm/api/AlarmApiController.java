@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.alarm.alarm.api;
 
-import boogi.apiserver.domain.alarm.alarm.application.AlarmCoreService;
+import boogi.apiserver.domain.alarm.alarm.application.AlarmService;
 import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmListDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class AlarmApiController {
 
     private final AlarmQueryService alarmQueryService;
-    private final AlarmCoreService alarmCoreService;
+    private final AlarmService alarmService;
 
     @GetMapping
     public ResponseEntity<Object> getAlarms(@Session Long userId) {
@@ -32,7 +32,7 @@ public class AlarmApiController {
 
     @PostMapping("/{alarmId}/delete")
     public ResponseEntity<Void> deleteAlarm(@Session Long userId, @PathVariable Long alarmId) {
-        alarmCoreService.deleteAlarm(userId, alarmId);
+        alarmService.deleteAlarm(userId, alarmId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

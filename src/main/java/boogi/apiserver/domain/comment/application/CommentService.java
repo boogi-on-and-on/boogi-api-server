@@ -6,7 +6,7 @@ import boogi.apiserver.domain.comment.dto.request.CreateComment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
-import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CommentCoreService {
+public class CommentService {
 
     private final PostQueryService postQueryService;
 
@@ -47,7 +47,7 @@ public class CommentCoreService {
     private final MemberValidationService memberValidationService;
 
     private final LikeRepository likeRepository;
-    private final LikeCoreService likeCoreService;
+    private final LikeService likeService;
 
     private final CommentRepository commentRepository;
     private final CommentValidationService commentValidationService;
@@ -91,7 +91,7 @@ public class CommentCoreService {
         Long commentedUserId = findComment.getMember().getUser().getId();
         if (commentedUserId.equals(userId) ||
                 memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
-            likeCoreService.removeAllCommentLikes(findComment.getId());
+            likeService.removeAllCommentLikes(findComment.getId());
 
             findComment.deleteComment();
         } else {

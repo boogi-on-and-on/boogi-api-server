@@ -23,7 +23,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MemberCoreService {
+public class MemberService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
     private final CommunityRepository communityRepository;

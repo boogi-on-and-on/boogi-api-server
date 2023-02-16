@@ -27,7 +27,7 @@ import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-class CommunityCoreServiceTest {
+class CommunityServiceTest {
 
     @Mock
     MemberRepository memberRepository;
@@ -39,7 +39,7 @@ class CommunityCoreServiceTest {
     CommunityQueryService communityQueryService;
 
     @InjectMocks
-    CommunityCoreService communityCoreService;
+    CommunityService communityService;
 
     @Nested
     @DisplayName("커뮤니티 폐쇄 테스트")
@@ -63,7 +63,7 @@ class CommunityCoreServiceTest {
             //then
             assertThatThrownBy(() -> {
                 //when
-                communityCoreService.shutdown(community.getId());
+                communityService.shutdown(community.getId());
             }).isInstanceOf(InvalidValueException.class);
         }
 
@@ -80,7 +80,7 @@ class CommunityCoreServiceTest {
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.empty());
 
-            communityCoreService.shutdown(community.getId());
+            communityService.shutdown(community.getId());
 
             then(community).should(times(1)).shutdown();
         }
@@ -98,7 +98,7 @@ class CommunityCoreServiceTest {
             given(communityQueryService.getCommunity(anyLong())).willReturn(community);
 
             //when
-            communityCoreService.update(1L, "123", null);
+            communityService.update(1L, "123", null);
 
             //then
             then(communityHashtagRepository).should(times(0)).deleteAllInBatch();
@@ -126,7 +126,7 @@ class CommunityCoreServiceTest {
             newTags.add("테그2");
 
             //when
-            communityCoreService.update(1L, "1231232123", newTags);
+            communityService.update(1L, "1231232123", newTags);
 
             //then
             then(communityHashtagRepository).should(times(0)).deleteAllInBatch();
@@ -150,7 +150,7 @@ class CommunityCoreServiceTest {
             given(communityQueryService.getCommunity(any())).willReturn(community);
 
             //when
-            communityCoreService.update(1L, "2143242343", null);
+            communityService.update(1L, "2143242343", null);
 
             //then
             then(communityHashtagRepository).should().deleteAllInBatch(any());
@@ -185,7 +185,7 @@ class CommunityCoreServiceTest {
             newTags.add("BB테그1");
 
             //when
-            communityCoreService.update(1L, "2143242343", newTags);
+            communityService.update(1L, "2143242343", newTags);
 
             //then
             then(communityHashtagRepository).should().deleteAllInBatch(prevHashtags);

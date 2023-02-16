@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MessageCoreService {
+public class MessageService {
 
     private final UserQueryService userQueryService;
 

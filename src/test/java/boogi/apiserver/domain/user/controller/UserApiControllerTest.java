@@ -1,10 +1,10 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
+import boogi.apiserver.domain.message.block.application.MessageBlockService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -53,13 +53,13 @@ class UserApiControllerTest {
     MessageBlockQueryService messageBlockQueryService;
 
     @MockBean
-    MessageBlockCoreService messageBlockCoreService;
+    MessageBlockService messageBlockService;
 
     @MockBean
-    private AlarmConfigCoreService alarmConfigCoreService;
+    private AlarmConfigService alarmConfigService;
 
     @MockBean
-    private CommunityCoreService communityCoreService;
+    private CommunityService communityService;
 
     private MockMvc mvc;
 
@@ -292,7 +292,7 @@ class UserApiControllerTest {
         ReflectionTestUtils.setField(config, "mention", true);
 
 
-        given(alarmConfigCoreService.findOrElseCreateAlarmConfig(anyLong()))
+        given(alarmConfigService.findOrElseCreateAlarmConfig(anyLong()))
                 .willReturn(config);
 
         mvc.perform(

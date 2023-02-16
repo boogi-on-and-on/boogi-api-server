@@ -5,9 +5,9 @@ import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.post.application.PostHashtagCoreService;
+import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.like.application.LikeCoreService;
+import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -46,8 +46,8 @@ public class PostService {
     private final CommunityQueryService communityQueryService;
     private final PostMediaQueryService postMediaQueryService;
 
-    private final PostHashtagCoreService postHashtagCoreService;
-    private final LikeCoreService likeCoreService;
+    private final PostHashtagService postHashtagService;
+    private final LikeService likeService;
 
     private final SendPushNotification sendPushNotification;
 
@@ -61,7 +61,7 @@ public class PostService {
                 Post.of(community, member, createPost.getContent())
         );
 
-        postHashtagCoreService.addTags(savedPost.getId(), createPost.getHashtags());
+        postHashtagService.addTags(savedPost.getId(), createPost.getHashtags());
         PostMedias unmappedPostMedias = postMediaQueryService
                 .getUnmappedPostMediasByUUID(createPost.getPostMediaIds());
         unmappedPostMedias.mapPost(savedPost);
@@ -84,8 +84,8 @@ public class PostService {
             throw new HasNotUpdateAuthorityException();
         }
 
-        postHashtagCoreService.removeTagsByPostId(postId);
-        List<PostHashtag> newPostHashtags = postHashtagCoreService
+        postHashtagService.removeTagsByPostId(postId);
+        List<PostHashtag> newPostHashtags = postHashtagService
                 .addTags(postId, updatePost.getHashtags());
 
         findPost.updatePost(updatePost.getContent(), newPostHashtags);
@@ -116,12 +116,12 @@ public class PostService {
         }
 
         Long findPostId = findPost.getId();
-        postHashtagCoreService.removeTagsByPostId(findPostId);
+        postHashtagService.removeTagsByPostId(findPostId);
 
         commentRepository.findByPostId(postId).stream()
                 .forEach(Comment::deleteComment);
 
-        likeCoreService.removePostLikes(findPostId);
+        likeService.removePostLikes(findPostId);
 
         List<PostMedia> postMedias = postMediaRepository.findByPostId(postId);
         postMediaRepository.deleteAllInBatch(postMedias);

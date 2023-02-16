@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class PostHashtagCoreService {
+public class PostHashtagService {
 
     private final PostQueryService postQueryService;
     private final PostHashtagRepository postHashtagRepository;

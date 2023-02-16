@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AlarmConfigCoreService {
+public class AlarmConfigService {
 
     private final AlarmConfigRepository alarmConfigRepository;
     private final UserQueryService userQueryService;

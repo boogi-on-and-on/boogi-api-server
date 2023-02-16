@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.community.community.api;
 
-import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
@@ -12,11 +12,11 @@ import boogi.apiserver.domain.community.community.dto.response.CommunityMetadata
 import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
 import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCoreService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.member.application.MemberCoreService;
+import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -74,13 +74,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CommunityApiControllerTest {
 
     @MockBean
-    JoinRequestCoreService joinRequestCoreService;
+    JoinRequestService joinRequestService;
 
     @MockBean
-    CommunityCoreService communityCoreService;
+    CommunityService communityService;
 
     @MockBean
-    MemberCoreService memberCoreService;
+    MemberService memberService;
 
     @MockBean
     MemberValidationService memberValidationService;
@@ -145,7 +145,7 @@ class CommunityApiControllerTest {
             ReflectionTestUtils.setField(community, "id", 1L);
 
 
-            given(communityCoreService.createCommunity(any(), any(), anyLong())).willReturn(community);
+            given(communityService.createCommunity(any(), any(), anyLong())).willReturn(community);
 
 
             MockHttpSession session = new MockHttpSession();
@@ -180,7 +180,7 @@ class CommunityApiControllerTest {
                     .hashtags(hashtags)
                     .build();
 
-            given(communityCoreService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
+            given(communityService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/communities")
@@ -716,7 +716,7 @@ class CommunityApiControllerTest {
         @DisplayName("가입요청 성공")
         void applySuccess() throws Exception {
 
-            given(joinRequestCoreService.request(anyLong(), anyLong()))
+            given(joinRequestService.request(anyLong(), anyLong()))
                     .willReturn(1L);
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -803,7 +803,7 @@ class CommunityApiControllerTest {
         ReflectionTestUtils.setField(member, "user", user);
 
         List<Member> membersWithoutMe = List.of(member);
-        given(memberCoreService.getJoinedMembersAll(anyLong(), anyLong()))
+        given(memberService.getJoinedMembersAll(anyLong(), anyLong()))
                 .willReturn(membersWithoutMe);
 
         MockHttpSession session = new MockHttpSession();

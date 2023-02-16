@@ -5,7 +5,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
-import boogi.apiserver.domain.member.application.MemberCoreService;
+import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class JoinRequestCoreService {
+public class JoinRequestService {
 
     private final JoinRequestRepository joinRequestRepository;
 
-    private final MemberCoreService memberCoreService;
+    private final MemberService memberService;
 
     private final JoinRequestQueryService joinRequestQueryService;
     private final UserQueryService userQueryService;
@@ -86,7 +86,7 @@ public class JoinRequestCoreService {
         Long userId = joinRequest.getUser().getId();
         User user = userQueryService.getUser(userId);
 
-        Member newMember = memberCoreService.joinMember(userId, communityId, MemberType.NORMAL);
+        Member newMember = memberService.joinMember(userId, communityId, MemberType.NORMAL);
 
         joinRequest.confirm(manager, newMember);
     }
@@ -108,7 +108,7 @@ public class JoinRequestCoreService {
                 .map(r -> r.getUser().getId())
                 .collect(Collectors.toList());
 
-        List<Member> members = memberCoreService.joinMemberInBatch(userIds, communityId, MemberType.NORMAL);
+        List<Member> members = memberService.joinMemberInBatch(userIds, communityId, MemberType.NORMAL);
         Map<Long, Member> memberMap = members.stream()
                 .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 

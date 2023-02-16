@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CommunityHashtagCoreService {
+public class CommunityHashtagService {
 
     private final CommunityHashtagRepository communityHashtagRepository;
 
