@@ -4,6 +4,7 @@ import boogi.apiserver.domain.alarm.alarmconfig.dao.AlarmConfigRepository;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class AlarmConfigServiceTest {
     AlarmConfigRepository alarmConfigRepository;
 
     @Mock
-    UserQueryService userQueryService;
+    UserRepository userRepository;
 
     @InjectMocks
     AlarmConfigService alarmConfigService;
@@ -42,7 +43,7 @@ class AlarmConfigServiceTest {
         final User user = TestEmptyEntityGenerator.User();
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        given(userQueryService.getUser(any()))
+        given(userRepository.findByUserId(any()))
                 .willReturn(user);
         //when
         AlarmConfig alarmConfig = alarmConfigService.findOrElseCreateAlarmConfig(user.getId());

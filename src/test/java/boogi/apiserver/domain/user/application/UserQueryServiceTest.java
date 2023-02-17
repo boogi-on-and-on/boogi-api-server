@@ -39,7 +39,7 @@ class UserQueryServiceTest {
         ReflectionTestUtils.setField(user, "tagNumber", "#0001");
 
 
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+        given(userRepository.findByUserId(anyLong())).willReturn(user);
         //when
 
         UserDetailInfoResponse dto = userQueryService.getUserDetailInfo(user.getId());

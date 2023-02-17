@@ -16,7 +16,7 @@ import boogi.apiserver.domain.post.post.dto.response.UserPostsDto;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
@@ -63,7 +63,7 @@ class PostQueryServiceTest {
     PostMediaRepository postMediaRepository;
 
     @Mock
-    UserQueryService userQueryService;
+    UserRepository userRepository;
 
 
     //todo: Page 객체 직접 생성해서 테스트하기
@@ -338,7 +338,7 @@ class PostQueryServiceTest {
             ReflectionTestUtils.setField(post2, "member", member2);
             ReflectionTestUtils.setField(post2, "createdAt", now);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
 
             List<Post> posts = List.of(post2);

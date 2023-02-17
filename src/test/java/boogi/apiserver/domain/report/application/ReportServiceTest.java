@@ -17,6 +17,7 @@ import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReport;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
@@ -65,6 +66,9 @@ class ReportServiceTest {
     private MessageRepository messageRepository;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private MemberValidationService memberValidationService;
 
 
@@ -89,7 +93,7 @@ class ReportServiceTest {
             ReflectionTestUtils.setField(comment, "id", 1L);
             ReflectionTestUtils.setField(comment, "post", post);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
             given(commentRepository.findCommentById(anyLong()))
@@ -110,7 +114,7 @@ class ReportServiceTest {
             final User user = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
             final Community community = TestEmptyEntityGenerator.Community();
@@ -151,7 +155,7 @@ class ReportServiceTest {
             final User user = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
             final Community community = TestEmptyEntityGenerator.Community();
@@ -182,7 +186,7 @@ class ReportServiceTest {
             final User user = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
             final Community community = TestEmptyEntityGenerator.Community();
@@ -202,7 +206,7 @@ class ReportServiceTest {
         void createMessageReportSuccess() {
             final User user1 = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user1, "id", 1L);
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
 
             final User user2 = TestEmptyEntityGenerator.User();
@@ -227,7 +231,7 @@ class ReportServiceTest {
         void createMessageReportNotMyMessageFail() {
             final User user1 = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user1, "id", 1L);
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
 
             final User user2 = TestEmptyEntityGenerator.User();

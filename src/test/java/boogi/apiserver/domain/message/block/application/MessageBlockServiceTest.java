@@ -84,7 +84,7 @@ class MessageBlockServiceTest {
         final User user = TestEmptyEntityGenerator.User();
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        given(userQueryService.getUser(anyLong()))
+        given(userRepository.findByUserId(anyLong()))
                 .willReturn(user);
 
         final User blockedUser = TestEmptyEntityGenerator.User();
@@ -116,7 +116,7 @@ class MessageBlockServiceTest {
         final User user = TestEmptyEntityGenerator.User();
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        given(userQueryService.getUser(anyLong()))
+        given(userRepository.findByUserId(anyLong()))
                 .willReturn(user);
 
         given(messageBlockRepository.getMessageBlocksByUserIds(anyLong(), any()))

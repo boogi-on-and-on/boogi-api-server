@@ -16,11 +16,6 @@ public class UserQueryService {
 
     private final UserRepository userRepository;
 
-    public User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-    }
-
     public User getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidValueException("해당 이메일은 없는 계정입니다."));
@@ -28,7 +23,7 @@ public class UserQueryService {
     }
 
     public UserDetailInfoResponse getUserDetailInfo(Long userId) {
-        User user = this.getUser(userId);
+        User user = userRepository.findByUserId(userId);
         return UserDetailInfoResponse.of(user);
     }
 }

@@ -15,6 +15,7 @@ import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReport;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import boogi.apiserver.global.error.exception.ErrorInfo;
@@ -38,6 +39,7 @@ public class ReportService {
     private final MemberValidationService memberValidationService;
 
     private final CommunityQueryService communityQueryService;
+    private final UserRepository userRepository;
 
     @Transactional
     public void createReport(CreateReport createReport, Long userId) {
@@ -46,7 +48,7 @@ public class ReportService {
 
         Long communityId;
         Report newReport;
-        User reportUser = userQueryService.getUser(userId);
+        User reportUser = userRepository.findByUserId(userId);
         Object targetObject;
 
         switch (target) {

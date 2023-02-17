@@ -11,7 +11,7 @@ import boogi.apiserver.domain.post.post.dto.response.*;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +29,8 @@ public class PostQueryService {
     private final MemberRepository memberRepository;
     private final PostMediaRepository postMediaRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    private final UserQueryService userQueryService;
     private final MemberQueryService memberQueryService;
     private final LikeQueryService likeQueryService;
 
@@ -85,7 +85,7 @@ public class PostQueryService {
         if (userId.equals(sessionUserId)) {
             return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
         }
-        userQueryService.getUser(userId);
+        userRepository.findByUserId(userId);
         return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
     }
 }

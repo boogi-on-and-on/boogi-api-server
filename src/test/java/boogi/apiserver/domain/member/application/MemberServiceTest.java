@@ -67,7 +67,7 @@ class MemberServiceTest {
         final User user = TestEmptyEntityGenerator.User();
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        given(userQueryService.getUser(anyLong()))
+        given(userRepository.findByUserId(anyLong()))
                 .willReturn(user);
 
         final Community community = TestEmptyEntityGenerator.Community();

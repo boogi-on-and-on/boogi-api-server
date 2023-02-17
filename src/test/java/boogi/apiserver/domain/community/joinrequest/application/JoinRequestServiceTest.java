@@ -9,6 +9,7 @@ import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
@@ -54,6 +55,9 @@ class JoinRequestServiceTest {
     @Mock
     MemberQueryService memberQueryService;
 
+    @Mock
+    UserRepository userRepository;
+
     @Nested
     @DisplayName("가입 요청하기")
     class RequestJoinRequest {
@@ -64,7 +68,7 @@ class JoinRequestServiceTest {
             final User user = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
             final Community community = TestEmptyEntityGenerator.Community();
@@ -91,7 +95,7 @@ class JoinRequestServiceTest {
             final User user = TestEmptyEntityGenerator.User();
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            given(userQueryService.getUser(anyLong()))
+            given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
             final Community community = TestEmptyEntityGenerator.Community();

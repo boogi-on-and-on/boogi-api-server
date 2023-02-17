@@ -25,17 +25,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MessageService {
-
-    private final UserQueryService userQueryService;
-
     private final MessageRepository messageRepository;
     private final MessageBlockRepository messageBlockRepository;
     private final UserRepository userRepository;
 
     @Transactional
     public Message sendMessage(SendMessage sendMessage, Long senderId) {
-        User sender = userQueryService.getUser(senderId);
-        User receiver = userQueryService.getUser(sendMessage.getReceiverId());
+        User sender = userRepository.findByUserId(senderId);
+        User receiver = userRepository.findByUserId(sendMessage.getReceiverId());
 
         Boolean isBlockedMessage = (messageBlockRepository.checkOnlyReceiverBlockedFromSender(senderId, receiver.getId()))
                 ? Boolean.TRUE : Boolean.FALSE;
@@ -94,7 +91,7 @@ public class MessageService {
     }
 
     public MessageResponse getMessagesByOpponentId(Long opponentId, Long userId, Pageable pageable) {
-        User opponentUser = userQueryService.getUser(opponentId);
+        User opponentUser = userRepository.findByUserId(opponentId);
         Slice<Message> messages = messageRepository.findMessagesByOpponentIdAndMyId(opponentId, userId, pageable);
 
         return MessageResponse.of(opponentUser, messages, userId);

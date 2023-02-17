@@ -4,6 +4,7 @@ import boogi.apiserver.domain.alarm.alarmconfig.dao.AlarmConfigRepository;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlarmConfigService {
 
     private final AlarmConfigRepository alarmConfigRepository;
-    private final UserQueryService userQueryService;
+    private final UserRepository userRepository;
 
     @Transactional
     public AlarmConfig findOrElseCreateAlarmConfig(Long userId) {
         AlarmConfig alarmConfig = alarmConfigRepository.getAlarmConfigByUserId(userId);
 
         if (alarmConfig == null) {
-            User user = userQueryService.getUser(userId);
+            User user = userRepository.findByUserId(userId);
             AlarmConfig newAlarmConfig = AlarmConfig.of(user);
             return alarmConfigRepository.save(newAlarmConfig);
         }

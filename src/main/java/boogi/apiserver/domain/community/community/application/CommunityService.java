@@ -15,6 +15,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
@@ -33,18 +34,18 @@ public class CommunityService {
     private final PostRepository postRepository;
     private final CommunityHashtagRepository communityHashtagRepository;
     private final PostMediaRepository postMediaRepository;
+    private final UserRepository userRepository;
 
     private final CommunityHashtagService communityHashtagService;
     private final MemberService memberService;
 
     private final CommunityValidationService communityValidationService;
 
-    private final UserQueryService userQueryService;
     private final CommunityQueryService communityQueryService;
 
     @Transactional
     public Community createCommunity(Community community, List<String> tags, Long userId) {
-        User user = userQueryService.getUser(userId);
+        User user = userRepository.findByUserId(userId);
         communityValidationService.checkPreviousExistsCommunityName(community.getCommunityName());
 
         communityRepository.save(community);
@@ -124,7 +125,7 @@ public class CommunityService {
     }
 
     public JoinedCommunities getJoinedCommunitiesWithLatestPost(Long userId) {
-        User findUser = userQueryService.getUser(userId);
+        User findUser = userRepository.findByUserId(userId);
 
         List<Member> findMembers = memberRepository.findWhatIJoined(userId);
 

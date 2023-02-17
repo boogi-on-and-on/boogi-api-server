@@ -36,7 +36,7 @@ public class MemberService {
 
     @Transactional
     public Member joinMember(Long userId, Long communityId, MemberType type) {
-        User user = userQueryService.getUser(userId);
+        User user = userRepository.findByUserId(userId);
         Community community = communityQueryService.getCommunity(communityId);
 
         memberValidationService.checkAlreadyJoinedMember(userId, communityId);

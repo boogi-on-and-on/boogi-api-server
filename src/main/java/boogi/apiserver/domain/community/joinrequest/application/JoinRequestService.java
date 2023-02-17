@@ -11,6 +11,7 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,11 @@ import java.util.stream.Collectors;
 public class JoinRequestService {
 
     private final JoinRequestRepository joinRequestRepository;
+    private final UserRepository userRepository;
 
     private final MemberService memberService;
 
     private final JoinRequestQueryService joinRequestQueryService;
-    private final UserQueryService userQueryService;
     private final CommunityQueryService communityQueryService;
     private final MemberQueryService memberQueryService;
 
@@ -47,7 +48,7 @@ public class JoinRequestService {
             throw new InvalidValueException("이미 가입한 커뮤니티입니다.");
         }
 
-        User user = userQueryService.getUser(userId);
+        User user = userRepository.findByUserId(userId);
         Community community = communityQueryService.getCommunity(communityId);
 
         Optional<JoinRequest> possibleLatestRequest = joinRequestRepository.getLatestJoinRequest(userId, communityId);
@@ -84,7 +85,7 @@ public class JoinRequestService {
         isOperator(manager);
 
         Long userId = joinRequest.getUser().getId();
-        User user = userQueryService.getUser(userId);
+        User user = userRepository.findByUserId(userId);
 
         Member newMember = memberService.joinMember(userId, communityId, MemberType.NORMAL);
 
