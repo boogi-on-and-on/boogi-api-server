@@ -3,6 +3,7 @@ package boogi.apiserver.domain.hashtag.post.application;
 import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,7 @@ class PostHashtagServiceTest {
     PostHashtagService postHashtagService;
 
     @Mock
-    private PostQueryService postQueryService;
+    private PostRepository postRepository;
 
     @Mock
     private PostHashtagRepository postHashtagRepository;
@@ -52,7 +53,7 @@ class PostHashtagServiceTest {
         void addTagsSuccess() {
             final Post post = TestEmptyEntityGenerator.Post();
             ReflectionTestUtils.setField(post, "id", 1L);
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
             List<String> tags = List.of("tag1", "tag2");

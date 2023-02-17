@@ -18,6 +18,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
@@ -54,7 +55,7 @@ class CommentServiceTest {
     CommentRepository commentRepository;
 
     @Mock
-    PostQueryService postQueryService;
+    PostRepository postRepository;
 
     @Mock
     MemberValidationService memberValidationService;
@@ -97,7 +98,7 @@ class CommentServiceTest {
             ReflectionTestUtils.setField(post, "community", community);
             ReflectionTestUtils.setField(post, "commentCount", 0);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -123,7 +124,7 @@ class CommentServiceTest {
             ReflectionTestUtils.setField(post, "community", community);
             ReflectionTestUtils.setField(post, "commentCount", 1);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
             final Member member = TestEmptyEntityGenerator.Member();
@@ -322,7 +323,7 @@ class CommentServiceTest {
             ReflectionTestUtils.setField(like2, "member", member);
             ReflectionTestUtils.setField(like2, "comment", cComment1);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -387,7 +388,7 @@ class CommentServiceTest {
             ReflectionTestUtils.setField(post, "id", 1L);
             ReflectionTestUtils.setField(post, "community", community);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
@@ -432,7 +433,7 @@ class CommentServiceTest {
             ReflectionTestUtils.setField(cComment1, "post", post);
             ReflectionTestUtils.setField(cComment1, "parent", pComment1);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));

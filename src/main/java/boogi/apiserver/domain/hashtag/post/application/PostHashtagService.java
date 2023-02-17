@@ -4,6 +4,7 @@ package boogi.apiserver.domain.hashtag.post.application;
 import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class PostHashtagService {
 
-    private final PostQueryService postQueryService;
+    private final PostRepository postRepository;
     private final PostHashtagRepository postHashtagRepository;
 
     @Transactional
@@ -26,7 +27,7 @@ public class PostHashtagService {
             return null;
         }
 
-        Post post = postQueryService.getPost(postId);
+        Post post = postRepository.findByPostId(postId);
 
         List<PostHashtag> postHashtags = tags.stream()
                 .map(ht -> PostHashtag.of(ht, post))

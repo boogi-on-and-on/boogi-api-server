@@ -16,6 +16,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
@@ -53,10 +54,11 @@ public class CommentService {
     private final CommentValidationService commentValidationService;
 
     private final SendPushNotification sendPushNotification;
+    private final PostRepository postRepository;
 
     @Transactional
     public Comment createComment(CreateComment createComment, Long userId) {
-        Post findPost = postQueryService.getPost(createComment.getPostId());
+        Post findPost = postRepository.findByPostId(createComment.getPostId());
 
         Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId())
                 .orElseThrow(NotJoinedMemberException::new);
@@ -100,7 +102,7 @@ public class CommentService {
     }
 
     public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
-        Post findPost = postQueryService.getPost(postId);
+        Post findPost = postRepository.findByPostId(postId);
 
         Community postedCommunity = findPost.getCommunity();
         Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunity.getId())

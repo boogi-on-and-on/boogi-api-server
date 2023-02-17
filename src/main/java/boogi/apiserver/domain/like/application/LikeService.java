@@ -117,7 +117,7 @@ public class LikeService {
     }
 
     public LikeMembersAtPost getLikeMembersAtPost(Long postId, Long userId, Pageable pageable) {
-        Post findPost = postQueryService.getPost(postId);
+        Post findPost = postRepository.findByPostId(postId);
 
         Community postedCommunity = findPost.getCommunity();
         Member member = memberRepository.findByUserIdAndCommunityId(userId, postedCommunity.getId())

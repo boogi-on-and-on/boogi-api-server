@@ -296,7 +296,7 @@ class LikeServiceTest {
             ReflectionTestUtils.setField(post, "id", 1L);
             ReflectionTestUtils.setField(post, "community", community);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
             final Like like = TestEmptyEntityGenerator.Like();
@@ -339,7 +339,7 @@ class LikeServiceTest {
             ReflectionTestUtils.setField(post, "id", 1L);
             ReflectionTestUtils.setField(post, "community", community);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))

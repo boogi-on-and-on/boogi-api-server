@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.post.post.dao;
 
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +22,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
             "ORDER BY created_at DESC",
             nativeQuery = true)
     List<Post> getLatestPostByCommunityIds(@Param("communityIds") Set<Long> communityIds);
+
+    default Post findByPostId(Long postId) {
+        return this.findById(postId).orElseThrow(PostNotFoundException::new);
+    }
 }
 

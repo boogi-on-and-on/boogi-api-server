@@ -79,7 +79,7 @@ public class PostService {
 
     @Transactional
     public Post updatePost(UpdatePost updatePost, Long postId, Long userId) {
-        Post findPost = postQueryService.getPost(postId);
+        Post findPost = postRepository.findByPostId(postId);
         communityRepository.findByCommunityId(findPost.getCommunityId());
 
         if (canNotUpdatePost(userId, findPost)) {

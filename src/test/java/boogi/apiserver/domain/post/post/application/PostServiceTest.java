@@ -163,7 +163,7 @@ class PostServiceTest {
             ReflectionTestUtils.setField(post, "community", community);
             ReflectionTestUtils.setField(post, "member", member);
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
             given(communityRepository.findByCommunityId(anyLong()))
@@ -197,7 +197,7 @@ class PostServiceTest {
             ReflectionTestUtils.setField(post, "member", member);
             ReflectionTestUtils.setField(post, "content", "글");
 
-            given(postQueryService.getPost(anyLong()))
+            given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
             final PostHashtag postHashtag = TestEmptyEntityGenerator.PostHashtag();

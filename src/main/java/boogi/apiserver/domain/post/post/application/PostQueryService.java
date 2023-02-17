@@ -34,7 +34,7 @@ public class PostQueryService {
     private final MemberQueryService memberQueryService;
     private final LikeQueryService likeQueryService;
 
-    public Post getPost(Long postId) {
+    public Post findByPostId(Long postId) {
         if (postId == null) {
             throw new IllegalArgumentException("postId는 null일 수 없습니다.");
         }
