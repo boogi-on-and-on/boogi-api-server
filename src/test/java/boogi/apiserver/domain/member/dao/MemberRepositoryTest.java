@@ -6,15 +6,13 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.exception.MemberNotFoundException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
 import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @CustomDataJpaTest
@@ -309,5 +308,29 @@ class MemberRepositoryTest {
         assertThat(first.getProfileImageUrl()).isEqualTo("abc/xyz");
         assertThat(first.getTagNum()).isEqualTo("1234");
         assertThat(first.getName()).isEqualTo("김가가");
+    }
+
+    @Nested
+    @DisplayName("findByMemberId 디폴트 메서드 테스트")
+    class findByMemberId {
+        @DisplayName("성공")
+        @Test
+        void success() {
+            final Member member = TestEmptyEntityGenerator.Member();
+            memberRepository.save(member);
+
+            persistenceUtil.cleanPersistenceContext();
+
+            final Member findMember = memberRepository.findByMemberId(member.getId());
+            assertThat(findMember.getId()).isEqualTo(member.getId());
+        }
+
+        @DisplayName("throw MemberNotFoundException")
+        @Test
+        void throwException() {
+            assertThatThrownBy(() -> {
+                memberRepository.findByMemberId(1L);
+            }).isInstanceOf(MemberNotFoundException.class);
+        }
     }
 }

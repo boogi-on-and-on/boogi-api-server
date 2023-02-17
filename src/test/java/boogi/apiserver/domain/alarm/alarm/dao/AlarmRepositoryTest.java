@@ -2,11 +2,12 @@ package boogi.apiserver.domain.alarm.alarm.dao;
 
 import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
+import boogi.apiserver.domain.alarm.alarm.exception.AlarmNotFoundException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -15,8 +16,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @CustomDataJpaTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AlarmRepositoryTest {
 
     @Autowired
@@ -27,6 +30,13 @@ class AlarmRepositoryTest {
 
     @Autowired
     EntityManager em;
+
+    PersistenceUtil persistenceUtil;
+
+    @BeforeAll
+    void init() {
+        persistenceUtil = new PersistenceUtil(em);
+    }
 
     @Test
     @Disabled
@@ -69,5 +79,30 @@ class AlarmRepositoryTest {
 
         assertThat(alarms.stream().map(Alarm::getId))
                 .containsExactly(alarm1.getId(), alarm2.getId(), alarm3.getId());
+    }
+
+    @Nested
+    @DisplayName("findByAlarmId 디폴트 메서드 테스트")
+    class findByAlarmId {
+
+        @DisplayName("성공")
+        @Test
+        void success() {
+            final Alarm alarm = TestEmptyEntityGenerator.Alarm();
+            alarmRepository.save(alarm);
+
+            persistenceUtil.cleanPersistenceContext();
+
+            final Alarm findAlarm = alarmRepository.findByAlarmId(1L);
+            assertThat(findAlarm.getId()).isEqualTo(alarm.getId());
+        }
+
+        @DisplayName("throw AlarmNotFoundException")
+        @Test
+        void throwException() {
+            assertThatThrownBy(() -> {
+                alarmRepository.findByAlarmId(1L);
+            }).isInstanceOf(AlarmNotFoundException.class);
+        }
     }
 }

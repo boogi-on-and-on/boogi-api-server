@@ -11,6 +11,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
+import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @CustomDataJpaTest
@@ -550,5 +552,30 @@ class PostRepositoryTest {
         assertThat(latestPosts.get(0).getCommunity().getId()).isEqualTo(community2.getId());
         assertThat(latestPosts.get(1).getId()).isEqualTo(post2.getId());
         assertThat(latestPosts.get(1).getCommunity().getId()).isEqualTo(community1.getId());
+    }
+
+    @Nested
+    @DisplayName("findByPostId 디폴트 메서드 테스트")
+    class findByPostId{
+
+        @DisplayName("성공")
+        @Test
+        void success() {
+            final Post post = TestEmptyEntityGenerator.Post();
+            postRepository.save(post);
+
+            persistenceUtil.cleanPersistenceContext();
+
+            final Post findPost = postRepository.findByPostId(post.getId());
+            assertThat(findPost.getId()).isEqualTo(post.getId());
+        }
+
+        @DisplayName("throw PostNotFoundException")
+        @Test
+        void throwException() {
+            assertThatThrownBy(() -> {
+                postRepository.findByPostId(1L);
+            }).isInstanceOf(PostNotFoundException.class);
+        }
     }
 }
