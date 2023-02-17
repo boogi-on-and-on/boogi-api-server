@@ -127,7 +127,7 @@ class MemberServiceTest {
             ReflectionTestUtils.setField(member, "id", 1L);
             ReflectionTestUtils.setField(member, "bannedAt", LocalDateTime.now());
 
-            given(memberQueryService.getMember(anyLong()))
+            given(memberRepository.findByMemberId(anyLong()))
                     .willReturn(member);
 
             assertThatThrownBy(() -> {
@@ -145,7 +145,7 @@ class MemberServiceTest {
             final Member member = TestEmptyEntityGenerator.Member();
             ReflectionTestUtils.setField(member, "id", 1L);
 
-            given(memberQueryService.getMember(anyLong()))
+            given(memberRepository.findByMemberId(anyLong()))
                     .willReturn(member);
 
             //then

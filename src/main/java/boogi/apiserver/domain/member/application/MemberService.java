@@ -7,7 +7,6 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
@@ -64,7 +63,7 @@ public class MemberService {
 
     @Transactional
     public void banMember(Long memberId) {
-        Member member = memberQueryService.getMember(memberId);
+        Member member = memberRepository.findByMemberId(memberId);
 
         if (Objects.nonNull(member.getBannedAt())) {
             throw new InvalidValueException("이미 차단된 멤버입니다.");
@@ -75,7 +74,7 @@ public class MemberService {
 
     @Transactional
     public void releaseMember(Long memberId) {
-        Member member = memberQueryService.getMember(memberId);
+        Member member = memberRepository.findByMemberId(memberId);
 
         if (Objects.isNull(member.getBannedAt())) {
             throw new InvalidValueException("차단되지 않은 멤버입니다.");
@@ -86,7 +85,7 @@ public class MemberService {
 
     @Transactional
     public void delegeteMember(Long memberId, MemberType type) {
-        Member member = memberQueryService.getMember(memberId);
+        Member member = memberRepository.findByMemberId(memberId);
 
         member.delegate(type);
     }

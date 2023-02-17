@@ -28,7 +28,7 @@ public class MemberQueryService {
 
     private final MemberRepository memberRepository;
 
-    public Member getMember(Long memberId) {
+    public Member findByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(EntityNotFoundException::new);
     }
