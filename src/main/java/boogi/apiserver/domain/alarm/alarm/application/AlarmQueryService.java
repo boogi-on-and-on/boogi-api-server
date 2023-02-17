@@ -18,11 +18,6 @@ public class AlarmQueryService {
 
     private final AlarmRepository alarmRepository;
 
-    public Alarm getAlarm(Long alarmId) {
-        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(EntityNotFoundException::new);
-        return alarm;
-    }
-
     public List<AlarmListDto> getAlarms(Long userId) {
         return alarmRepository.getAlarms(userId).stream()
                 .map(AlarmListDto::of)

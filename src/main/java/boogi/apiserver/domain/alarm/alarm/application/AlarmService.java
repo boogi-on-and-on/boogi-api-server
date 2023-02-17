@@ -14,13 +14,11 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AlarmService {
 
-    private final AlarmQueryService alarmQueryService;
-
     private final AlarmRepository alarmRepository;
 
     @Transactional
     public void deleteAlarm(Long userId, Long alarmId) {
-        Alarm alarm = alarmQueryService.getAlarm(alarmId);
+        Alarm alarm = alarmRepository.findByAlarmId(alarmId);
         if (!Objects.equals(alarm.getUser().getId(), userId)) {
             throw new InvalidValueException("해당 알림을 삭제할 권한이 없습니다.");
         }

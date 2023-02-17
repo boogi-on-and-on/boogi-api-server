@@ -23,9 +23,6 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AlarmServiceTest {
 
-    @Mock
-    AlarmQueryService alarmQueryService;
-
     @InjectMocks
     AlarmService alarmService;
 
@@ -41,7 +38,7 @@ class AlarmServiceTest {
         Alarm alarm = TestEmptyEntityGenerator.Alarm();
         ReflectionTestUtils.setField(alarm, "user", user);
 
-        given(alarmQueryService.getAlarm(anyLong()))
+        given(alarmRepository.findByAlarmId(anyLong()))
                 .willReturn(alarm);
 
         //then
@@ -63,7 +60,7 @@ class AlarmServiceTest {
         Alarm alarm = TestEmptyEntityGenerator.Alarm();
         ReflectionTestUtils.setField(alarm, "user", user);
 
-        given(alarmQueryService.getAlarm(anyLong()))
+        given(alarmRepository.findByAlarmId(anyLong()))
                 .willReturn(alarm);
 
         //when
