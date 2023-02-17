@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.post.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UpdatePost {
 
     @NotEmpty(message = "내용을 입력해주세요")
