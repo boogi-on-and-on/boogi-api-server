@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
@@ -9,7 +8,6 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -44,8 +42,6 @@ class JoinRequestServiceTest {
     @Mock
     MemberService memberService;
 
-    @Mock
-    JoinRequestQueryService joinRequestQueryService;
 
     @Mock
     CommunityRepository communityRepository;
@@ -133,7 +129,7 @@ class JoinRequestServiceTest {
             ReflectionTestUtils.setField(joinRequest, "community", community);
             ReflectionTestUtils.setField(joinRequest, "user", user);
 
-            given(joinRequestQueryService.getJoinRequest(anyLong()))
+            given(joinRequestRepository.findByJoinRequestId(anyLong()))
                     .willReturn(joinRequest);
 
             assertThatThrownBy(() -> {

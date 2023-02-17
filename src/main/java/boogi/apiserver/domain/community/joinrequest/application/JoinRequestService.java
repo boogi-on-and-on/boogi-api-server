@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
@@ -78,7 +77,7 @@ public class JoinRequestService {
 
     @Transactional
     public void confirmUser(Long managerUserId, Long requestId, Long communityId) {
-        JoinRequest joinRequest = joinRequestQueryService.getJoinRequest(requestId);
+        JoinRequest joinRequest = joinRequestRepository.findByJoinRequestId(requestId);
         isValidJoinRequestEntity(joinRequest, communityId);
 
         Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);

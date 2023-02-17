@@ -3,7 +3,6 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,9 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -52,8 +48,8 @@ class CommunityQueryServiceTest {
         ReflectionTestUtils.setField(community, "autoApproval", true);
         ReflectionTestUtils.setField(community, "isPrivate", false);
 
-        given(communityRepository.findById(anyLong()))
-                .willReturn(Optional.ofNullable(community));
+        given(communityRepository.findByCommunityId(anyLong()))
+                .willReturn(community);
 
         CommunitySettingInfo settingInfo = communityQueryService.getSettingInfo(anyLong());
         assertThat(settingInfo.getIsAuto()).isTrue();
