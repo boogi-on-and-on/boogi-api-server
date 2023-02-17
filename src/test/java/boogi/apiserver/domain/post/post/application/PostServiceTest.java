@@ -112,7 +112,7 @@ class PostServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final Member member = TestEmptyEntityGenerator.Member();
@@ -166,7 +166,7 @@ class PostServiceTest {
             given(postQueryService.getPost(anyLong()))
                     .willReturn(post);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             UpdatePost updatePost = new UpdatePost("글", List.of(), List.of());
@@ -188,7 +188,7 @@ class PostServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final Post post = TestEmptyEntityGenerator.Post();

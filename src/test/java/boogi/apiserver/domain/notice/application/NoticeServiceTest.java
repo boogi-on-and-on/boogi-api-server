@@ -2,6 +2,7 @@ package boogi.apiserver.domain.notice.application;
 
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -32,7 +33,7 @@ class NoticeServiceTest {
     NoticeRepository noticeRepository;
 
     @Mock
-    CommunityQueryService communityQueryService;
+    CommunityRepository communityRepository;
 
     @Mock
     MemberQueryService memberQueryService;
@@ -71,7 +72,7 @@ class NoticeServiceTest {
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             Notice notice = noticeService.create(

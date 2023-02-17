@@ -37,8 +37,8 @@ class CommunityQueryServiceTest {
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 1L);
 
-        given(communityRepository.findById(anyLong()))
-                .willReturn(Optional.of(community));
+        given(communityRepository.findByCommunityId(anyLong()))
+                .willReturn(community);
 
         //when
         Community communityWithHashTag = communityQueryService.getCommunityWithHashTag(anyLong());

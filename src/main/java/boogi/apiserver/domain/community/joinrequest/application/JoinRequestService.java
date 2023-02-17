@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
@@ -10,7 +11,6 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -31,11 +31,11 @@ public class JoinRequestService {
 
     private final JoinRequestRepository joinRequestRepository;
     private final UserRepository userRepository;
+    private final CommunityRepository communityRepository;
 
     private final MemberService memberService;
 
     private final JoinRequestQueryService joinRequestQueryService;
-    private final CommunityQueryService communityQueryService;
     private final MemberQueryService memberQueryService;
 
     private final MemberRepository memberRepository;
@@ -49,7 +49,7 @@ public class JoinRequestService {
         }
 
         User user = userRepository.findByUserId(userId);
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         Optional<JoinRequest> possibleLatestRequest = joinRequestRepository.getLatestJoinRequest(userId, communityId);
         if (possibleLatestRequest.isPresent()) {

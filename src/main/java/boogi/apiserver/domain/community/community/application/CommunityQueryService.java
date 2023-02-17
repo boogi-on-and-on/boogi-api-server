@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityQueryService {
     private final CommunityRepository communityRepository;
 
-    public Community getCommunity(Long communityId) {
+    public Community findByCommunityId(Long communityId) {
         if (communityId == null) {
             throw new IllegalArgumentException("communityId는 null일 수 없습니다.");
         }
@@ -30,7 +30,7 @@ public class CommunityQueryService {
     }
 
     public Community getCommunityWithHashTag(Long communityId) {
-        Community community = this.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
         community.getHashtags().size(); //LAZY INIT
 
         return community;
@@ -47,7 +47,7 @@ public class CommunityQueryService {
     }
 
     public CommunitySettingInfo getSettingInfo(Long communityId) {
-        Community community = getCommunity(communityId);
+        Community community = findByCommunityId(communityId);
         return CommunitySettingInfo.of(community);
     }
 }

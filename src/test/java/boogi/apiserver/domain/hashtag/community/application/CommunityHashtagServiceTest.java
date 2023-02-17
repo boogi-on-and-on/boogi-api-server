@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.hashtag.community.application;
 
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -26,7 +26,7 @@ import static org.mockito.BDDMockito.given;
 class CommunityHashtagServiceTest {
 
     @Mock
-    CommunityQueryService communityQueryService;
+    CommunityRepository communityRepository;
 
     @Mock
     CommunityHashtagRepository communityHashtagRepository;
@@ -44,7 +44,7 @@ class CommunityHashtagServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             List<String> tags = List.of("테그1", "테그2");

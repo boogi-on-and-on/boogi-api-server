@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.notice.application;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -21,8 +22,8 @@ import java.util.Map;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
+    private final CommunityRepository communityRepository;
 
-    private final CommunityQueryService communityQueryService;
     private final MemberQueryService memberQueryService;
 
     @Transactional
@@ -35,7 +36,7 @@ public class NoticeService {
             throw new InvalidValueException("관리자가 아닙니다.");
         }
 
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         String content = request.get("content");
         String title = request.get("title");

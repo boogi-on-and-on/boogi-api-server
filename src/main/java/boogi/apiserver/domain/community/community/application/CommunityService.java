@@ -14,7 +14,6 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -41,8 +40,6 @@ public class CommunityService {
 
     private final CommunityValidationService communityValidationService;
 
-    private final CommunityQueryService communityQueryService;
-
     @Transactional
     public Community createCommunity(Community community, List<String> tags, Long userId) {
         User user = userRepository.findByUserId(userId);
@@ -58,7 +55,7 @@ public class CommunityService {
 
     @Transactional
     public void shutdown(Long communityId) {
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         memberRepository.findAnyMemberExceptManager(communityId).ifPresent(m -> {
             throw new InvalidValueException("탈퇴하지 않은 부매니저 혹은 일반 맴버가 있습니다.");
@@ -69,7 +66,7 @@ public class CommunityService {
 
     @Transactional
     public void changeScope(Long communityId, Boolean isSecret) {
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         if (isSecret) {
             community.toPrivate();
@@ -80,7 +77,7 @@ public class CommunityService {
 
     @Transactional
     public void changeApproval(Long communityId, Boolean isAuto) {
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         if (isAuto) {
             community.openAutoApproval();
@@ -91,7 +88,7 @@ public class CommunityService {
 
     @Transactional
     public void update(Long communityId, String description, List<String> newTags) {
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         community.updateDescription(description);
 

@@ -72,7 +72,7 @@ class MemberServiceTest {
 
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 2L);
-        given(communityQueryService.getCommunity(anyLong()))
+        given(communityRepository.findByCommunityId(anyLong()))
                 .willReturn(community);
 
         //when
@@ -100,7 +100,7 @@ class MemberServiceTest {
         final Community community = TestEmptyEntityGenerator.Community();
         ReflectionTestUtils.setField(community, "id", 1L);
 
-        given(communityQueryService.getCommunity(anyLong()))
+        given(communityRepository.findByCommunityId(anyLong()))
                 .willReturn(community);
 
         //when

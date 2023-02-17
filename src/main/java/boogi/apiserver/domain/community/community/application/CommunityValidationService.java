@@ -24,7 +24,7 @@ public class CommunityValidationService {
     }
 
     public void checkPrivateCommunity(Long communityId) {
-        Community findCommunity = communityQueryService.getCommunity(communityId);
+        Community findCommunity = communityRepository.findByCommunityId(communityId);
         if (findCommunity.isPrivate()) {
             throw new InvalidValueException("비공개 커뮤니티입니다.");
         }

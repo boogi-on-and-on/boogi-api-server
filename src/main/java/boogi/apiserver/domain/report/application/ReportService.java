@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ReportService {
 
-    private final UserQueryService userQueryService;
     private final CommunityRepository communityRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -38,7 +37,6 @@ public class ReportService {
 
     private final MemberValidationService memberValidationService;
 
-    private final CommunityQueryService communityQueryService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -63,7 +61,7 @@ public class ReportService {
                 });
 
                 communityId = findPost.getCommunity().getId();
-                if (communityQueryService.getCommunity(communityId).isPrivate()) {
+                if (communityRepository.findByCommunityId(communityId).isPrivate()) {
                     memberValidationService.checkMemberJoinedCommunity(userId, communityId);
                 }
                 targetObject = findPost;
@@ -74,7 +72,7 @@ public class ReportService {
                 });
 
                 communityId = findComment.getPost().getCommunity().getId();
-                if (communityQueryService.getCommunity(communityId).isPrivate()) {
+                if (communityRepository.findByCommunityId(communityId).isPrivate()) {
                     memberValidationService.checkMemberJoinedCommunity(userId, communityId);
                 }
                 targetObject = findComment;

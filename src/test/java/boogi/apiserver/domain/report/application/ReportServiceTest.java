@@ -99,7 +99,7 @@ class ReportServiceTest {
             given(commentRepository.findCommentById(anyLong()))
                     .willReturn(Optional.of(comment));
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             CreateReport createReport = new CreateReport(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
@@ -135,7 +135,7 @@ class ReportServiceTest {
             given(commentRepository.findCommentById(anyLong()))
                     .willReturn(Optional.of(comment));
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             doThrow(NotJoinedMemberException.class).when(memberValidationService).checkMemberJoinedCommunity(anyLong(), anyLong());
@@ -169,9 +169,9 @@ class ReportServiceTest {
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             CreateReport createReport = new CreateReport(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");

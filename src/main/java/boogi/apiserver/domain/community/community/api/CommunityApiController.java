@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.api;
 
 import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.request.*;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/api/communities")
 public class CommunityApiController {
+    private final CommunityRepository communityRepository;
 
     private final JoinRequestService joinRequestService;
     private final CommunityService communityService;
@@ -167,7 +169,7 @@ public class CommunityApiController {
                                            Pageable pageable
     ) {
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         boolean unauthorized = Objects.isNull(member) && community.isPrivate();
         if (unauthorized) {

@@ -32,12 +32,11 @@ public class MemberService {
 
     private final MemberQueryService memberQueryService;
     private final CommunityQueryService communityQueryService;
-    private final UserQueryService userQueryService;
 
     @Transactional
     public Member joinMember(Long userId, Long communityId, MemberType type) {
         User user = userRepository.findByUserId(userId);
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         memberValidationService.checkAlreadyJoinedMember(userId, communityId);
 
@@ -52,7 +51,7 @@ public class MemberService {
         memberValidationService.checkAlreadyJoinedMemberInBatch(userIds, communityId);
 
         List<User> users = userRepository.findUsersByIds(userIds);
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
 
         List<Member> members = new ArrayList<>();
         users.forEach(user -> {

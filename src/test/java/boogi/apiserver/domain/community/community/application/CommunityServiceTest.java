@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.community.community.application;
 
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -38,6 +39,9 @@ class CommunityServiceTest {
     @Mock
     CommunityQueryService communityQueryService;
 
+    @Mock
+    CommunityRepository communityRepository;
+
     @InjectMocks
     CommunityService communityService;
 
@@ -52,7 +56,7 @@ class CommunityServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final Member member = TestEmptyEntityGenerator.Member();
@@ -72,7 +76,7 @@ class CommunityServiceTest {
         void success() {
             Community community = mock(Community.class);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final Member member = TestEmptyEntityGenerator.Member();
@@ -95,7 +99,7 @@ class CommunityServiceTest {
         void thereIsNoTagOrPrevTag() {
             //given
             Community community = mock(Community.class);
-            given(communityQueryService.getCommunity(anyLong())).willReturn(community);
+            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
             //when
             communityService.update(1L, "123", null);
@@ -119,7 +123,7 @@ class CommunityServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "hashtags", List.of(hashtag2, hashtag1));
 
-            given(communityQueryService.getCommunity(anyLong())).willReturn(community);
+            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
             List<String> newTags = new ArrayList<>();
             newTags.add("테그1");
@@ -147,7 +151,7 @@ class CommunityServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "hashtags", List.of(hashtag2, hashtag1));
 
-            given(communityQueryService.getCommunity(any())).willReturn(community);
+            given(communityRepository.findByCommunityId(any())).willReturn(community);
 
             //when
             communityService.update(1L, "2143242343", null);
@@ -178,7 +182,7 @@ class CommunityServiceTest {
             ReflectionTestUtils.setField(community, "id", 1L);
             ReflectionTestUtils.setField(community, "hashtags", prevHashtags);
 
-            given(communityQueryService.getCommunity(any())).willReturn(community);
+            given(communityRepository.findByCommunityId(any())).willReturn(community);
 
             List<String> newTags = new ArrayList<>();
             newTags.add("테그2");

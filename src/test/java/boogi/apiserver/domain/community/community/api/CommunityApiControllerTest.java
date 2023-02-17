@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.api;
 
 import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
@@ -42,6 +43,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -99,6 +101,9 @@ class CommunityApiControllerTest {
 
     @MockBean
     JoinRequestQueryService joinRequestQueryService;
+
+    @MockBean
+    CommunityRepository communityRepository;
 
     @MockBean
     SendPushNotification sendPushNotification;
@@ -461,7 +466,7 @@ class CommunityApiControllerTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "isPrivate", true);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             MockHttpSession session = new MockHttpSession();
@@ -485,7 +490,7 @@ class CommunityApiControllerTest {
             ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
             ReflectionTestUtils.setField(community, "createdAt", LocalDateTime.now());
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final User user = TestEmptyEntityGenerator.User();

@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
@@ -47,10 +48,7 @@ class JoinRequestServiceTest {
     JoinRequestQueryService joinRequestQueryService;
 
     @Mock
-    UserQueryService userQueryService;
-
-    @Mock
-    CommunityQueryService communityQueryService;
+    CommunityRepository communityRepository;
 
     @Mock
     MemberQueryService memberQueryService;
@@ -73,7 +71,7 @@ class JoinRequestServiceTest {
 
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
@@ -101,7 +99,7 @@ class JoinRequestServiceTest {
             final Community community = TestEmptyEntityGenerator.Community();
             ReflectionTestUtils.setField(community, "id", 1L);
 
-            given(communityQueryService.getCommunity(anyLong()))
+            given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
             final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();

@@ -4,6 +4,7 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
@@ -38,6 +39,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final PostMediaRepository postMediaRepository;
+    private final CommunityRepository communityRepository;
 
     private final MemberValidationService memberValidationService;
 
@@ -54,7 +56,7 @@ public class PostService {
     @Transactional
     public Post createPost(CreatePost createPost, Long userId) {
         Long communityId = createPost.getCommunityId();
-        Community community = communityQueryService.getCommunity(communityId);
+        Community community = communityRepository.findByCommunityId(communityId);
         Member member = memberQueryService.getJoinedMember(userId, communityId);
 
         Post savedPost = postRepository.save(
@@ -78,7 +80,7 @@ public class PostService {
     @Transactional
     public Post updatePost(UpdatePost updatePost, Long postId, Long userId) {
         Post findPost = postQueryService.getPost(postId);
-        communityQueryService.getCommunity(findPost.getCommunityId());
+        communityRepository.findByCommunityId(findPost.getCommunityId());
 
         if (canNotUpdatePost(userId, findPost)) {
             throw new HasNotUpdateAuthorityException();
