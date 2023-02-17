@@ -5,7 +5,7 @@ import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfo;
 import boogi.apiserver.domain.community.community.application.CommunityService;
-import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
+import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
@@ -77,9 +77,9 @@ public class UserApiController {
 
     @GetMapping("/communities/joined")
     public ResponseEntity<Object> getUserJoinedCommunitiesInfo(@Session Long userId) {
-        JoinedCommunities joinedCommunities = communityService.getJoinedCommunitiesWithLatestPost(userId);
+        JoinedCommunitiesDto joinedCommunitiesDto = communityService.getJoinedCommunitiesWithLatestPost(userId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(joinedCommunities);
+        return ResponseEntity.status(HttpStatus.OK).body(joinedCommunitiesDto);
     }
 
     @GetMapping("/messages/blocked")

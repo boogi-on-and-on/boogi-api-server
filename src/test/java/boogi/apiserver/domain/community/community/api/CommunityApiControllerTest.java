@@ -1,33 +1,35 @@
 package boogi.apiserver.domain.community.community.api;
 
-import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
+import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
+import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfo;
+import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
-import boogi.apiserver.domain.community.community.dto.request.CommunityUpdateRequest;
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequest;
-import boogi.apiserver.domain.community.community.dto.response.CommunityMetadataDto;
-import boogi.apiserver.domain.community.community.dto.response.CommunitySettingInfo;
-import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.request.UpdateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestService;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
-import boogi.apiserver.domain.notice.domain.Notice;
+import boogi.apiserver.domain.notice.dto.response.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
@@ -43,7 +45,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -165,7 +166,7 @@ class CommunityApiControllerTest {
                                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     )
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.communityId").value("1"));
+                    .andExpect(jsonPath("$.id").value("1"));
         }
 
         @Test
@@ -225,21 +226,24 @@ class CommunityApiControllerTest {
         given(communityQueryService.getCommunityWithHashTag(anyLong()))
                 .willReturn(community);
 
-        final Notice notice = TestEmptyEntityGenerator.Notice();
-        ReflectionTestUtils.setField(notice, "id", 1L);
-        ReflectionTestUtils.setField(notice, "title", "노티스");
-        ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+
+        final NoticeDto noticeDto = NoticeDto.builder()
+                .id(1L)
+                .title("노티스")
+                .createdAt(LocalDateTime.now())
+                .build();
 
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
-                .willReturn(List.of(notice));
+                .willReturn(List.of(noticeDto));
 
-        final Post post = TestEmptyEntityGenerator.Post();
-        ReflectionTestUtils.setField(post, "id", 4L);
-        ReflectionTestUtils.setField(post, "content", "글");
-        ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+        final LatestPostOfCommunityDto postDto = LatestPostOfCommunityDto.builder()
+                .id(4L)
+                .content("글")
+                .createdAt(LocalDateTime.now())
+                .build();
 
         given(postQueryService.getLatestPostOfCommunity(anyLong()))
-                .willReturn(List.of(post));
+                .willReturn(List.of(postDto));
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -262,10 +266,10 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.sessionMemberType").value("NORMAL"))
                 .andExpect(jsonPath("$.posts[0].id").value(4))
                 .andExpect(jsonPath("$.posts[0].content").value("글"))
-                .andExpect(jsonPath("$.posts[0].createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT)))
+                .andExpect(jsonPath("$.posts[0].createdAt").value(CustomDateTimeFormatter.toString(postDto.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.notices[0].id").value(1))
                 .andExpect(jsonPath("$.notices[0].title").value("노티스"))
-                .andExpect(jsonPath("$.notices[0].createdAt").value(CustomDateTimeFormatter.toString(notice.getCreatedAt(), TimePattern.BASIC_FORMAT)));
+                .andExpect(jsonPath("$.notices[0].createdAt").value(CustomDateTimeFormatter.toString(noticeDto.getCreatedAt(), TimePattern.BASIC_FORMAT)));
     }
 
     @Test
@@ -304,7 +308,7 @@ class CommunityApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+            UpdateCommunityRequest request = UpdateCommunityRequest.builder()
                     .hashtags(List.of("t1"))
                     .build();
 
@@ -326,7 +330,7 @@ class CommunityApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+            UpdateCommunityRequest request = UpdateCommunityRequest.builder()
                     .description("@13")
                     .hashtags(List.of("t1"))
                     .build();
@@ -349,7 +353,7 @@ class CommunityApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+            UpdateCommunityRequest request = UpdateCommunityRequest.builder()
                     .description("@1fasdfadsfasdf3")
                     .hashtags(List.of("t1", "t2", "t3", "t4", "t5", "t6"))
                     .build();
@@ -371,7 +375,7 @@ class CommunityApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            CommunityUpdateRequest request = CommunityUpdateRequest.builder()
+            UpdateCommunityRequest request = UpdateCommunityRequest.builder()
                     .description("@1fasdfadsfasdf3")
                     .hashtags(List.of("t1", "t2", "t3", "t4"))
                     .build();
@@ -695,10 +699,10 @@ class CommunityApiControllerTest {
             ReflectionTestUtils.setField(user, "username", "홍길동");
             ReflectionTestUtils.setField(user, "tagNumber", "#0001");
 
+
             given(joinRequestQueryService.getAllRequests(anyLong()))
                     .willReturn(List.of(
-                            Map.of("user", UserBasicProfileDto.of(user),
-                                    "id", 2L)
+                            UserJoinRequestInfoDto.of(user, 2L)
                     ));
 
             MockHttpSession session = new MockHttpSession();
@@ -731,7 +735,7 @@ class CommunityApiControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .session(session)
                             .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-            ).andExpect(jsonPath("$.requestId").value(1));
+            ).andExpect(jsonPath("$.id").value(1));
 
         }
 

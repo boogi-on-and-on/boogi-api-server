@@ -7,7 +7,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -21,7 +21,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

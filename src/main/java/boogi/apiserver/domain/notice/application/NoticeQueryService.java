@@ -36,14 +36,17 @@ public class NoticeQueryService {
         return transformToLatestNotice(latestNotice);
     }
 
-    public List<Notice> getCommunityLatestNotice(Long communityId) {
-        return noticeRepository.getLatestNotice(communityId);
+    public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
+        return noticeRepository.getLatestNotice(communityId)
+                .stream()
+                .map(NoticeDto::of)
+                .collect(Collectors.toList());
     }
 
     public List<CommunityNoticeDetailDto> getCommunityNotice(Long communityId) {
         return noticeRepository.getAllNotices(communityId)
                 .stream()
-                .map(n->CommunityNoticeDetailDto.of(n, n.getMember().getUser()))
+                .map(n -> CommunityNoticeDetailDto.of(n, n.getMember().getUser()))
                 .collect(Collectors.toList());
 
     }

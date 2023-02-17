@@ -1,4 +1,4 @@
-package boogi.apiserver.domain.community.community.dto.response;
+package boogi.apiserver.domain.community.community.dto.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;

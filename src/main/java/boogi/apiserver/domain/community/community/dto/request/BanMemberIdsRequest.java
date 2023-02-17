@@ -1,23 +1,20 @@
 package boogi.apiserver.domain.community.community.dto.request;
 
-
-import boogi.apiserver.domain.member.domain.MemberType;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
-@Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class DelegateMemberRequest {
+@Getter
+public class BanMemberIdsRequest {
 
     @NotNull
     private Long memberId;
 
-    @NotNull
-    private MemberType type;
+    @Builder
+    public BanMemberIdsRequest(final Long memberId) {
+        this.memberId = memberId;
+    }
 }

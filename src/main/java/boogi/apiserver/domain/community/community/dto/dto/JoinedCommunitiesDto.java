@@ -1,4 +1,4 @@
-package boogi.apiserver.domain.community.community.dto.response;
+package boogi.apiserver.domain.community.community.dto.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
@@ -18,11 +18,11 @@ import java.util.stream.Stream;
 
 @Getter
 @Builder
-public class JoinedCommunities {
+public class JoinedCommunitiesDto {
 
     List<CommunityInfo> communities;
 
-    public static JoinedCommunities of(Map<Long, Community> joinedCommunityMap, Map<Long, Post> latestPostMap, Map<Long, String> postMediaUrlMap) {
+    public static JoinedCommunitiesDto of(Map<Long, Community> joinedCommunityMap, Map<Long, Post> latestPostMap, Map<Long, String> postMediaUrlMap) {
         List<CommunityInfo> communitiesWithPosts = latestPostMap.keySet().stream()
                 .map(ci -> {
                     Community joinedCommunity = joinedCommunityMap.get(ci);
@@ -40,7 +40,7 @@ public class JoinedCommunities {
                 Stream.concat(communitiesWithPosts.stream(), communitiesWithoutPosts.stream())
                         .collect(Collectors.toList());
 
-        return JoinedCommunities.builder()
+        return JoinedCommunitiesDto.builder()
                 .communities(communities)
                 .build();
     }

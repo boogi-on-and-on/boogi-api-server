@@ -1,18 +1,15 @@
 package boogi.apiserver.domain.community.community.dto.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class CreateCommunityRequest {
 
     @NotEmpty
@@ -31,4 +28,14 @@ public class CreateCommunityRequest {
 
     @NotNull
     private Boolean autoApproval;
+
+    @Builder
+    public CreateCommunityRequest(final String name, final String category, final String description, final List<String> hashtags, final Boolean isPrivate, final Boolean autoApproval) {
+        this.name = name;
+        this.category = category;
+        this.description = description;
+        this.hashtags = hashtags;
+        this.isPrivate = isPrivate;
+        this.autoApproval = autoApproval;
+    }
 }

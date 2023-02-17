@@ -2,7 +2,7 @@ package boogi.apiserver.domain.community.community.dao;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 

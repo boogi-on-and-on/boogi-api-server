@@ -5,7 +5,7 @@ import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.domain.QCommunity;
 import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.response.SearchCommunityDto;
+import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.hashtag.community.domain.QCommunityHashtag;
 import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;

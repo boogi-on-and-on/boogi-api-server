@@ -2,7 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.response.JoinedCommunities;
+import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagService;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
@@ -121,7 +121,7 @@ public class CommunityService {
         return String.join("", prevTags).equals(String.join("", newTags));
     }
 
-    public JoinedCommunities getJoinedCommunitiesWithLatestPost(Long userId) {
+    public JoinedCommunitiesDto getJoinedCommunitiesWithLatestPost(Long userId) {
         User findUser = userRepository.findByUserId(userId);
 
         List<Member> findMembers = memberRepository.findWhatIJoined(userId);
@@ -157,6 +157,6 @@ public class CommunityService {
                         HashMap::new
                 ));
 
-        return JoinedCommunities.of(joinedCommunityMap, latestPostMap, postMediaUrlMap);
+        return JoinedCommunitiesDto.of(joinedCommunityMap, latestPostMap, postMediaUrlMap);
     }
 }

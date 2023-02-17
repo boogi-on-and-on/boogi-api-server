@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class JoinedMembersPageDto {
+public class JoinedMembersPageResponse {
 
     private List<HashMap<String, Object>> members = new ArrayList<>();
     private PaginationDto pageInfo;
@@ -44,7 +44,7 @@ public class JoinedMembersPageDto {
         }
     }
 
-    private JoinedMembersPageDto(Slice<Member> slice) {
+    private JoinedMembersPageResponse(Slice<Member> slice) {
         this.pageInfo = PaginationDto.of(slice);
         this.members = slice.getContent().stream()
                 .map(m -> {
@@ -60,7 +60,7 @@ public class JoinedMembersPageDto {
     }
 
 
-    public static JoinedMembersPageDto of(Slice<Member> slice) {
-        return new JoinedMembersPageDto(slice);
+    public static JoinedMembersPageResponse from(Slice<Member> slice) {
+        return new JoinedMembersPageResponse(slice);
     }
 }

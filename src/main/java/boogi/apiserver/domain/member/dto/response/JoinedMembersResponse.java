@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-public class JoinedMembersDto {
+public class JoinedMembersResponse {
 
     private List<MemberDto> members;
 
@@ -30,13 +30,13 @@ public class JoinedMembersDto {
         }
     }
 
-    private JoinedMembersDto(List<Member> members) {
+    private JoinedMembersResponse(List<Member> members) {
         this.members = members.stream()
                 .map(m -> MemberDto.of(m))
                 .collect(Collectors.toList());
     }
 
-    public static JoinedMembersDto of(List<Member> members) {
-        return new JoinedMembersDto(members);
+    public static JoinedMembersResponse of(List<Member> members) {
+        return new JoinedMembersResponse(members);
     }
 }

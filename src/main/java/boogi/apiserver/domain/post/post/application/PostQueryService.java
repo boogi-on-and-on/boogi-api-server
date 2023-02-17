@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -63,8 +64,11 @@ public class PostQueryService {
         return HotPosts.from(hots);
     }
 
-    public List<Post> getLatestPostOfCommunity(Long communityId) {
-        return postRepository.getLatestPostOfCommunity(communityId);
+    public List<LatestPostOfCommunityDto> getLatestPostOfCommunity(Long communityId) {
+        return postRepository.getLatestPostOfCommunity(communityId)
+                .stream()
+                .map(LatestPostOfCommunityDto::of)
+                .collect(Collectors.toList());
     }
 
     public Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
