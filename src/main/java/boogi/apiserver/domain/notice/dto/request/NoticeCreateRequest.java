@@ -1,18 +1,14 @@
 package boogi.apiserver.domain.notice.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Data
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class NoticeCreateRequest {
 
     @NotNull(message = "공지사항이 작성될 커뮤니티를 선택해주세요")
@@ -26,4 +22,9 @@ public class NoticeCreateRequest {
     @Size(min = 1, max = 1000, message = "최대 1000자까지 입력해주세요")
     private String content;
 
+    public NoticeCreateRequest(Long communityId, String title, String content) {
+        this.communityId = communityId;
+        this.title = title;
+        this.content = content;
+    }
 }

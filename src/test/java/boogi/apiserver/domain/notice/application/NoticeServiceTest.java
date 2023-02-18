@@ -1,7 +1,6 @@
 package boogi.apiserver.domain.notice.application;
 
 
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -9,6 +8,7 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
+import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
@@ -19,8 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,8 +52,10 @@ class NoticeServiceTest {
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
 
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, null, null);
+
             assertThatThrownBy(() -> {
-                noticeService.create(Map.of(), anyLong(), anyLong());
+                noticeService.create(request, 2L);
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("관리자가 아닙니다.");
@@ -75,13 +75,9 @@ class NoticeServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            Notice notice = noticeService.create(
-                    Map.of("content", "내용",
-                            "title", "제목"
-                    ),
-                    anyLong(),
-                    anyLong()
-            );
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "제목", "내용");
+
+            Notice notice = noticeService.create(request, 2L);
 
             assertThat(notice.getContent()).isEqualTo("내용");
             assertThat(notice.getTitle()).isEqualTo("제목");

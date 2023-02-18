@@ -2,8 +2,8 @@ package boogi.apiserver.domain.notice.application;
 
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

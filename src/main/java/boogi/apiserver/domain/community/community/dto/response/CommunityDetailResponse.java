@@ -5,7 +5,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.notice.dto.response.NoticeDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;

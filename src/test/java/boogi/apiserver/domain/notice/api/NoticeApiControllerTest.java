@@ -7,9 +7,9 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.application.NoticeService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
-import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -93,7 +93,7 @@ class NoticeApiControllerTest {
             ReflectionTestUtils.setField(notice, "content", "내용");
             ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
 
-            NoticeDetailDto noticeDetailDto = NoticeDetailDto.of(notice);
+            NoticeDetailDto noticeDetailDto = NoticeDetailDto.from(notice);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -118,16 +118,12 @@ class NoticeApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            NoticeCreateRequest request = NoticeCreateRequest.builder()
-                    .content("내용")
-                    .title("제목")
-                    .communityId(1L)
-                    .build();
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
             final Notice notice = TestEmptyEntityGenerator.Notice();
             ReflectionTestUtils.setField(notice, "id", 1L);
 
-            given(noticeService.create(any(), anyLong(), anyLong()))
+            given(noticeService.create(any(NoticeCreateRequest.class), anyLong()))
                     .willReturn(notice);
 
             mvc.perform(

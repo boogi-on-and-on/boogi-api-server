@@ -2,9 +2,9 @@ package boogi.apiserver.domain.notice.application;
 
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDto;
+import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class NoticeQueryService {
     public List<NoticeDetailDto> getAppNotice() {
         List<Notice> notices = noticeRepository.getAllNotices();
         return notices.stream()
-                .map(NoticeDetailDto::of)
+                .map(NoticeDetailDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -39,7 +39,7 @@ public class NoticeQueryService {
     public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
         return noticeRepository.getLatestNotice(communityId)
                 .stream()
-                .map(NoticeDto::of)
+                .map(NoticeDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +53,7 @@ public class NoticeQueryService {
 
     private List<NoticeDto> transformToLatestNotice(List<Notice> notices) {
         return notices.stream()
-                .map(NoticeDto::of)
+                .map(NoticeDto::from)
                 .collect(Collectors.toList());
     }
 }
