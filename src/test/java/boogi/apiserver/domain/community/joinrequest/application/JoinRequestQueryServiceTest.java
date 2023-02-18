@@ -4,7 +4,7 @@ import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

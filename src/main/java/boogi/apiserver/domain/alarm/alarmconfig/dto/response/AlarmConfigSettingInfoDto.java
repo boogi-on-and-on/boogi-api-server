@@ -7,13 +7,13 @@ import lombok.Data;
 import java.util.Objects;
 
 @Data
-public class AlarmConfigSettingInfo {
+public class AlarmConfigSettingInfoDto {
 
     private Personal personal;
     private Community community;
     private Post post;
 
-    private AlarmConfigSettingInfo(AlarmConfig alarmConfig) {
+    private AlarmConfigSettingInfoDto(AlarmConfig alarmConfig) {
         this.personal = Personal.builder()
                 .message(Objects.requireNonNullElse(alarmConfig.getMessage(), false))
                 .build();
@@ -30,8 +30,8 @@ public class AlarmConfigSettingInfo {
 
     }
 
-    public static AlarmConfigSettingInfo of(AlarmConfig alarmConfig) {
-        return new AlarmConfigSettingInfo(alarmConfig);
+    public static AlarmConfigSettingInfoDto of(AlarmConfig alarmConfig) {
+        return new AlarmConfigSettingInfoDto(alarmConfig);
     }
 
     @Data

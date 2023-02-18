@@ -1,7 +1,7 @@
-package boogi.apiserver.domain.member.dto.response;
+package boogi.apiserver.domain.member.dto.dto;
 
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

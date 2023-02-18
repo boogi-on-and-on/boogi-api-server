@@ -2,7 +2,7 @@ package boogi.apiserver.domain.member.api;
 
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;

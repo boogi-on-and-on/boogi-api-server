@@ -21,7 +21,7 @@ import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;

@@ -10,7 +10,7 @@ import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
-import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
+import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
@@ -147,12 +147,12 @@ class UserApiControllerTest {
     @Disabled
     void 유저_가입한_커뮤니티_조회() throws Exception {
         //given
-        UserJoinedCommunity dto1 = UserJoinedCommunity.builder()
+        UserJoinedCommunityDto dto1 = UserJoinedCommunityDto.builder()
                 .id(1L)
                 .name("커뮤니티1")
                 .build();
 
-        UserJoinedCommunity dto2 = UserJoinedCommunity.builder()
+        UserJoinedCommunityDto dto2 = UserJoinedCommunityDto.builder()
                 .id(2L)
                 .name("커뮤니티2")
                 .build();

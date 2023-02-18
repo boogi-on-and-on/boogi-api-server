@@ -6,10 +6,10 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
-import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
-import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -48,9 +48,9 @@ public class MemberQueryService {
         return member;
     }
 
-    public List<UserJoinedCommunity> getJoinedMemberInfo(Long userId) {
+    public List<UserJoinedCommunityDto> getJoinedMemberInfo(Long userId) {
         return memberRepository.findByUserId(userId).stream()
-                .map(m -> UserJoinedCommunity.of(m.getCommunity()))
+                .map(m -> UserJoinedCommunityDto.of(m.getCommunity()))
                 .collect(Collectors.toList());
     }
 

@@ -2,7 +2,7 @@ package boogi.apiserver.domain.member.dto.response;
 
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -1,8 +1,8 @@
 package boogi.apiserver.domain.member.dao;
 
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 

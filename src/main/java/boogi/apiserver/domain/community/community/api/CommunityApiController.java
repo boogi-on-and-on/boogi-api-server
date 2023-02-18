@@ -18,7 +18,7 @@ import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;

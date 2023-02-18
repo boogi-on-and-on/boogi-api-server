@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.community.community.dto.response;
 
 
-import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

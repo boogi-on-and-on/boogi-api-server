@@ -1,4 +1,4 @@
-package boogi.apiserver.domain.user.dto.response;
+package boogi.apiserver.domain.user.dto.dto;
 
 import boogi.apiserver.domain.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonInclude;

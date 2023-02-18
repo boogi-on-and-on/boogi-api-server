@@ -7,7 +7,7 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
+import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,17 +63,17 @@ class MemberQueryServiceTest {
                 .willReturn(List.of(member1, member2));
 
         //when
-        List<UserJoinedCommunity> dtos = memberQueryService.getJoinedMemberInfo(user.getId());
+        List<UserJoinedCommunityDto> dtos = memberQueryService.getJoinedMemberInfo(user.getId());
 
         //then
-        UserJoinedCommunity dto1 = findUserJoinedCommunityById(dtos, 2L);
+        UserJoinedCommunityDto dto1 = findUserJoinedCommunityById(dtos, 2L);
         assertThat(dto1.getName()).isEqualTo("커뮤니티1");
 
-        UserJoinedCommunity dto2 = findUserJoinedCommunityById(dtos, 3L);
+        UserJoinedCommunityDto dto2 = findUserJoinedCommunityById(dtos, 3L);
         assertThat(dto2.getName()).isEqualTo("커뮤니티2");
     }
 
-    private UserJoinedCommunity findUserJoinedCommunityById(List<UserJoinedCommunity> dtos, Long id) {
+    private UserJoinedCommunityDto findUserJoinedCommunityById(List<UserJoinedCommunityDto> dtos, Long id) {
         return dtos.stream().filter(d -> d.getId().equals(id)).findFirst().get();
     }
 
