@@ -1,17 +1,12 @@
 package boogi.apiserver.domain.alarm.alarm.api;
 
-import boogi.apiserver.domain.alarm.alarm.application.AlarmService;
 import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
-import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmListDto;
+import boogi.apiserver.domain.alarm.alarm.application.AlarmService;
+import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,17 +18,12 @@ public class AlarmApiController {
     private final AlarmService alarmService;
 
     @GetMapping
-    public ResponseEntity<Object> getAlarms(@Session Long userId) {
-        List<AlarmListDto> dtos = alarmQueryService.getAlarms(userId);
-        return ResponseEntity.ok(Map.of(
-                "alarms", dtos
-        ));
+    public AlarmsResponse getAlarms(@Session Long userId) {
+        return alarmQueryService.getAlarms(userId);
     }
 
     @PostMapping("/{alarmId}/delete")
-    public ResponseEntity<Void> deleteAlarm(@Session Long userId, @PathVariable Long alarmId) {
+    public void deleteAlarm(@Session Long userId, @PathVariable Long alarmId) {
         alarmService.deleteAlarm(userId, alarmId);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
