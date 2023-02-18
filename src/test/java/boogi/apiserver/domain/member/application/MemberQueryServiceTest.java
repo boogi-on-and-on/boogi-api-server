@@ -1,9 +1,11 @@
 package boogi.apiserver.domain.member.application;
 
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.domain.User;
@@ -16,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +32,9 @@ class MemberQueryServiceTest {
 
     @Mock
     MemberRepository memberRepository;
+
+    @Mock
+    CommunityRepository communityRepository;
 
     @InjectMocks
     MemberQueryService memberQueryService;

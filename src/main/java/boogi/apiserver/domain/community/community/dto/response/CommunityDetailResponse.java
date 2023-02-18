@@ -28,7 +28,7 @@ public class CommunityDetailResponse {
     private final List<LatestPostOfCommunityDto> posts;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CommunityDetailResponse(MemberType sessionMemberType, CommunityDetailInfoDto community,
+    public CommunityDetailResponse(MemberType sessionMemberType, CommunityDetailInfoDto community,
                                    List<NoticeDto> notices, List<LatestPostOfCommunityDto> posts) {
         this.sessionMemberType = sessionMemberType;
         this.community = community;
@@ -37,7 +37,6 @@ public class CommunityDetailResponse {
     }
 
     public static CommunityDetailResponse of(List<NoticeDto> notices, List<LatestPostOfCommunityDto> latestPosts, Member member, Community community) {
-
         final CommunityDetailResponseBuilder builder = CommunityDetailResponse.builder()
                 .notices(notices)
                 .posts(latestPosts)

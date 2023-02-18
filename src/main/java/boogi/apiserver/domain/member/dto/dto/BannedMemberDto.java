@@ -3,15 +3,10 @@ package boogi.apiserver.domain.member.dto.dto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
 @NoArgsConstructor
-@Builder
-@AllArgsConstructor
+@Getter
 public class BannedMemberDto {
     private Long memberId;
     private UserBasicProfileDto user;
@@ -20,5 +15,10 @@ public class BannedMemberDto {
     public BannedMemberDto(Long memberId, User user) {
         this.memberId = memberId;
         this.user = UserBasicProfileDto.of(user);
+    }
+
+    public BannedMemberDto(final Long memberId, final UserBasicProfileDto user) {
+        this.memberId = memberId;
+        this.user = user;
     }
 }

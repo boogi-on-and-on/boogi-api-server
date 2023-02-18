@@ -1,22 +1,26 @@
 package boogi.apiserver.domain.member.application;
 
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.dto.JoinedMemberInfoDto;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.dto.dto.MemberDto;
+import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
+import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,20 +31,14 @@ import java.util.stream.Collectors;
 public class MemberQueryService {
 
     private final MemberRepository memberRepository;
-
-    public Member findByMemberId(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(EntityNotFoundException::new);
-    }
+    private final CommunityRepository communityRepository;
 
     public Member getJoinedMember(Long userId, Long communityId) {
-        return memberRepository.findByUserIdAndCommunityId(userId, communityId)
-                .orElseThrow(NotJoinedMemberException::new);
+        return memberRepository.findByUserIdAndCommunityId(userId, communityId).orElseThrow(NotJoinedMemberException::new);
     }
 
     public Member getViewableMember(Long userId, Community community) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId())
-                .orElse(new NullMember());
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId()).orElse(new NullMember());
 
         if (community.isPrivate() && !member.isJoined()) {
             throw new NotViewableMemberException();
@@ -49,14 +47,11 @@ public class MemberQueryService {
     }
 
     public List<UserJoinedCommunityDto> getJoinedMemberInfo(Long userId) {
-        return memberRepository.findByUserId(userId).stream()
-                .map(m -> UserJoinedCommunityDto.of(m.getCommunity()))
-                .collect(Collectors.toList());
+        return memberRepository.findByUserId(userId).stream().map(m -> UserJoinedCommunityDto.of(m.getCommunity())).collect(Collectors.toList());
     }
 
     public Member getMemberOfTheCommunity(Long userId, Long communityId) {
-        return memberRepository.findByUserIdAndCommunityId(userId, communityId)
-                .orElse(null);
+        return memberRepository.findByUserIdAndCommunityId(userId, communityId).orElse(null);
     }
 
     public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
@@ -77,5 +72,16 @@ public class MemberQueryService {
 
     public Slice<UserBasicProfileDto> getMentionSearchMembers(Pageable pageable, Long communityId, String name) {
         return memberRepository.findMentionMember(pageable, communityId, name);
+    }
+
+    public List<MemberDto> getJoinedMembersAll(Long communityId, Long userId) {
+        communityRepository.findByCommunityId(communityId);
+
+        Member findMember = memberRepository.findByUserIdAndCommunityId(userId, communityId).orElseThrow(NotJoinedMemberException::new);
+
+        List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUserByCommunityId(communityId);
+        findJoinedMembersAll.remove(findMember);
+
+        return findJoinedMembersAll.stream().map(MemberDto::of).collect(Collectors.toList());
     }
 }

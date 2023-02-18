@@ -3,13 +3,11 @@ package boogi.apiserver.domain.notice.dto.response;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @NoArgsConstructor
 public class NoticeDto {
 
@@ -26,10 +24,9 @@ public class NoticeDto {
     }
 
     public static NoticeDto of(Notice notice) {
-        return new NoticeDto(notice);
+        return new NoticeDto(notice.getId(), notice.getTitle(), notice.getCreatedAt());
     }
 
-    @Builder
     public NoticeDto(final Long id, final String title, final LocalDateTime createdAt) {
         this.id = id;
         this.title = title;

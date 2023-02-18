@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.community.community.dto.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,6 @@ public class BanMemberIdsRequest {
     @NotNull
     private Long memberId;
 
-    @Builder
     public BanMemberIdsRequest(final Long memberId) {
         this.memberId = memberId;
     }

@@ -3,18 +3,13 @@ package boogi.apiserver.domain.community.community.dto.dto;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Getter
 public class CommunityMetadataDto {
     private String name;
     private String introduce;
@@ -22,19 +17,26 @@ public class CommunityMetadataDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
 
-    private CommunityMetadataDto(Community community) {
-        this.name = community.getCommunityName();
-        this.introduce = community.getDescription();
-
-        List<CommunityHashtag> hashtags = community.getHashtags();
-        if (hashtags != null && hashtags.size() > 0) {
-            this.hashtags = hashtags.stream()
-                    .map(CommunityHashtag::getTag)
-                    .collect(Collectors.toList());
-        }
+    @Builder(access = AccessLevel.PRIVATE)
+    public CommunityMetadataDto(final String name, final String introduce, final List<String> hashtags) {
+        this.name = name;
+        this.introduce = introduce;
+        this.hashtags = hashtags;
     }
 
     public static CommunityMetadataDto of(Community community) {
-        return new CommunityMetadataDto(community);
+        final CommunityMetadataDtoBuilder builder = CommunityMetadataDto.builder()
+                .introduce(community.getDescription())
+                .name(community.getCommunityName());
+
+        final List<CommunityHashtag> hashtags = community.getHashtags();
+        if (hashtags != null && hashtags.size() > 0) {
+            List<String> tags = hashtags.stream()
+                    .map(CommunityHashtag::getTag)
+                    .collect(Collectors.toList());
+            builder.hashtags(tags);
+        }
+
+        return builder.build();
     }
 }

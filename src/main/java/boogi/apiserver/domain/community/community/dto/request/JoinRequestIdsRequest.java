@@ -14,7 +14,6 @@ public class JoinRequestIdsRequest {
     @NotEmpty
     private List<Long> requestIds;
 
-    @Builder
     public JoinRequestIdsRequest(final List<Long> requestIds) {
         this.requestIds = requestIds;
     }

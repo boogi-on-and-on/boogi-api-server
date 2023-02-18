@@ -4,7 +4,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
-import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfo;
+import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +37,8 @@ public class CommunityQueryService {
         return communityRepository.getSearchedCommunities(pageable, request);
     }
 
-    public CommunitySettingInfo getSettingInfo(Long communityId) {
+    public CommunitySettingInfoDto getSettingInfo(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
-        return CommunitySettingInfo.of(community);
+        return CommunitySettingInfoDto.of(community);
     }
 }

@@ -156,44 +156,4 @@ class MemberServiceTest {
         }
 
     }
-
-    @Test
-    @DisplayName("나를 제외한 커뮤니티에 가입된 모든 멤버들을 조회한다.")
-    void testGetJoinedMembersAllWithoutMeSuccess() {
-        final User user1 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user1, "id", 1L);
-
-        final User user2 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user2, "id", 2L);
-
-        final Community community = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community, "id", 3L);
-
-        given(communityRepository.findCommunityById(anyLong()))
-                .willReturn(Optional.of(community));
-
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "id", 4L);
-        ReflectionTestUtils.setField(member1, "user", user1);
-        ReflectionTestUtils.setField(member1, "community", community);
-
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "id", 5L);
-        ReflectionTestUtils.setField(member2, "user", user2);
-        ReflectionTestUtils.setField(member2, "community", community);
-
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(Optional.of(member1));
-
-        List<Member> members = new ArrayList<>(List.of(member1, member2));
-        given(memberRepository.findJoinedMembersAllWithUserByCommunityId(anyLong()))
-                .willReturn(members);
-
-        List<Member> result = memberService.getJoinedMembersAll(community.getId(), user1.getId());
-
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getId()).isEqualTo(member2.getId());
-        assertThat(result.get(0).getCommunity()).isEqualTo(community);
-        assertThat(result.get(0).getUser()).isEqualTo(user2);
-    }
 }

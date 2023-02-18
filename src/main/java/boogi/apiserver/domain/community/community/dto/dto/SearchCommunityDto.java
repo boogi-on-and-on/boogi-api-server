@@ -6,20 +6,15 @@ import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Getter
 public class SearchCommunityDto {
     private Long id;
     private String name;
@@ -37,25 +32,35 @@ public class SearchCommunityDto {
     @JsonProperty("isPrivate")
     private boolean isPrivate;
 
-    private SearchCommunityDto(Community community) {
-        this.id = community.getId();
-        this.name = community.getCommunityName();
-        this.description = community.getDescription();
-        this.createdAt = community.getCreatedAt();
-
-        List<CommunityHashtag> hashtags = community.getHashtags();
-        if (Objects.nonNull(hashtags) && hashtags.size() > 0) {
-            this.hashtags = hashtags.stream()
-                    .map(CommunityHashtag::getTag)
-                    .collect(Collectors.toList());
-        }
-
-        this.memberCount = community.getMemberCount();
-        this.category = community.getCategory().toString();
-        this.isPrivate = community.isPrivate();
+    @Builder
+    public SearchCommunityDto(final Long id, final String name, final String description, final LocalDateTime createdAt, final List<String> hashtags, final int memberCount, final String category, final boolean isPrivate) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.hashtags = hashtags;
+        this.memberCount = memberCount;
+        this.category = category;
+        this.isPrivate = isPrivate;
     }
 
     public static SearchCommunityDto of(Community community) {
-        return new SearchCommunityDto(community);
+        final SearchCommunityDtoBuilder builder = SearchCommunityDto.builder()
+                .id(community.getId())
+                .name(community.getCommunityName())
+                .description(community.getDescription())
+                .createdAt(community.getCreatedAt())
+                .memberCount(community.getMemberCount())
+                .category(community.getCategory().toString())
+                .isPrivate(community.isPrivate());
+
+        List<CommunityHashtag> hashtags = community.getHashtags();
+        if (Objects.nonNull(hashtags) && hashtags.size() > 0) {
+            builder.hashtags(hashtags.stream()
+                    .map(CommunityHashtag::getTag)
+                    .collect(Collectors.toList())
+            );
+        }
+        return builder.build();
     }
 }

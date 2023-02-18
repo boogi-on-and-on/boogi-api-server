@@ -23,7 +23,7 @@ public class CommunityPostsResponse {
     private final MemberType memberType;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CommunityPostsResponse(String communityName, List<PostOfCommunity> posts, PaginationDto pageInfo, MemberType memberType) {
+    public CommunityPostsResponse(String communityName, List<PostOfCommunity> posts, PaginationDto pageInfo, MemberType memberType) {
         this.communityName = communityName;
         this.posts = posts;
         this.pageInfo = pageInfo;

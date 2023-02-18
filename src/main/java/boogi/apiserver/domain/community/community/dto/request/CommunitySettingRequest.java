@@ -1,16 +1,16 @@
 package boogi.apiserver.domain.community.community.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Getter
 public class CommunitySettingRequest {
 
     private Boolean isSecret;
     private Boolean isAutoApproval;
+
+    public CommunitySettingRequest(final Boolean isSecret, final Boolean isAutoApproval) {
+        this.isSecret = isSecret;
+        this.isAutoApproval = isAutoApproval;
+    }
 }

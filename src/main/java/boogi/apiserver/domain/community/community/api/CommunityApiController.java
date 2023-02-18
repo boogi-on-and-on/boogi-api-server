@@ -6,7 +6,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
-import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfo;
+import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.community.dto.request.*;
@@ -19,7 +19,7 @@ import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
-import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
+import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.response.NoticeDto;
@@ -116,7 +116,7 @@ public class CommunityApiController {
     public UpdateCommunityResponse getSettingInfo(@PathVariable Long communityId, @Session Long userId) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        CommunitySettingInfo settingInfo = communityQueryService.getSettingInfo(communityId);
+        CommunitySettingInfoDto settingInfo = communityQueryService.getSettingInfo(communityId);
 
         return UpdateCommunityResponse.from(settingInfo);
     }
@@ -146,6 +146,7 @@ public class CommunityApiController {
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
         Community community = communityRepository.findByCommunityId(communityId);
 
+        //todo: 아래 로직 ValidationService로 이동
         boolean unauthorized = Objects.isNull(member) && community.isPrivate();
         if (unauthorized) {
             throw new InvalidValueException("비공개 커뮤니티이면서, 가입되지 않았습니다.");
@@ -156,12 +157,13 @@ public class CommunityApiController {
         return CommunityPostsResponse.of(community.getCommunityName(), userId, postPage, member);
     }
 
-    @GetMapping("/{communityId}/members")
-    public JoinedMembersPageResponse getMembers(@PathVariable Long communityId, Pageable pageable) {
-        Slice<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
-
-        return JoinedMembersPageResponse.from(members);
-    }
+    //todo: 추후 Repository에서 Dto로 Projection하는 것 수정할 때 같이 하기
+//    @GetMapping("/{communityId}/members")
+//    public JoinedMembersPageResponse getMembers(@PathVariable Long communityId, Pageable pageable) {
+//        Slice<Member> members = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+//
+//        return JoinedMembersPageResponse.from(members);
+//    }
 
     @GetMapping("/{communityId}/members/banned")
     public BannedMembersResponse getBannedMembers(@Session Long userId, @PathVariable Long communityId) {
@@ -257,8 +259,7 @@ public class CommunityApiController {
 
     @GetMapping("{communityId}/members/all")
     public JoinedMembersResponse getMembersAll(@PathVariable Long communityId, @Session Long userId) {
-        List<Member> joinedMembers = memberService.getJoinedMembersAll(communityId, userId);
-
+        final List<MemberDto> joinedMembers = memberQueryService.getJoinedMembersAll(communityId, userId);
         return JoinedMembersResponse.of(joinedMembers);
     }
 }

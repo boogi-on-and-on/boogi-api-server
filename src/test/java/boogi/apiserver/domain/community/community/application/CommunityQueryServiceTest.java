@@ -2,7 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfo;
+import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class CommunityQueryServiceTest {
         given(communityRepository.findByCommunityId(anyLong()))
                 .willReturn(community);
 
-        CommunitySettingInfo settingInfo = communityQueryService.getSettingInfo(anyLong());
+        CommunitySettingInfoDto settingInfo = communityQueryService.getSettingInfo(anyLong());
         assertThat(settingInfo.getIsAuto()).isTrue();
         assertThat(settingInfo.getIsSecret()).isFalse();
     }

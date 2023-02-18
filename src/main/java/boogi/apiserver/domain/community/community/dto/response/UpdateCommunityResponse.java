@@ -1,23 +1,18 @@
 package boogi.apiserver.domain.community.community.dto.response;
 
-import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfo;
-import lombok.AccessLevel;
-import lombok.Builder;
+import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import lombok.Getter;
 
 @Getter
 public class UpdateCommunityResponse {
 
-    final CommunitySettingInfo settingInfo;
+    final CommunitySettingInfoDto settingInfo;
 
-    @Builder(access = AccessLevel.PRIVATE)
-    private UpdateCommunityResponse(CommunitySettingInfo settingInfo) {
+    public UpdateCommunityResponse(CommunitySettingInfoDto settingInfo) {
         this.settingInfo = settingInfo;
     }
 
-    public static UpdateCommunityResponse from(CommunitySettingInfo settingInfo) {
-        return UpdateCommunityResponse.builder()
-                .settingInfo(settingInfo)
-                .build();
+    public static UpdateCommunityResponse from(CommunitySettingInfoDto settingInfo) {
+        return new UpdateCommunityResponse(settingInfo);
     }
 }
