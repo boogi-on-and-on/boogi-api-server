@@ -2,7 +2,6 @@ package boogi.apiserver.domain.report.dto.request;
 
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +9,6 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class CreateReportRequest {
 
     @NotNull(message = "신고할 대상을 입력해주세요")
@@ -23,4 +21,11 @@ public class CreateReportRequest {
     private ReportReason reason;
 
     private String content;
+
+    public CreateReportRequest(Long id, ReportTarget target, ReportReason reason, String content) {
+        this.id = id;
+        this.target = target;
+        this.reason = reason;
+        this.content = content;
+    }
 }
