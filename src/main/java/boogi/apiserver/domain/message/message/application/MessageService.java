@@ -33,8 +33,7 @@ public class MessageService {
         User sender = userRepository.findByUserId(senderId);
         User receiver = userRepository.findByUserId(sendMessageRequest.getReceiverId());
 
-        Boolean isBlockedMessage = (messageBlockRepository.checkOnlyReceiverBlockedFromSender(senderId, receiver.getId()))
-                ? Boolean.TRUE : Boolean.FALSE;
+        Boolean isBlockedMessage = messageBlockRepository.checkOnlyReceiverBlockedFromSender(senderId, receiver.getId());
 
         Message sendedMessage = Message.builder()
                 .sender(sender)
@@ -83,10 +82,10 @@ public class MessageService {
         List<MessageRoomResponse.MessageRoom> messageRooms = opponentIds.stream()
                 .map(oid ->
                         MessageRoomResponse.MessageRoom
-                                .toDto(opponentUserMap.get(oid), dedupMessages.get(oid)))
+                                .of(opponentUserMap.get(oid), dedupMessages.get(oid)))
                 .collect(Collectors.toList());
 
-        return MessageRoomResponse.of(messageRooms);
+        return MessageRoomResponse.from(messageRooms);
     }
 
     public MessageResponse getMessagesByOpponentId(Long opponentId, Long userId, Pageable pageable) {
