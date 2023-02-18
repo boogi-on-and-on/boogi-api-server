@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class SendMessage {
+public class SendMessageRequest {
 
     @NotNull(message = "수신자를 선택해주세요")
     private Long receiverId;

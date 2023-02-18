@@ -3,7 +3,7 @@ package boogi.apiserver.domain.report.api;
 import boogi.apiserver.domain.report.application.ReportService;
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
-import boogi.apiserver.domain.report.dto.request.CreateReport;
+import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +24,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -55,7 +54,7 @@ class ReportApiControllerTest {
     @Test
     @DisplayName("신고 생성하기")
     void testCreateReport() throws Exception {
-        CreateReport createReport = new CreateReport(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
+        CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -63,7 +62,7 @@ class ReportApiControllerTest {
         mvc.perform(
                 MockMvcRequestBuilders.post("/api/reports/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsBytes(createReport))
+                        .content(mapper.writeValueAsBytes(createReportRequest))
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
         ).andExpect(status().isOk());

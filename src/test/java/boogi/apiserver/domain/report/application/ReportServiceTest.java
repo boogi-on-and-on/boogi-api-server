@@ -15,7 +15,7 @@ import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
-import boogi.apiserver.domain.report.dto.request.CreateReport;
+import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
@@ -74,7 +74,7 @@ class ReportServiceTest {
 
     @Nested
     @DisplayName("신고 생성시")
-    class CreateReportTest {
+    class CreateReportRequestTest {
         @Test
         @DisplayName("댓글 신고 생성에 성공한다.")
         void createCommentReportSuccess() {
@@ -102,8 +102,8 @@ class ReportServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            CreateReport createReport = new CreateReport(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReport, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
+            reportService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -140,8 +140,8 @@ class ReportServiceTest {
 
             doThrow(NotJoinedMemberException.class).when(memberValidationService).checkMemberJoinedCommunity(anyLong(), anyLong());
 
-            CreateReport createCommentReport = new CreateReport(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
-            CreateReport createPostReport = new CreateReport(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
+            CreateReportRequest createCommentReport = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
+            CreateReportRequest createPostReport = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
 
             assertThatThrownBy(() -> reportService.createReport(createCommentReport, 1L))
                     .isInstanceOf(NotJoinedMemberException.class);
@@ -174,8 +174,8 @@ class ReportServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            CreateReport createReport = new CreateReport(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReport, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
+            reportService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -195,8 +195,8 @@ class ReportServiceTest {
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(Optional.of(community));
 
-            CreateReport createReport = new CreateReport(1L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReport, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "신고");
+            reportService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -220,8 +220,8 @@ class ReportServiceTest {
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
-            CreateReport createReport = new CreateReport(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReport, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
+            reportService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -245,8 +245,8 @@ class ReportServiceTest {
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
-            CreateReport createReport = new CreateReport(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
-            assertThatThrownBy(() -> reportService.createReport(createReport, 3L))
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
+            assertThatThrownBy(() -> reportService.createReport(createReportRequest, 3L))
                     .isInstanceOf(InvalidValueException.class);
         }
     }

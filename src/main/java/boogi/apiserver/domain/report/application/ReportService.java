@@ -3,7 +3,6 @@ package boogi.apiserver.domain.report.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.message.message.dao.MessageRepository;
@@ -13,8 +12,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportTarget;
-import boogi.apiserver.domain.report.dto.request.CreateReport;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
@@ -40,9 +38,9 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createReport(CreateReport createReport, Long userId) {
-        ReportTarget target = createReport.getTarget();
-        Long id = createReport.getId();
+    public void createReport(CreateReportRequest createReportRequest, Long userId) {
+        ReportTarget target = createReportRequest.getTarget();
+        Long id = createReportRequest.getId();
 
         Long communityId;
         Report newReport;
@@ -95,8 +93,8 @@ public class ReportService {
         newReport = Report.of(
                 targetObject,
                 reportUser,
-                createReport.getContent(),
-                createReport.getReason());
+                createReportRequest.getContent(),
+                createReportRequest.getReason());
 
         reportRepository.save(newReport);
     }

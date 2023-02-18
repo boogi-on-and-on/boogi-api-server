@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateReport {
+public class CreateReportRequest {
 
     @NotNull(message = "신고할 대상을 입력해주세요")
     private Long id;

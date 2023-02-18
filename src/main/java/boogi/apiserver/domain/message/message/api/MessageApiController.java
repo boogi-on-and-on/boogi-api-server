@@ -1,17 +1,16 @@
 package boogi.apiserver.domain.message.message.api;
 
 import boogi.apiserver.domain.message.message.application.MessageService;
-import boogi.apiserver.domain.message.message.dto.request.SendMessage;
+import boogi.apiserver.domain.message.message.dto.request.SendMessageRequest;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
+import boogi.apiserver.global.dto.SimpleIdResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @Slf4j
@@ -22,25 +21,19 @@ public class MessageApiController {
     private final MessageService messageService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> sendMessage(@RequestBody SendMessage sendMessage, @Session Long userId) {
-        Long sendedMessageId = messageService.sendMessage(sendMessage, userId).getId();
+    public SimpleIdResponse sendMessage(@RequestBody @Validated SendMessageRequest request, @Session Long userId) {
+        Long sendedMessageId = messageService.sendMessage(request, userId).getId();
 
-        return ResponseEntity.ok().body(Map.of(
-                "id", sendedMessageId
-        ));
+        return SimpleIdResponse.from(sendedMessageId);
     }
 
     @GetMapping("/")
-    public ResponseEntity<MessageRoomResponse> getMessageRooms(@Session Long userId) {
-        MessageRoomResponse messageRooms = messageService.getMessageRooms(userId);
-
-        return ResponseEntity.ok().body(messageRooms);
+    public MessageRoomResponse getMessageRooms(@Session Long userId) {
+        return messageService.getMessageRooms(userId);
     }
 
     @GetMapping("/{opponentId}")
-    public ResponseEntity<MessageResponse> getMessages(@PathVariable Long opponentId, @Session Long userId, Pageable pageable) {
-        MessageResponse messageResponse = messageService.getMessagesByOpponentId(opponentId, userId, pageable);
-
-        return ResponseEntity.ok().body(messageResponse);
+    public MessageResponse getMessages(@PathVariable Long opponentId, @Session Long userId, Pageable pageable) {
+        return messageService.getMessagesByOpponentId(opponentId, userId, pageable);
     }
 }

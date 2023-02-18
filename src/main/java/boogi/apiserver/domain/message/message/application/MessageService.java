@@ -3,10 +3,9 @@ package boogi.apiserver.domain.message.message.application;
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
 import boogi.apiserver.domain.message.message.dao.MessageRepository;
 import boogi.apiserver.domain.message.message.domain.Message;
-import boogi.apiserver.domain.message.message.dto.request.SendMessage;
+import boogi.apiserver.domain.message.message.dto.request.SendMessageRequest;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +29,9 @@ public class MessageService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Message sendMessage(SendMessage sendMessage, Long senderId) {
+    public Message sendMessage(SendMessageRequest sendMessageRequest, Long senderId) {
         User sender = userRepository.findByUserId(senderId);
-        User receiver = userRepository.findByUserId(sendMessage.getReceiverId());
+        User receiver = userRepository.findByUserId(sendMessageRequest.getReceiverId());
 
         Boolean isBlockedMessage = (messageBlockRepository.checkOnlyReceiverBlockedFromSender(senderId, receiver.getId()))
                 ? Boolean.TRUE : Boolean.FALSE;
@@ -40,7 +39,7 @@ public class MessageService {
         Message sendedMessage = Message.builder()
                 .sender(sender)
                 .receiver(receiver)
-                .content(sendMessage.getContent())
+                .content(sendMessageRequest.getContent())
                 .blocked_message(isBlockedMessage)
                 .build();
 
