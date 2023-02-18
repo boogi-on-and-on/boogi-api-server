@@ -2,10 +2,10 @@ package boogi.apiserver.domain.comment.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
@@ -57,28 +57,28 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public Comment createComment(CreateComment createComment, Long userId) {
-        Post findPost = postRepository.findByPostId(createComment.getPostId());
+    public Comment createComment(CreateCommentRequest createCommentRequest, Long userId) {
+        Post findPost = postRepository.findByPostId(createCommentRequest.getPostId());
 
         Member member = memberRepository.findByUserIdAndCommunityId(userId, findPost.getCommunity().getId())
                 .orElseThrow(NotJoinedMemberException::new);
 
-        Long parentCommentId = createComment.getParentCommentId();
+        Long parentCommentId = createCommentRequest.getParentCommentId();
         commentValidationService
                 .checkCommentMaxDepthOver(parentCommentId);
 
         Comment findParentComment = parentCommentId == null ? null : commentRepository.findById(parentCommentId)
                 .orElse(null);
 
-        Comment newComment = Comment.of(findPost, member, findParentComment, createComment.getContent());
+        Comment newComment = Comment.of(findPost, member, findParentComment, createCommentRequest.getContent());
         findPost.addCommentCount();
 
         commentRepository.save(newComment);
         Long savedCommentId = newComment.getId();
 
         sendPushNotification.commentNotification(savedCommentId);
-        if (createComment.getMentionedUserIds().isEmpty() == false) {
-            sendPushNotification.mentionNotification(createComment.getMentionedUserIds(), savedCommentId, MentionType.COMMENT);
+        if (createCommentRequest.getMentionedUserIds().isEmpty() == false) {
+            sendPushNotification.mentionNotification(createCommentRequest.getMentionedUserIds(), savedCommentId, MentionType.COMMENT);
         }
 
         return newComment;
@@ -183,7 +183,7 @@ public class CommentService {
         return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
     }
 
-    public UserCommentPage getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
+    public UserCommentPageResponse getUserComments(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds;
 
         if (userId.equals(sessionUserId)) {
@@ -199,6 +199,6 @@ public class CommentService {
 
         Slice<Comment> slice = commentRepository.getUserCommentPageByMemberIds(findMemberIds, pageable);
 
-        return UserCommentPage.of(slice);
+        return UserCommentPageResponse.of(slice);
     }
 }

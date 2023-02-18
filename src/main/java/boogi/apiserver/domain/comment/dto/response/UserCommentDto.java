@@ -3,15 +3,11 @@ package boogi.apiserver.domain.comment.dto.response;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Builder
-@AllArgsConstructor
-@Data
+@Getter
 public class UserCommentDto {
 
     private String content;
@@ -19,13 +15,13 @@ public class UserCommentDto {
     private LocalDateTime createdAt;
     private Long postId;
 
-    private UserCommentDto(Comment comment) {
-        this.content = comment.getContent();
-        this.createdAt = comment.getCreatedAt();
-        this.postId = comment.getPost().getId();
+    public UserCommentDto(final String content, final LocalDateTime createdAt, final Long postId) {
+        this.content = content;
+        this.createdAt = createdAt;
+        this.postId = postId;
     }
 
     public static UserCommentDto of(Comment comment) {
-        return new UserCommentDto(comment);
+        return new UserCommentDto(comment.getContent(), comment.getCreatedAt(), comment.getPost().getId());
     }
 }

@@ -5,7 +5,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
@@ -355,7 +355,7 @@ class LikeServiceTest {
 
     @Nested
     @DisplayName("댓글에 좋아요한 유저들 조회시")
-    class GetLikeMembersAtCommentTest {
+    class GetLikeMembersAtCommentResponseTest {
         @Test
         @DisplayName("댓글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
@@ -402,7 +402,7 @@ class LikeServiceTest {
             given(userRepository.findUsersByIds(anyList()))
                     .willReturn(users);
 
-            LikeMembersAtComment likeMembers = likeService
+            LikeMembersAtCommentResponse likeMembers = likeService
                     .getLikeMembersAtComment(comment.getId(), 2L, pageable);
 
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);

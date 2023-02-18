@@ -3,9 +3,9 @@ package boogi.apiserver.domain.comment.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
-import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
-import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeService;
@@ -17,7 +17,6 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
@@ -84,7 +83,7 @@ class CommentServiceTest {
 
     @Nested
     @DisplayName("댓글 생성시")
-    class CreateCommentTest {
+    class CreateCommentRequestTest {
         @Test
         @DisplayName("parentCommentId를 null로 주면 부모 댓글이 생성된다.")
         void createParentCommentSuccess() {
@@ -103,11 +102,11 @@ class CommentServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            CreateComment createComment = new CreateComment(post.getId(), null, "hello", List.of());
+            CreateCommentRequest createCommentRequest = new CreateCommentRequest(post.getId(), null, "hello", List.of());
 
-            Comment createdComment = commentService.createComment(createComment, 3L);
+            Comment createdComment = commentService.createComment(createCommentRequest, 3L);
 
-            assertThat(createdComment.getContent()).isEqualTo(createComment.getContent());
+            assertThat(createdComment.getContent()).isEqualTo(createCommentRequest.getContent());
             assertThat(createdComment.getParent()).isNull();
             assertThat(createdComment.getChild()).isFalse();
             assertThat(post.getCommentCount()).isEqualTo(1);
@@ -144,9 +143,9 @@ class CommentServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            CreateComment createComment = new CreateComment(post.getId(), parentComment.getId(), "자식댓글", List.of());
+            CreateCommentRequest createCommentRequest = new CreateCommentRequest(post.getId(), parentComment.getId(), "자식댓글", List.of());
 
-            Comment createdComment = commentService.createComment(createComment, 5L);
+            Comment createdComment = commentService.createComment(createCommentRequest, 5L);
 
             assertThat(createdComment.getContent()).isEqualTo("자식댓글");
             assertThat(createdComment.getChild()).isTrue();
@@ -512,7 +511,7 @@ class CommentServiceTest {
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
-            UserCommentPage userCommentDto = commentService.getUserComments(user.getId(), user.getId(), pageable);
+            UserCommentPageResponse userCommentDto = commentService.getUserComments(user.getId(), user.getId(), pageable);
             PaginationDto pageInfo = userCommentDto.getPageInfo();
             List<UserCommentDto> commentsDto = userCommentDto.getComments();
 
@@ -566,7 +565,7 @@ class CommentServiceTest {
                     .willReturn(userCommentPage);
 
 
-            UserCommentPage userCommentDto = commentService.getUserComments(user2.getId(), user1.getId(), pageable);
+            UserCommentPageResponse userCommentDto = commentService.getUserComments(user2.getId(), user1.getId(), pageable);
             PaginationDto pageInfo = userCommentDto.getPageInfo();
             List<UserCommentDto> commentsDto = userCommentDto.getComments();
 

@@ -2,12 +2,12 @@ package boogi.apiserver.domain.comment.api;
 
 import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.request.CreateComment;
+import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
-import boogi.apiserver.domain.comment.dto.response.UserCommentPage;
+import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
@@ -35,7 +36,6 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -76,20 +76,10 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("유저 댓글 슬라이스")
     void userCommentSlice() throws Exception {
-        UserCommentPage commentPage = UserCommentPage.builder()
-                .pageInfo(PaginationDto.builder()
-                        .nextPage(1)
-                        .hasNext(false)
-                        .build())
-                .comments(List.of(
-                        UserCommentDto
-                                .builder()
-                                .postId(1L)
-                                .createdAt(LocalDateTime.now())
-                                .content("내용1")
-                                .build()
-                ))
-                .build();
+
+        final UserCommentDto commentDto = new UserCommentDto("내용1", LocalDateTime.now(), 1L);
+        final PaginationDto pageInfo = PaginationDto.builder().nextPage(1).hasNext(false).build();
+        final UserCommentPageResponse commentPage = new UserCommentPageResponse(List.of(commentDto), pageInfo);
 
         given(commentService.getUserComments(anyLong(), any(), any(Pageable.class)))
                 .willReturn(commentPage);
@@ -116,12 +106,12 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글 생성")
     void testCreateComment() throws Exception {
-        CreateComment createComment = new CreateComment(1L, null, null, null);
+        CreateCommentRequest createCommentRequest = new CreateCommentRequest(1L, null, null, null);
 
         final Comment newComment = TestEmptyEntityGenerator.Comment();
         ReflectionTestUtils.setField(newComment, "id", 1L);
 
-        given(commentService.createComment(any(CreateComment.class), eq(1L)))
+        given(commentService.createComment(any(CreateCommentRequest.class), eq(1L)))
                 .willReturn(newComment);
 
         MockHttpSession session = new MockHttpSession();
@@ -129,7 +119,7 @@ class CommentApiControllerTest {
 
         mvc.perform(
                         MockMvcRequestBuilders.post("/api/comments/")
-                                .content(mapper.writeValueAsBytes(createComment))
+                                .content(mapper.writeValueAsBytes(createCommentRequest))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .session(session)
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
@@ -179,19 +169,14 @@ class CommentApiControllerTest {
         ReflectionTestUtils.setField(user1, "id", 1L);
         ReflectionTestUtils.setField(user1, "username", "유저");
         ReflectionTestUtils.setField(user1, "tagNumber", "#0001");
+        ReflectionTestUtils.setField(user1, "profileImageUrl", "321");
+
 
         List<User> users = List.of(user1);
 
-        List<LikeMembersAtComment.UserInfo> userInfos = users.stream()
-                .map(user -> LikeMembersAtComment.UserInfo.toDto(user))
-                .collect(Collectors.toList());
-
-        LikeMembersAtComment likeMembersAtComment = LikeMembersAtComment.builder()
-                .members(userInfos)
-                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
-                .build();
+        LikeMembersAtCommentResponse likeMembersAtCommentResponse = LikeMembersAtCommentResponse.of(users, new PageImpl((users), Pageable.ofSize(1), 1));
         given(likeService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
-                .willReturn(likeMembersAtComment);
+                .willReturn(likeMembersAtCommentResponse);
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);

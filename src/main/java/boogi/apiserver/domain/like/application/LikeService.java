@@ -5,7 +5,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtComment;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
@@ -138,7 +138,7 @@ public class LikeService {
         return new LikeMembersAtPost(users, likePage);
     }
 
-    public LikeMembersAtComment getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {
+    public LikeMembersAtCommentResponse getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {
         Comment findComment = commentRepository.findById(commentId).orElseThrow(
                 () -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
 
@@ -158,6 +158,6 @@ public class LikeService {
 
         List<User> users = userRepository.findUsersByIds(userIds);
 
-        return new LikeMembersAtComment(users, likePage);
+        return LikeMembersAtCommentResponse.of(users, likePage);
     }
 }
