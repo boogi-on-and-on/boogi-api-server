@@ -13,7 +13,7 @@ public class MessageBlockedUsesResponse {
     private final List<MessageBlockedUserDto> blocked;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private MessageBlockedUsesResponse(final List<MessageBlockedUserDto> blocked) {
+    public MessageBlockedUsesResponse(final List<MessageBlockedUserDto> blocked) {
         this.blocked = blocked;
     }
 

@@ -2,8 +2,7 @@ package boogi.apiserver.domain.user.application;
 
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
-import boogi.apiserver.domain.user.exception.UserNotFoundException;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,8 +21,8 @@ public class UserQueryService {
         return user;
     }
 
-    public UserDetailInfoResponse getUserDetailInfo(Long userId) {
+    public UserDetailInfoDto getUserDetailInfo(Long userId) {
         User user = userRepository.findByUserId(userId);
-        return UserDetailInfoResponse.of(user);
+        return UserDetailInfoDto.of(user);
     }
 }

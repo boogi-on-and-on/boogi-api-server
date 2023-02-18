@@ -2,7 +2,7 @@ package boogi.apiserver.domain.user.application;
 
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -42,7 +40,7 @@ class UserQueryServiceTest {
         given(userRepository.findByUserId(anyLong())).willReturn(user);
         //when
 
-        UserDetailInfoResponse dto = userQueryService.getUserDetailInfo(user.getId());
+        UserDetailInfoDto dto = userQueryService.getUserDetailInfo(user.getId());
 
         //then
         assertThat(dto.getId()).isEqualTo(user.getId());

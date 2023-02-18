@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.user.dto.response;
 
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.alarm.alarmconfig.dto.response.AlarmConfigSettingInfoDto;
+import boogi.apiserver.domain.alarm.alarmconfig.dto.dto.AlarmConfigSettingInfoDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

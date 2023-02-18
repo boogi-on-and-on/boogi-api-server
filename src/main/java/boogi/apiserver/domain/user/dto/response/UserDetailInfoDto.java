@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class UserDetailInfoResponse {
+public class UserDetailInfoDto {
     private Long id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,7 +20,7 @@ public class UserDetailInfoResponse {
     private String introduce;
     private String department;
 
-    private UserDetailInfoResponse(User user) {
+    private UserDetailInfoDto(User user) {
         this.id = user.getId();
         this.profileImageUrl = user.getProfileImageUrl();
         this.name = user.getUsername();
@@ -29,7 +29,7 @@ public class UserDetailInfoResponse {
         this.department = user.getDepartment();
     }
 
-    public static UserDetailInfoResponse of(User user) {
-        return new UserDetailInfoResponse(user);
+    public static UserDetailInfoDto of(User user) {
+        return new UserDetailInfoDto(user);
     }
 }

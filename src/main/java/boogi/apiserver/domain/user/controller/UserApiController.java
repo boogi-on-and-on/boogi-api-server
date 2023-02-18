@@ -14,7 +14,7 @@ import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.request.BlockedUserIdRequest;
 import boogi.apiserver.domain.user.dto.response.AlarmConfigSettingInfoResponse;
 import boogi.apiserver.domain.user.dto.response.MessageBlockedUsesResponse;
-import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.domain.user.dto.response.UserProfileDetailResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -68,7 +68,7 @@ public class UserApiController {
     @GetMapping
     public UserProfileDetailResponse getUserProfileInfo(@RequestParam(required = false) Long userId, @Session Long sessionUserId) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-        UserDetailInfoResponse userDetailDto = userQueryService.getUserDetailInfo(id);
+        UserDetailInfoDto userDetailDto = userQueryService.getUserDetailInfo(id);
 
         return UserProfileDetailResponse.of(userDetailDto, sessionUserId);
     }
@@ -104,7 +104,7 @@ public class UserApiController {
     }
 
     @PostMapping("/config/notifications")
-    public AlarmConfigSettingInfoResponse configureAlarm(@Session Long userId, @RequestBody AlarmConfigSettingRequest request) {
+    public AlarmConfigSettingInfoResponse configureAlarm(@Session Long userId, @RequestBody @Validated AlarmConfigSettingRequest request) {
         AlarmConfig alarmConfig = alarmConfigService.configureAlarm(userId, request);
 
         return AlarmConfigSettingInfoResponse.from(alarmConfig);

@@ -9,7 +9,7 @@ import boogi.apiserver.domain.message.block.application.MessageBlockQueryService
 import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
-import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -114,7 +114,7 @@ class UserApiControllerTest {
     @DisplayName("유저 프로필 개인정보 조회")
     void userBasicInfo() throws Exception {
         // given
-        UserDetailInfoResponse response = UserDetailInfoResponse.builder()
+        UserDetailInfoDto response = UserDetailInfoDto.builder()
                 .id(4L)
                 .name("김선도")
                 .tagNum("#0001")

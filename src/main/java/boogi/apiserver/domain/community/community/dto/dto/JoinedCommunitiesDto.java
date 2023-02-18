@@ -6,6 +6,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,10 +18,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Getter
-@Builder
 public class JoinedCommunitiesDto {
 
     List<CommunityInfo> communities;
+
+    public JoinedCommunitiesDto(final List<CommunityInfo> communities) {
+        this.communities = communities;
+    }
 
     public static JoinedCommunitiesDto of(Map<Long, Community> joinedCommunityMap, Map<Long, Post> latestPostMap, Map<Long, String> postMediaUrlMap) {
         List<CommunityInfo> communitiesWithPosts = latestPostMap.keySet().stream()
@@ -40,19 +44,23 @@ public class JoinedCommunitiesDto {
                 Stream.concat(communitiesWithPosts.stream(), communitiesWithoutPosts.stream())
                         .collect(Collectors.toList());
 
-        return JoinedCommunitiesDto.builder()
-                .communities(communities)
-                .build();
+        return new JoinedCommunitiesDto(communities);
     }
 
     @Getter
-    @Builder
     static class CommunityInfo {
         private Long id;
         private String name;
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private PostInfo post;
+
+        @Builder(access = AccessLevel.PRIVATE)
+        public CommunityInfo(final Long id, final String name, final PostInfo post) {
+            this.id = id;
+            this.name = name;
+            this.post = post;
+        }
 
         public static CommunityInfo toDto(Community community, Post post, String postMediaUrl) {
             return CommunityInfo.builder()
@@ -65,7 +73,6 @@ public class JoinedCommunitiesDto {
 
 
     @Getter
-    @Builder
     static class PostInfo {
         private Long id;
 
@@ -82,6 +89,17 @@ public class JoinedCommunitiesDto {
 
         private Integer likeCount;
         private Integer commentCount;
+
+        @Builder(access = AccessLevel.PRIVATE)
+        public PostInfo(final Long id, final LocalDateTime createdAt, final List<String> hashtags, final String content, final String postMediaUrl, final Integer likeCount, final Integer commentCount) {
+            this.id = id;
+            this.createdAt = createdAt;
+            this.hashtags = hashtags;
+            this.content = content;
+            this.postMediaUrl = postMediaUrl;
+            this.likeCount = likeCount;
+            this.commentCount = commentCount;
+        }
 
         private static PostInfo toDto(Post post, String postMediaUrl) {
             List<PostHashtag> postHashtags = post.getHashtags();

@@ -17,7 +17,7 @@ public class SearchMentionUsersResponse {
 
 
     @Builder(access = AccessLevel.PRIVATE)
-    private SearchMentionUsersResponse(final List<UserBasicProfileDto> users, final PaginationDto pageInfo) {
+    public SearchMentionUsersResponse(final List<UserBasicProfileDto> users, final PaginationDto pageInfo) {
         this.users = users;
         this.pageInfo = pageInfo;
     }
