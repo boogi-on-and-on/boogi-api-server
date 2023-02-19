@@ -26,7 +26,7 @@ public class MessageBlock extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private User blockedUser;
 
-    private Boolean blocked;
+    private boolean blocked;
 
     public void release() {
         this.blocked = false;

@@ -1,20 +1,16 @@
 package boogi.apiserver.domain.community.community.domain;
 
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtags;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "COMMUNITY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 @Where(clause = "deleted_at is null")
 public class Community extends TimeBaseEntity {
     @Id
@@ -22,15 +18,15 @@ public class Community extends TimeBaseEntity {
     @Column(name = "community_id")
     private Long id;
 
-    @Column(name = "community_name")
-    private String communityName;
+    @Embedded
+    private CommunityName communityName;
 
-    private String description;
+    @Embedded
+    private Description description;
 
     @Column(name = "private")
     private boolean isPrivate;
 
-    // 카테고리 --> enum
     @Enumerated(value = EnumType.STRING)
     private CommunityCategory category;
 
@@ -44,14 +40,14 @@ public class Community extends TimeBaseEntity {
     private boolean autoApproval;
 
     //todo: 생성메서드 만들어서 커뮤니티 생성.
-    @OneToMany(mappedBy = "community")
-    private List<CommunityHashtag> hashtags = new ArrayList<>();
+//    @OneToMany(mappedBy = "community")
+//    private List<CommunityHashtag> hashtags = new ArrayList<>();
+    @Embedded
+    private CommunityHashtags hashtags;
+
 
     public void updateDescription(String description) {
-        if (description.length() < 10) {
-            throw new InvalidValueException("10글자 이상의 소개란 입력이 필요합니다.");
-        }
-        this.description = description;
+        this.description = new Description(description);
     }
 
     public void toPublic() {
@@ -75,8 +71,8 @@ public class Community extends TimeBaseEntity {
     }
 
     private Community(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
-        this.communityName = name;
-        this.description = description;
+        this.communityName = new CommunityName(name);
+        this.description = new Description(description);
         this.isPrivate = isPrivate;
         this.autoApproval = autoApproval;
         this.category = category;
@@ -88,5 +84,42 @@ public class Community extends TimeBaseEntity {
 
     public void addMemberCount() {
         this.memberCount++;
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getCommunityName() {
+        return communityName.getValue();
+    }
+
+    public String getDescription() {
+        return description.getValue();
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public CommunityCategory getCategory() {
+        return category;
+    }
+
+    public int getMemberCount() {
+        return memberCount;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public boolean isAutoApproval() {
+        return autoApproval;
+    }
+
+    public CommunityHashtags getHashtags() {
+        return hashtags;
     }
 }

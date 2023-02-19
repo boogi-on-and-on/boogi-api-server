@@ -12,7 +12,6 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "NOTICE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class Notice extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +26,15 @@ public class Notice extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private Member member;
 
-    private String title;
+    @Embedded
+    private Title title;
 
-    private String content;
+    @Embedded
+    private Content content;
 
     private Notice(String content, String title, Member member, Community community) {
-        this.title = title;
-        this.content = content;
+        this.title = new Title(title);
+        this.content = new Content(content);
         this.member = member;
         this.community = community;
     }
@@ -42,4 +43,23 @@ public class Notice extends TimeBaseEntity {
         return new Notice(content, title, member, community);
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public Community getCommunity() {
+        return community;
+    }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public String getTitle() {
+        return title.getValue();
+    }
+
+    public String getContent() {
+        return content.getValue();
+    }
 }

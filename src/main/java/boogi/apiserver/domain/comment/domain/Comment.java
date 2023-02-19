@@ -34,9 +34,10 @@ public class Comment extends TimeBaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    private String content;
+    @Embedded
+    private Content content;
 
-    private Boolean child;
+    private boolean child;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -47,13 +48,13 @@ public class Comment extends TimeBaseEntity {
         this.post = post;
         this.member = member;
         this.parent = parent;
-        this.content = content;
+        this.content = new Content(content);
         this.child = (parent == null) ? Boolean.FALSE : Boolean.TRUE;
     }
 
     private Comment(Long id, String content, LocalDateTime removeAt) {
         this.id = id;
-        this.content = content;
+        this.content = new Content(content);
         this.deletedAt = removeAt;
     }
 
@@ -70,5 +71,34 @@ public class Comment extends TimeBaseEntity {
         if (post != null) {
             post.removeCommentCount();
         }
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public Comment getParent() {
+        return parent;
+    }
+
+    public String getContent() {
+        return content.getValue();
+    }
+
+    public boolean isChild() {
+        return child;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
     }
 }

@@ -17,7 +17,6 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "REPORT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class Report extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +43,8 @@ public class Report extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private User user;
 
-    private String content;
+    @Embedded
+    private Content content;
 
     @Enumerated(EnumType.STRING)
     private ReportReason reason;
@@ -55,7 +55,7 @@ public class Report extends TimeBaseEntity {
         this.comment = comment;
         this.message = message;
         this.user = user;
-        this.content = content;
+        this.content = new Content(content);
         this.reason = reason;
     }
 
@@ -71,5 +71,37 @@ public class Report extends TimeBaseEntity {
         } else {
             throw new InvalidValueException("잘못된 신고 대상입니다");
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public Community getCommunity() {
+        return community;
+    }
+
+    public Comment getComment() {
+        return comment;
+    }
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getContent() {
+        return content.getValue();
+    }
+
+    public ReportReason getReason() {
+        return reason;
     }
 }

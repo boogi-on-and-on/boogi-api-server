@@ -209,7 +209,8 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.bannedAt.isNull(),
                         nameContains(name) //todo: username index 추가
                 ).join(member.user)
-                .orderBy(member.user.username.asc())
+                .orderBy(member.user.username.value.asc())
+//                .orderBy(member.user.username.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -218,6 +219,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     private BooleanExpression nameContains(String name) {
-        return Objects.isNull(name) ? null : member.user.username.contains(name);
+        return Objects.isNull(name) ? null : member.user.username.value.contains(name);
     }
 }

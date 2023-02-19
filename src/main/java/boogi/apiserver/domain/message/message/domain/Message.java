@@ -11,7 +11,6 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "MESSAGE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class Message extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,15 +25,36 @@ public class Message extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private User receiver;
 
-    private String content;
+    @Embedded
+    private Content content;
 
-    private Boolean blocked_message;
+    private boolean blocked_message;
 
     @Builder
     public Message(final User sender, final User receiver, final String content, final Boolean blocked_message) {
         this.sender = sender;
         this.receiver = receiver;
-        this.content = content;
+        this.content = new Content(content);
         this.blocked_message = blocked_message;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public User getReceiver() {
+        return receiver;
+    }
+
+    public String getContent() {
+        return content.getValue();
+    }
+
+    public boolean isBlocked_message() {
+        return blocked_message;
     }
 }
