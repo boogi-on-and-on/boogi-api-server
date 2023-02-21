@@ -6,10 +6,7 @@ import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -19,7 +16,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PostHashtagRepositoryTest {
 
     @Autowired
@@ -33,7 +29,7 @@ class PostHashtagRepositoryTest {
 
     private PersistenceUtil persistenceUtil;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }

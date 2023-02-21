@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AlarmRepositoryTest {
 
     @Autowired
@@ -33,7 +32,7 @@ class AlarmRepositoryTest {
 
     PersistenceUtil persistenceUtil;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }

@@ -4,7 +4,6 @@ import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
@@ -13,7 +12,6 @@ import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,7 +24,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CommentRepositoryTest {
 
     @Autowired
@@ -46,7 +43,7 @@ class CommentRepositoryTest {
 
     private PersistenceUtil persistenceUtil;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }

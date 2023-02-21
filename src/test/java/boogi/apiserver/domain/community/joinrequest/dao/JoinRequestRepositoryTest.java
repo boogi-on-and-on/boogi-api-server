@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class JoinRequestRepositoryTest {
 
     @Autowired
@@ -41,7 +40,7 @@ class JoinRequestRepositoryTest {
     @Autowired
     private AlarmRepository alarmRepository;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }

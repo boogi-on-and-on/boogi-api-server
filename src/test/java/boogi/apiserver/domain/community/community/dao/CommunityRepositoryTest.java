@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CommunityRepositoryTest {
 
     @Autowired
@@ -43,7 +42,7 @@ class CommunityRepositoryTest {
     @Autowired
     private CommentRepository commentRepository;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }

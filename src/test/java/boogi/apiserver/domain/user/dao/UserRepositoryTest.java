@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import static org.assertj.core.api.Assertions.*;
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserRepositoryTest {
 
     @Autowired
@@ -23,7 +22,7 @@ class UserRepositoryTest {
 
     private PersistenceUtil persistenceUtil;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }

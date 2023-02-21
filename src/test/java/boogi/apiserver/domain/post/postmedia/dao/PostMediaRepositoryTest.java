@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @CustomDataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PostMediaRepositoryTest {
 
     @Autowired
@@ -33,7 +32,7 @@ class PostMediaRepositoryTest {
 
     private PersistenceUtil persistenceUtil;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }
