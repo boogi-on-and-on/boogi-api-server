@@ -1,25 +1,20 @@
 package boogi.apiserver.global.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.domain.Slice;
 
-@Data
-@AllArgsConstructor
-@Builder
+@Getter
 @NoArgsConstructor
 public class PaginationDto {
     protected int nextPage;
     protected boolean hasNext;
 
-    public PaginationDto(Slice page) {
-        this.nextPage = page.getNumber() + 1;
-        this.hasNext = page.hasNext();
+    public PaginationDto(int nextPage, boolean hasNext) {
+        this.nextPage = nextPage;
+        this.hasNext = hasNext;
     }
 
     public static PaginationDto of(Slice page) {
-        return new PaginationDto(page);
+        return new PaginationDto(page.getNumber() + 1, page.hasNext());
     }
 }

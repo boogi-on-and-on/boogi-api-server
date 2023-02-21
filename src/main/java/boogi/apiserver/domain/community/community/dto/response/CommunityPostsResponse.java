@@ -3,7 +3,7 @@ package boogi.apiserver.domain.community.community.dto.response;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.response.PostOfCommunity;
+import boogi.apiserver.domain.post.post.dto.dto.CommunityPostDto;
 import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 public class CommunityPostsResponse {
 
     private final String communityName;
-    private final List<PostOfCommunity> posts;
+    private final List<CommunityPostDto> posts;
     private final PaginationDto pageInfo;
     private final MemberType memberType;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public CommunityPostsResponse(String communityName, List<PostOfCommunity> posts, PaginationDto pageInfo, MemberType memberType) {
+    public CommunityPostsResponse(String communityName, List<CommunityPostDto> posts, PaginationDto pageInfo, MemberType memberType) {
         this.communityName = communityName;
         this.posts = posts;
         this.pageInfo = pageInfo;
@@ -31,12 +31,12 @@ public class CommunityPostsResponse {
     }
 
     public static CommunityPostsResponse of(String communityName, Long userId, Slice<Post> postPage, Member member) {
-        List<PostOfCommunity> posts = postPage.getContent()
+        List<CommunityPostDto> posts = postPage.getContent()
                 .stream()
-                .map(p -> new PostOfCommunity(p, userId, member))
+                .map(p -> CommunityPostDto.of(p, userId, member))
                 .collect(Collectors.toList());
 
-        final PaginationDto pageInfo = new PaginationDto(postPage);
+        final PaginationDto pageInfo = PaginationDto.of(postPage);
 
         final CommunityPostsResponseBuilder builder = CommunityPostsResponse.builder()
                 .communityName(communityName)

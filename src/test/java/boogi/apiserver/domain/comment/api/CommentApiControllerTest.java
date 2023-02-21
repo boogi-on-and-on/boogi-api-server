@@ -3,7 +3,7 @@ package boogi.apiserver.domain.comment.api;
 import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
-import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
@@ -78,7 +78,7 @@ class CommentApiControllerTest {
     void userCommentSlice() throws Exception {
 
         final UserCommentDto commentDto = new UserCommentDto("내용1", LocalDateTime.now(), 1L);
-        final PaginationDto pageInfo = PaginationDto.builder().nextPage(1).hasNext(false).build();
+        final PaginationDto pageInfo = new PaginationDto(1, false);
         final UserCommentPageResponse commentPage = new UserCommentPageResponse(List.of(commentDto), pageInfo);
 
         given(commentService.getUserComments(anyLong(), any(), any(Pageable.class)))

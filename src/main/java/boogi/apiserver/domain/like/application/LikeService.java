@@ -6,7 +6,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -116,7 +116,7 @@ public class LikeService {
         likeRepository.deleteAllCommentLikeByCommentId(commentId);
     }
 
-    public LikeMembersAtPost getLikeMembersAtPost(Long postId, Long userId, Pageable pageable) {
+    public LikeMembersAtPostResponse getLikeMembersAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postRepository.findByPostId(postId);
 
         Community postedCommunity = findPost.getCommunity();
@@ -135,7 +135,7 @@ public class LikeService {
 
         List<User> users = userRepository.findUsersByIds(userIds);
 
-        return new LikeMembersAtPost(users, likePage);
+        return LikeMembersAtPostResponse.of(users, likePage);
     }
 
     public LikeMembersAtCommentResponse getLikeMembersAtComment(Long commentId, Long userId, Pageable pageable) {

@@ -1,4 +1,4 @@
-package boogi.apiserver.domain.comment.dto.response;
+package boogi.apiserver.domain.comment.dto.dto;
 
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.global.util.time.TimePattern;

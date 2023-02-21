@@ -6,6 +6,9 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.response.*;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
@@ -43,14 +46,14 @@ public class PostQueryService {
                 .orElseThrow(PostNotFoundException::new);
     }
 
-    public PostDetail getPostDetail(Long postId, Long userId) {
+    public PostDetailResponse getPostDetail(Long postId, Long userId) {
         Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
 
         Member member = memberQueryService.getViewableMember(userId, findPost.getCommunity());
         List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
 
-        return new PostDetail(
+        return PostDetailResponse.of(
                 findPost,
                 findPostMedias,
                 userId,
@@ -58,16 +61,16 @@ public class PostQueryService {
         );
     }
 
-    public HotPosts getHotPosts() {
+    public HotPostsResponse getHotPosts() {
         List<Post> hotPosts = postRepository.getHotPosts();
-        List<HotPost> hots = HotPost.mapOf(hotPosts);
-        return HotPosts.from(hots);
+        List<HotPostDto> hots = HotPostDto.mapOf(hotPosts);
+        return HotPostsResponse.from(hots);
     }
 
-    public List<LatestPostOfCommunityDto> getLatestPostOfCommunity(Long communityId) {
+    public List<LatestCommunityPostDto> getLatestPostOfCommunity(Long communityId) {
         return postRepository.getLatestPostOfCommunity(communityId)
                 .stream()
-                .map(LatestPostOfCommunityDto::of)
+                .map(LatestCommunityPostDto::of)
                 .collect(Collectors.toList());
     }
 
@@ -79,10 +82,10 @@ public class PostQueryService {
         return postRepository.getSearchedPosts(pageable, request, userId);
     }
 
-    public UserPostPage getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
+    public UserPostPageResponse getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
         List<Long> findMemberIds = getMemberIdsForQueryUserPost(userId, sessionUserId);
         Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
-        return UserPostPage.from(userPostPage);
+        return UserPostPageResponse.from(userPostPage);
     }
 
     private List<Long> getMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {

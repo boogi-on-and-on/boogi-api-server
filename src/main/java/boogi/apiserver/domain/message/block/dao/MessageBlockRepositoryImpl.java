@@ -2,8 +2,8 @@ package boogi.apiserver.domain.message.block.dao;
 
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.domain.QMessageBlock;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
-import boogi.apiserver.domain.message.block.dto.response.QMessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.QMessageBlockedUserDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

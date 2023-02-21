@@ -2,9 +2,9 @@ package boogi.apiserver.domain.comment.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
-import boogi.apiserver.domain.comment.dto.response.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -345,11 +345,11 @@ class CommentServiceTest {
             given(likeRepository.findCommentLikesByCommentIdsAndMemberId(anyList(), anyLong()))
                     .willReturn(commentLikes);
 
-            CommentsAtPost commentsAtPost = commentService.getCommentsAtPost(post.getId(), 1L, pageable);
+            CommentsAtPostResponse commentsAtPostResponse = commentService.getCommentsAtPost(post.getId(), 1L, pageable);
 
-            assertThat(commentsAtPost.getComments().size()).isEqualTo(2);
+            assertThat(commentsAtPostResponse.getComments().size()).isEqualTo(2);
 
-            CommentsAtPost.ParentCommentInfo parentCommentInfo1 = commentsAtPost.getComments().get(0);
+            CommentsAtPostResponse.ParentCommentInfo parentCommentInfo1 = commentsAtPostResponse.getComments().get(0);
             assertThat(parentCommentInfo1.getId()).isEqualTo(pComment1.getId());
             assertThat(parentCommentInfo1.getLikeCount()).isEqualTo(1L);
             assertThat(parentCommentInfo1.getLikeId()).isEqualTo(like1.getId());
@@ -360,7 +360,7 @@ class CommentServiceTest {
             assertThat(parentCommentInfo1.getChild().get(0).getLikeId()).isEqualTo(like2.getId());
             assertThat(parentCommentInfo1.getChild().get(0).getParentId()).isEqualTo(pComment1.getId());
 
-            CommentsAtPost.ParentCommentInfo parentCommentInfo2 = commentsAtPost.getComments().get(1);
+            CommentsAtPostResponse.ParentCommentInfo parentCommentInfo2 = commentsAtPostResponse.getComments().get(1);
             assertThat(parentCommentInfo2.getId()).isEqualTo(pComment2.getId());
             assertThat(parentCommentInfo2.getLikeCount()).isEqualTo(0L);
             assertThat(parentCommentInfo2.getLikeId()).isNull();
@@ -371,7 +371,7 @@ class CommentServiceTest {
             assertThat(parentCommentInfo2.getChild().get(0).getLikeId()).isNull();
             assertThat(parentCommentInfo2.getChild().get(0).getParentId()).isEqualTo(pComment2.getId());
 
-            PaginationDto pageInfo = commentsAtPost.getPageInfo();
+            PaginationDto pageInfo = commentsAtPostResponse.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
@@ -455,18 +455,18 @@ class CommentServiceTest {
             given(likeRepository.findCommentLikesByCommentIdsAndMemberId(anyList(), anyLong()))
                     .willReturn(commentLikes);
 
-            CommentsAtPost commentsAtPost = commentService.getCommentsAtPost(post.getId(), 1L, pageable);
+            CommentsAtPostResponse commentsAtPostResponse = commentService.getCommentsAtPost(post.getId(), 1L, pageable);
 
-            assertThat(commentsAtPost.getComments().size()).isEqualTo(1);
+            assertThat(commentsAtPostResponse.getComments().size()).isEqualTo(1);
 
-            CommentsAtPost.ParentCommentInfo parentCommentInfo1 = commentsAtPost.getComments().get(0);
+            CommentsAtPostResponse.ParentCommentInfo parentCommentInfo1 = commentsAtPostResponse.getComments().get(0);
             assertThat(parentCommentInfo1.getId()).isEqualTo(pComment1.getId());
             assertThat(parentCommentInfo1.getContent()).isEqualTo("삭제된 댓글입니다");
             assertThat(parentCommentInfo1.getChild().size()).isEqualTo(1);
             assertThat(parentCommentInfo1.getChild().get(0).getId()).isEqualTo(cComment1.getId());
             assertThat(parentCommentInfo1.getChild().get(0).getParentId()).isEqualTo(pComment1.getId());
 
-            PaginationDto pageInfo = commentsAtPost.getPageInfo();
+            PaginationDto pageInfo = commentsAtPostResponse.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }

@@ -9,7 +9,7 @@ public class SimpleIdResponse {
 
     private Long id;
 
-    private SimpleIdResponse(Long id) {
+    public SimpleIdResponse(Long id) {
         if (Objects.isNull(id)) {
             throw new IllegalArgumentException("id는 null일 수 없습니다.");
         }

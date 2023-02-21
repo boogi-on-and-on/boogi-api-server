@@ -2,24 +2,29 @@ package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.application.PostService;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
 import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
-import boogi.apiserver.domain.post.post.dto.request.CreatePost;
-import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
-import boogi.apiserver.domain.post.post.dto.response.*;
+import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
+import boogi.apiserver.domain.post.post.dto.response.HotPostsResponse;
+import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
+import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.dto.PaginationDto;
@@ -104,12 +109,12 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글 생성")
     void testCreatePost() throws Exception {
-        CreatePost createPost = new CreatePost(1L, "글", List.of(), List.of(), List.of());
+        CreatePostRequest createPostRequest = new CreatePostRequest(1L, "글", List.of(), List.of(), List.of());
 
         final Post post = TestEmptyEntityGenerator.Post();
         ReflectionTestUtils.setField(post, "id", 2L);
 
-        given(postService.createPost(any(CreatePost.class), anyLong()))
+        given(postService.createPost(any(CreatePostRequest.class), anyLong()))
                 .willReturn(post);
 
         MockHttpSession session = createUserSession(3L);
@@ -117,7 +122,7 @@ class PostApiControllerTest {
         mvc.perform(
                         post("/api/posts/")
                                 .contentType(APPLICATION_JSON)
-                                .content(mapper.writeValueAsBytes(createPost))
+                                .content(mapper.writeValueAsBytes(createPostRequest))
                                 .session(session)
                                 .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isCreated())
@@ -166,10 +171,10 @@ class PostApiControllerTest {
 
         MockHttpSession session = createUserSession(1L);
 
-        PostDetail postDetail = new PostDetail(post, List.of(postMedia), 1L, 7L);
+        PostDetailResponse postDetailResponse = PostDetailResponse.of(post, List.of(postMedia), 1L, 7L);
 
         given(postQueryService.getPostDetail(anyLong(), anyLong()))
-                .willReturn(postDetail);
+                .willReturn(postDetailResponse);
 
         String formattedCreatedTime = CustomDateTimeFormatter
                 .toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT);
@@ -205,12 +210,12 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글 수정")
     void testUpdatePost() throws Exception {
-        UpdatePost updatePost = new UpdatePost("글 수정", List.of(), List.of());
+        UpdatePostRequest updatePostRequest = new UpdatePostRequest("글 수정", List.of(), List.of());
 
         final Post post = TestEmptyEntityGenerator.Post();
         ReflectionTestUtils.setField(post, "id", 1L);
 
-        given(postService.updatePost(any(UpdatePost.class), anyLong(), anyLong()))
+        given(postService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
                 .willReturn(post);
 
         MockHttpSession session = createUserSession(2L);
@@ -218,7 +223,7 @@ class PostApiControllerTest {
         mvc.perform(
                         patch("/api/posts/{postId}", post.getId())
                                 .contentType(APPLICATION_JSON)
-                                .content(mapper.writeValueAsBytes(updatePost))
+                                .content(mapper.writeValueAsBytes(updatePostRequest))
                                 .session(session)
                                 .header(AUTH_TOKEN, "AUTO_TOKEN"))
                 .andExpect(status().isOk())
@@ -241,19 +246,10 @@ class PostApiControllerTest {
     @Test
     @DisplayName("유저가 작성한 게시글을 페이지네이션해서 조회하기")
     void testGetUserPostsInfo() throws Exception {
-        UserPostsDto postsDto = UserPostsDto.builder()
-                .id(1L)
-                .content("게시글 내용1")
-                .community(UserPostsDto.CommunityDto.builder()
-                        .id(2L)
-                        .name("커뮤니티1")
-                        .build())
-                .build();
+        UserPostDto.CommunityDto communityDto = new UserPostDto.CommunityDto(2L, "커뮤니티1");
+        UserPostDto postsDto = new UserPostDto(1L, "게시글 내용1", communityDto, null, null, null);
 
-        UserPostPage pageInfo = UserPostPage.builder()
-                .posts(List.of(postsDto))
-                .pageInfo(PaginationDto.builder().nextPage(1).hasNext(false).build())
-                .build();
+        UserPostPageResponse pageInfo = new UserPostPageResponse(List.of(postsDto), new PaginationDto(1, false));
 
         given(postQueryService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(pageInfo);
@@ -310,7 +306,7 @@ class PostApiControllerTest {
         Pageable pageable = PageRequest.of(0, 1);
         Slice<User> page = PageableUtil.getSlice(users, pageable);
 
-        LikeMembersAtPost likeMembers = new LikeMembersAtPost(users, page);
+        LikeMembersAtPostResponse likeMembers = LikeMembersAtPostResponse.of(users, page);
         given(likeService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembers);
 
@@ -335,29 +331,15 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글에 달린 댓글들 조회하기")
     void testGetCommentsAtPost() throws Exception {
-        CommentsAtPost.UserInfo userInfo = CommentsAtPost.UserInfo.builder()
-                .id(1L)
-                .name("유저")
-                .tagNum("#1")
-                .profileImageUrl("url")
-                .build();
+        UserBasicProfileDto userInfo = new UserBasicProfileDto(1L, "url", "#1", "유저");
 
-        CommentsAtPost.MemberInfo memberInfo = CommentsAtPost.MemberInfo.builder()
-                .id(2L)
-                .memberType(MemberType.MANAGER)
-                .build();
+        CommentsAtPostResponse.MemberInfo memberInfo = new CommentsAtPostResponse.MemberInfo(2L, MemberType.MANAGER);
 
-        CommentsAtPost.ChildCommentInfo childCommentInfo = CommentsAtPost.ChildCommentInfo.builder()
-                .id(4L)
-                .content("자식댓글")
-                .likeCount(0L)
-                .parentId(3L)
-                .user(userInfo)
-                .member(memberInfo)
-                .createdAt(LocalDateTime.now())
-                .me(false)
-                .build();
-        List<CommentsAtPost.ChildCommentInfo> childCommentInfos = List.of(childCommentInfo);
+        CommentsAtPostResponse.ChildCommentInfo childCommentInfo =
+                new CommentsAtPostResponse.ChildCommentInfo(4L, userInfo, memberInfo, null, LocalDateTime.now(),
+                        "자식댓글", 0L, false, 3L);
+
+        List<CommentsAtPostResponse.ChildCommentInfo> childCommentInfos = List.of(childCommentInfo);
 
         final Comment parentComment = TestEmptyEntityGenerator.Comment();
         ReflectionTestUtils.setField(parentComment, "id", 3L);
@@ -366,24 +348,18 @@ class PostApiControllerTest {
 
         List<Comment> comments = List.of(parentComment);
 
-        CommentsAtPost.ParentCommentInfo parentCommentInfo = CommentsAtPost.ParentCommentInfo.builder()
-                .id(parentComment.getId())
-                .content(parentComment.getContent())
-                .likeCount(0L)
-                .child(childCommentInfos)
-                .me(false)
-                .user(userInfo)
-                .member(memberInfo)
-                .createdAt(parentComment.getCreatedAt())
-                .build();
-        List<CommentsAtPost.ParentCommentInfo> parentCommentInfos = List.of(parentCommentInfo);
+        CommentsAtPostResponse.ParentCommentInfo parentCommentInfo =
+                new CommentsAtPostResponse.ParentCommentInfo(parentComment.getId(), userInfo, memberInfo, null,
+                        parentComment.getCreatedAt(), parentComment.getContent(), 0L, false, childCommentInfos);
+
+        List<CommentsAtPostResponse.ParentCommentInfo> parentCommentInfos = List.of(parentCommentInfo);
 
         Pageable pageable = PageRequest.of(0, 1);
         Slice<Comment> slice = PageableUtil.getSlice(comments, pageable);
 
-        CommentsAtPost commentsAtPost = CommentsAtPost.of(parentCommentInfos, slice);
+        CommentsAtPostResponse commentsAtPostResponse = CommentsAtPostResponse.of(parentCommentInfos, slice);
         given(commentService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
-                .willReturn(commentsAtPost);
+                .willReturn(commentsAtPostResponse);
 
         MockHttpSession session = createUserSession(5L);
 
@@ -432,33 +408,14 @@ class PostApiControllerTest {
 
     @Test
     void 핫한게시물() throws Exception {
-        HotPost hotPost1 = HotPost.builder()
-                .postId(1L)
-                .content("내용1")
-                .commentCount(1)
-                .likeCount(1)
-                .communityId(1L)
-                .hashtags(List.of("hashtag1"))
-                .build();
+        HotPostDto hotPostDto1 = new HotPostDto(1L, 1, 1, "내용1", 1L, List.of("hashtag1"));
 
-        HotPost hotPost2 = HotPost.builder()
-                .postId(2L)
-                .content("내용2")
-                .commentCount(2)
-                .likeCount(2)
-                .communityId(2L)
-                .build();
+        HotPostDto hotPostDto2 = new HotPostDto(2L, 2, 2, "내용2", 2L, null);
 
-        HotPost hotPost3 = HotPost.builder()
-                .postId(3L)
-                .content("내용3")
-                .commentCount(3)
-                .communityId(3L)
-                .likeCount(3)
-                .build();
+        HotPostDto hotPostDto3 = new HotPostDto(3L, 3, 3, "내용3", 3L, null);
 
         given(postQueryService.getHotPosts())
-                .willReturn(HotPosts.from(List.of(hotPost1, hotPost2, hotPost3)));
+                .willReturn(HotPostsResponse.from(List.of(hotPostDto1, hotPostDto2, hotPostDto3)));
 
         MockHttpSession session = createUserSession(1L);
 
@@ -479,31 +436,15 @@ class PostApiControllerTest {
 
     @Test
     void 게시물_검색() throws Exception {
-        SearchPostDto dto = SearchPostDto.builder()
-                .id(1L)
-                .commentCount(1)
-                .communityName("팍스")
-                .createdAt(LocalDateTime.now().toString())
-                .communityId(2L)
-                .content("게시글내용")
-                .hashtags(List.of("해시테그1", "해시태그2"))
-                .postMedias(List.of(
-                        PostMediaMetadataDto.builder()
-                                .url("123")
-                                .type("IMG")
-                                .build(),
-                        PostMediaMetadataDto.builder()
-                                .url("456")
-                                .type("IMG")
-                                .build()
-                ))
-                .likeCount(2)
-                .user(UserBasicProfileDto.builder()
-                        .id(1L)
-                        .tagNum("#0001")
-                        .name("김")
-                        .build())
-                .build();
+        UserBasicProfileDto user = new UserBasicProfileDto(1L, null, "#0001", "김");
+        List<PostMediaMetadataDto> postMedias = List.of(
+                new PostMediaMetadataDto("123", "IMG"),
+                new PostMediaMetadataDto("456", "IMG")
+        );
+        List<String> hashtags = List.of("해시테그1", "해시태그2");
+
+        SearchPostDto dto = new SearchPostDto(1L, user, 2L, "팍스", LocalDateTime.now(),
+                hashtags, postMedias, 1, 2, "게시글내용");
 
         Slice<SearchPostDto> page = PageableUtil.getSlice(List.of(dto), Pageable.ofSize(1));
         given(postQueryService.getSearchedPosts(any(), any(), anyLong()))

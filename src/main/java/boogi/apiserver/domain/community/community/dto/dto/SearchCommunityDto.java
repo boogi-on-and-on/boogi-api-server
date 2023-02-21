@@ -32,8 +32,10 @@ public class SearchCommunityDto {
     @JsonProperty("isPrivate")
     private boolean isPrivate;
 
-    @Builder
-    public SearchCommunityDto(final Long id, final String name, final String description, final LocalDateTime createdAt, final List<String> hashtags, final int memberCount, final String category, final boolean isPrivate) {
+    @Builder(access = AccessLevel.PRIVATE)
+    public SearchCommunityDto(final Long id, final String name, final String description,
+                              final LocalDateTime createdAt, final List<String> hashtags,
+                              final int memberCount, final String category, final boolean isPrivate) {
         this.id = id;
         this.name = name;
         this.description = description;

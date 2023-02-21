@@ -16,8 +16,8 @@ import boogi.apiserver.domain.member.exception.HasNotDeleteAuthorityException;
 import boogi.apiserver.domain.member.exception.HasNotUpdateAuthorityException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.request.CreatePost;
-import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
+import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
@@ -54,22 +54,22 @@ public class PostService {
     private final SendPushNotification sendPushNotification;
 
     @Transactional
-    public Post createPost(CreatePost createPost, Long userId) {
-        Long communityId = createPost.getCommunityId();
+    public Post createPost(CreatePostRequest createPostRequest, Long userId) {
+        Long communityId = createPostRequest.getCommunityId();
         Community community = communityRepository.findByCommunityId(communityId);
         Member member = memberQueryService.getJoinedMember(userId, communityId);
 
         Post savedPost = postRepository.save(
-                Post.of(community, member, createPost.getContent())
+                Post.of(community, member, createPostRequest.getContent())
         );
 
-        postHashtagService.addTags(savedPost.getId(), createPost.getHashtags());
+        postHashtagService.addTags(savedPost.getId(), createPostRequest.getHashtags());
         PostMedias unmappedPostMedias = postMediaQueryService
-                .getUnmappedPostMediasByUUID(createPost.getPostMediaIds());
+                .getUnmappedPostMediasByUUID(createPostRequest.getPostMediaIds());
         unmappedPostMedias.mapPost(savedPost);
 
         sendPushNotification.mentionNotification(
-                createPost.getMentionedUserIds(),
+                createPostRequest.getMentionedUserIds(),
                 savedPost.getId(),
                 MentionType.POST
         );
@@ -78,7 +78,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(UpdatePost updatePost, Long postId, Long userId) {
+    public Post updatePost(UpdatePostRequest updatePostRequest, Long postId, Long userId) {
         Post findPost = postRepository.findByPostId(postId);
         communityRepository.findByCommunityId(findPost.getCommunityId());
 
@@ -88,15 +88,15 @@ public class PostService {
 
         postHashtagService.removeTagsByPostId(postId);
         List<PostHashtag> newPostHashtags = postHashtagService
-                .addTags(postId, updatePost.getHashtags());
+                .addTags(postId, updatePostRequest.getHashtags());
 
-        findPost.updatePost(updatePost.getContent(), newPostHashtags);
+        findPost.updatePost(updatePostRequest.getContent(), newPostHashtags);
 
         PostMedias findPostMedias = new PostMedias(
                 postMediaRepository.findByPostId(postId)
         );
 
-        List<String> postMediaIds = updatePost.getPostMediaIds();
+        List<String> postMediaIds = updatePostRequest.getPostMediaIds();
         postMediaRepository.deleteAll(
                 findPostMedias.excludedPostMedia(postMediaIds)
         );

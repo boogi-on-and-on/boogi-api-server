@@ -10,9 +10,9 @@ import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.response.PostDetail;
-import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
-import boogi.apiserver.domain.post.post.dto.response.UserPostsDto;
+import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
+import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -141,18 +141,18 @@ class PostQueryServiceTest {
             given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))
                     .willReturn(null);
 
-            PostDetail postDetail = postQueryService.getPostDetail(post.getId(), 2L);
+            PostDetailResponse postDetailResponse = postQueryService.getPostDetail(post.getId(), 2L);
 
-            assertThat(postDetail.getId()).isEqualTo(4L);
-            assertThat(postDetail.getUser().getId()).isEqualTo(1L);
-            assertThat(postDetail.getMember().getId()).isEqualTo(3L);
-            assertThat(postDetail.getCommunity().getId()).isEqualTo(2L);
-            assertThat(postDetail.getLikeId()).isNull();
-            assertThat(postDetail.getCreatedAt()).isEqualTo(post.getCreatedAt());
-            assertThat(postDetail.getContent()).isEqualTo("글");
-            assertThat(postDetail.getLikeCount()).isEqualTo(0);
-            assertThat(postDetail.getCommentCount()).isEqualTo(0);
-            assertThat(postDetail.getMe()).isFalse();
+            assertThat(postDetailResponse.getId()).isEqualTo(4L);
+            assertThat(postDetailResponse.getUser().getId()).isEqualTo(1L);
+            assertThat(postDetailResponse.getMember().getId()).isEqualTo(3L);
+            assertThat(postDetailResponse.getCommunity().getId()).isEqualTo(2L);
+            assertThat(postDetailResponse.getLikeId()).isNull();
+            assertThat(postDetailResponse.getCreatedAt()).isEqualTo(post.getCreatedAt());
+            assertThat(postDetailResponse.getContent()).isEqualTo("글");
+            assertThat(postDetailResponse.getLikeCount()).isEqualTo(0);
+            assertThat(postDetailResponse.getCommentCount()).isEqualTo(0);
+            assertThat(postDetailResponse.getMe()).isFalse();
         }
 
         @Test
@@ -199,21 +199,21 @@ class PostQueryServiceTest {
             given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))
                     .willReturn(like.getId());
 
-            PostDetail postDetail = postQueryService.getPostDetail(post.getId(), 1L);
+            PostDetailResponse postDetailResponse = postQueryService.getPostDetail(post.getId(), 1L);
 
-            assertThat(postDetail.getId()).isEqualTo(post.getId());
-            assertThat(postDetail.getUser().getId()).isEqualTo(user.getId());
-            assertThat(postDetail.getMember().getId()).isEqualTo(member.getId());
-            assertThat(postDetail.getCommunity().getId()).isEqualTo(community.getId());
-            assertThat(postDetail.getPostMedias().size()).isEqualTo(1);
-            assertThat(postDetail.getPostMedias().get(0).getType()).isEqualTo(postMedia.getMediaType());
-            assertThat(postDetail.getPostMedias().get(0).getUrl()).isEqualTo(postMedia.getMediaURL());
-            assertThat(postDetail.getLikeId()).isEqualTo(like.getId());
-            assertThat(postDetail.getCreatedAt()).isEqualTo(post.getCreatedAt());
-            assertThat(postDetail.getContent()).isEqualTo(post.getContent());
-            assertThat(postDetail.getLikeCount()).isEqualTo(1);
-            assertThat(postDetail.getCommentCount()).isEqualTo(0);
-            assertThat(postDetail.getMe()).isTrue();
+            assertThat(postDetailResponse.getId()).isEqualTo(post.getId());
+            assertThat(postDetailResponse.getUser().getId()).isEqualTo(user.getId());
+            assertThat(postDetailResponse.getMember().getId()).isEqualTo(member.getId());
+            assertThat(postDetailResponse.getCommunity().getId()).isEqualTo(community.getId());
+            assertThat(postDetailResponse.getPostMedias().size()).isEqualTo(1);
+            assertThat(postDetailResponse.getPostMedias().get(0).getType()).isEqualTo(postMedia.getMediaType());
+            assertThat(postDetailResponse.getPostMedias().get(0).getUrl()).isEqualTo(postMedia.getMediaURL());
+            assertThat(postDetailResponse.getLikeId()).isEqualTo(like.getId());
+            assertThat(postDetailResponse.getCreatedAt()).isEqualTo(post.getCreatedAt());
+            assertThat(postDetailResponse.getContent()).isEqualTo(post.getContent());
+            assertThat(postDetailResponse.getLikeCount()).isEqualTo(1);
+            assertThat(postDetailResponse.getCommentCount()).isEqualTo(0);
+            assertThat(postDetailResponse.getMe()).isTrue();
         }
 
         @Test
@@ -284,9 +284,9 @@ class PostQueryServiceTest {
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
 
-            UserPostPage userPostPage = postQueryService.getUserPosts(user.getId(), 1L, pageable);
+            UserPostPageResponse userPostPageResponse = postQueryService.getUserPosts(user.getId(), 1L, pageable);
 
-            List<UserPostsDto> userPosts = userPostPage.getPosts();
+            List<UserPostDto> userPosts = userPostPageResponse.getPosts();
             assertThat(userPosts.size()).isEqualTo(2);
             assertThat(userPosts.get(0).getId()).isEqualTo(post1.getId());
             assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(community.getId());
@@ -295,7 +295,7 @@ class PostQueryServiceTest {
             assertThat(userPosts.get(1).getCommunity().getId()).isEqualTo(community.getId());
             assertThat(userPosts.get(1).getCreatedAt()).isEqualTo(now.toString());
 
-            PaginationDto pageInfo = userPostPage.getPageInfo();
+            PaginationDto pageInfo = userPostPageResponse.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
@@ -351,15 +351,15 @@ class PostQueryServiceTest {
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
 
-            UserPostPage userPostPage = postQueryService.getUserPosts(user1.getId(), 2L, pageable);
+            UserPostPageResponse userPostPageResponse = postQueryService.getUserPosts(user1.getId(), 2L, pageable);
 
-            List<UserPostsDto> userPosts = userPostPage.getPosts();
+            List<UserPostDto> userPosts = userPostPageResponse.getPosts();
             assertThat(userPosts.size()).isEqualTo(1);
             assertThat(userPosts.get(0).getId()).isEqualTo(post2.getId());
             assertThat(userPosts.get(0).getCommunity().getId()).isEqualTo(community.getId());
             assertThat(userPosts.get(0).getCreatedAt()).isEqualTo(now.toString());
 
-            PaginationDto pageInfo = userPostPage.getPageInfo();
+            PaginationDto pageInfo = userPostPageResponse.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }

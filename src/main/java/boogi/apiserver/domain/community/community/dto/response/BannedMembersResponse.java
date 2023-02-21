@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 public class BannedMembersResponse {
 
-    final List<BannedMemberDto> banned;
+    private final List<BannedMemberDto> banned;
 
     public BannedMembersResponse(List<BannedMemberDto> banned) {
         this.banned = banned;

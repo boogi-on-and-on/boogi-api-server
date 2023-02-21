@@ -6,7 +6,7 @@ import boogi.apiserver.domain.community.community.dto.dto.CommunityDetailInfoDto
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
-import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
+import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,18 +25,18 @@ public class CommunityDetailResponse {
     private final List<NoticeDto> notices;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final List<LatestPostOfCommunityDto> posts;
+    private final List<LatestCommunityPostDto> posts;
 
     @Builder(access = AccessLevel.PRIVATE)
     public CommunityDetailResponse(MemberType sessionMemberType, CommunityDetailInfoDto community,
-                                   List<NoticeDto> notices, List<LatestPostOfCommunityDto> posts) {
+                                   List<NoticeDto> notices, List<LatestCommunityPostDto> posts) {
         this.sessionMemberType = sessionMemberType;
         this.community = community;
         this.notices = notices;
         this.posts = posts;
     }
 
-    public static CommunityDetailResponse of(List<NoticeDto> notices, List<LatestPostOfCommunityDto> latestPosts, Member member, Community community) {
+    public static CommunityDetailResponse of(List<NoticeDto> notices, List<LatestCommunityPostDto> latestPosts, Member member, Community community) {
         final CommunityDetailResponseBuilder builder = CommunityDetailResponse.builder()
                 .notices(notices)
                 .posts(latestPosts)
