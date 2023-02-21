@@ -8,6 +8,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
+import boogi.apiserver.domain.hashtag.post.domain.PostHashtags;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -222,13 +223,15 @@ class PostServiceTest {
 
             Post updatedPost = postService.updatePost(updatePostRequest, post.getId(), 1L);
 
+            final List<PostMedia> medias = updatedPost.getPostMedias().getValues();
+            final List<PostHashtag> hashtags = updatedPost.getHashtags().getValues();
             assertThat(updatedPost.getId()).isEqualTo(post.getId());
-            assertThat(updatedPost.getHashtags().size()).isEqualTo(1);
-            assertThat(updatedPost.getHashtags().get(0).getId()).isEqualTo(postHashtag.getId());
-            assertThat(updatedPost.getHashtags().get(0).getTag()).isEqualTo(postHashtag.getTag());
-            assertThat(updatedPost.getPostMedias().size()).isEqualTo(1);
-            assertThat(updatedPost.getPostMedias().get(0).getId()).isEqualTo(postMedia.getId());
-            assertThat(updatedPost.getPostMedias().get(0).getUuid()).isEqualTo(postMedia.getUuid());
+            assertThat(hashtags.size()).isEqualTo(1);
+            assertThat(hashtags.get(0).getId()).isEqualTo(postHashtag.getId());
+            assertThat(hashtags.get(0).getTag()).isEqualTo(postHashtag.getTag());
+            assertThat(medias.size()).isEqualTo(1);
+            assertThat(medias.get(0).getId()).isEqualTo(postMedia.getId());
+            assertThat(medias.get(0).getUuid()).isEqualTo(postMedia.getUuid());
             assertThat(updatedPost.getContent()).isEqualTo(updatePostRequest.getContent());
         }
     }

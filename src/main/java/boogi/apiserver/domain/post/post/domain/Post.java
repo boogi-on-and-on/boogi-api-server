@@ -44,15 +44,15 @@ public class Post extends TimeBaseEntity {
     private Content content;
 
     @Column(name = "deleted_at")
-    @Builder.Default
+//    @Builder.Default
     private LocalDateTime deletedAt = null;
 
     @Column(name = "like_count")
-    @Builder.Default
+//    @Builder.Default
     private int likeCount = 0;
 
     @Column(name = "comment_count")
-    @Builder.Default
+//    @Builder.Default
     private int commentCount = 0;
 
     @Embedded
@@ -61,7 +61,7 @@ public class Post extends TimeBaseEntity {
     @Embedded
     private PostMedias postMedias;
 
-    @Builder.Default
+//    @Builder.Default
     @OneToMany(mappedBy = "post")
     List<Like> likes = new ArrayList<>();
 

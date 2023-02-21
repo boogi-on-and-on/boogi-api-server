@@ -73,7 +73,7 @@ public class PostDetailResponse {
                 .map(PostMediaInfo::from)
                 .collect(Collectors.toList());
 
-        List<PostHashtag> postHashtags = post.getHashtags();
+        List<PostHashtag> postHashtags = post.getHashtags().getValues();
         List<String> hashtags = (postHashtags.isEmpty()) ? null : postHashtags.stream()
                 .map(PostHashtag::getTag)
                 .collect(Collectors.toList());

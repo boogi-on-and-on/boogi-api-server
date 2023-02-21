@@ -102,7 +102,7 @@ public class Comment extends TimeBaseEntity {
         return content.getValue();
     }
 
-    public boolean isChild() {
+    public boolean getChild() {
         return child;
     }
 

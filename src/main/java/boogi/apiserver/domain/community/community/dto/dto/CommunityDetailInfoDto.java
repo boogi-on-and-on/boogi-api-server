@@ -40,7 +40,7 @@ public class CommunityDetailInfoDto {
     }
 
     public static CommunityDetailInfoDto of(Community community) {
-        List<CommunityHashtag> communityHashtags = community.getHashtags();
+        List<CommunityHashtag> communityHashtags = community.getHashtags().getValues();
         List<String> hashtags = (communityHashtags != null && communityHashtags.size() > 0) ?
                 communityHashtags.stream()
                         .map(CommunityHashtag::getTag)

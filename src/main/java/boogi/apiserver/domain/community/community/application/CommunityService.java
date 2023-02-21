@@ -92,7 +92,7 @@ public class CommunityService {
 
         community.updateDescription(description);
 
-        List<CommunityHashtag> prevHashtags = community.getHashtags(); //LAZY INIT
+        List<CommunityHashtag> prevHashtags = community.getHashtags().getValues(); //LAZY INIT
 
         if (Objects.isNull(newTags) || newTags.size() == 0) {
             if (prevHashtags.size() != 0) {

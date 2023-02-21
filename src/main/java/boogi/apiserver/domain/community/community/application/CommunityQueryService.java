@@ -22,7 +22,7 @@ public class CommunityQueryService {
 
     public Community getCommunityWithHashTag(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
-        community.getHashtags().size(); //LAZY INIT
+        community.getHashtags().getValues().size(); //LAZY INIT
 
         return community;
     }

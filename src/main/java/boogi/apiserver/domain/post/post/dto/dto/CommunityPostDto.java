@@ -58,13 +58,13 @@ public class CommunityPostDto {
     }
 
     public static CommunityPostDto of(Post post, Long userId, Member sessionMember) {
-        List<PostHashtag> postHashtags = post.getHashtags();
+        List<PostHashtag> postHashtags = post.getHashtags().getValues();
         List<String> hashtags = (postHashtags == null || postHashtags.size() == 0) ? null :
                 postHashtags.stream()
                         .map(PostHashtag::getTag)
                         .collect(Collectors.toList());
 
-        List<PostMedia> postMedias = post.getPostMedias();
+        List<PostMedia> postMedias = post.getPostMedias().getValues();
         List<PostMediaMetadataDto> postMediaMetadataDtos = (postMedias == null || postMedias.size() == 0) ? null :
                 postMedias.stream()
                         .map(PostMediaMetadataDto::from)

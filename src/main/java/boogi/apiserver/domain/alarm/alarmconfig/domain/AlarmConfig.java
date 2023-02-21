@@ -23,27 +23,27 @@ public class AlarmConfig extends TimeBaseEntity {
 
     @Column(name = "message_alarm")
     @Setter
-    @Builder.Default
+//    @Builder.Default
     private boolean message = true;
 
     @Column(name = "notice_alarm")
     @Setter
-    @Builder.Default
+//    @Builder.Default
     private boolean notice = true;
 
     @Column(name = "join_request_alarm")
     @Setter
-    @Builder.Default
+//    @Builder.Default
     private boolean joinRequest = true;
 
     @Column(name = "comment_alarm")
     @Setter
-    @Builder.Default
+//    @Builder.Default
     private boolean comment = true;
 
     @Column(name = "mention_alarm")
     @Setter
-    @Builder.Default
+//    @Builder.Default
     private boolean mention = true;
 
     @Builder
@@ -62,5 +62,25 @@ public class AlarmConfig extends TimeBaseEntity {
         return AlarmConfig.builder()
                 .user(user)
                 .build();
+    }
+
+    public boolean getMessage() {
+        return message;
+    }
+
+    public boolean getNotice() {
+        return notice;
+    }
+
+    public boolean getJoinRequest() {
+        return joinRequest;
+    }
+
+    public boolean getComment() {
+        return comment;
+    }
+
+    public boolean getMention() {
+        return mention;
     }
 }

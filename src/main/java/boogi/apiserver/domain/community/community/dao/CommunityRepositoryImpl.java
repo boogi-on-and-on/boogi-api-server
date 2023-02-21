@@ -50,7 +50,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                     .fetch();
 
             // CommunityHashtag LAZY INIT
-            communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
+            communities.stream().anyMatch(c -> c.getHashtags().getValues().size() != 0);
 
             List<SearchCommunityDto> dtos = transformToSearchCommunityDto(communities);
 
@@ -62,7 +62,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 privateEq(condition.getIsPrivate()),
                 categoryEq(condition.getCategory()),
 
-                community.communityName.contains(keyword).or(
+                community.communityName.value.contains(keyword).or(
                         community.id.in(JPAExpressions.select(communityHashtag.community.id)
                                 .from(communityHashtag)
                                 .where(communityHashtag.tag.eq(keyword)))
@@ -76,7 +76,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
         //LAZY INIT
-        communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
+        communities.stream().anyMatch(c -> c.getHashtags().getValues().size() != 0);
 
         List<SearchCommunityDto> dtos = transformToSearchCommunityDto(communities);
 
@@ -115,7 +115,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
     }
 
     private BooleanExpression communityNameContains(String keyword) {
-        return Objects.isNull(keyword) ? null : community.communityName.contains(keyword);
+        return Objects.isNull(keyword) ? null : community.communityName.value.contains(keyword);
     }
 
     private List<SearchCommunityDto> transformToSearchCommunityDto(List<Community> communities) {

@@ -109,7 +109,7 @@ public class JoinedCommunitiesDto {
             if (post == null) {
                 return null;
             }
-            List<PostHashtag> postHashtags = post.getHashtags();
+            List<PostHashtag> postHashtags = post.getHashtags().getValues();
             List<String> hashtags = postHashtags.isEmpty() ? null :
                     postHashtags.stream()
                             .map(PostHashtag::getTag)

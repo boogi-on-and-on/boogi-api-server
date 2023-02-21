@@ -23,8 +23,8 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
     public List<MessageBlockedUserDto> getBlockedUsers(Long userId) {
         return queryFactory.select(new QMessageBlockedUserDto(
                         messageBlock.blockedUser.id,
-                        messageBlock.blockedUser.username,
-                        messageBlock.blockedUser.tagNumber
+                        messageBlock.blockedUser.username.value,
+                        messageBlock.blockedUser.tagNumber.value
                 ))
                 .from(messageBlock)
                 .where(
