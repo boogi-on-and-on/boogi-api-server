@@ -39,6 +39,17 @@ public class JoinRequest extends TimeBaseEntity {
     @Enumerated(EnumType.STRING)
     private JoinRequestStatus status = JoinRequestStatus.PENDING;
 
+    @Builder
+    private JoinRequest(final Long id, final User user, final Community community, final Member confirmedMember,
+                       final Member acceptor, final JoinRequestStatus status) {
+        this.id = id;
+        this.user = user;
+        this.community = community;
+        this.confirmedMember = confirmedMember;
+        this.acceptor = acceptor;
+        this.status = status;
+    }
+
     private JoinRequest(User user, Community community) {
         this.user = user;
         this.community = community;

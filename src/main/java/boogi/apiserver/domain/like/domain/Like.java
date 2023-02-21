@@ -32,6 +32,14 @@ public class Like extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private Comment comment;
 
+    @Builder
+    private Like(final Long id, final Post post, final Member member, final Comment comment) {
+        this.id = id;
+        this.post = post;
+        this.member = member;
+        this.comment = comment;
+    }
+
     private Like(Post post, Comment comment, Member member){
         this.post = post;
         this.member = member;

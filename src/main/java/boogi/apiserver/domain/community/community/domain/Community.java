@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.community.community.domain;
 
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtags;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import lombok.*;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "COMMUNITY")
@@ -45,6 +47,20 @@ public class Community extends TimeBaseEntity {
     @Embedded
     private CommunityHashtags hashtags;
 
+    @Builder
+    private Community(final Long id, final String communityName, final String description, final boolean isPrivate,
+                      final CommunityCategory category, final int memberCount, final LocalDateTime deletedAt,
+                      final boolean autoApproval, final List<CommunityHashtag> hashtags) {
+        this.id = id;
+        this.communityName = new CommunityName(communityName);
+        this.description = new Description(description);
+        this.isPrivate = isPrivate;
+        this.category = category;
+        this.memberCount = memberCount;
+        this.deletedAt = deletedAt;
+        this.autoApproval = autoApproval;
+        this.hashtags = new CommunityHashtags(hashtags);
+    }
 
     public void updateDescription(String description) {
         this.description = new Description(description);

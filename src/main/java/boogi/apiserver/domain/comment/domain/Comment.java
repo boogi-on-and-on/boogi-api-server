@@ -44,6 +44,18 @@ public class Comment extends TimeBaseEntity {
 
     private static final String DELETED_COMMENT_CONTENT = "삭제된 댓글입니다";
 
+    @Builder
+    private Comment(final Long id, final Post post, final Member member, final Comment parent, final String content,
+                    final boolean child, final LocalDateTime deletedAt) {
+        this.id = id;
+        this.post = post;
+        this.member = member;
+        this.parent = parent;
+        this.content = new Content(content);
+        this.child = child;
+        this.deletedAt = deletedAt;
+    }
+
     private Comment(Post post, Member member, Comment parent, String content) {
         this.post = post;
         this.member = member;

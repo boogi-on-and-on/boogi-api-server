@@ -22,6 +22,13 @@ public class PostHashtag extends TimeBaseEntity {
 
     private String tag;
 
+    @Builder
+    private PostHashtag(final Long id, final Post post, final String tag) {
+        this.id = id;
+        this.post = post;
+        this.tag = tag;
+    }
+
     private PostHashtag(Post post, String tag) {
         this.post = post;
         this.tag = tag;

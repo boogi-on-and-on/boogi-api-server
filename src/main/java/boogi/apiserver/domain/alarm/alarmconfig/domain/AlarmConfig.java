@@ -41,6 +41,18 @@ public class AlarmConfig extends TimeBaseEntity {
     @Setter
     private boolean mention;
 
+    @Builder
+    private AlarmConfig(final Long id, final User user, final boolean message, final boolean notice,
+                        final boolean joinRequest, final boolean comment, final boolean mention) {
+        this.id = id;
+        this.user = user;
+        this.message = message;
+        this.notice = notice;
+        this.joinRequest = joinRequest;
+        this.comment = comment;
+        this.mention = mention;
+    }
+
     private AlarmConfig(User user) {
         this.user = user;
         this.message = true;

@@ -22,6 +22,13 @@ public class CommunityHashtag extends TimeBaseEntity {
 
     private String tag;
 
+    @Builder
+    private CommunityHashtag(final Long id, final Community community, final String tag) {
+        this.id = id;
+        this.community = community;
+        this.tag = tag;
+    }
+
     private CommunityHashtag(String tag, Community community) {
         this.community = community;
         this.tag = tag;
