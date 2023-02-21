@@ -62,6 +62,17 @@ public class Community extends TimeBaseEntity {
         this.hashtags = new CommunityHashtags(hashtags);
     }
 
+    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
+        return Community
+                .builder()
+                .communityName(name)
+                .description(description)
+                .isPrivate(isPrivate)
+                .autoApproval(autoApproval)
+                .category(category)
+                .build();
+    }
+
     public void updateDescription(String description) {
         this.description = new Description(description);
     }
@@ -86,22 +97,9 @@ public class Community extends TimeBaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
-    private Community(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
-        this.communityName = new CommunityName(name);
-        this.description = new Description(description);
-        this.isPrivate = isPrivate;
-        this.autoApproval = autoApproval;
-        this.category = category;
-    }
-
-    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
-        return new Community(name, description, isPrivate, autoApproval, category);
-    }
-
     public void addMemberCount() {
         this.memberCount++;
     }
-
 
     public Long getId() {
         return id;

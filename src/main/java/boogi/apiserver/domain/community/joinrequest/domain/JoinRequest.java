@@ -41,7 +41,7 @@ public class JoinRequest extends TimeBaseEntity {
 
     @Builder
     private JoinRequest(final Long id, final User user, final Community community, final Member confirmedMember,
-                       final Member acceptor, final JoinRequestStatus status) {
+                        final Member acceptor, final JoinRequestStatus status) {
         this.id = id;
         this.user = user;
         this.community = community;
@@ -50,9 +50,11 @@ public class JoinRequest extends TimeBaseEntity {
         this.status = status;
     }
 
-    private JoinRequest(User user, Community community) {
-        this.user = user;
-        this.community = community;
+    public static JoinRequest of(User user, Community community) {
+        return JoinRequest.builder()
+                .user(user)
+                .community(community)
+                .build();
     }
 
     public void reject(Member manager) {
@@ -69,9 +71,5 @@ public class JoinRequest extends TimeBaseEntity {
     public void confirm(Member confirmedMember) {
         this.confirmedMember = confirmedMember;
         this.status = JoinRequestStatus.CONFIRM;
-    }
-
-    public static JoinRequest of(User user, Community community) {
-        return new JoinRequest(user, community);
     }
 }

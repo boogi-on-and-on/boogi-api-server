@@ -38,12 +38,22 @@ public class Member extends TimeBaseEntity {
 
     @Builder
     private Member(final Long id, final Community community, final User user, final MemberType memberType,
-                  final LocalDateTime bannedAt) {
+                   final LocalDateTime bannedAt) {
         this.id = id;
         this.community = community;
         this.user = user;
         this.memberType = memberType;
         this.bannedAt = bannedAt;
+    }
+
+    public static Member createNewMember(Community community, User user, MemberType type) {
+        community.addMemberCount();
+
+        return Member.builder()
+                .community(community)
+                .user(user)
+                .memberType(type)
+                .build();
     }
 
     public void ban() {
@@ -61,16 +71,4 @@ public class Member extends TimeBaseEntity {
     public boolean isJoined() {
         return true;
     }
-
-    private Member(Community community, User user, MemberType type) {
-        this.community = community;
-        this.user = user;
-        this.memberType = type;
-    }
-
-    public static Member createNewMember(Community community, User user, MemberType type) {
-        community.addMemberCount();
-        return new Member(community, user, type);
-    }
-
 }
