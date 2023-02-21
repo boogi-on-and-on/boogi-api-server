@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class UpdateCommunityResponse {
 
-    final CommunitySettingInfoDto settingInfo;
+    private final CommunitySettingInfoDto settingInfo;
 
     public UpdateCommunityResponse(CommunitySettingInfoDto settingInfo) {
         this.settingInfo = settingInfo;

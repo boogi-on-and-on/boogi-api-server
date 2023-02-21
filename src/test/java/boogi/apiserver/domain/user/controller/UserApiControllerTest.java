@@ -6,7 +6,7 @@ import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
@@ -114,13 +114,8 @@ class UserApiControllerTest {
     @DisplayName("유저 프로필 개인정보 조회")
     void userBasicInfo() throws Exception {
         // given
-        UserDetailInfoDto response = UserDetailInfoDto.builder()
-                .id(4L)
-                .name("김선도")
-                .tagNum("#0001")
-                .introduce("반갑습니다")
-                .department("컴퓨터공학부")
-                .build();
+        UserDetailInfoDto response = new UserDetailInfoDto(4L, null, "김선도", "#0001",
+                "반갑습니다", "컴퓨터공학부");
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -147,15 +142,9 @@ class UserApiControllerTest {
     @Disabled
     void 유저_가입한_커뮤니티_조회() throws Exception {
         //given
-        UserJoinedCommunityDto dto1 = UserJoinedCommunityDto.builder()
-                .id(1L)
-                .name("커뮤니티1")
-                .build();
+        UserJoinedCommunityDto dto1 = new UserJoinedCommunityDto(1L, "커뮤니티1");
 
-        UserJoinedCommunityDto dto2 = UserJoinedCommunityDto.builder()
-                .id(2L)
-                .name("커뮤니티2")
-                .build();
+        UserJoinedCommunityDto dto2 = new UserJoinedCommunityDto(2L, "커뮤니티2");
 
         given(memberQueryService.getJoinedMemberInfo(anyLong()))
                 .willReturn(List.of(dto1, dto2));
@@ -220,10 +209,7 @@ class UserApiControllerTest {
         @Test
         @DisplayName("차단한 유저 목록 조회")
         void blockUserList() throws Exception {
-            MessageBlockedUserDto dto = MessageBlockedUserDto.builder()
-                    .userId(1L)
-                    .nameTag("가나다#0001")
-                    .build();
+            MessageBlockedUserDto dto = new MessageBlockedUserDto(1L, "가나다#0001");
 
             given(messageBlockQueryService.getBlockedMembers(anyLong()))
                     .willReturn(List.of(dto));
@@ -263,9 +249,7 @@ class UserApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            BlockMessageUsersRequest request = BlockMessageUsersRequest.builder()
-                    .blockUserIds(List.of())
-                    .build();
+            BlockMessageUsersRequest request = new BlockMessageUsersRequest(List.of());
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/users/messages/block")

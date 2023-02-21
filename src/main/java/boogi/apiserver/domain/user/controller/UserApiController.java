@@ -7,7 +7,7 @@ import boogi.apiserver.domain.community.community.application.CommunityService;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockService;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;

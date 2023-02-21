@@ -6,7 +6,7 @@ import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.domain.QPost;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.user.domain.QUser;
 import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
@@ -152,7 +152,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
         List<SearchPostDto> postDtos = posts.stream()
-                .map(SearchPostDto::new)
+                .map(SearchPostDto::from)
                 .collect(Collectors.toList());
 
         return PageableUtil.getSlice(postDtos, pageable);

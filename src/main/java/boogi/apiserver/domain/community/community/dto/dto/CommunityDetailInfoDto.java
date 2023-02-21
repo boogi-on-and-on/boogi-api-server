@@ -5,17 +5,15 @@ import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
-@Builder
-@AllArgsConstructor
+@Getter
 public class CommunityDetailInfoDto {
     private Boolean isPrivated;
     private String category;
@@ -29,22 +27,33 @@ public class CommunityDetailInfoDto {
     @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
-    private CommunityDetailInfoDto(Community community, List<CommunityHashtag> hashtags) {
-        this.isPrivated = community.isPrivate();
-        this.name = community.getCommunityName();
-        this.introduce = community.getDescription();
-
-        if (hashtags != null && hashtags.size() > 0) {
-            this.hashtags = hashtags.stream()
-                    .map(CommunityHashtag::getTag)
-                    .collect(Collectors.toList());
-        }
-        this.memberCount = String.valueOf(community.getMemberCount());
-        this.createdAt = community.getCreatedAt();
-        this.category = community.getCategory().toString();
+    @Builder(access = AccessLevel.PRIVATE)
+    public CommunityDetailInfoDto(Boolean isPrivated, String category, String name, String introduce,
+                                  List<String> hashtags, String memberCount, LocalDateTime createdAt) {
+        this.isPrivated = isPrivated;
+        this.category = category;
+        this.name = name;
+        this.introduce = introduce;
+        this.hashtags = hashtags;
+        this.memberCount = memberCount;
+        this.createdAt = createdAt;
     }
 
     public static CommunityDetailInfoDto of(Community community) {
-        return new CommunityDetailInfoDto(community, community.getHashtags());
+        List<CommunityHashtag> communityHashtags = community.getHashtags();
+        List<String> hashtags = (communityHashtags != null && communityHashtags.size() > 0) ?
+                communityHashtags.stream()
+                        .map(CommunityHashtag::getTag)
+                        .collect(Collectors.toList()) : null;
+
+        return CommunityDetailInfoDto.builder()
+                .isPrivated(community.isPrivate())
+                .name(community.getCommunityName())
+                .introduce(community.getDescription())
+                .hashtags(hashtags)
+                .memberCount(String.valueOf(community.getMemberCount()))
+                .createdAt(community.getCreatedAt())
+                .category(community.getCategory().toString())
+                .build();
     }
 }

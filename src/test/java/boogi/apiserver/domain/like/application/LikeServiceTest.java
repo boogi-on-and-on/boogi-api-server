@@ -6,7 +6,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -317,7 +317,7 @@ class LikeServiceTest {
             given(userRepository.findUsersByIds(anyList()))
                     .willReturn(users);
 
-            LikeMembersAtPost likeMembers = likeService
+            LikeMembersAtPostResponse likeMembers = likeService
                     .getLikeMembersAtPost(post.getId(), 2L, pageable);
 
             assertThat(likeMembers.getMembers().size()).isEqualTo(1);

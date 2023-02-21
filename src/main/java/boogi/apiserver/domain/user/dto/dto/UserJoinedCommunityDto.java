@@ -1,21 +1,19 @@
 package boogi.apiserver.domain.user.dto.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Builder
-@AllArgsConstructor
-@Data
+@Getter
 public class UserJoinedCommunityDto {
-    private String name;
     private Long id;
+    private String name;
 
-    public static UserJoinedCommunityDto of(Community community) {
-        return UserJoinedCommunityDto.builder()
-                .id(community.getId())
-                .name(community.getCommunityName())
-                .build();
+    public UserJoinedCommunityDto(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static UserJoinedCommunityDto from(Community community) {
+        return new UserJoinedCommunityDto(community.getId(), community.getCommunityName());
     }
 }

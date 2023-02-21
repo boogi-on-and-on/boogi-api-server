@@ -28,7 +28,8 @@ public class CreateCommunityRequest {
     @NotNull
     private Boolean autoApproval;
 
-    public CreateCommunityRequest(final String name, final String category, final String description, final List<String> hashtags, final Boolean isPrivate, final Boolean autoApproval) {
+    public CreateCommunityRequest(final String name, final String category, final String description,
+                                  final List<String> hashtags, final Boolean isPrivate, final Boolean autoApproval) {
         this.name = name;
         this.category = category;
         this.description = description;

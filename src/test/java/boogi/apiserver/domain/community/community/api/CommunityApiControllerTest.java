@@ -30,7 +30,7 @@ import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
+import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
@@ -215,7 +215,7 @@ class CommunityApiControllerTest {
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
                 .willReturn(List.of(noticeDto));
 
-        final LatestPostOfCommunityDto postDto = new LatestPostOfCommunityDto(4L, "글", LocalDateTime.now());
+        final LatestCommunityPostDto postDto = new LatestCommunityPostDto(4L, "글", LocalDateTime.now());
 
         given(postQueryService.getLatestPostOfCommunity(anyLong()))
                 .willReturn(List.of(postDto));
@@ -525,7 +525,7 @@ class CommunityApiControllerTest {
     @Test
     @DisplayName("커뮤니티 멤버 목록 페이지네이션")
     @Disabled
-    //todo: 추후 Projection을 Dto로 받도록 하고 수정하기
+        //todo: 추후 Projection을 Dto로 받도록 하고 수정하기
     void communityMembersPagination() throws Exception {
 
         MockHttpSession session = new MockHttpSession();
@@ -568,15 +568,11 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("차단된 멤버 목록 조회")
         void getBlockedMemberList() throws Exception {
-
-            BannedMemberDto dto = new BannedMemberDto(1L, UserBasicProfileDto.builder()
-                    .id(2L)
-                    .name("홍길동")
-                    .tagNum("#0001")
-                    .build());
+            UserBasicProfileDto user = new UserBasicProfileDto(2L, null, "#0001", "홍길동");
+            BannedMemberDto dto = new BannedMemberDto(1L, user);
 
             given(memberQueryService.getBannedMembers(anyLong()))
-                    .willReturn(List.<BannedMemberDto>of(dto));
+                    .willReturn(List.of(dto));
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -717,16 +713,9 @@ class CommunityApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        SearchCommunityDto dto = SearchCommunityDto.builder()
-                .category("HOBBY")
-                .createdAt(LocalDateTime.now())
-                .id(1L)
-                .hashtags(List.of("안녕", "헤헤"))
-                .memberCount(23)
-                .isPrivate(false)
-                .name("커뮤니티1")
-                .description("소개")
-                .build();
+        List<String> hashtags = List.of("안녕", "헤헤");
+        SearchCommunityDto dto = new SearchCommunityDto(1L, "커뮤니티1", "소개", LocalDateTime.now(),
+                hashtags, 23, "HOBBY", false);
 
         given(communityQueryService.getSearchedCommunities(any(), any()))
                 .willReturn(new PageImpl<>(List.of(dto), Pageable.ofSize(1), 1));
@@ -737,7 +726,7 @@ class CommunityApiControllerTest {
                                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .queryParam("isPrivate", "FALSE")
-                                .queryParam("order", "NEWER")
+                                .queryParam("order", "OLDER")
                                 .queryParam("category", "HOBBY")
                                 .queryParam("keyword", "안녕")
                 ).andExpect(status().isOk())
@@ -765,7 +754,8 @@ class CommunityApiControllerTest {
         ReflectionTestUtils.setField(member, "community", community);
         ReflectionTestUtils.setField(member, "user", user);
 
-        final MemberDto dto = new MemberDto(2L, MemberType.NORMAL, UserBasicProfileDto.builder().id(2L).build());
+        UserBasicProfileDto userDto = new UserBasicProfileDto(2L, null, null, null);
+        final MemberDto dto = new MemberDto(2L, MemberType.NORMAL, userDto);
         given(memberQueryService.getJoinedMembersAll(anyLong(), anyLong()))
                 .willReturn(List.of(dto));
 

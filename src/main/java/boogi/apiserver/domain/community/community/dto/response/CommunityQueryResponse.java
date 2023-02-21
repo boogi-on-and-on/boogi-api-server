@@ -17,7 +17,7 @@ public class CommunityQueryResponse {
         this.communities = communities;
     }
 
-    public static CommunityQueryResponse of(final Slice<SearchCommunityDto> slice) {
+    public static CommunityQueryResponse from(final Slice<SearchCommunityDto> slice) {
         return new CommunityQueryResponse(PaginationDto.of(slice), slice.getContent());
     }
 }

@@ -81,12 +81,7 @@ class CommunityRepositoryTest {
             communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
 
-            CommunityQueryRequest request = CommunityQueryRequest.builder()
-                    .isPrivate(true)
-                    .category(CommunityCategory.ACADEMIC)
-                    .order(CommunityListingOrder.NEWER)
-                    .keyword("안녕")
-                    .build();
+            CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, "안녕");
 
             em.flush();
             em.clear();
@@ -135,11 +130,7 @@ class CommunityRepositoryTest {
             CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
             communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
-            CommunityQueryRequest request = CommunityQueryRequest.builder()
-                    .isPrivate(true)
-                    .category(CommunityCategory.ACADEMIC)
-                    .order(CommunityListingOrder.NEWER)
-                    .build();
+            CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, null);
 
             em.flush();
             em.clear();

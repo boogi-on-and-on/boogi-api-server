@@ -18,8 +18,8 @@ import boogi.apiserver.domain.member.exception.HasNotUpdateAuthorityException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.request.CreatePost;
-import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
+import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
@@ -132,8 +132,8 @@ class PostServiceTest {
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
                     .willReturn(PostMedias.EMPTY);
 
-            CreatePost createPost = new CreatePost(community.getId(), "내용", List.of(), List.of(), List.of());
-            Post newPost = postService.createPost(createPost, 1L);
+            CreatePostRequest createPostRequest = new CreatePostRequest(community.getId(), "내용", List.of(), List.of(), List.of());
+            Post newPost = postService.createPost(createPostRequest, 1L);
 
             verify(postHashtagService, times(1)).addTags(anyLong(), anyList());
 
@@ -169,9 +169,9 @@ class PostServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            UpdatePost updatePost = new UpdatePost("글", List.of(), List.of());
+            UpdatePostRequest updatePostRequest = new UpdatePostRequest("글", List.of(), List.of());
 
-            assertThatThrownBy(() -> postService.updatePost(updatePost, post.getId(), 2L))
+            assertThatThrownBy(() -> postService.updatePost(updatePostRequest, post.getId(), 2L))
                     .isInstanceOf(HasNotUpdateAuthorityException.class);
         }
 
@@ -218,9 +218,9 @@ class PostServiceTest {
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
                     .willReturn(new PostMedias(List.of(postMedia)));
 
-            UpdatePost updatePost = new UpdatePost("수정글", List.of(postHashtag.getTag()), List.of(postMedia.getUuid()));
+            UpdatePostRequest updatePostRequest = new UpdatePostRequest("수정글", List.of(postHashtag.getTag()), List.of(postMedia.getUuid()));
 
-            Post updatedPost = postService.updatePost(updatePost, post.getId(), 1L);
+            Post updatedPost = postService.updatePost(updatePostRequest, post.getId(), 1L);
 
             assertThat(updatedPost.getId()).isEqualTo(post.getId());
             assertThat(updatedPost.getHashtags().size()).isEqualTo(1);
@@ -229,7 +229,7 @@ class PostServiceTest {
             assertThat(updatedPost.getPostMedias().size()).isEqualTo(1);
             assertThat(updatedPost.getPostMedias().get(0).getId()).isEqualTo(postMedia.getId());
             assertThat(updatedPost.getPostMedias().get(0).getUuid()).isEqualTo(postMedia.getUuid());
-            assertThat(updatedPost.getContent()).isEqualTo(updatePost.getContent());
+            assertThat(updatedPost.getContent()).isEqualTo(updatePostRequest.getContent());
         }
     }
 

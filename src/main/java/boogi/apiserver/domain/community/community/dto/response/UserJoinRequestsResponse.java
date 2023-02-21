@@ -14,7 +14,7 @@ public class UserJoinRequestsResponse {
         this.requests = requests;
     }
 
-    public static UserJoinRequestsResponse of(List<UserJoinRequestInfoDto> requests) {
+    public static UserJoinRequestsResponse from(List<UserJoinRequestInfoDto> requests) {
         return new UserJoinRequestsResponse(requests);
     }
 }

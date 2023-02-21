@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.comment.dto.response;
 
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.global.dto.PaginationDto;
 import lombok.Getter;
 import org.springframework.data.domain.Slice;
@@ -25,7 +26,5 @@ public class UserCommentPageResponse {
                 .collect(Collectors.toList());
 
         return new UserCommentPageResponse(comments, PaginationDto.of(page));
-
     }
-
 }

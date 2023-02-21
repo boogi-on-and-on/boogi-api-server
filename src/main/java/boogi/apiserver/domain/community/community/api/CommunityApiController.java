@@ -25,7 +25,7 @@ import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.response.LatestPostOfCommunityDto;
+import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.SimpleIdResponse;
 import boogi.apiserver.global.error.exception.InvalidValueException;
@@ -81,7 +81,7 @@ public class CommunityApiController {
         List<NoticeDto> communityNotices = noticeQueryService.getCommunityLatestNotice(communityId);
 
         boolean showPostList = !(Objects.isNull(member) && community.isPrivate());
-        List<LatestPostOfCommunityDto> latestPosts = (showPostList == false) ? null :
+        List<LatestCommunityPostDto> latestPosts = (showPostList == false) ? null :
                 postQueryService.getLatestPostOfCommunity(communityId);
 
         return CommunityDetailResponse.of(communityNotices, latestPosts, member, community);
@@ -211,7 +211,7 @@ public class CommunityApiController {
 
         List<UserJoinRequestInfoDto> requests = joinRequestQueryService.getAllRequests(communityId);
 
-        return UserJoinRequestsResponse.of(requests);
+        return UserJoinRequestsResponse.from(requests);
     }
 
     @PostMapping("/{communityId}/requests")
@@ -254,7 +254,7 @@ public class CommunityApiController {
                                                     Pageable pageable) {
         Slice<SearchCommunityDto> slice = communityQueryService.getSearchedCommunities(pageable, request);
 
-        return CommunityQueryResponse.of(slice);
+        return CommunityQueryResponse.from(slice);
     }
 
     @GetMapping("{communityId}/members/all")

@@ -2,19 +2,16 @@ package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.dto.JoinedMemberInfoDto;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.dto.MemberDto;
-import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
-import boogi.apiserver.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -47,7 +44,7 @@ public class MemberQueryService {
     }
 
     public List<UserJoinedCommunityDto> getJoinedMemberInfo(Long userId) {
-        return memberRepository.findByUserId(userId).stream().map(m -> UserJoinedCommunityDto.of(m.getCommunity())).collect(Collectors.toList());
+        return memberRepository.findByUserId(userId).stream().map(m -> UserJoinedCommunityDto.from(m.getCommunity())).collect(Collectors.toList());
     }
 
     public Member getMemberOfTheCommunity(Long userId, Long communityId) {

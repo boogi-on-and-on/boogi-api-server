@@ -3,7 +3,7 @@ package boogi.apiserver.domain.comment.application;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
-import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeService;
@@ -101,7 +101,7 @@ public class CommentService {
         }
     }
 
-    public CommentsAtPost getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
+    public CommentsAtPostResponse getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
         Post findPost = postRepository.findByPostId(postId);
 
         Community postedCommunity = findPost.getCommunity();
@@ -142,15 +142,15 @@ public class CommentService {
                 likeRepository.findCommentLikesByCommentIdsAndMemberId(commentIds, joinedMemberId).stream()
                         .collect(Collectors.toMap(c -> c.getComment().getId(), c -> c));
 
-        Map<Long, List<CommentsAtPost.ChildCommentInfo>> childCommentInfos = childComments.stream()
+        Map<Long, List<CommentsAtPostResponse.ChildCommentInfo>> childCommentInfos = childComments.stream()
                 .map(c -> createChildCommentInfo(
                         joinedMemberId,
                         commentLikes,
                         c,
                         findCommentCountMap.getOrDefault(c.getId(), 0L)))
-                .collect(Collectors.groupingBy(CommentsAtPost.ChildCommentInfo::getParentId, HashMap::new, Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.groupingBy(CommentsAtPostResponse.ChildCommentInfo::getParentId, HashMap::new, Collectors.toCollection(ArrayList::new)));
 
-        List<CommentsAtPost.ParentCommentInfo> commentInfos = parentComments.stream()
+        List<CommentsAtPostResponse.ParentCommentInfo> commentInfos = parentComments.stream()
                 .filter(c -> (c.getDeletedAt() == null || childCommentInfos.get(c.getId()) != null))
                 .map(c -> createParentCommentInfo(joinedMemberId,
                         commentLikes,
@@ -159,10 +159,10 @@ public class CommentService {
                         findCommentCountMap.getOrDefault(c.getId(), 0L)))
                 .collect(Collectors.toList());
 
-        return CommentsAtPost.of(commentInfos, commentPage);
+        return CommentsAtPostResponse.of(commentInfos, commentPage);
     }
 
-    private CommentsAtPost.ChildCommentInfo createChildCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Comment c, Long likeCount) {
+    private CommentsAtPostResponse.ChildCommentInfo createChildCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Comment c, Long likeCount) {
         Like like = (commentLikes == null) ? null : commentLikes.get(c.getId());
         Long likeId = (like == null) ? null : like.getId();
         Member commentedMember = c.getMember();
@@ -170,17 +170,17 @@ public class CommentService {
         Boolean me = (commentedMember != null && commentedMemberId.equals(joinedMemberId))
                 ? Boolean.TRUE : Boolean.FALSE;
         Long parentId = c.getParent().getId();
-        return CommentsAtPost.ChildCommentInfo.toDto(c, likeId, me, parentId, likeCount);
+        return CommentsAtPostResponse.ChildCommentInfo.of(c, likeId, me, parentId, likeCount);
     }
 
-    private CommentsAtPost.ParentCommentInfo createParentCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Map<Long, List<CommentsAtPost.ChildCommentInfo>> childCommentInfos, Comment c, Long likeCount) {
+    private CommentsAtPostResponse.ParentCommentInfo createParentCommentInfo(Long joinedMemberId, Map<Long, Like> commentLikes, Map<Long, List<CommentsAtPostResponse.ChildCommentInfo>> childCommentInfos, Comment c, Long likeCount) {
         Like like = (commentLikes == null) ? null : commentLikes.get(c.getId());
         Long likeId = (like == null) ? null : like.getId();
         Member commentedMember = c.getMember();
         Long commentedMemberId = (commentedMember == null) ? null : commentedMember.getId();
         Boolean me = (commentedMember != null && commentedMemberId.equals(joinedMemberId))
                 ? Boolean.TRUE : Boolean.FALSE;
-        return CommentsAtPost.ParentCommentInfo.toDto(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
+        return CommentsAtPostResponse.ParentCommentInfo.of(c, likeId, me, childCommentInfos.get(c.getId()), likeCount);
     }
 
     public UserCommentPageResponse getUserComments(Long userId, Long sessionUserId, Pageable pageable) {

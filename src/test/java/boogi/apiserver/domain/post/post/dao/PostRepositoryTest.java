@@ -10,12 +10,12 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.dto.response.PostMediaMetadataDto;
+import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
@@ -373,10 +373,7 @@ class PostRepositoryTest {
 
         postHashtagRepository.saveAll(List.of(p1_ht1, p1_ht2, p2_ht1, p3_ht1));
 
-        PostQueryRequest request = PostQueryRequest.builder()
-                .keyword("헤헤")
-                .order(PostListingOrder.NEWER)
-                .build();
+        PostQueryRequest request = new PostQueryRequest("헤헤", PostListingOrder.NEWER);
 
         persistenceUtil.cleanPersistenceContext();
 
@@ -556,7 +553,7 @@ class PostRepositoryTest {
 
     @Nested
     @DisplayName("findByPostId 디폴트 메서드 테스트")
-    class findByPostId{
+    class findByPostId {
 
         @DisplayName("성공")
         @Test

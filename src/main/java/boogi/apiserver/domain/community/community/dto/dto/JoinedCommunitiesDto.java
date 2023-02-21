@@ -20,24 +20,26 @@ import java.util.stream.Stream;
 @Getter
 public class JoinedCommunitiesDto {
 
-    List<CommunityInfo> communities;
+    private List<CommunityInfo> communities;
 
     public JoinedCommunitiesDto(final List<CommunityInfo> communities) {
         this.communities = communities;
     }
 
-    public static JoinedCommunitiesDto of(Map<Long, Community> joinedCommunityMap, Map<Long, Post> latestPostMap, Map<Long, String> postMediaUrlMap) {
+    public static JoinedCommunitiesDto of(Map<Long, Community> joinedCommunityMap,
+                                          Map<Long, Post> latestPostMap,
+                                          Map<Long, String> postMediaUrlMap) {
         List<CommunityInfo> communitiesWithPosts = latestPostMap.keySet().stream()
                 .map(ci -> {
                     Community joinedCommunity = joinedCommunityMap.get(ci);
                     joinedCommunityMap.remove(ci);
                     Post latestPost = latestPostMap.get(ci);
-                    return CommunityInfo.toDto(joinedCommunity, latestPost, postMediaUrlMap.get(latestPost.getId()));
+                    return CommunityInfo.of(joinedCommunity, latestPost, postMediaUrlMap.get(latestPost.getId()));
                 }).collect(Collectors.toList());
 
         List<CommunityInfo> communitiesWithoutPosts = joinedCommunityMap.keySet().stream()
                 .map(ci ->
-                        CommunityInfo.toDto(joinedCommunityMap.get(ci), null, null)
+                        CommunityInfo.of(joinedCommunityMap.get(ci), null, null)
                 ).collect(Collectors.toList());
 
         List<CommunityInfo> communities = (communitiesWithPosts.isEmpty() && communitiesWithoutPosts.isEmpty()) ? new ArrayList<>() :
@@ -62,11 +64,11 @@ public class JoinedCommunitiesDto {
             this.post = post;
         }
 
-        public static CommunityInfo toDto(Community community, Post post, String postMediaUrl) {
+        public static CommunityInfo of(Community community, Post post, String postMediaUrl) {
             return CommunityInfo.builder()
                     .id(community.getId())
                     .name(community.getCommunityName())
-                    .post((post == null) ? null : PostInfo.toDto(post, postMediaUrl))
+                    .post(PostInfo.of(post, postMediaUrl))
                     .build();
         }
     }
@@ -91,7 +93,9 @@ public class JoinedCommunitiesDto {
         private Integer commentCount;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public PostInfo(final Long id, final LocalDateTime createdAt, final List<String> hashtags, final String content, final String postMediaUrl, final Integer likeCount, final Integer commentCount) {
+        public PostInfo(final Long id, final LocalDateTime createdAt, final List<String> hashtags,
+                        final String content, final String postMediaUrl, final Integer likeCount,
+                        final Integer commentCount) {
             this.id = id;
             this.createdAt = createdAt;
             this.hashtags = hashtags;
@@ -101,15 +105,20 @@ public class JoinedCommunitiesDto {
             this.commentCount = commentCount;
         }
 
-        private static PostInfo toDto(Post post, String postMediaUrl) {
+        private static PostInfo of(Post post, String postMediaUrl) {
+            if (post == null) {
+                return null;
+            }
             List<PostHashtag> postHashtags = post.getHashtags();
+            List<String> hashtags = postHashtags.isEmpty() ? null :
+                    postHashtags.stream()
+                            .map(PostHashtag::getTag)
+                            .collect(Collectors.toList());
 
             return PostInfo.builder()
                     .id(post.getId())
                     .createdAt(post.getCreatedAt())
-                    .hashtags((postHashtags.isEmpty()) ? null : postHashtags.stream()
-                            .map(postHashtag -> postHashtag.getTag())
-                            .collect(Collectors.toList()))
+                    .hashtags(hashtags)
                     .content(post.getContent())
                     .postMediaUrl(postMediaUrl)
                     .likeCount(post.getLikeCount())
