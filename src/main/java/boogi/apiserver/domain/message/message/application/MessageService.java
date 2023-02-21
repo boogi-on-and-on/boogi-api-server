@@ -35,12 +35,7 @@ public class MessageService {
 
         Boolean isBlockedMessage = messageBlockRepository.checkOnlyReceiverBlockedFromSender(senderId, receiver.getId());
 
-        Message sendedMessage = Message.builder()
-                .sender(sender)
-                .receiver(receiver)
-                .content(sendMessageRequest.getContent())
-                .blocked_message(isBlockedMessage)
-                .build();
+        Message sendedMessage = Message.of(sender, receiver, sendMessageRequest.getContent(), isBlockedMessage);
 
         return messageRepository.save(sendedMessage);
     }

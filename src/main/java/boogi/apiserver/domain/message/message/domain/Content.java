@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.message.message.domain;
 
-import boogi.apiserver.domain.comment.exception.InvalidCommentContentException;
 import boogi.apiserver.domain.message.message.exception.InvalidMessageContentException;
 import lombok.AccessLevel;
 import lombok.Getter;

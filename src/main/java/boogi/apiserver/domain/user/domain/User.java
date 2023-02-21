@@ -2,6 +2,7 @@ package boogi.apiserver.domain.user.domain;
 
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -35,6 +36,20 @@ public class User extends TimeBaseEntity {
     private Introduce introduce;
 
     private boolean messageNotAllowed;
+
+
+    @Builder
+    private User(Long id, String email, String username, String department, String tagNumber,
+                 String profileImageUrl, String introduce, boolean messageNotAllowed) {
+        this.id = id;
+        this.email = new Email(email);
+        this.username = new Username(username);
+        this.department = new Department(department);
+        this.tagNumber = new TagNumber(tagNumber);
+        this.profileImageUrl = profileImageUrl;
+        this.introduce = new Introduce(introduce);
+        this.messageNotAllowed = messageNotAllowed;
+    }
 
     public Long getId() {
         return id;

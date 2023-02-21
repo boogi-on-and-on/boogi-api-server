@@ -8,8 +8,9 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 import static javax.persistence.FetchType.LAZY;
@@ -49,7 +50,11 @@ public class Report extends TimeBaseEntity {
     @Enumerated(EnumType.STRING)
     private ReportReason reason;
 
-    private Report(Post post, Community community, Comment comment, Message message, User user, String content, ReportReason reason) {
+
+    @Builder
+    private Report(Long id, Post post, Community community, Comment comment, Message message, User user, String content,
+                   ReportReason reason) {
+        this.id = id;
         this.post = post;
         this.community = community;
         this.comment = comment;
@@ -60,14 +65,15 @@ public class Report extends TimeBaseEntity {
     }
 
     public static Report of(Object targetObject, User user, String content, ReportReason reason) {
+        ReportBuilder reportBuilder = Report.builder().user(user).content(content).reason(reason);
         if (targetObject instanceof Community) {
-            return new Report(null, (Community) targetObject, null, null, user, content, reason);
+            return reportBuilder.community((Community) targetObject).build();
         } else if (targetObject instanceof Post) {
-            return new Report((Post) targetObject, null, null, null, user, content, reason);
+            return reportBuilder.post((Post) targetObject).build();
         } else if (targetObject instanceof Comment) {
-            return new Report(null, null, (Comment) targetObject, null, user, content, reason);
+            return reportBuilder.comment((Comment) targetObject).build();
         } else if (targetObject instanceof Message) {
-            return new Report(null, null, null, (Message) targetObject, user, content, reason);
+            return reportBuilder.message((Message) targetObject).build();
         } else {
             throw new InvalidValueException("잘못된 신고 대상입니다");
         }

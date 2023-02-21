@@ -30,12 +30,23 @@ public class Message extends TimeBaseEntity {
 
     private boolean blocked_message;
 
+
     @Builder
-    public Message(final User sender, final User receiver, final String content, final Boolean blocked_message) {
+    private Message(Long id, User sender, User receiver, String content, boolean blocked_message) {
+        this.id = id;
         this.sender = sender;
         this.receiver = receiver;
         this.content = new Content(content);
         this.blocked_message = blocked_message;
+    }
+
+    public static Message of(User sender, User receiver, String content, boolean isBlockedMessage) {
+        return Message.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .content(content)
+                .blocked_message(isBlockedMessage)
+                .build();
     }
 
     public Long getId() {
