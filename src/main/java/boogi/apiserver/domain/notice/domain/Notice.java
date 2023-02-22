@@ -32,7 +32,6 @@ public class Notice extends TimeBaseEntity {
     @Embedded
     private Content content;
 
-
     @Builder
     private Notice(Long id, Community community, Member member, String title, String content) {
         this.id = id;
@@ -42,13 +41,15 @@ public class Notice extends TimeBaseEntity {
         this.content = new Content(content);
     }
 
+    private Notice(String content, String title, Member member, Community community) {
+        this.content = new Content(content);
+        this.title = new Title(title);
+        this.member = member;
+        this.community = community;
+    }
+
     public static Notice of(String content, String title, Member member, Community community) {
-        return Notice.builder()
-                .content(content)
-                .title(title)
-                .member(member)
-                .community(community)
-                .build();
+        return new Notice(content, title, member, community);
     }
 
     public Long getId() {

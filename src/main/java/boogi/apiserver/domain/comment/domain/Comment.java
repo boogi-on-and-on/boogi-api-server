@@ -56,23 +56,26 @@ public class Comment extends TimeBaseEntity {
         this.deletedAt = deletedAt;
     }
 
+    private Comment(Post post, Member member, Comment parent, String content) {
+        this.post = post;
+        this.member = member;
+        this.parent = parent;
+        this.content = new Content(content);
+        this.child = (parent == null) ? Boolean.FALSE : Boolean.TRUE;
+    }
+
+    private Comment(Long id, String content, LocalDateTime removeAt) {
+        this.id = id;
+        this.content = new Content(content);
+        this.deletedAt = removeAt;
+    }
+
     public static Comment of(Post post, Member member, Comment parent, String content) {
-        return Comment.builder()
-                .post(post)
-                .member(member)
-                .parent(parent)
-                .content(content)
-                .child((parent == null) ? Boolean.FALSE : Boolean.TRUE)
-                .build();
+        return new Comment(post, member, parent, content);
     }
 
     public static Comment deletedOf(Long id, LocalDateTime removeAt) {
-        return Comment
-                .builder()
-                .id(id)
-                .content(DELETED_COMMENT_CONTENT)
-                .deletedAt(removeAt)
-                .build();
+        return new Comment(id, DELETED_COMMENT_CONTENT, removeAt);
     }
 
     public void deleteComment() {

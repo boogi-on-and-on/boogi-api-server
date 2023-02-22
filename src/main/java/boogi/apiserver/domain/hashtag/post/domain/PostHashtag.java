@@ -29,11 +29,14 @@ public class PostHashtag extends TimeBaseEntity {
         this.tag = tag;
     }
 
+    private PostHashtag(Post post, String tag) {
+        this.post = post;
+        this.tag = tag;
+//        post.getHashtags().add(this); //todo
+    }
+
     public static PostHashtag of(String tag, Post post) {
-        return PostHashtag.builder()
-                .tag(tag)
-                .post(post)
-                .build();
+        return new PostHashtag(post, tag);
 //        post.getHashtags().add(this); //todo??
     }
 }

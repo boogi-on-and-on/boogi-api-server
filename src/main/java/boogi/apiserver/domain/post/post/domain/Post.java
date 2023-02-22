@@ -44,16 +44,13 @@ public class Post extends TimeBaseEntity {
     private Content content;
 
     @Column(name = "deleted_at")
-//    @Builder.Default
-    private LocalDateTime deletedAt = null;
+    private LocalDateTime deletedAt;
 
     @Column(name = "like_count")
-//    @Builder.Default
-    private int likeCount = 0;
+    private int likeCount;
 
     @Column(name = "comment_count")
-//    @Builder.Default
-    private int commentCount = 0;
+    private int commentCount;
 
     @Embedded
     private PostHashtags hashtags;
@@ -61,9 +58,8 @@ public class Post extends TimeBaseEntity {
     @Embedded
     private PostMedias postMedias;
 
-//    @Builder.Default
     @OneToMany(mappedBy = "post")
-    List<Like> likes = new ArrayList<>();
+    private List<Like> likes = new ArrayList<>();
 
     @Builder
     private Post(Long id, Community community, Member member, String content, LocalDateTime deletedAt, int likeCount,
@@ -80,12 +76,14 @@ public class Post extends TimeBaseEntity {
         this.likes = likes;
     }
 
+    private Post(Community community, Member member, String content) {
+        this.community = community;
+        this.member = member;
+        this.content = new Content(content);
+    }
+
     public static Post of(Community community, Member member, String content) {
-        return Post.builder()
-                .community(community)
-                .member(member)
-                .content(content)
-                .build();
+        return new Post(community, member, content);
     }
 
     public void addLikeCount() {

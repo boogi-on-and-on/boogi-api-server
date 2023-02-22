@@ -46,14 +46,16 @@ public class Member extends TimeBaseEntity {
         this.bannedAt = bannedAt;
     }
 
+    private Member(Community community, User user, MemberType type) {
+        this.community = community;
+        this.user = user;
+        this.memberType = type;
+    }
+
     public static Member createNewMember(Community community, User user, MemberType type) {
         community.addMemberCount();
 
-        return Member.builder()
-                .community(community)
-                .user(user)
-                .memberType(type)
-                .build();
+        return new Member(community, user, type);
     }
 
     public void ban() {

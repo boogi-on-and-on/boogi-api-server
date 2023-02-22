@@ -29,11 +29,14 @@ public class CommunityHashtag extends TimeBaseEntity {
         this.tag = tag;
     }
 
+    private CommunityHashtag(String tag, Community community) {
+        this.community = community;
+        this.tag = tag;
+//        community.getHashtags().add(this); todo
+    }
+
     public static CommunityHashtag of(String tag, Community community) {
-        return CommunityHashtag.builder()
-                .tag(tag)
-                .community(community)
-                .build();
+        return new CommunityHashtag(tag, community);
 //        community.getHashtags().add(this); todo?
     }
 }

@@ -40,13 +40,15 @@ public class Message extends TimeBaseEntity {
         this.blocked_message = blocked_message;
     }
 
+    private Message(User sender, User receiver, String content, boolean blocked_message) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = new Content(content);
+        this.blocked_message = blocked_message;
+    }
+
     public static Message of(User sender, User receiver, String content, boolean isBlockedMessage) {
-        return Message.builder()
-                .sender(sender)
-                .receiver(receiver)
-                .content(content)
-                .blocked_message(isBlockedMessage)
-                .build();
+        return new Message(sender, receiver, content, isBlockedMessage);
     }
 
     public Long getId() {

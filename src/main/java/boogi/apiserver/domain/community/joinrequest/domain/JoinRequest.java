@@ -50,11 +50,13 @@ public class JoinRequest extends TimeBaseEntity {
         this.status = status;
     }
 
+    private JoinRequest(User user, Community community) {
+        this.user = user;
+        this.community = community;
+    }
+
     public static JoinRequest of(User user, Community community) {
-        return JoinRequest.builder()
-                .user(user)
-                .community(community)
-                .build();
+        return new JoinRequest(user, community);
     }
 
     public void reject(Member manager) {
