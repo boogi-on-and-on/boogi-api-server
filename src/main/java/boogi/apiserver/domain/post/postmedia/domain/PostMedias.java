@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.post.postmedia.domain;
 
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
@@ -10,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class PostMedias {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)

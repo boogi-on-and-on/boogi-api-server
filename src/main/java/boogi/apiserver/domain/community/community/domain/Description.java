@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.community.community.domain;
 
-import boogi.apiserver.domain.comment.exception.InvalidCommentContentException;
+import boogi.apiserver.domain.community.community.exception.InvalidDescriptionException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,9 +26,9 @@ public class Description {
     }
 
     private void validate(String value) {
-        if (!!StringUtils.hasText(value) ||
+        if (!StringUtils.hasText(value) ||
                 value.length() < MIN_LENGTH || value.length() > MAX_LENGTH) {
-            throw new InvalidCommentContentException();
+            throw new InvalidDescriptionException();
         }
     }
 }

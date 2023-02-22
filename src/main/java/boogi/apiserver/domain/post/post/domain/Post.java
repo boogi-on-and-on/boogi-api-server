@@ -53,10 +53,10 @@ public class Post extends TimeBaseEntity {
     private int commentCount;
 
     @Embedded
-    private PostHashtags hashtags;
+    private PostHashtags hashtags = new PostHashtags();
 
     @Embedded
-    private PostMedias postMedias;
+    private PostMedias postMedias = new PostMedias();
 
     @OneToMany(mappedBy = "post")
     private List<Like> likes = new ArrayList<>();

@@ -45,7 +45,7 @@ public class Community extends TimeBaseEntity {
 //    @OneToMany(mappedBy = "community")
 //    private List<CommunityHashtag> hashtags = new ArrayList<>();
     @Embedded
-    private CommunityHashtags hashtags;
+    private CommunityHashtags hashtags = new CommunityHashtags();
 
     @Builder
     private Community(final Long id, final String communityName, final String description, final boolean isPrivate,

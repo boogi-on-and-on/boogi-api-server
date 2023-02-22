@@ -1,7 +1,6 @@
 package boogi.apiserver.domain.hashtag.post.domain;
 
 import boogi.apiserver.domain.post.post.domain.Post;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
@@ -12,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class PostHashtags {
 
     private static final int MAX_LENGTH = 5;

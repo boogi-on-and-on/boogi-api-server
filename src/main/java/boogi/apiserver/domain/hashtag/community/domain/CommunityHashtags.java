@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class CommunityHashtags {
 
     private static final int MAX_LENGTH = 5;
