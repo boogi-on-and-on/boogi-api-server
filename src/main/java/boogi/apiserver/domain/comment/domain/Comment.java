@@ -35,7 +35,7 @@ public class Comment extends TimeBaseEntity {
     private Comment parent;
 
     @Embedded
-    private Content content;
+    private CommentContent content;
 
     private boolean child;
 
@@ -51,7 +51,7 @@ public class Comment extends TimeBaseEntity {
         this.post = post;
         this.member = member;
         this.parent = parent;
-        this.content = new Content(content);
+        this.content = new CommentContent(content);
         this.child = child;
         this.deletedAt = deletedAt;
     }
@@ -60,13 +60,13 @@ public class Comment extends TimeBaseEntity {
         this.post = post;
         this.member = member;
         this.parent = parent;
-        this.content = new Content(content);
+        this.content = new CommentContent(content);
         this.child = (parent == null) ? Boolean.FALSE : Boolean.TRUE;
     }
 
     private Comment(Long id, String content, LocalDateTime removeAt) {
         this.id = id;
-        this.content = new Content(content);
+        this.content = new CommentContent(content);
         this.deletedAt = removeAt;
     }
 

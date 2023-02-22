@@ -26,7 +26,7 @@ public class Message extends TimeBaseEntity {
     private User receiver;
 
     @Embedded
-    private Content content;
+    private MessageContent content;
 
     private boolean blocked_message;
 
@@ -36,14 +36,14 @@ public class Message extends TimeBaseEntity {
         this.id = id;
         this.sender = sender;
         this.receiver = receiver;
-        this.content = new Content(content);
+        this.content = new MessageContent(content);
         this.blocked_message = blocked_message;
     }
 
     private Message(User sender, User receiver, String content, boolean blocked_message) {
         this.sender = sender;
         this.receiver = receiver;
-        this.content = new Content(content);
+        this.content = new MessageContent(content);
         this.blocked_message = blocked_message;
     }
 

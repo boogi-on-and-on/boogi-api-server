@@ -8,7 +8,6 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static javax.persistence.FetchType.LAZY;
 

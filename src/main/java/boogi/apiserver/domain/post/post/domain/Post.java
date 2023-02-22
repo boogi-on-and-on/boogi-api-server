@@ -41,7 +41,7 @@ public class Post extends TimeBaseEntity {
     private Member member;
 
     @Embedded
-    private Content content;
+    private PostContent content;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -67,7 +67,7 @@ public class Post extends TimeBaseEntity {
         this.id = id;
         this.community = community;
         this.member = member;
-        this.content = new Content(content);
+        this.content = new PostContent(content);
         this.deletedAt = deletedAt;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
@@ -79,7 +79,7 @@ public class Post extends TimeBaseEntity {
     private Post(Community community, Member member, String content) {
         this.community = community;
         this.member = member;
-        this.content = new Content(content);
+        this.content = new PostContent(content);
     }
 
     public static Post of(Community community, Member member, String content) {
@@ -105,7 +105,7 @@ public class Post extends TimeBaseEntity {
     }
 
     public void updatePost(String content, List<PostHashtag> hashtags) {
-        this.content = new Content(content);
+        this.content = new PostContent(content);
 //        this.hashtags = hashtags; //todo
     }
 

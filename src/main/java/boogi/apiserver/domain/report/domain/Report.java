@@ -45,7 +45,7 @@ public class Report extends TimeBaseEntity {
     private User user;
 
     @Embedded
-    private Content content;
+    private ReportContent content;
 
     @Enumerated(EnumType.STRING)
     private ReportReason reason;
@@ -60,17 +60,18 @@ public class Report extends TimeBaseEntity {
         this.comment = comment;
         this.message = message;
         this.user = user;
-        this.content = new Content(content);
+        this.content = new ReportContent(content);
         this.reason = reason;
     }
 
-    private Report(Post post, Community community, Comment comment, Message message, User user, String content, ReportReason reason) {
+    private Report(Post post, Community community, Comment comment, Message message, User user, String content,
+                   ReportReason reason) {
         this.post = post;
         this.community = community;
         this.comment = comment;
         this.message = message;
         this.user = user;
-        this.content = new Content(content);
+        this.content = new ReportContent(content);
         this.reason = reason;
     }
 
