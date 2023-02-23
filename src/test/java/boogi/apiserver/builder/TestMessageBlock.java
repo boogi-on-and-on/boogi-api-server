@@ -4,7 +4,7 @@ import boogi.apiserver.domain.message.block.domain.MessageBlock;
 
 public class TestMessageBlock {
 
-    public MessageBlock.MessageBlockBuilder builder() {
+    public static MessageBlock.MessageBlockBuilder builder() {
         return MessageBlock.builder()
                 .blocked(true);
     }
