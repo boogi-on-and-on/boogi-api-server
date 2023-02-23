@@ -1,10 +1,11 @@
 package boogi.apiserver.domain.comment.application;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
-import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -24,7 +25,6 @@ import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,15 +32,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
 
@@ -87,15 +90,14 @@ class CommentServiceTest {
         @Test
         @DisplayName("parentCommentId를 null로 주면 부모 댓글이 생성된다.")
         void createParentCommentSuccess() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
+            final Member member = TestMember.builder().build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 2L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "commentCount", 0);
+            final Post post = TestPost.builder()
+                    .id(2L)
+                    .community(community)
+                    .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
@@ -115,27 +117,28 @@ class CommentServiceTest {
         @Test
         @DisplayName("ParentCommentId에 부모 댓글의 Id값을 주면 자식 댓글이 생성된다.")
         void createChildCommentSuccess() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 2L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "commentCount", 1);
+            final Post post = TestPost.builder()
+                    .id(2L)
+                    .community(community)
+                    .commentCount(1)
+                    .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 3L);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Member member = TestMember.builder()
+                    .id(3L)
+                    .community(community)
+                    .build();
 
-
-            final Comment parentComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(parentComment, "id", 4L);
-            ReflectionTestUtils.setField(parentComment, "member", member);
-            ReflectionTestUtils.setField(parentComment, "post", post);
-            ReflectionTestUtils.setField(parentComment, "content", "부모댓글");
+            final Comment parentComment = TestComment.builder()
+                    .id(4L)
+                    .member(member)
+                    .post(post)
+                    .content("부모댓글")
+                    .build();
 
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(parentComment));
@@ -143,7 +146,8 @@ class CommentServiceTest {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            CreateCommentRequest createCommentRequest = new CreateCommentRequest(post.getId(), parentComment.getId(), "자식댓글", List.of());
+            CreateCommentRequest createCommentRequest = new CreateCommentRequest(post.getId(), parentComment.getId(),
+                    "자식댓글", List.of());
 
             Comment createdComment = commentService.createComment(createCommentRequest, 5L);
 
@@ -161,26 +165,27 @@ class CommentServiceTest {
         @Test
         @DisplayName("작성자 본인이 요청할때 댓글과 모든 좋아요를 삭제한다.")
         void commentorDeleteCommentSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 2L);
+            final Community community = TestCommunity.builder().id(2L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 3L);
-            ReflectionTestUtils.setField(member, "user", user);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Member member = TestMember.builder()
+                    .id(3L)
+                    .user(user)
+                    .community(community)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 4L);
-            ReflectionTestUtils.setField(post, "commentCount", 1);
+            final Post post = TestPost.builder()
+                    .id(4L)
+                    .commentCount(1)
+                    .build();
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 5L);
-            ReflectionTestUtils.setField(comment, "member", member);
-            ReflectionTestUtils.setField(comment, "post", post);
-            ReflectionTestUtils.setField(comment, "content", "댓글");
+            final Comment comment = TestComment.builder()
+                    .id(5L)
+                    .member(member)
+                    .post(post)
+                    .content("댓글")
+                    .build();
 
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
@@ -196,29 +201,28 @@ class CommentServiceTest {
         @Test
         @DisplayName("해당 커뮤니티 (부)관리자가 요청할때 댓글과 모든 좋아요를 삭제한다.")
         void managerDeleteCommentSuccess() {
-            final User user1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user1, "id", 1L);
+            final User user1 = TestUser.builder().id(1L).build();
+            final User user2 = TestUser.builder().id(2L).build();
 
-            final User user2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user2, "id", 2L);
+            final Community community = TestCommunity.builder().id(2L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 2L);
+            final Member member1 = TestMember.builder()
+                    .id(3L)
+                    .user(user1)
+                    .community(community)
+                    .build();
 
-            final Member member1 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member1, "id", 3L);
-            ReflectionTestUtils.setField(member1, "user", user1);
-            ReflectionTestUtils.setField(member1, "community", community);
+            final Post post = TestPost.builder()
+                    .id(4L)
+                    .commentCount(1)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 4L);
-            ReflectionTestUtils.setField(post, "commentCount", 1);
-
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 5L);
-            ReflectionTestUtils.setField(comment, "member", member1);
-            ReflectionTestUtils.setField(comment, "post", post);
-            ReflectionTestUtils.setField(comment, "content", "댓글");
+            final Comment comment = TestComment.builder()
+                    .id(5L)
+                    .member(member1)
+                    .post(post)
+                    .content("댓글")
+                    .build();
 
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
@@ -237,29 +241,28 @@ class CommentServiceTest {
         @Test
         @DisplayName("권한이 없는 멤버가 삭제요청시 NotAuthorizedMemberException 발생")
         void notAuthorizedMemberDeleteCommentFail() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
+            final User user2 = TestUser.builder().id(2L).build();
 
-            final User user2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user2, "id", 2L);
+            final Community community = TestCommunity.builder().id(2L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 2L);
+            final Member member = TestMember.builder()
+                    .id(3L)
+                    .user(user)
+                    .community(community)
+                    .build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 3L);
-            ReflectionTestUtils.setField(member, "user", user);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Post post = TestPost.builder()
+                    .id(4L)
+                    .commentCount(1)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 4L);
-            ReflectionTestUtils.setField(post, "commentCount", 1);
-
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 5L);
-            ReflectionTestUtils.setField(comment, "member", member);
-            ReflectionTestUtils.setField(comment, "post", post);
-            ReflectionTestUtils.setField(comment, "content", "댓글");
+            final Comment comment = TestComment.builder()
+                    .id(5L)
+                    .member(member)
+                    .post(post)
+                    .content("댓글")
+                    .build();
 
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
@@ -275,52 +278,58 @@ class CommentServiceTest {
         @Test
         @DisplayName("부모 댓글 개수를 기준으로 페이지네이션해서 가져온다.")
         void getCommentsAtPostSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .community(community)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
 
-            final Comment pComment1 = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(pComment1, "id", 1L);
-            ReflectionTestUtils.setField(pComment1, "member", member);
-            ReflectionTestUtils.setField(pComment1, "post", post);
+            final Comment pComment1 = TestComment.builder()
+                    .id(1L)
+                    .member(member)
+                    .post(post)
+                    .build();
 
-            final Comment pComment2 = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(pComment2, "id", 2L);
-            ReflectionTestUtils.setField(pComment2, "member", member);
-            ReflectionTestUtils.setField(pComment2, "post", post);
+            final Comment pComment2 = TestComment.builder()
+                    .id(2L)
+                    .member(member)
+                    .post(post)
+                    .build();
 
-            final Comment cComment1 = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(cComment1, "id", 3L);
-            ReflectionTestUtils.setField(cComment1, "member", member);
-            ReflectionTestUtils.setField(cComment1, "post", post);
-            ReflectionTestUtils.setField(cComment1, "parent", pComment1);
+            final Comment cComment1 = TestComment.builder()
+                    .id(3L)
+                    .member(member)
+                    .post(post)
+                    .parent(pComment1)
+                    .build();
 
-            final Comment cComment2 = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(cComment2, "id", 4L);
-            ReflectionTestUtils.setField(cComment2, "member", member);
-            ReflectionTestUtils.setField(cComment2, "post", post);
-            ReflectionTestUtils.setField(cComment2, "parent", pComment2);
+            final Comment cComment2 = TestComment.builder()
+                    .id(4L)
+                    .member(member)
+                    .post(post)
+                    .parent(pComment2)
+                    .build();
 
-            final Like like1 = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like1, "id", 1L);
-            ReflectionTestUtils.setField(like1, "member", member);
-            ReflectionTestUtils.setField(like1, "comment", pComment1);
+            final Like like1 = TestLike.builder()
+                    .id(1L)
+                    .member(member)
+                    .comment(pComment1)
+                    .build();
 
-            final Like like2 = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like2, "id", 2L);
-            ReflectionTestUtils.setField(like2, "member", member);
-            ReflectionTestUtils.setField(like2, "comment", cComment1);
+            final Like like2 = TestLike.builder()
+                    .id(2L)
+                    .member(member)
+                    .comment(cComment1)
+                    .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
@@ -379,13 +388,15 @@ class CommentServiceTest {
         @Test
         @DisplayName("비공개 커뮤니티에 가입되지 않은 상태로 해당 커뮤니티에 작성된 글에 달린 댓글들을 요청시 NotJoinedMemberException 발생한다.")
         void getCommentsAtPrivatePostWithoutAuthFail() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", true);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(true)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
@@ -402,35 +413,36 @@ class CommentServiceTest {
         @Test
         @DisplayName("삭제된 부모 댓글에 자식 댓글이 존재하는 경우 부모 댓글 content에 '삭제된 댓글입니다'가 들어있다.")
         void testDeletedParentCommentWhenExistChildComment() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .community(community)
+                    .build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .commentCount(2)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "commentCount", 2);
-
-            final Comment pComment1 = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(pComment1, "id", 1L);
-            ReflectionTestUtils.setField(pComment1, "member", member);
-            ReflectionTestUtils.setField(pComment1, "post", post);
+            final Comment pComment1 = TestComment.builder()
+                    .id(1L)
+                    .member(member)
+                    .post(post)
+                    .build();
 
             pComment1.deleteComment();
 
-            final Comment cComment1 = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(cComment1, "id", 3L);
-            ReflectionTestUtils.setField(cComment1, "member", member);
-            ReflectionTestUtils.setField(cComment1, "post", post);
-            ReflectionTestUtils.setField(cComment1, "parent", pComment1);
+            final Comment cComment1 = TestComment.builder()
+                    .id(3L)
+                    .member(member)
+                    .post(post)
+                    .parent(pComment1)
+                    .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
@@ -478,28 +490,27 @@ class CommentServiceTest {
         @Test
         @DisplayName("댓글 작성한 유저 == 세션 유저, 해당 유저가 작성한 댓글들을 페이지네이션해서 가져온다.")
         void commenterAndSessionUserEqualSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
+            final Member member = TestMember.builder()
+                    .id(2L)
+                    .user(user)
+                    .build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 2L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Post post = TestPost.builder().id(3L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 3L);
+            final Comment pComment = TestComment.builder()
+                    .id(3L)
+                    .member(member)
+                    .post(post)
+                    .build();
 
-            final Comment pComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(pComment, "id", 3L);
-            ReflectionTestUtils.setField(pComment, "member", member);
-            ReflectionTestUtils.setField(pComment, "post", post);
-
-            final Comment cComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(cComment, "id", 4L);
-            ReflectionTestUtils.setField(cComment, "member", member);
-            ReflectionTestUtils.setField(cComment, "post", post);
-            ReflectionTestUtils.setField(cComment, "parent", pComment);
-
+            final Comment cComment = TestComment.builder()
+                    .id(4L)
+                    .member(member)
+                    .post(post)
+                    .parent(pComment)
+                    .build();
 
             List<Long> findMemberIds = List.of(member.getId());
             given(memberRepository.findMemberIdsForQueryUserPost(anyLong()))
@@ -523,33 +534,32 @@ class CommentServiceTest {
         @Test
         @DisplayName("댓글 작성한 유저 != 세션 유저, 동시에 가입되지 않은 비공개 커뮤니티의 글에 작성된 댓글은 가져오지 않는다.")
         void commenterAndSessionUserNotEqualSuccess() {
-            final User user1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user1, "id", 1L);
+            final User user1 = TestUser.builder().id(1L).build();
+            final User user2 = TestUser.builder().id(2L).build();
 
-            final User user2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user2, "id", 2L);
+            final Member member1 = TestMember.builder()
+                    .id(3L)
+                    .user(user1)
+                    .build();
+            final Member member2 = TestMember.builder()
+                    .id(4L)
+                    .user(user2)
+                    .build();
 
-            final Member member1 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member1, "id", 3L);
-            ReflectionTestUtils.setField(member1, "user", user1);
+            final Post post = TestPost.builder().id(7L).build();
 
-            final Member member2 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member2, "id", 4L);
-            ReflectionTestUtils.setField(member2, "user", user2);
+            final Comment pComment = TestComment.builder()
+                    .id(5L)
+                    .member(member1)
+                    .post(post)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 7L);
-
-            final Comment pComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(pComment, "id", 5L);
-            ReflectionTestUtils.setField(pComment, "member", member1);
-            ReflectionTestUtils.setField(pComment, "post", post);
-
-            final Comment cComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(cComment, "id", 6L);
-            ReflectionTestUtils.setField(cComment, "member", member2);
-            ReflectionTestUtils.setField(cComment, "post", post);
-            ReflectionTestUtils.setField(cComment, "parent", pComment);
+            final Comment cComment = TestComment.builder()
+                    .id(6L)
+                    .member(member2)
+                    .post(post)
+                    .parent(pComment)
+                    .build();
 
             given(userRepository.findUserById(anyLong()))
                     .willReturn(Optional.of(user2));

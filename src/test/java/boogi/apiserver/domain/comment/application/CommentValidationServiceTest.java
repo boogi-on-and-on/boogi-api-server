@@ -1,9 +1,9 @@
 package boogi.apiserver.domain.comment.application;
 
+import boogi.apiserver.builder.TestComment;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.exception.CommentMaxDepthOverException;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,13 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
 
@@ -45,14 +42,16 @@ class CommentValidationServiceTest {
         @Test
         @DisplayName("대댓글(Depth 1)일때 성공한다.")
         void DepthOne() {
-            final Comment parentComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(parentComment, "id", 1L);
-            ReflectionTestUtils.setField(parentComment, "content", "hello");
+            final Comment parentComment = TestComment.builder()
+                    .id(1L)
+                    .content("hello")
+                    .build();
 
-            final Comment childComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(childComment, "id", 2L);
-            ReflectionTestUtils.setField(childComment, "content", "hello2");
-            ReflectionTestUtils.setField(childComment, "parent", parentComment);
+            final Comment childComment = TestComment.builder()
+                    .id(2L)
+                    .content("hello2")
+                    .parent(parentComment)
+                    .build();
 
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(parentComment));
@@ -65,20 +64,22 @@ class CommentValidationServiceTest {
         @Test
         @DisplayName("대대댓글(Depth 2)일때 실패한다.")
         void DepthTwo() {
+            final Comment ppComment = TestComment.builder()
+                    .id(1L)
+                    .content("hello")
+                    .build();
 
-            final Comment ppComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(ppComment, "id", 1L);
-            ReflectionTestUtils.setField(ppComment, "content", "hello");
+            final Comment pComment = TestComment.builder()
+                    .id(2L)
+                    .content("hello2")
+                    .parent(ppComment)
+                    .build();
 
-            final Comment pComment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(pComment, "id", 2L);
-            ReflectionTestUtils.setField(pComment, "content", "hello2");
-            ReflectionTestUtils.setField(pComment, "parent", ppComment);
-
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 3L);
-            ReflectionTestUtils.setField(comment, "content", "hello3");
-            ReflectionTestUtils.setField(comment, "parent", pComment);
+            final Comment comment = TestComment.builder()
+                    .id(3L)
+                    .content("hello3")
+                    .parent(pComment)
+                    .build();
 
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(pComment));

@@ -1,9 +1,12 @@
 package boogi.apiserver.domain.comment.api;
 
+import boogi.apiserver.builder.TestComment;
+import boogi.apiserver.builder.TestLike;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
+import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.domain.Like;
@@ -13,7 +16,6 @@ import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +29,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -108,8 +109,7 @@ class CommentApiControllerTest {
     void testCreateComment() throws Exception {
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(1L, null, null, null);
 
-        final Comment newComment = TestEmptyEntityGenerator.Comment();
-        ReflectionTestUtils.setField(newComment, "id", 1L);
+        final Comment newComment = TestComment.builder().id(1L).build();
 
         given(commentService.createComment(any(CreateCommentRequest.class), eq(1L)))
                 .willReturn(newComment);
@@ -130,8 +130,7 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글에 좋아요 하기")
     void testDoLikeAtComment() throws Exception {
-        final Like like = TestEmptyEntityGenerator.Like();
-        ReflectionTestUtils.setField(like, "id", 1L);
+        final Like like = TestLike.builder().id(1L).build();
 
         given(likeService.doLikeAtComment(anyLong(), anyLong()))
                 .willReturn(like);
@@ -165,16 +164,17 @@ class CommentApiControllerTest {
     @Test
     @DisplayName("댓글에 좋아요한 멤버 목록 조회")
     void testGetLikeMembersAtComment() throws Exception {
-        final User user1 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user1, "id", 1L);
-        ReflectionTestUtils.setField(user1, "username", "유저");
-        ReflectionTestUtils.setField(user1, "tagNumber", "#0001");
-        ReflectionTestUtils.setField(user1, "profileImageUrl", "321");
-
+        final User user1 = TestUser.builder()
+                .id(1L)
+                .username("유저")
+                .tagNumber("#0001")
+                .profileImageUrl("321")
+                .build();
 
         List<User> users = List.of(user1);
 
-        LikeMembersAtCommentResponse likeMembersAtCommentResponse = LikeMembersAtCommentResponse.of(users, new PageImpl((users), Pageable.ofSize(1), 1));
+        LikeMembersAtCommentResponse likeMembersAtCommentResponse = LikeMembersAtCommentResponse.of(users,
+                new PageImpl((users), Pageable.ofSize(1), 1));
         given(likeService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembersAtCommentResponse);
 
