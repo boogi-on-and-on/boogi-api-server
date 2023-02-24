@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.like.application;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -18,7 +19,6 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,20 +75,17 @@ class LikeServiceTest {
         @Test
         @DisplayName("해당 글의 좋아요 수가 1 증가하고, 좋아요가 생성된다.")
         void doLikeAtPostSuccess() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "likeCount", 0);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .likeCount(0)
+                    .build();
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-
+            final Member member = TestMember.builder().id(1L).build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
@@ -106,19 +102,16 @@ class LikeServiceTest {
         @Test
         @DisplayName("해당 멤버가 해당 글에 이미 좋아요를 누른 경우 AlreadyDoLikeException 발생한다.")
         void alreadyDoLikeFail() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-
+            final Member member = TestMember.builder().id(1L).build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
@@ -136,20 +129,13 @@ class LikeServiceTest {
         @Test
         @DisplayName("해당 댓글에 좋아요가 생성된다.")
         void doLikeAtCommentSuccess() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "community", community);
-
+            final Member member = TestMember.builder().id(1L).community(community).build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "member", member);
-
+            final Comment comment = TestComment.builder().id(1L).member(member).build();
             given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
                     .willReturn(Optional.of(comment));
 
@@ -165,20 +151,13 @@ class LikeServiceTest {
         @Test
         @DisplayName("해당 멤버가 해당 댓글에 이미 좋아요를 누른 경우 AlreadyDoLikeException 발생한다.")
         void alreadyDoLikeFail() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "community", community);
-
+            final Member member = TestMember.builder().id(1L).community(community).build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "member", member);
-
+            final Comment comment = TestComment.builder().id(1L).member(member).build();
             given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
                     .willReturn(Optional.of(comment));
 
@@ -196,21 +175,20 @@ class LikeServiceTest {
         @Test
         @DisplayName("댓글 좋아요 취소는 좋아요가 삭제된다.")
         void doUnlikeAtCommentSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
+            final Comment comment = TestComment.builder().id(1L).build();
 
-            final Like like = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like, "id", 1L);
-            ReflectionTestUtils.setField(like, "comment", comment);
-            ReflectionTestUtils.setField(like, "member", member);
-
+            final Like like = TestLike.builder()
+                    .id(1L)
+                    .comment(comment)
+                    .member(member)
+                    .build();
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
@@ -222,23 +200,24 @@ class LikeServiceTest {
         @Test
         @DisplayName("글 좋아요 취소는 해당 글의 좋아요 수가 1 감소하고, 좋아요가 삭제된다.")
         void doUnlikeAtPostSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "member", member);
-            ReflectionTestUtils.setField(post, "likeCount", 1);
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .member(member)
+                    .likeCount(1)
+                    .build();
 
-            final Like like = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like, "id", 1L);
-            ReflectionTestUtils.setField(like, "post", post);
-            ReflectionTestUtils.setField(like, "member", member);
-
+            final Like like = TestLike.builder()
+                    .id(1L)
+                    .post(post)
+                    .member(member)
+                    .build();
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
@@ -251,21 +230,20 @@ class LikeServiceTest {
         @Test
         @DisplayName("요청한 세션 유저와 좋아요 한 유저가 서로 다를 경우 NotAuthorizedMemberException 발생한다.")
         void requestedUserAndLikedUserNotSameFail() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
+            final Comment comment = TestComment.builder().id(1L).build();
 
-            final Like like = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like, "id", 1L);
-            ReflectionTestUtils.setField(like, "comment", comment);
-            ReflectionTestUtils.setField(like, "member", member);
-
+            final Like like = TestLike.builder()
+                    .id(1L)
+                    .comment(comment)
+                    .member(member)
+                    .build();
             given(likeRepository.findLikeWithMemberById(anyLong()))
                     .willReturn(Optional.of(like));
 
@@ -280,30 +258,31 @@ class LikeServiceTest {
         @Test
         @DisplayName("글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", false);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(false)
+                    .build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .community(community)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
-            final Like like = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like, "id", 1L);
-            ReflectionTestUtils.setField(like, "post", post);
-            ReflectionTestUtils.setField(like, "member", member);
-
+            final Like like = TestLike.builder()
+                    .id(1L)
+                    .post(post)
+                    .member(member)
+                    .build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
 
@@ -331,14 +310,15 @@ class LikeServiceTest {
         @Test
         @DisplayName("비공개 커뮤니티에 비가입상태로 요청했을때 NotJoinedException 발생한다.")
         void notJoinedMemberInPrivateCommunityRequestFail() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", true);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(true)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
@@ -359,36 +339,37 @@ class LikeServiceTest {
         @Test
         @DisplayName("댓글이 작성된 공개 커뮤니티에 가입되지 않은 유저가 요청할시 페이지네이션해서 가져온다.")
         void notJoinedUserRequestSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", false);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(false)
+                    .build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
-            ReflectionTestUtils.setField(member, "community", community);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .community(community)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "post", post);
-            ReflectionTestUtils.setField(comment, "member", member);
-
+            final Comment comment = TestComment.builder()
+                    .id(1L)
+                    .post(post)
+                    .member(member)
+                    .build();
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(comment));
 
-
-            final Like like = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like, "id", 1L);
-            ReflectionTestUtils.setField(like, "comment", comment);
-            ReflectionTestUtils.setField(like, "member", member);
-
+            final Like like = TestLike.builder()
+                    .id(1L)
+                    .comment(comment)
+                    .member(member)
+                    .build();
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
 
@@ -416,18 +397,20 @@ class LikeServiceTest {
         @Test
         @DisplayName("비공개 커뮤니티에 비가입상태로 요청했을때 NotJoinedException 발생한다.")
         void notJoinedMemberInPrivateCommunityRequestFail() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", true);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(true)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "post", post);
-
+            final Comment comment = TestComment.builder()
+                    .id(1L)
+                    .post(post)
+                    .build();
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(comment));
 
