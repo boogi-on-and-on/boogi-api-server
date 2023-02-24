@@ -41,9 +41,6 @@ public class Community extends TimeBaseEntity {
     @Column(name = "auto_approval")
     private boolean autoApproval;
 
-    //todo: 생성메서드 만들어서 커뮤니티 생성.
-//    @OneToMany(mappedBy = "community")
-//    private List<CommunityHashtag> hashtags = new ArrayList<>();
     @Embedded
     private CommunityHashtags hashtags = new CommunityHashtags();
 
@@ -76,6 +73,15 @@ public class Community extends TimeBaseEntity {
 
     public void updateDescription(String description) {
         this.description = new Description(description);
+    }
+
+    public void addTags(List<String> tags) {
+        this.hashtags.addTags(tags, this);
+    }
+
+    public void updateCommunity(String description, List<String> tags) {
+        this.description = new Description(description);
+        this.hashtags.updateTags(tags, this);
     }
 
     public void toPublic() {

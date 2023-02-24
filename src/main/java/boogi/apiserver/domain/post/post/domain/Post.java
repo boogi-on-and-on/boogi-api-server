@@ -86,6 +86,15 @@ public class Post extends TimeBaseEntity {
         return new Post(community, member, content);
     }
 
+    public void addTags(List<String> tags) {
+        this.hashtags.addTags(tags, this);
+    }
+
+    public void updatePost(String content, List<String> tags) {
+        this.content = new PostContent(content);
+        this.hashtags.updateTags(tags, this);
+    }
+
     public void addLikeCount() {
         this.likeCount++;
     }
@@ -102,11 +111,6 @@ public class Post extends TimeBaseEntity {
     public void removeCommentCount() {
         if (this.commentCount > 0)
             this.commentCount--;
-    }
-
-    public void updatePost(String content, List<PostHashtag> hashtags) {
-        this.content = new PostContent(content);
-//        this.hashtags = hashtags; //todo
     }
 
     public boolean isAuthor(Long userId) {
