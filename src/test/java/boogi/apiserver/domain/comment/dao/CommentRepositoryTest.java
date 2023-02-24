@@ -13,6 +13,7 @@ import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestTimeReflection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -70,19 +70,19 @@ class CommentRepositoryTest {
                 .member(member)
                 .post(post)
                 .build();
-        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(3));
+        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(3));
 
         final Comment comment2 = TestComment.builder()
                 .member(member)
                 .post(post)
                 .build();
-        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(2));
+        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(2));
 
         final Comment comment3 = TestComment.builder()
                 .member(member)
                 .post(post)
                 .build();
-        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now().minusHours(1));
+        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now().minusHours(1));
 
         commentRepository.saveAll(List.of(comment1, comment2, comment3));
 
@@ -168,7 +168,7 @@ class CommentRepositoryTest {
                 .post(post)
                 .child(false)
                 .build();
-        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(2));
+        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(2));
         commentRepository.save(comment1);
 
         final Comment comment2 = TestComment.builder()
@@ -177,7 +177,7 @@ class CommentRepositoryTest {
                 .parent(comment1)
                 .child(true)
                 .build();
-        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(1));
+        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(1));
         commentRepository.save(comment2);
 
         final Comment comment3 = TestComment.builder()
@@ -185,7 +185,7 @@ class CommentRepositoryTest {
                 .post(post)
                 .child(false)
                 .build();
-        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now());
         commentRepository.save(comment3);
 
         persistenceUtil.cleanPersistenceContext();
@@ -225,7 +225,7 @@ class CommentRepositoryTest {
                 .post(post)
                 .child(false)
                 .build();
-        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(2));
+        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(2));
         commentRepository.save(comment1);
 
         final Comment comment2 = TestComment.builder()
@@ -234,7 +234,7 @@ class CommentRepositoryTest {
                 .child(true)
                 .parent(comment1)
                 .build();
-        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(1));
+        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(1));
         commentRepository.save(comment2);
 
         final Comment comment3 = TestComment.builder()
@@ -242,7 +242,7 @@ class CommentRepositoryTest {
                 .post(post)
                 .child(false)
                 .build();
-        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now());
         commentRepository.save(comment3);
 
         final Comment comment4 = TestComment.builder()
@@ -251,7 +251,7 @@ class CommentRepositoryTest {
                 .child(true)
                 .parent(comment1)
                 .build();
-        ReflectionTestUtils.setField(comment4, "createdAt", LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(comment4, LocalDateTime.now());
         commentRepository.save(comment4);
 
         persistenceUtil.cleanPersistenceContext();
@@ -312,7 +312,7 @@ class CommentRepositoryTest {
                 .child(false)
                 .member(member1)
                 .build();
-        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.now().minusHours(3));
+        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(3));
         commentRepository.save(comment1);
 
         final Comment comment2 = TestComment.builder()
@@ -321,7 +321,7 @@ class CommentRepositoryTest {
                 .parent(comment1)
                 .child(true)
                 .build();
-        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.now().minusHours(2));
+        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(2));
         commentRepository.save(comment2);
 
         final Comment comment3 = TestComment.builder()
@@ -329,7 +329,7 @@ class CommentRepositoryTest {
                 .member(member2)
                 .child(false)
                 .build();
-        ReflectionTestUtils.setField(comment3, "createdAt", LocalDateTime.now().minusHours(1));
+        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now().minusHours(1));
         commentRepository.save(comment3);
 
         final Comment comment4 = TestComment.builder()
@@ -338,7 +338,7 @@ class CommentRepositoryTest {
                 .parent(comment1)
                 .child(true)
                 .build();
-        ReflectionTestUtils.setField(comment4, "createdAt", LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(comment4, LocalDateTime.now());
         commentRepository.save(comment4);
 
         final Comment comment5 = TestComment.builder()
@@ -346,7 +346,7 @@ class CommentRepositoryTest {
                 .member(member1)
                 .child(false)
                 .build();
-        ReflectionTestUtils.setField(comment5, "createdAt", LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(comment5, LocalDateTime.now());
 
         comment5.deleteComment();
         commentRepository.save(comment5);
