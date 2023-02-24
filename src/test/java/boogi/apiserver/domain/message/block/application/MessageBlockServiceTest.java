@@ -1,26 +1,27 @@
 package boogi.apiserver.domain.message.block.application;
 
 
+import boogi.apiserver.builder.TestMessageBlock;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -44,16 +45,12 @@ class MessageBlockServiceTest {
     @DisplayName("메시지 이미 차단한 경우")
     void alreadyBlockMemberMessage() {
         //given
-
-        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
-        ReflectionTestUtils.setField(block, "blocked", false);
-
+        final MessageBlock block = TestMessageBlock.builder().blocked(false).build();
         given(messageBlockRepository.getMessageBlockByUserId(anyLong(), anyLong()))
                 .willReturn(block);
 
-        //then
+        //expected
         assertThatThrownBy(() -> {
-            //when
             messageBlockService.releaseUser(anyLong(), anyLong());
         })
                 .isInstanceOf(InvalidValueException.class)
@@ -64,9 +61,7 @@ class MessageBlockServiceTest {
     @DisplayName("메시지 차단 해제 성공")
     void unblockMemberMessage() {
         //given
-        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
-        ReflectionTestUtils.setField(block, "blocked", true);
-
+        final MessageBlock block = TestMessageBlock.builder().blocked(true).build();
         given(messageBlockRepository.getMessageBlockByUserId(anyLong(), anyLong()))
                 .willReturn(block);
 
@@ -81,21 +76,18 @@ class MessageBlockServiceTest {
     @DisplayName("row 업데이트만 진행하는 경우")
     void updateMessageBlock() {
         //given
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-
+        final User user = TestUser.builder().id(1L).build();
         given(userRepository.findByUserId(anyLong()))
                 .willReturn(user);
 
-        final User blockedUser = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(blockedUser, "id", 2L);
+        final User blockedUser = TestUser.builder().id(2L).build();
 
-        final MessageBlock block = TestEmptyEntityGenerator.MessageBlock();
-        ReflectionTestUtils.setField(block, "id", 3L);
-        ReflectionTestUtils.setField(block, "user", user);
-        ReflectionTestUtils.setField(block, "blockedUser", blockedUser);
-        ReflectionTestUtils.setField(block, "blocked", false);
-
+        final MessageBlock block = TestMessageBlock.builder()
+                .id(3L)
+                .user(user)
+                .blockedUser(blockedUser)
+                .blocked(false)
+                .build();
         given(messageBlockRepository.getMessageBlocksByUserIds(anyLong(), any()))
                 .willReturn(List.of(block));
 
@@ -113,18 +105,14 @@ class MessageBlockServiceTest {
     @DisplayName("차단하기 페어 추가")
     void insertMessageBlock() {
         //given
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-
+        final User user = TestUser.builder().id(1L).build();
         given(userRepository.findByUserId(anyLong()))
                 .willReturn(user);
 
         given(messageBlockRepository.getMessageBlocksByUserIds(anyLong(), any()))
                 .willReturn(List.of());
 
-        final User blockedUser = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(blockedUser, "id", 2L);
-
+        final User blockedUser = TestUser.builder().id(2L).build();
         given(userRepository.findUsersByIds(any()))
                 .willReturn(List.of(blockedUser));
 
@@ -136,5 +124,4 @@ class MessageBlockServiceTest {
         then(userRepository).should(times(1)).findUsersByIds(any());
         then(messageBlockRepository).should(times(1)).saveAll(any());
     }
-
 }
