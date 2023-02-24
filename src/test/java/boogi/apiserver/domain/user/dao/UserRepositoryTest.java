@@ -1,15 +1,20 @@
 package boogi.apiserver.domain.user.dao;
 
 import boogi.apiserver.annotations.CustomDataJpaTest;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.utils.PersistenceUtil;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
-import static org.assertj.core.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @CustomDataJpaTest
 class UserRepositoryTest {
@@ -34,7 +39,7 @@ class UserRepositoryTest {
         @Test
         @DisplayName("성공")
         void success() {
-            final User user = TestEmptyEntityGenerator.User();
+            final User user = TestUser.builder().build();
             userRepository.save(user);
 
             persistenceUtil.cleanPersistenceContext();

@@ -1,6 +1,9 @@
 package boogi.apiserver.domain.member.dao;
 
 import boogi.apiserver.annotations.CustomDataJpaTest;
+import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestMember;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.domain.Member;
@@ -11,12 +14,14 @@ import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.utils.PersistenceUtil;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.*;
+import boogi.apiserver.utils.TestTimeReflection;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -51,16 +56,20 @@ class MemberRepositoryTest {
 
     @Test
     void getMemberIdsByUserId() {
-        final User user = TestEmptyEntityGenerator.User();
+        final User user = TestUser.builder().build();
 
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "user", user);
+        final Member member1 = TestMember.builder()
+                .user(user)
+                .build();
 
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "user", user);
+        final Member member2 = TestMember.builder()
+                .user(user)
+                .build();
 
         userRepository.save(user);
         memberRepository.saveAll(List.of(member1, member2));
+
+        persistenceUtil.cleanPersistenceContext();
 
         List<Long> memberIds = memberRepository.findByUserId(user.getId())
                 .stream()
@@ -72,24 +81,28 @@ class MemberRepositoryTest {
 
     @Test
     void findMembersWhatIJoined() {
-        final User user = TestEmptyEntityGenerator.User();
+        final User user = TestUser.builder().build();
         userRepository.save(user);
 
-        final Community community1 = TestEmptyEntityGenerator.Community();
-        final Community community2 = TestEmptyEntityGenerator.Community();
+        final Community community1 = TestCommunity.builder().build();
+        final Community community2 = TestCommunity.builder().build();
 
         communityRepository.saveAll(List.of(community1, community2));
 
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "user", user);
-        ReflectionTestUtils.setField(member1, "community", community1);
-        ReflectionTestUtils.setField(member1, "bannedAt", LocalDateTime.now());
+        final Member member1 = TestMember.builder()
+                .user(user)
+                .community(community1)
+                .bannedAt(LocalDateTime.now())
+                .build();
 
+        final Member member2 = TestMember.builder()
+                .user(user)
+                .community(community2)
+                .build();
 
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "user", user);
-        ReflectionTestUtils.setField(member2, "community", community2);
         memberRepository.saveAll(List.of(member1, member2));
+
+        persistenceUtil.cleanPersistenceContext();
 
         List<Member> members = memberRepository.findWhatIJoined(user.getId());
 
@@ -100,35 +113,41 @@ class MemberRepositoryTest {
     @Test
     void findJoinedMember() {
         //given
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final User user = TestEmptyEntityGenerator.User();
+        final User user = TestUser.builder().build();
         userRepository.save(user);
 
-        final Member manager = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(manager, "user", user);
-        ReflectionTestUtils.setField(manager, "community", community);
-        ReflectionTestUtils.setField(manager, "memberType", MemberType.MANAGER);
+        final Member manager = TestMember.builder()
+                .user(user)
+                .community(community)
+                .memberType(MemberType.MANAGER)
+                .build();
 
-        final Member submanager1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(submanager1, "user", user);
-        ReflectionTestUtils.setField(submanager1, "community", community);
-        ReflectionTestUtils.setField(submanager1, "memberType", MemberType.SUB_MANAGER);
-        ReflectionTestUtils.setField(submanager1, "createdAt", LocalDateTime.now());
+        final Member submanager1 = TestMember.builder()
+                .user(user)
+                .community(community)
+                .memberType(MemberType.SUB_MANAGER)
+                .build();
+        TestTimeReflection.setCreatedAt(submanager1, LocalDateTime.now());
 
-        final Member submanager2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(submanager2, "user", user);
-        ReflectionTestUtils.setField(submanager2, "community", community);
-        ReflectionTestUtils.setField(submanager2, "memberType", MemberType.SUB_MANAGER);
-        ReflectionTestUtils.setField(submanager2, "createdAt", LocalDateTime.now().minusDays(1));
+        final Member submanager2 = TestMember.builder()
+                .user(user)
+                .community(community)
+                .memberType(MemberType.SUB_MANAGER)
+                .build();
+        TestTimeReflection.setCreatedAt(submanager2, LocalDateTime.now().minusDays(1));
 
-        final Member normalMember = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(normalMember, "user", user);
-        ReflectionTestUtils.setField(normalMember, "community", community);
-        ReflectionTestUtils.setField(normalMember, "memberType", MemberType.NORMAL);
+        final Member normalMember = TestMember.builder()
+                .user(user)
+                .community(community)
+                .memberType(MemberType.NORMAL)
+                .build();
 
         memberRepository.saveAll(List.of(normalMember, submanager1, submanager2, manager));
+
+        persistenceUtil.cleanPersistenceContext();
 
         //when
         PageRequest pageable = PageRequest.of(0, 4);
@@ -146,18 +165,22 @@ class MemberRepositoryTest {
     @Test
     void findAnyMemberExceptManager() {
         //given
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final Member manager = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(manager, "community", community);
-        ReflectionTestUtils.setField(manager, "memberType", MemberType.MANAGER);
+        final Member manager = TestMember.builder()
+                .community(community)
+                .memberType(MemberType.MANAGER)
+                .build();
 
-        final Member normalUser = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(normalUser, "community", community);
-        ReflectionTestUtils.setField(normalUser, "memberType", MemberType.NORMAL);
+        final Member normalUser = TestMember.builder()
+                .community(community)
+                .memberType(MemberType.NORMAL)
+                .build();
 
         memberRepository.saveAll(List.of(manager, normalUser));
+
+        persistenceUtil.cleanPersistenceContext();
 
         //when
         Member member = memberRepository.findAnyMemberExceptManager(community.getId()).orElse(null);
@@ -166,34 +189,39 @@ class MemberRepositoryTest {
         }
 
         //then
-        assertThat(member).isEqualTo(normalUser);
+        assertThat(member.getId()).isEqualTo(normalUser.getId());
     }
 
     @Test
     void findBannedMembers() {
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final User user1 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user1, "username", "홍길동");
-        ReflectionTestUtils.setField(user1, "tagNumber", "#0001");
+        final User user1 = TestUser.builder()
+                .username("홍길동")
+                .tagNumber("#0001")
+                .build();
 
-        final User user2 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user2, "username", "가나다");
-        ReflectionTestUtils.setField(user2, "tagNumber", "#0001");
-
+        final User user2 = TestUser.builder()
+                .username("가나다")
+                .tagNumber("#0001")
+                .build();
         userRepository.saveAll(List.of(user1, user2));
 
-        final Member m1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(m1, "user", user1);
-        ReflectionTestUtils.setField(m1, "community", community);
-        ReflectionTestUtils.setField(m1, "bannedAt", LocalDateTime.now());
+        final Member m1 = TestMember.builder()
+                .user(user1)
+                .community(community)
+                .bannedAt(LocalDateTime.now())
+                .build();
 
-        final Member m2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(m2, "user", user2);
-        ReflectionTestUtils.setField(m2, "community", community);
+        final Member m2 = TestMember.builder()
+                .user(user2)
+                .community(community)
+                .build();
 
         memberRepository.saveAll(List.of(m1, m2));
+
+        persistenceUtil.cleanPersistenceContext();
 
         List<BannedMemberDto> bannedMemberDtos = memberRepository.findBannedMembers(community.getId());
 
@@ -205,44 +233,49 @@ class MemberRepositoryTest {
 
     @Test
     void findAlreadyJoinedUser() {
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final User u1 = TestEmptyEntityGenerator.User();
-        final User u2 = TestEmptyEntityGenerator.User();
+        final User u1 = TestUser.builder().build();
+        final User u2 = TestUser.builder().build();
 
         userRepository.saveAll(List.of(u1, u2));
 
-        final Member m1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(m1, "user", u1);
-        ReflectionTestUtils.setField(m1, "community", community);
+        final Member m1 = TestMember.builder()
+                .user(u1)
+                .community(community)
+                .build();
         memberRepository.save(m1);
+
+        persistenceUtil.cleanPersistenceContext();
 
         List<Member> alreadyJoinedMember = memberRepository.findAlreadyJoinedMemberByUserId(List.of(u1.getId(), u2.getId()), community.getId());
 
         assertThat(alreadyJoinedMember.size()).isEqualTo(1);
 
         Member first = alreadyJoinedMember.get(0);
-        assertThat(first.getUser()).isEqualTo(u1);
+        assertThat(first.getUser().getId()).isEqualTo(u1.getId());
     }
 
     @Test
     @DisplayName("해당 커뮤니티에 가입된 삭제되지 않은 모든 멤버를 User와 함께 조회한다.")
     void testFindJoinedMembersAllWithUserByCommunityId() {
-        final User user1 = TestEmptyEntityGenerator.User();
-        final User user2 = TestEmptyEntityGenerator.User();
+        final User user1 = TestUser.builder().build();
+        final User user2 = TestUser.builder().build();
         userRepository.saveAll(List.of(user1, user2));
 
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "user", user1);
-        ReflectionTestUtils.setField(member1, "community", community);
+        final Member member1 = TestMember.builder()
+                .user(user1)
+                .community(community)
+                .build();
 
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "user", user2);
-        ReflectionTestUtils.setField(member2, "community", community);
+        final Member member2 = TestMember.builder()
+                .user(user2)
+                .community(community)
+                .build();
 
         member2.ban();
         memberRepository.saveAll(List.of(member1, member2));
@@ -262,36 +295,43 @@ class MemberRepositoryTest {
     @Test
     void findMentionMember() {
         //given
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final User user1 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user1, "username", "김가나");
+        final User user1 = TestUser.builder()
+                .username("김가나")
+                .build();
 
-        final User user2 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user2, "username", "김가가");
-        ReflectionTestUtils.setField(user2, "profileImageUrl", "abc/xyz");
-        ReflectionTestUtils.setField(user2, "tagNumber", "1234");
+        final User user2 = TestUser.builder()
+                .username("김가가")
+                .profileImageUrl("abc.xyz")
+                .tagNumber("#1234")
+                .build();
 
-        final User user3 = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user3, "username", "박가나");
-
+        final User user3 = TestUser.builder()
+                .username("박가나")
+                .build();
 
         userRepository.saveAll(List.of(user1, user2, user3));
 
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "user", user1);
-        ReflectionTestUtils.setField(member1, "community", community);
+        final Member member1 = TestMember.builder()
+                .user(user1)
+                .community(community)
+                .build();
 
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "user", user2);
-        ReflectionTestUtils.setField(member2, "community", community);
+        final Member member2 = TestMember.builder()
+                .user(user2)
+                .community(community)
+                .build();
 
-        final Member member3 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member3, "user", user3);
-        ReflectionTestUtils.setField(member3, "community", community);
+        final Member member3 = TestMember.builder()
+                .user(user3)
+                .community(community)
+                .build();
 
         memberRepository.saveAll(List.of(member1, member2, member3));
+
+        persistenceUtil.cleanPersistenceContext();
 
         //when
         PageRequest pageable = PageRequest.of(0, 3);
@@ -304,8 +344,8 @@ class MemberRepositoryTest {
 
         UserBasicProfileDto first = members.get(0);
         assertThat(first.getId()).isEqualTo(member2.getUser().getId());
-        assertThat(first.getProfileImageUrl()).isEqualTo("abc/xyz");
-        assertThat(first.getTagNum()).isEqualTo("1234");
+        assertThat(first.getProfileImageUrl()).isEqualTo("abc.xyz");
+        assertThat(first.getTagNum()).isEqualTo("#1234");
         assertThat(first.getName()).isEqualTo("김가가");
     }
 
@@ -315,7 +355,7 @@ class MemberRepositoryTest {
         @DisplayName("성공")
         @Test
         void success() {
-            final Member member = TestEmptyEntityGenerator.Member();
+            final Member member = TestMember.builder().build();
             memberRepository.save(member);
 
             persistenceUtil.cleanPersistenceContext();

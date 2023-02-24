@@ -1,6 +1,9 @@
 package boogi.apiserver.domain.community.joinrequest.dao;
 
 import boogi.apiserver.annotations.CustomDataJpaTest;
+import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestJoinRequest;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -10,10 +13,11 @@ import boogi.apiserver.domain.community.joinrequest.exception.JoinRequestNotFoun
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -45,28 +49,29 @@ class JoinRequestRepositoryTest {
         persistenceUtil = new PersistenceUtil(em);
     }
 
-
     @Test
     @DisplayName("전체 요청 찾기")
     void getAllRequests() {
         //given
-        final Community community = TestEmptyEntityGenerator.Community();
+        final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final User user1 = TestEmptyEntityGenerator.User();
-        final User user2 = TestEmptyEntityGenerator.User();
+        final User user1 = TestUser.builder().build();
+        final User user2 = TestUser.builder().build();
 
         userRepository.saveAll(List.of(user1, user2));
 
-        final JoinRequest r1 = TestEmptyEntityGenerator.JoinRequest();
-        ReflectionTestUtils.setField(r1, "community", community);
-        ReflectionTestUtils.setField(r1, "status", JoinRequestStatus.PENDING);
-        ReflectionTestUtils.setField(r1, "user", user1);
+        final JoinRequest r1 = TestJoinRequest.builder()
+                .community(community)
+                .status(JoinRequestStatus.PENDING)
+                .user(user1)
+                .build();
 
-        final JoinRequest r2 = TestEmptyEntityGenerator.JoinRequest();
-        ReflectionTestUtils.setField(r2, "community", community);
-        ReflectionTestUtils.setField(r2, "status", JoinRequestStatus.CONFIRM);
-        ReflectionTestUtils.setField(r2, "user", user2);
+        final JoinRequest r2 = TestJoinRequest.builder()
+                .community(community)
+                .status(JoinRequestStatus.CONFIRM)
+                .user(user2)
+                .build();
 
         joinRequestRepository.saveAll(List.of(r1, r2));
 
@@ -85,7 +90,7 @@ class JoinRequestRepositoryTest {
         @DisplayName("성공")
         @Test
         void success() {
-            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
+            final JoinRequest joinRequest = TestJoinRequest.builder().build();
             joinRequestRepository.save(joinRequest);
 
             persistenceUtil.cleanPersistenceContext();

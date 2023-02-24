@@ -1,14 +1,16 @@
 package boogi.apiserver.domain.hashtag.post.dao;
 
 import boogi.apiserver.annotations.CustomDataJpaTest;
+import boogi.apiserver.builder.TestPost;
+import boogi.apiserver.builder.TestPostHashtag;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.utils.PersistenceUtil;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -38,16 +40,18 @@ class PostHashtagRepositoryTest {
     @Test
     @DisplayName("postId로 해당 글에 달린 PostHashtag들을 조회한다.")
     void testFindPostHashtagByPostId() {
-        final Post post = TestEmptyEntityGenerator.Post();
+        final Post post = TestPost.builder().build();
         postRepository.save(post);
 
-        final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
-        ReflectionTestUtils.setField(postHashtag1, "post", post);
+        final PostHashtag postHashtag1 = TestPostHashtag.builder()
+                .post(post)
+                .build();
 
-        final PostHashtag postHashtag2 = TestEmptyEntityGenerator.PostHashtag();
-        ReflectionTestUtils.setField(postHashtag2, "post", post);
+        final PostHashtag postHashtag2 = TestPostHashtag.builder()
+                .post(post)
+                .build();
 
-        final PostHashtag postHashtag3 = TestEmptyEntityGenerator.PostHashtag();
+        final PostHashtag postHashtag3 = TestPostHashtag.builder().build();
 
         postHashtagRepository.saveAll(List.of(postHashtag1, postHashtag2, postHashtag3));
 
@@ -66,18 +70,18 @@ class PostHashtagRepositoryTest {
     @Test
     @DisplayName("postId로 해당 글에 달린 PostHashtag들을 전부 삭제한다(Hard Delete).")
     void testDeleteAllByPostId() {
-        final Post post = TestEmptyEntityGenerator.Post();
+        final Post post = TestPost.builder().build();
         postRepository.save(post);
 
+        final PostHashtag postHashtag1 = TestPostHashtag.builder()
+                .post(post)
+                .build();
 
-        final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
-        ReflectionTestUtils.setField(postHashtag1, "post", post);
+        final PostHashtag postHashtag2 = TestPostHashtag.builder()
+                .post(post)
+                .build();
 
-        final PostHashtag postHashtag2 = TestEmptyEntityGenerator.PostHashtag();
-        ReflectionTestUtils.setField(postHashtag2, "post", post);
-
-        final PostHashtag postHashtag3 = TestEmptyEntityGenerator.PostHashtag();
-
+        final PostHashtag postHashtag3 = TestPostHashtag.builder().build();
 
         postHashtagRepository.saveAll(List.of(postHashtag1, postHashtag2, postHashtag3));
 
