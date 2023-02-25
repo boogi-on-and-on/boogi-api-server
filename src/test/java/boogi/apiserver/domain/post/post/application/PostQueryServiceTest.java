@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.post.application;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.domain.Like;
@@ -10,16 +11,17 @@ import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
 import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
-import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.dto.PaginationDto;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
+import boogi.apiserver.global.util.PageableUtil;
+import boogi.apiserver.utils.TestTimeReflection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,11 +29,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -108,27 +108,26 @@ class PostQueryServiceTest {
         @Test
         @DisplayName("글이 작성된 공개 커뮤니티에 비가입상태로 조회시 성공한다.")
         void notJoinedUserRequestSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 2L);
+            final Community community = TestCommunity.builder().id(2L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 3L);
-            ReflectionTestUtils.setField(member, "community", community);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(3L)
+                    .community(community)
+                    .user(user)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 4L);
-            ReflectionTestUtils.setField(post, "content", "글");
-            ReflectionTestUtils.setField(post, "member", member);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "likeCount", 0);
-            ReflectionTestUtils.setField(post, "commentCount", 0);
-            ReflectionTestUtils.setField(post, "hashtags", List.of());
-            ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
-
+            final Post post = TestPost.builder()
+                    .id(4L)
+                    .content("글")
+                    .member(member)
+                    .community(community)
+                    .likeCount(0)
+                    .commentCount(0)
+                    .hashtags(List.of())
+                    .build();
+            TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -158,26 +157,26 @@ class PostQueryServiceTest {
         @Test
         @DisplayName("글이 작성된 공개 커뮤니티에 가입상태로 조회시 성공한다.")
         void joinedUserRequestSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "community", community);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .community(community)
+                    .user(user)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "content", "글");
-            ReflectionTestUtils.setField(post, "member", member);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "likeCount", 1);
-            ReflectionTestUtils.setField(post, "commentCount", 0);
-            ReflectionTestUtils.setField(post, "hashtags", List.of());
-            ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .content("글")
+                    .member(member)
+                    .community(community)
+                    .likeCount(1)
+                    .commentCount(0)
+                    .hashtags(List.of())
+                    .build();
+            TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
 
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
@@ -185,17 +184,15 @@ class PostQueryServiceTest {
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(member);
 
-            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
-            ReflectionTestUtils.setField(postMedia, "id", 1L);
-            ReflectionTestUtils.setField(postMedia, "mediaURL", "url");
-            ReflectionTestUtils.setField(postMedia, "mediaType", MediaType.IMG);
-
+            final PostMedia postMedia = TestPostMedia.builder()
+                    .id(1L)
+                    .mediaURL("url")
+                    .mediaType(MediaType.IMG)
+                    .build();
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of(postMedia));
 
-            final Like like = TestEmptyEntityGenerator.Like();
-            ReflectionTestUtils.setField(like, "id", 1L);
-
+            final Like like = TestLike.builder().id(1L).build();
             given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))
                     .willReturn(like.getId());
 
@@ -219,14 +216,15 @@ class PostQueryServiceTest {
         @Test
         @DisplayName("글이 작성된 비공개 커뮤니티에 비가입상태로 조회시 NotViewableMemberException 발생한다.")
         void notJoinedPrivateCommunityFail() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", true);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(true)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
@@ -245,41 +243,41 @@ class PostQueryServiceTest {
         @Test
         @DisplayName("본인 세션으로 본인의 작성글들을 요청한 경우 본인의 작성글을 페이지네이션해서 조회한다.")
         void myPostRequestWithMySessionUserSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member1 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member1, "id", 1L);
-            ReflectionTestUtils.setField(member1, "user", user);
-
-            final Member member2 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member2, "id", 2L);
-            ReflectionTestUtils.setField(member2, "user", user);
-
+            final Member member1 = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
+            final Member member2 = TestMember.builder()
+                    .id(2L)
+                    .user(user)
+                    .build();
 
             LocalDateTime now = LocalDateTime.now();
 
-            final Post post1 = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post1, "id", 1L);
-            ReflectionTestUtils.setField(post1, "community", community);
-            ReflectionTestUtils.setField(post1, "member", member1);
-            ReflectionTestUtils.setField(post1, "createdAt", now);
+            final Post post1 = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .member(member1)
+                    .build();
+            TestTimeReflection.setCreatedAt(post1, now);
 
-            final Post post2 = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post2, "id", 2L);
-            ReflectionTestUtils.setField(post2, "community", community);
-            ReflectionTestUtils.setField(post2, "member", member2);
-            ReflectionTestUtils.setField(post2, "createdAt", now);
+            final Post post2 = TestPost.builder()
+                    .id(2L)
+                    .community(community)
+                    .member(member2)
+                    .build();
+            TestTimeReflection.setCreatedAt(post2, now);
 
             List<Post> posts = List.of(post1, post2);
             given(memberRepository.findMemberIdsForQueryUserPost(anyLong()))
                     .willReturn(List.of(member1.getId(), member2.getId()));
 
             Pageable pageable = PageRequest.of(0, 2);
-            Page<Post> postPage = PageableExecutionUtils.getPage(posts, pageable, () -> posts.size());
+            Slice<Post> postPage = PageableUtil.getSlice(posts, pageable);
 
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);
@@ -303,40 +301,43 @@ class PostQueryServiceTest {
         @Test
         @DisplayName("세션 유저와 요청한 유저가 다른 경우 세션 유저가 비가입된 비공개 커뮤니티의 글을 제외하고 페이지네이션해서 조회한다.")
         void othersPostRequestWithMySessionUserSuccess() {
-            final User user1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user1, "id", 1L);
+            final User user1 = TestUser.builder().id(1L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", false);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(false)
+                    .build();
+            final Community pCommunity = TestCommunity.builder()
+                    .id(2L)
+                    .isPrivate(true)
+                    .build();
 
-            final Community pCommunity = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(pCommunity, "id", 2L);
-            ReflectionTestUtils.setField(pCommunity, "isPrivate", true);
-
-            final Member member1 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member1, "id", 1L);
-            ReflectionTestUtils.setField(member1, "user", user1);
-            ReflectionTestUtils.setField(member1, "community", pCommunity);
-
-            final Member member2 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member2, "id", 1L);
-            ReflectionTestUtils.setField(member2, "user", user1);
-            ReflectionTestUtils.setField(member2, "community", community);
+            final Member member1 = TestMember.builder()
+                    .id(1L)
+                    .user(user1)
+                    .community(pCommunity)
+                    .build();
+            final Member member2 = TestMember.builder()
+                    .id(1L)
+                    .user(user1)
+                    .community(community)
+                    .build();
 
             LocalDateTime now = LocalDateTime.now();
 
-            final Post post1 = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post1, "id", 1L);
-            ReflectionTestUtils.setField(post1, "community", pCommunity);
-            ReflectionTestUtils.setField(post1, "member", member1);
-            ReflectionTestUtils.setField(post1, "createdAt", now);
+            final Post post1 = TestPost.builder()
+                    .id(1L)
+                    .community(pCommunity)
+                    .member(member1)
+                    .build();
+            TestTimeReflection.setCreatedAt(post1, now);
 
-            final Post post2 = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post2, "id", 2L);
-            ReflectionTestUtils.setField(post2, "community", community);
-            ReflectionTestUtils.setField(post2, "member", member2);
-            ReflectionTestUtils.setField(post2, "createdAt", now);
+            final Post post2 = TestPost.builder()
+                    .id(2L)
+                    .community(community)
+                    .member(member2)
+                    .build();
+            TestTimeReflection.setCreatedAt(post2, now);
 
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
@@ -346,7 +347,7 @@ class PostQueryServiceTest {
                     .willReturn(List.of(member2.getId()));
 
             Pageable pageable = PageRequest.of(0, 2);
-            Page<Post> postPage = PageableExecutionUtils.getPage(posts, pageable, () -> posts.size());
+            Slice<Post> postPage = PageableUtil.getSlice(posts, pageable);
 
             given(postRepository.getUserPostPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(postPage);

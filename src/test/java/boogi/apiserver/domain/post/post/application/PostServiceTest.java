@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.post.application;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
@@ -8,7 +9,6 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.hashtag.post.domain.PostHashtags;
 import boogi.apiserver.domain.like.application.LikeService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -28,7 +28,6 @@ import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -110,23 +108,21 @@ class PostServiceTest {
         @Test
         @DisplayName("성공적으로 글이 생성된다.")
         void createPostSuccess() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-
+            final Community community = TestCommunity.builder().id(1L).build();
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "community", community);
-
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(memberQueryService.getJoinedMember(anyLong(), anyLong()))
                     .willReturn(member);
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.save(any(Post.class)))
                     .willReturn(post);
 
@@ -149,21 +145,20 @@ class PostServiceTest {
         @Test
         @DisplayName("글 작성자 본인이 아닌 유저가 요청하는 경우 HasNotUpdateAuthorityException 발생한다.")
         void notAuthorizedFail() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "member", member);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .member(member)
+                    .build();
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
@@ -179,40 +174,38 @@ class PostServiceTest {
         @Test
         @DisplayName("성공적으로 수정된다.")
         void UpdatePostSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-
+            final Community community = TestCommunity.builder().id(1L).build();
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "member", member);
-            ReflectionTestUtils.setField(post, "content", "글");
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .member(member)
+                    .content("글")
+                    .build();
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
 
-            final PostHashtag postHashtag = TestEmptyEntityGenerator.PostHashtag();
-            ReflectionTestUtils.setField(postHashtag, "id", 1L);
-            ReflectionTestUtils.setField(postHashtag, "post", post);
-            ReflectionTestUtils.setField(postHashtag, "tag", "해시태그");
-
+            final PostHashtag postHashtag = TestPostHashtag.builder()
+                    .id(1L)
+                    .post(post)
+                    .tag("해시태그")
+                    .build();
             given(postHashtagService.addTags(anyLong(), anyList()))
                     .willReturn(List.of(postHashtag));
 
-            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
-            ReflectionTestUtils.setField(postMedia, "id", 1L);
-            ReflectionTestUtils.setField(postMedia, "uuid", "uuid");
-
+            final PostMedia postMedia = TestPostMedia.builder()
+                    .id(1L)
+                    .uuid("uuid")
+                    .build();
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(List.of());
 
@@ -243,35 +236,32 @@ class PostServiceTest {
         @Test
         @DisplayName("성공적으로 삭제된다.")
         void deletePostSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "member", member);
-            ReflectionTestUtils.setField(post, "commentCount", 1);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .member(member)
+                    .commentCount(1)
+                    .build();
             given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "post", post);
-
+            final Comment comment = TestComment.builder()
+                    .id(1L)
+                    .post(post)
+                    .build();
             given(commentRepository.findByPostId(anyLong()))
                     .willReturn(List.of(comment));
 
-            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
-            ReflectionTestUtils.setField(postMedia, "id", 1L);
-
+            final PostMedia postMedia = TestPostMedia.builder().id(1L).build();
             List<PostMedia> postMedias = List.of(postMedia);
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(postMedias);
@@ -288,21 +278,20 @@ class PostServiceTest {
         @Test
         @DisplayName("글 작성자가 본인이 아니거나, 해당 커뮤니티 (부)매니저가 아닐 경우 NotAuthorizedMemberException 발생한다.")
         void notAuthorizedMemberFail() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
+            final User user = TestUser.builder().id(1L).build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 1L);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = TestMember.builder()
+                    .id(1L)
+                    .user(user)
+                    .build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "member", member);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .member(member)
+                    .build();
             given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
                     .willReturn(Optional.of(post));
 

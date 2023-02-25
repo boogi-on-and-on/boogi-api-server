@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.post.api;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.application.CommentService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
@@ -31,7 +32,7 @@ import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
+import boogi.apiserver.utils.TestTimeReflection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -111,8 +111,7 @@ class PostApiControllerTest {
     void testCreatePost() throws Exception {
         CreatePostRequest createPostRequest = new CreatePostRequest(1L, "글", List.of(), List.of(), List.of());
 
-        final Post post = TestEmptyEntityGenerator.Post();
-        ReflectionTestUtils.setField(post, "id", 2L);
+        final Post post = TestPost.builder().id(2L).build();
 
         given(postService.createPost(any(CreatePostRequest.class), anyLong()))
                 .willReturn(post);
@@ -132,42 +131,46 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글 상세 조회하기")
     void testGetPostDetail() throws Exception {
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "username", "유저");
-        ReflectionTestUtils.setField(user, "tagNumber", "#1");
-        ReflectionTestUtils.setField(user, "profileImageUrl", "url");
+        final User user = TestUser.builder()
+                .id(1L)
+                .username("유저")
+                .tagNumber("#1")
+                .profileImageUrl("url")
+                .build();
 
+        final Member member = TestMember.builder()
+                .id(2L)
+                .user(user)
+                .memberType(MemberType.MANAGER)
+                .build();
 
-        final Member member = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member, "id", 2L);
-        ReflectionTestUtils.setField(member, "user", user);
-        ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
+        final Community community = TestCommunity.builder()
+                .id(3L)
+                .communityName("커뮤니티")
+                .build();
 
-        final Community community = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community, "id", 3L);
-        ReflectionTestUtils.setField(community, "communityName", "커뮤니티");
+        final PostHashtag postHashtag = TestPostHashtag.builder()
+                .id(4L)
+                .tag("해시태그")
+                .build();
 
+        final Post post = TestPost.builder()
+                .id(5L)
+                .member(member)
+                .community(community)
+                .content("글")
+                .likeCount(1)
+                .commentCount(0)
+                .hashtags(List.of(postHashtag))
+                .build();
+        TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
 
-        final PostHashtag postHashtag = TestEmptyEntityGenerator.PostHashtag();
-        ReflectionTestUtils.setField(postHashtag, "id", 4L);
-        ReflectionTestUtils.setField(postHashtag, "tag", "해시태그");
-
-        final Post post = TestEmptyEntityGenerator.Post();
-        ReflectionTestUtils.setField(post, "id", 5L);
-        ReflectionTestUtils.setField(post, "member", member);
-        ReflectionTestUtils.setField(post, "community", community);
-        ReflectionTestUtils.setField(post, "content", "글");
-        ReflectionTestUtils.setField(post, "likeCount", 1);
-        ReflectionTestUtils.setField(post, "commentCount", 0);
-        ReflectionTestUtils.setField(post, "hashtags", List.of(postHashtag));
-        ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
-
-        final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
-        ReflectionTestUtils.setField(postMedia, "id", 6L);
-        ReflectionTestUtils.setField(postMedia, "post", post);
-        ReflectionTestUtils.setField(postMedia, "mediaURL", "mediaUrl");
-        ReflectionTestUtils.setField(postMedia, "mediaType", MediaType.IMG);
+        final PostMedia postMedia = TestPostMedia.builder()
+                .id(6L)
+                .post(post)
+                .mediaURL("mediaUrl")
+                .mediaType(MediaType.IMG)
+                .build();
 
         MockHttpSession session = createUserSession(1L);
 
@@ -212,8 +215,7 @@ class PostApiControllerTest {
     void testUpdatePost() throws Exception {
         UpdatePostRequest updatePostRequest = new UpdatePostRequest("글 수정", List.of(), List.of());
 
-        final Post post = TestEmptyEntityGenerator.Post();
-        ReflectionTestUtils.setField(post, "id", 1L);
+        final Post post = TestPost.builder().id(1L).build();
 
         given(postService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
                 .willReturn(post);
@@ -275,9 +277,7 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글에 좋아요하기")
     void testDoLikeAtPost() throws Exception {
-        final Like like = TestEmptyEntityGenerator.Like();
-        ReflectionTestUtils.setField(like, "id", 2L);
-
+        final Like like = TestLike.builder().id(2L).build();
         given(likeService.doLikeAtPost(anyLong(), anyLong()))
                 .willReturn(like);
 
@@ -295,12 +295,12 @@ class PostApiControllerTest {
     @Test
     @DisplayName("글에 좋아요 한 유저들 조회하기")
     void testGetLikeMembersAtPost() throws Exception {
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 2L);
-        ReflectionTestUtils.setField(user, "username", "유저");
-        ReflectionTestUtils.setField(user, "tagNumber", "#1");
-        ReflectionTestUtils.setField(user, "profileImageUrl", "url");
-
+        final User user = TestUser.builder()
+                .id(2L)
+                .username("유저")
+                .tagNumber("#1")
+                .profileImageUrl("url")
+                .build();
         List<User> users = List.of(user);
 
         Pageable pageable = PageRequest.of(0, 1);
@@ -341,12 +341,11 @@ class PostApiControllerTest {
 
         List<CommentsAtPostResponse.ChildCommentInfo> childCommentInfos = List.of(childCommentInfo);
 
-        final Comment parentComment = TestEmptyEntityGenerator.Comment();
-        ReflectionTestUtils.setField(parentComment, "id", 3L);
-        ReflectionTestUtils.setField(parentComment, "content", "부모댓글");
-        ReflectionTestUtils.setField(parentComment, "createdAt", LocalDateTime.now());
-
-        List<Comment> comments = List.of(parentComment);
+        final Comment parentComment = TestComment.builder()
+                .id(3L)
+                .content("부모댓글")
+                .build();
+        TestTimeReflection.setCreatedAt(parentComment, LocalDateTime.now());
 
         CommentsAtPostResponse.ParentCommentInfo parentCommentInfo =
                 new CommentsAtPostResponse.ParentCommentInfo(parentComment.getId(), userInfo, memberInfo, null,
@@ -355,7 +354,7 @@ class PostApiControllerTest {
         List<CommentsAtPostResponse.ParentCommentInfo> parentCommentInfos = List.of(parentCommentInfo);
 
         Pageable pageable = PageRequest.of(0, 1);
-        Slice<Comment> slice = PageableUtil.getSlice(comments, pageable);
+        Slice<Comment> slice = PageableUtil.getSlice(List.of(parentComment), pageable);
 
         CommentsAtPostResponse commentsAtPostResponse = CommentsAtPostResponse.of(parentCommentInfos, slice);
         given(commentService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
@@ -409,9 +408,7 @@ class PostApiControllerTest {
     @Test
     void 핫한게시물() throws Exception {
         HotPostDto hotPostDto1 = new HotPostDto(1L, 1, 1, "내용1", 1L, List.of("hashtag1"));
-
         HotPostDto hotPostDto2 = new HotPostDto(2L, 2, 2, "내용2", 2L, null);
-
         HotPostDto hotPostDto3 = new HotPostDto(3L, 3, 3, "내용3", 3L, null);
 
         given(postQueryService.getHotPosts())
