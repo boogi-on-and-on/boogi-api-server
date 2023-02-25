@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.report.application;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
@@ -20,7 +21,6 @@ import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -78,29 +77,28 @@ class ReportServiceTest {
         @Test
         @DisplayName("댓글 신고 생성에 성공한다.")
         void createCommentReportSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", false);
-
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "post", post);
-
+            final User user = TestUser.builder().id(1L).build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            given(commentRepository.findCommentById(anyLong()))
-                    .willReturn(Optional.of(comment));
-
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(false)
+                    .build();
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
+
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
+
+            final Comment comment = TestComment.builder()
+                    .id(1L)
+                    .post(post)
+                    .build();
+            given(commentRepository.findCommentById(anyLong()))
+                    .willReturn(Optional.of(comment));
 
             CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
             reportService.createReport(createReportRequest, 1L);
@@ -111,32 +109,30 @@ class ReportServiceTest {
         @Test
         @DisplayName("신고할 댓글 및 글이 달린 비공개 커뮤니티에 멤버가 아닐 경우 NotJoinedMemberException가 발생한다.")
         void createReportAtCommentOrCommunityWhenNotJoinedPrivateCommunityFail() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-
+            final User user = TestUser.builder().id(1L).build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", true);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(true)
+                    .build();
+            given(communityRepository.findByCommunityId(anyLong()))
+                    .willReturn(community);
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            final Comment comment = TestEmptyEntityGenerator.Comment();
-            ReflectionTestUtils.setField(comment, "id", 1L);
-            ReflectionTestUtils.setField(comment, "post", post);
-
+            final Comment comment = TestComment.builder()
+                    .id(1L)
+                    .post(post)
+                    .build();
             given(commentRepository.findCommentById(anyLong()))
                     .willReturn(Optional.of(comment));
-
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
 
             doThrow(NotJoinedMemberException.class).when(memberValidationService).checkMemberJoinedCommunity(anyLong(), anyLong());
 
@@ -152,27 +148,23 @@ class ReportServiceTest {
         @Test
         @DisplayName("글 신고 생성에 성공한다.")
         void createPostReportSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-
+            final User user = TestUser.builder().id(1L).build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-            ReflectionTestUtils.setField(community, "isPrivate", false);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .isPrivate(false)
+                    .build();
+            given(communityRepository.findByCommunityId(anyLong()))
+                    .willReturn(community);
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "community", community);
-
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .community(community)
+                    .build();
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
-
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
 
             CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
             reportService.createReport(createReportRequest, 1L);
@@ -183,15 +175,11 @@ class ReportServiceTest {
         @Test
         @DisplayName("커뮤니티 신고 생성에 성공한다.")
         void createCommunityReportSuccess() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-
+            final User user = TestUser.builder().id(1L).build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-
+            final Community community = TestCommunity.builder().id(1L).build();
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(Optional.of(community));
 
@@ -204,19 +192,17 @@ class ReportServiceTest {
         @Test
         @DisplayName("쪽지 신고 생성에 성공한다.")
         void createMessageReportSuccess() {
-            final User user1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user1, "id", 1L);
+            final User user1 = TestUser.builder().id(1L).build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
 
-            final User user2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user2, "id", 2L);
+            final User user2 = TestUser.builder().id(2L).build();
 
-            final Message message = TestEmptyEntityGenerator.Message();
-            ReflectionTestUtils.setField(message, "id", 1L);
-            ReflectionTestUtils.setField(message, "sender", user1);
-            ReflectionTestUtils.setField(message, "receiver", user2);
-
+            final Message message = TestMessage.builder()
+                    .id(1L)
+                    .sender(user1)
+                    .receiver(user2)
+                    .build();
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
@@ -229,19 +215,17 @@ class ReportServiceTest {
         @Test
         @DisplayName("본인이 포함되어 있는 쪽지가 아닐때 쪽지 신고시 InvalidValueException 발생한다.")
         void createMessageReportNotMyMessageFail() {
-            final User user1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user1, "id", 1L);
+            final User user1 = TestUser.builder().id(1L).build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
 
-            final User user2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user2, "id", 2L);
+            final User user2 = TestUser.builder().id(2L).build();
 
-            final Message message = TestEmptyEntityGenerator.Message();
-            ReflectionTestUtils.setField(message, "id", 1L);
-            ReflectionTestUtils.setField(message, "sender", user1);
-            ReflectionTestUtils.setField(message, "receiver", user2);
-
+            final Message message = TestMessage.builder()
+                    .id(1L)
+                    .sender(user1)
+                    .receiver(user2)
+                    .build();
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
