@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.user.domain;
 
-import boogi.apiserver.domain.user.exception.InvalidDepartmentException;
 import boogi.apiserver.domain.user.exception.InvalidTagNumberException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.util.regex.Pattern;
 
 @Embeddable
 @Getter
@@ -20,7 +20,7 @@ public class TagNumber {
     @Column(name = "tag_num")
     private String value;
 
-    //todo: #0001 형식으로 정규식 체크
+    private static final Pattern PATTERN = Pattern.compile("^#[0-9]{3}[1-9]$");
 
     public TagNumber(final String value) {
         validate(value);
@@ -29,7 +29,8 @@ public class TagNumber {
 
     private void validate(String value) {
         if (!StringUtils.hasText(value) ||
-                value.length() != LENGTH) {
+                value.length() != LENGTH ||
+                !PATTERN.matcher(value).matches()) {
             throw new InvalidTagNumberException();
         }
     }
