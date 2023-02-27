@@ -1,10 +1,10 @@
 package boogi.apiserver.domain.hashtag.community.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.hashtag.domain.Tag;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "COMMUNITY_HASHTAG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class CommunityHashtag extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,18 +24,18 @@ public class CommunityHashtag extends TimeBaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Community community;
 
-    private String tag;
+    private Tag tag;
 
     @Builder
     private CommunityHashtag(final Long id, final Community community, final String tag) {
         this.id = id;
         this.community = community;
-        this.tag = tag;
+        this.tag = new Tag(tag);
     }
 
     private CommunityHashtag(String tag, Community community) {
         this.community = community;
-        this.tag = tag;
+        this.tag = new Tag(tag);
     }
 
     private static CommunityHashtag of(String tag, Community community) {
@@ -48,5 +47,17 @@ public class CommunityHashtag extends TimeBaseEntity {
         return tags.stream()
                 .map(tag -> CommunityHashtag.of(tag, community))
                 .collect(Collectors.toList());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Community getCommunity() {
+        return community;
+    }
+
+    public String getTag() {
+        return tag.getValue();
     }
 }
