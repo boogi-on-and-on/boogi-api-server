@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.hashtag.post.domain;
 
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.global.util.OneToManyUpdateOptimizer;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
@@ -9,7 +10,6 @@ import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Embeddable
 @NoArgsConstructor
@@ -34,9 +34,13 @@ public class PostHashtags {
     public void updateTags(List<String> tags, Post post) {
         tags = resolveNullPointException(tags);
         validate(tags);
-        this.values.removeAll(exclusiveHashtags(tags));
-        tags.removeAll(inclusiveTags(tags));
-        this.values.addAll(PostHashtag.listOf(tags, post));
+        removePreviousExclusiveHashTags(tags);
+        List<String> newTags = OneToManyUpdateOptimizer.inputsToBeInserted(this.values, PostHashtag::getTag, tags);
+        this.values.addAll(PostHashtag.listOf(newTags, post));
+    }
+
+    private List<String> resolveNullPointException(List<String> tags) {
+        return (tags == null) ? new ArrayList<>() : tags;
     }
 
     private void validate(List<String> tags) {
@@ -45,21 +49,10 @@ public class PostHashtags {
         }
     }
 
-    private List<String> resolveNullPointException(List<String> tags) {
-        return (tags == null) ? new ArrayList<>() : tags;
-    }
-
-    private List<PostHashtag> exclusiveHashtags(List<String> tags) {
-        return this.values.stream()
-                .filter(tag -> !tags.contains(tag))
-                .collect(Collectors.toList());
-    }
-
-    private List<String> inclusiveTags(List<String> tags) {
-        return this.values.stream()
-                .filter(tag -> tags.contains(tag))
-                .map(PostHashtag::getTag)
-                .collect(Collectors.toList());
+    private void removePreviousExclusiveHashTags(List<String> tags) {
+        List<PostHashtag> deleteHashtags =
+                OneToManyUpdateOptimizer.entityToBeDeleted(this.values, PostHashtag::getTag, tags);
+        this.values.removeAll(deleteHashtags);
     }
 
     public List<PostHashtag> getValues() {

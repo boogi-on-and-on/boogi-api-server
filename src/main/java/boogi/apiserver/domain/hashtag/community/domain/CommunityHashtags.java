@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.hashtag.community.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.global.util.OneToManyUpdateOptimizer;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
@@ -9,7 +10,6 @@ import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Embeddable
 @NoArgsConstructor
@@ -35,9 +35,9 @@ public class CommunityHashtags {
     public void updateTags(List<String> tags, Community community) {
         tags = resolveNullPointException(tags);
         validate(tags);
-        this.values.removeAll(exclusiveHashtags(tags));
-        tags.removeAll(inclusiveTags(tags));
-        this.values.addAll(CommunityHashtag.listOf(tags, community));
+        removePreviousExclusiveHashTags(tags);
+        List<String> newTags = OneToManyUpdateOptimizer.inputsToBeInserted(this.values, CommunityHashtag::getTag, tags);
+        this.values.addAll(CommunityHashtag.listOf(newTags, community));
     }
 
     private List<String> resolveNullPointException(List<String> tags) {
@@ -50,17 +50,10 @@ public class CommunityHashtags {
         }
     }
 
-    private List<CommunityHashtag> exclusiveHashtags(List<String> tags) {
-        return this.values.stream()
-                .filter(tag -> !tags.contains(tag))
-                .collect(Collectors.toList());
-    }
-
-    private List<String> inclusiveTags(List<String> tags) {
-        return this.values.stream()
-                .filter(tag -> tags.contains(tag))
-                .map(CommunityHashtag::getTag)
-                .collect(Collectors.toList());
+    private void removePreviousExclusiveHashTags(List<String> tags) {
+        List<CommunityHashtag> deleteHashtags =
+                OneToManyUpdateOptimizer.entityToBeDeleted(this.values, CommunityHashtag::getTag, tags);
+        this.values.removeAll(deleteHashtags);
     }
 
     public List<CommunityHashtag> getValues() {
