@@ -1,24 +1,25 @@
 package boogi.apiserver.domain.member.application;
 
+import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestMember;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,26 +45,29 @@ class MemberQueryServiceTest {
     void myCommunityList() {
 
         //given
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
+        final User user = TestUser.builder().id(1L).build();
 
-        final Community community1 = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community1, "id", 2L);
-        ReflectionTestUtils.setField(community1, "communityName", "커뮤니티1");
+        final Community community1 = TestCommunity.builder()
+                .id(2L)
+                .communityName("커뮤니티A")
+                .build();
 
-        final Community community2 = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community2, "id", 3L);
-        ReflectionTestUtils.setField(community2, "communityName", "커뮤니티2");
+        final Community community2 = TestCommunity.builder()
+                .id(3L)
+                .communityName("커뮤니티B")
+                .build();
 
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "id", 4L);
-        ReflectionTestUtils.setField(member1, "user", user);
-        ReflectionTestUtils.setField(member1, "community", community1);
+        final Member member1 = TestMember.builder()
+                .id(4L)
+                .user(user)
+                .community(community1)
+                .build();
 
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "id", 4L);
-        ReflectionTestUtils.setField(member2, "user", user);
-        ReflectionTestUtils.setField(member2, "community", community2);
+        final Member member2 = TestMember.builder()
+                .id(5L)
+                .user(user)
+                .community(community2)
+                .build();
 
         given(memberRepository.findByUserId(anyLong()))
                 .willReturn(List.of(member1, member2));
@@ -73,10 +77,10 @@ class MemberQueryServiceTest {
 
         //then
         UserJoinedCommunityDto dto1 = findUserJoinedCommunityById(dtos, 2L);
-        assertThat(dto1.getName()).isEqualTo("커뮤니티1");
+        assertThat(dto1.getName()).isEqualTo("커뮤니티A");
 
         UserJoinedCommunityDto dto2 = findUserJoinedCommunityById(dtos, 3L);
-        assertThat(dto2.getName()).isEqualTo("커뮤니티2");
+        assertThat(dto2.getName()).isEqualTo("커뮤니티B");
     }
 
     private UserJoinedCommunityDto findUserJoinedCommunityById(List<UserJoinedCommunityDto> dtos, Long id) {
@@ -91,8 +95,7 @@ class MemberQueryServiceTest {
         @DisplayName("가입정보 조회 성공")
         void success() {
             //given
-            final Member member = TestEmptyEntityGenerator.Member();
-
+            final Member member = TestMember.builder().build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -123,8 +126,7 @@ class MemberQueryServiceTest {
     @Test
     @DisplayName("특정 유저의 권한이 같은지 확인")
     void checkMyAuth() {
-        final Member member = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
+        final Member member = TestMember.builder().memberType(MemberType.MANAGER).build();
 
 
         given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
@@ -139,26 +141,23 @@ class MemberQueryServiceTest {
     @DisplayName("커뮤니티의 내부를 열람 가능한 멤버를 조회할때")
     class GetViewableMemberTest {
 
-        private final Community publicCommunity = TestEmptyEntityGenerator.Community();
+        private final Community publicCommunity = TestCommunity.builder()
+                .id(1L)
+                .isPrivate(false)
+                .build();
 
-        private final Community privateCommunity = TestEmptyEntityGenerator.Community();
-
-
-        @BeforeEach
-        void init() {
-            ReflectionTestUtils.setField(publicCommunity, "id", 1L);
-            ReflectionTestUtils.setField(publicCommunity, "isPrivate", false);
-
-            ReflectionTestUtils.setField(privateCommunity, "id", 1L);
-            ReflectionTestUtils.setField(privateCommunity, "isPrivate", true);
-        }
+        private final Community privateCommunity = TestCommunity.builder()
+                .id(1L)
+                .isPrivate(true)
+                .build();
 
         @Test
         @DisplayName("공개 커뮤니티에 가입된 멤버의 경우 해당 멤버를 가져온다.")
         void publicCommunityJoinedMemberSuccess() {
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 2L);
-            ReflectionTestUtils.setField(member, "community", publicCommunity);
+            final Member member = TestMember.builder()
+                    .id(2L)
+                    .community(publicCommunity)
+                    .build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
@@ -184,9 +183,10 @@ class MemberQueryServiceTest {
         @Test
         @DisplayName("비공개 커뮤니티에 가입된 멤버의 경우 해당 멤버를 가져온다.")
         void privateCommunityJoinedMemberSuccess() {
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "id", 2L);
-            ReflectionTestUtils.setField(member, "community", privateCommunity);
+            final Member member = TestMember.builder()
+                    .id(2L)
+                    .community(privateCommunity)
+                    .build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));

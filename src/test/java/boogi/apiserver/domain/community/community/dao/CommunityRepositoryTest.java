@@ -59,20 +59,20 @@ class CommunityRepositoryTest {
 
             //given
             final Community c1 = TestCommunity.builder()
-                    .communityName("커뮤니티1")
+                    .communityName("커뮤니티A")
                     .isPrivate(true)
                     .category(CommunityCategory.ACADEMIC)
                     .memberCount(12)
-                    .description("커뮤니티1의 소개란 입니다.")
+                    .description("커뮤니티A의 소개란 입니다.")
                     .build();
             TestTimeReflection.setCreatedAt(c1, LocalDateTime.now());
 
             final Community c2 = TestCommunity.builder()
-                    .communityName("커뮤니티2")
+                    .communityName("커뮤니티B")
                     .isPrivate(true)
                     .category(CommunityCategory.ACADEMIC)
                     .memberCount(23)
-                    .description("커뮤니티2의 소개란 입니다.")
+                    .description("커뮤니티B의 소개란 입니다.")
                     .build();
             TestTimeReflection.setCreatedAt(c2, LocalDateTime.now().minusDays(2));
 
@@ -101,30 +101,30 @@ class CommunityRepositoryTest {
 
             assertThat(first.getHashtags()).containsExactlyInAnyOrderElementsOf(List.of("안녕", "ㅎㅎ"));
             assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
-            assertThat(first.getDescription()).isEqualTo("커뮤니티1의 소개란 입니다.");
+            assertThat(first.getDescription()).isEqualTo("커뮤니티A의 소개란 입니다.");
             assertThat(first.getMemberCount()).isEqualTo(12);
-            assertThat(first.getName()).isEqualTo("커뮤니티1");
+            assertThat(first.getName()).isEqualTo("커뮤니티A");
         }
 
         @Test
         @DisplayName("커뮤니티 검색 키워드가 없는 경우")
         void ThereIsNoSearchKeyword() {
             final Community c1 = TestCommunity.builder()
-                    .communityName("커뮤니티1")
+                    .communityName("커뮤니티A")
                     .isPrivate(true)
                     .category(CommunityCategory.ACADEMIC)
                     .memberCount(12)
-                    .description("커뮤니티1의 소개란 입니다.")
+                    .description("커뮤니티A의 소개란 입니다.")
                     .build();
             TestTimeReflection.setCreatedAt(c1, LocalDateTime.now());
 
             //given
             final Community c2 = TestCommunity.builder()
-                    .communityName("커뮤니티2")
+                    .communityName("커뮤니티B")
                     .isPrivate(true)
                     .category(CommunityCategory.ACADEMIC)
                     .memberCount(23)
-                    .description("커뮤니티2의 소개란 입니다.")
+                    .description("커뮤니티B의 소개란 입니다.")
                     .build();
             TestTimeReflection.setCreatedAt(c2, LocalDateTime.now().minusDays(2));
 
@@ -152,9 +152,9 @@ class CommunityRepositoryTest {
             assertThat(first.getId()).isEqualTo(c1.getId());
 
             assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
-            assertThat(first.getDescription()).isEqualTo("커뮤니티1의 소개란 입니다.");
+            assertThat(first.getDescription()).isEqualTo("커뮤니티A의 소개란 입니다.");
             assertThat(first.getMemberCount()).isEqualTo(12);
-            assertThat(first.getName()).isEqualTo("커뮤니티1");
+            assertThat(first.getName()).isEqualTo("커뮤니티A");
         }
     }
 

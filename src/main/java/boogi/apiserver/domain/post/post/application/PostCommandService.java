@@ -8,7 +8,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
@@ -32,9 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class PostService {
+public class PostCommandService {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -49,11 +49,10 @@ public class PostService {
     private final PostMediaQueryService postMediaQueryService;
 
     private final PostHashtagService postHashtagService;
-    private final LikeService likeService;
+    private final LikeCommandService likeCommandService;
 
     private final SendPushNotification sendPushNotification;
 
-    @Transactional
     public Post createPost(CreatePostRequest createPostRequest, Long userId) {
         Long communityId = createPostRequest.getCommunityId();
         Community community = communityRepository.findByCommunityId(communityId);
@@ -77,7 +76,6 @@ public class PostService {
         return savedPost;
     }
 
-    @Transactional
     public Post updatePost(UpdatePostRequest updatePostRequest, Long postId, Long userId) {
         Post findPost = postRepository.findByPostId(postId);
         communityRepository.findByCommunityId(findPost.getCommunityId());
@@ -90,7 +88,8 @@ public class PostService {
         List<PostHashtag> newPostHashtags = postHashtagService
                 .addTags(postId, updatePostRequest.getHashtags());
 
-        findPost.updatePost(updatePostRequest.getContent(), newPostHashtags);
+        //추후 수정하기
+        findPost.updatePost(updatePostRequest.getContent(), updatePostRequest.getHashtags());
 
         PostMedias findPostMedias = new PostMedias(
                 postMediaRepository.findByPostId(postId)
@@ -108,7 +107,6 @@ public class PostService {
         return findPost;
     }
 
-    @Transactional
     public void deletePost(Long postId, Long userId) {
         Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId)
                 .orElseThrow(PostNotFoundException::new);
@@ -123,7 +121,7 @@ public class PostService {
         commentRepository.findByPostId(postId).stream()
                 .forEach(Comment::deleteComment);
 
-        likeService.removePostLikes(findPostId);
+        likeCommandService.removePostLikes(findPostId);
 
         List<PostMedia> postMedias = postMediaRepository.findByPostId(postId);
         postMediaRepository.deleteAllInBatch(postMedias);

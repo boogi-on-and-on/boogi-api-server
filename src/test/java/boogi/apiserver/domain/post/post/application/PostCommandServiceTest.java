@@ -9,7 +9,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -48,9 +48,9 @@ import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
-class PostServiceTest {
+class PostCommandServiceTest {
     @InjectMocks
-    PostService postService;
+    PostCommandService postCommandService;
 
     @Mock
     private PostRepository postRepository;
@@ -83,7 +83,7 @@ class PostServiceTest {
     private PostHashtagService postHashtagService;
 
     @Mock
-    private LikeService likeService;
+    private LikeCommandService likeCommandService;
 
     @Mock
     private MemberQueryService memberQueryService;
@@ -129,8 +129,8 @@ class PostServiceTest {
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
                     .willReturn(PostMedias.EMPTY);
 
-            CreatePostRequest createPostRequest = new CreatePostRequest(community.getId(), "내용", List.of(), List.of(), List.of());
-            Post newPost = postService.createPost(createPostRequest, 1L);
+            CreatePostRequest createPostRequest = new CreatePostRequest(community.getId(), "게시글의 내용입니다.", List.of(), List.of(), List.of());
+            Post newPost = postCommandService.createPost(createPostRequest, 1L);
 
             verify(postHashtagService, times(1)).addTags(anyLong(), anyList());
 
@@ -165,9 +165,9 @@ class PostServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            UpdatePostRequest updatePostRequest = new UpdatePostRequest("글", List.of(), List.of());
+            UpdatePostRequest updatePostRequest = new UpdatePostRequest("게시글의 내용입니다.", List.of(), List.of());
 
-            assertThatThrownBy(() -> postService.updatePost(updatePostRequest, post.getId(), 2L))
+            assertThatThrownBy(() -> postCommandService.updatePost(updatePostRequest, post.getId(), 2L))
                     .isInstanceOf(HasNotUpdateAuthorityException.class);
         }
 
@@ -189,7 +189,7 @@ class PostServiceTest {
                     .id(1L)
                     .community(community)
                     .member(member)
-                    .content("글")
+                    .content("이전 게시글의 내용")
                     .build();
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
@@ -212,9 +212,9 @@ class PostServiceTest {
             given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
                     .willReturn(new PostMedias(List.of(postMedia)));
 
-            UpdatePostRequest updatePostRequest = new UpdatePostRequest("수정글", List.of(postHashtag.getTag()), List.of(postMedia.getUuid()));
+            UpdatePostRequest updatePostRequest = new UpdatePostRequest("게시글의 내용입니다.", List.of(postHashtag.getTag()), List.of(postMedia.getUuid()));
 
-            Post updatedPost = postService.updatePost(updatePostRequest, post.getId(), 1L);
+            Post updatedPost = postCommandService.updatePost(updatePostRequest, post.getId(), 1L);
 
             final List<PostMedia> medias = updatedPost.getPostMedias().getValues();
             final List<PostHashtag> hashtags = updatedPost.getHashtags().getValues();
@@ -266,7 +266,7 @@ class PostServiceTest {
             given(postMediaRepository.findByPostId(anyLong()))
                     .willReturn(postMedias);
 
-            postService.deletePost(post.getId(), 1L);
+            postCommandService.deletePost(post.getId(), 1L);
 
             verify(postHashtagService, times(1)).removeTagsByPostId(post.getId());
             verify(postMediaRepository, times(1)).deleteAllInBatch(postMedias);
@@ -298,7 +298,7 @@ class PostServiceTest {
             given(memberValidationService.hasSubManagerAuthority(anyLong(), anyLong()))
                     .willReturn(false);
 
-            assertThatThrownBy(() -> postService.deletePost(post.getId(), 2L))
+            assertThatThrownBy(() -> postCommandService.deletePost(post.getId(), 2L))
                     .isInstanceOf(NotAuthorizedMemberException.class);
         }
     }

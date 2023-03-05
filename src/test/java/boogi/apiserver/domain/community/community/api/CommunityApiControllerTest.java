@@ -1,7 +1,8 @@
 package boogi.apiserver.domain.community.community.api;
 
+import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityService;
+import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
@@ -15,11 +16,11 @@ import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequ
 import boogi.apiserver.domain.community.community.dto.request.UpdateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberService;
+import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -39,7 +40,7 @@ import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
+import boogi.apiserver.utils.TestTimeReflection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +52,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -75,13 +75,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CommunityApiControllerTest {
 
     @MockBean
-    JoinRequestService joinRequestService;
+    JoinRequestCommandService joinRequestCommandService;
 
     @MockBean
-    CommunityService communityService;
+    CommunityCommandService communityCommandService;
 
     @MockBean
-    MemberService memberService;
+    MemberCommandService memberCommandService;
 
     @MockBean
     MemberValidationService memberValidationService;
@@ -136,13 +136,11 @@ class CommunityApiControllerTest {
 
             //given
             List<String> hashtags = List.of("해시테그1", "해시테그1");
-            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티1", "CLUB", "설명", hashtags, false, true);
+            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB", "A".repeat(10), hashtags, false, true);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
 
-
-            given(communityService.createCommunity(any(), any(), anyLong())).willReturn(community);
+            given(communityCommandService.createCommunity(any(), any(), anyLong())).willReturn(community);
 
 
             MockHttpSession session = new MockHttpSession();
@@ -168,9 +166,9 @@ class CommunityApiControllerTest {
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
             List<String> hashtags = List.of("해시테그1", "해시테그1");
-            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티1", "CLUB", "설명", hashtags, false, true);
+            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB", "A".repeat(10), hashtags, false, true);
 
-            given(communityService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
+            given(communityCommandService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/communities")
@@ -187,25 +185,26 @@ class CommunityApiControllerTest {
     @DisplayName("커뮤니티 상세조회 (글 목록 조회)")
     void communityDetailWithPosts() throws Exception {
 
-        final Member member = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+        final Member member = TestMember.builder().memberType(MemberType.NORMAL).build();
 
         given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                 .willReturn(member);
 
+        final CommunityHashtag hashtag = TestCommunityHashtag.builder()
+                .tag("테그")
+                .build();
 
-        final CommunityHashtag hashtag = TestEmptyEntityGenerator.CommunityHashtag();
-        ReflectionTestUtils.setField(hashtag, "tag", "테그1");
+        final Community community = Community.builder()
+                .id(1L)
+                .communityName("커뮤니티")
+                .description("A".repeat(10))
+                .isPrivate(false)
+                .hashtags(List.of(hashtag))
+                .memberCount(3)
+                .category(CommunityCategory.ACADEMIC)
+                .build();
+        TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
 
-        final Community community = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community, "id", 1L);
-        ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
-        ReflectionTestUtils.setField(community, "description", "반가워");
-        ReflectionTestUtils.setField(community, "isPrivate", false);
-        ReflectionTestUtils.setField(community, "hashtags", List.of(hashtag));
-        ReflectionTestUtils.setField(community, "memberCount", 3);
-        ReflectionTestUtils.setField(community, "category", CommunityCategory.ACADEMIC);
-        ReflectionTestUtils.setField(community, "createdAt", LocalDateTime.now());
 
         given(communityQueryService.getCommunityWithHashTag(anyLong()))
                 .willReturn(community);
@@ -233,9 +232,9 @@ class CommunityApiControllerTest {
                 )
                 .andExpect(jsonPath("$.community.isPrivated").value(false))
                 .andExpect(jsonPath("$.community.category").value("ACADEMIC"))
-                .andExpect(jsonPath("$.community.name").value("커뮤니티1"))
-                .andExpect(jsonPath("$.community.introduce").value("반가워"))
-                .andExpect(jsonPath("$.community.hashtags[0]").value("테그1"))
+                .andExpect(jsonPath("$.community.name").value("커뮤니티"))
+                .andExpect(jsonPath("$.community.introduce").value("A".repeat(10)))
+                .andExpect(jsonPath("$.community.hashtags[0]").value("테그"))
                 .andExpect(jsonPath("$.community.memberCount").value("3"))
                 .andExpect(jsonPath("$.community.createdAt").value(CustomDateTimeFormatter.toString(community.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                 .andExpect(jsonPath("$.sessionMemberType").value("NORMAL"))
@@ -253,7 +252,7 @@ class CommunityApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        CommunityMetadataDto dto = new CommunityMetadataDto("이름", "소개", List.of("테그1"));
+        CommunityMetadataDto dto = new CommunityMetadataDto("이름", "소개", List.of("테그"));
 
         given(communityQueryService.getCommunityMetadata(anyLong()))
                 .willReturn(dto);
@@ -265,7 +264,7 @@ class CommunityApiControllerTest {
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.metadata.name").value("이름"))
                 .andExpect(jsonPath("$.metadata.introduce").value("소개"))
-                .andExpect(jsonPath("$.metadata.hashtags[0]").value("테그1"));
+                .andExpect(jsonPath("$.metadata.hashtags[0]").value("테그"));
     }
 
     @Nested
@@ -372,9 +371,10 @@ class CommunityApiControllerTest {
         @DisplayName("설정정보 조회")
         void getSettingInfo() throws Exception {
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "isPrivate", true);
-            ReflectionTestUtils.setField(community, "autoApproval", true);
+            final Community community = TestCommunity.builder()
+                    .isPrivate(true)
+                    .autoApproval(true)
+                    .build();
 
             CommunitySettingInfoDto settingInfo = CommunitySettingInfoDto.of(community);
 
@@ -424,8 +424,9 @@ class CommunityApiControllerTest {
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(null);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "isPrivate", true);
+            final Community community = TestCommunity.builder()
+                    .isPrivate(true)
+                    .build();
 
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
@@ -447,42 +448,48 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("커뮤니티 게시글 목록 조회")
         void getCommunityPostList() throws Exception {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "communityName", "커뮤니티1");
-            ReflectionTestUtils.setField(community, "createdAt", LocalDateTime.now());
+            final Community community = TestCommunity.builder()
+                    .communityName("커뮤니티")
+                    .build();
+            TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
 
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-            ReflectionTestUtils.setField(user, "username", "홍길동");
-            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+            final User user = TestUser.builder()
+                    .id(1L)
+                    .username("홍길동")
+                    .tagNumber("#0001")
+                    .build();
 
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
-            ReflectionTestUtils.setField(member, "user", user);
+            final Member member = Member.builder()
+                    .memberType(MemberType.NORMAL)
+                    .user(user)
+                    .build();
 
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
 
-            final PostHashtag postHashtag1 = TestEmptyEntityGenerator.PostHashtag();
-            ReflectionTestUtils.setField(postHashtag1, "tag", "t1");
+            final PostHashtag postHashtag1 = TestPostHashtag.builder()
+                    .tag("tag")
+                    .build();
 
-            final PostMedia postMedia = TestEmptyEntityGenerator.PostMedia();
-            ReflectionTestUtils.setField(postMedia, "mediaURL", "123");
-            ReflectionTestUtils.setField(postMedia, "mediaType", IMG);
+            final PostMedia postMedia = TestPostMedia.builder()
+                    .mediaURL("123")
+                    .mediaType(IMG)
+                    .build();
 
-            final Post post = TestEmptyEntityGenerator.Post();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            ReflectionTestUtils.setField(post, "content", "내용1");
-            ReflectionTestUtils.setField(post, "likeCount", 1);
-            ReflectionTestUtils.setField(post, "postMedias", List.of(postMedia));
-            ReflectionTestUtils.setField(post, "commentCount", 1);
-            ReflectionTestUtils.setField(post, "member", member);
-            ReflectionTestUtils.setField(post, "community", community);
-            ReflectionTestUtils.setField(post, "hashtags", List.of(postHashtag1));
-            ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+            final Post post = TestPost.builder()
+                    .id(1L)
+                    .content("A".repeat(10))
+                    .likeCount(1)
+                    .postMedias(List.of(postMedia))
+                    .commentCount(1)
+                    .member(member)
+                    .community(community)
+                    .hashtags(List.of(postHashtag1))
+                    .build();
+            TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
 
 
             PageImpl<Post> page = new PageImpl(List.of(post), Pageable.ofSize(1), 1);
@@ -504,15 +511,15 @@ class CommunityApiControllerTest {
                     .andExpect(jsonPath("$.memberType").value("NORMAL"))
                     .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
                     .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
-                    .andExpect(jsonPath("$.communityName").value("커뮤니티1"))
+                    .andExpect(jsonPath("$.communityName").value("커뮤니티"))
                     .andExpect(jsonPath("$.posts.size()").value(1))
                     .andExpect(jsonPath("$.posts[0].likeId").doesNotExist())
                     .andExpect(jsonPath("$.posts[0].postMedias[0].url").value("123"))
                     .andExpect(jsonPath("$.posts[0].id").value(1L))
-                    .andExpect(jsonPath("$.posts[0].content").value("내용1"))
+                    .andExpect(jsonPath("$.posts[0].content").value("A".repeat(10)))
                     .andExpect(jsonPath("$.posts[0].createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT)))
                     .andExpect(jsonPath("$.posts[0].hashtags.size()").value(1))
-                    .andExpect(jsonPath("$.posts[0].hashtags[0]").value("t1"))
+                    .andExpect(jsonPath("$.posts[0].hashtags[0]").value("tag"))
                     .andExpect(jsonPath("$.posts[0].likeCount").value(1))
                     .andExpect(jsonPath("$.posts[0].commentCount").value(1))
                     .andExpect(jsonPath("$.posts[0].me").value(true))
@@ -531,17 +538,19 @@ class CommunityApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "username", "김가나");
-        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
-        ReflectionTestUtils.setField(user, "department", "컴공");
+        final User user = TestUser.builder()
+                .id(1L)
+                .username("김가나")
+                .tagNumber("#0001")
+                .department("컴퓨터공학과")
+                .build();
 
-        final Member member = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member, "id", 2L);
-        ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
-        ReflectionTestUtils.setField(member, "user", user);
-        ReflectionTestUtils.setField(member, "createdAt", LocalDateTime.now());
+        final Member member = TestMember.builder()
+                .id(2L)
+                .memberType(MemberType.NORMAL)
+                .user(user)
+                .build();
+        TestTimeReflection.setCreatedAt(member, LocalDateTime.now());
 
         PageImpl<Member> page = new PageImpl<>(List.of(member), Pageable.ofSize(1), 1);
         given(memberQueryService.getCommunityJoinedMembers(any(), anyLong())).willReturn(page);
@@ -559,7 +568,7 @@ class CommunityApiControllerTest {
                 .andExpect(jsonPath("$.members[0].user.id").value(1))
                 .andExpect(jsonPath("$.members[0].user.tagNum").value("#0001"))
                 .andExpect(jsonPath("$.members[0].user.name").value("김가나"))
-                .andExpect(jsonPath("$.members[0].user.department").value("컴공"));
+                .andExpect(jsonPath("$.members[0].user.department").value("컴퓨터공학과"));
     }
 
     @Nested
@@ -644,11 +653,11 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("관리자의 가입요청목록 조회 성공")
         void getJoinRequestList() throws Exception {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-            ReflectionTestUtils.setField(user, "username", "홍길동");
-            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
-
+            final User user = TestUser.builder()
+                    .id(1L)
+                    .username("홍길동")
+                    .tagNumber("#0001")
+                    .build();
 
             given(joinRequestQueryService.getAllRequests(anyLong()))
                     .willReturn(List.of(
@@ -675,7 +684,7 @@ class CommunityApiControllerTest {
         @DisplayName("가입요청 성공")
         void applySuccess() throws Exception {
 
-            given(joinRequestService.request(anyLong(), anyLong()))
+            given(joinRequestCommandService.request(anyLong(), anyLong()))
                     .willReturn(1L);
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -743,16 +752,15 @@ class CommunityApiControllerTest {
     @Test
     @DisplayName("해당 커뮤니티에 가입된 모든 멤버 가져오기")
     void testGetMembersAll() throws Exception {
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 2L);
+        final User user = TestUser.builder().id(2L).build();
 
-        final Community community = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community, "id", 1L);
+        final Community community = TestCommunity.builder().id(1L).build();
 
-        final Member member = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member, "id", 2L);
-        ReflectionTestUtils.setField(member, "community", community);
-        ReflectionTestUtils.setField(member, "user", user);
+        final Member member = TestMember.builder()
+                .id(2L)
+                .community(community)
+                .user(user)
+                .build();
 
         UserBasicProfileDto userDto = new UserBasicProfileDto(2L, null, null, null);
         final MemberDto dto = new MemberDto(2L, MemberType.NORMAL, userDto);

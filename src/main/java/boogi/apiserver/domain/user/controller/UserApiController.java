@@ -3,10 +3,10 @@ package boogi.apiserver.domain.user.controller;
 import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
-import boogi.apiserver.domain.community.community.application.CommunityService;
+import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.block.application.MessageBlockService;
+import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.domain.User;
@@ -37,9 +37,9 @@ public class UserApiController {
     private final UserQueryService userQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
 
-    private final CommunityService communityService;
+    private final CommunityCommandService communityCommandService;
 
-    private final MessageBlockService messageBlockService;
+    private final MessageBlockCommandService messageBlockCommandService;
     private final AlarmConfigService alarmConfigService;
 
     @PostMapping("/token/{email}")
@@ -76,7 +76,7 @@ public class UserApiController {
     @GetMapping("/communities/joined")
     public JoinedCommunitiesDto getUserJoinedCommunitiesInfo(@Session Long userId) {
 
-        return communityService.getJoinedCommunitiesWithLatestPost(userId);
+        return communityCommandService.getJoinedCommunitiesWithLatestPost(userId);
     }
 
     @GetMapping("/messages/blocked")
@@ -88,12 +88,12 @@ public class UserApiController {
 
     @PostMapping("/messages/unblock")
     public void releaseUser(@Session Long userId, @RequestBody BlockedUserIdRequest request) {
-        messageBlockService.releaseUser(userId, request.getBlockerUserId());
+        messageBlockCommandService.releaseUser(userId, request.getBlockerUserId());
     }
 
     @PostMapping("/messages/block")
     public void blockUsers(@Session Long userId, @Validated @RequestBody BlockMessageUsersRequest request) {
-        messageBlockService.blockUsers(userId, request.getBlockUserIds());
+        messageBlockCommandService.blockUsers(userId, request.getBlockUserIds());
     }
 
     @GetMapping("/config/notifications")

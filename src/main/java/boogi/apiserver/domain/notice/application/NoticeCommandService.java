@@ -17,15 +17,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class NoticeService {
+@Transactional
+public class NoticeCommandService {
 
     private final NoticeRepository noticeRepository;
     private final CommunityRepository communityRepository;
 
     private final MemberQueryService memberQueryService;
 
-    @Transactional
     public Notice create(NoticeCreateRequest request, Long userId) {
         Long communityId = request.getCommunityId();
         Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);

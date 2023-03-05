@@ -5,7 +5,7 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
-import boogi.apiserver.domain.member.application.MemberService;
+import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class JoinRequestService {
+@Transactional
+public class JoinRequestCommandService {
 
     private final JoinRequestRepository joinRequestRepository;
     private final UserRepository userRepository;
     private final CommunityRepository communityRepository;
 
-    private final MemberService memberService;
+    private final MemberCommandService memberCommandService;
 
     private final JoinRequestQueryService joinRequestQueryService;
     private final MemberQueryService memberQueryService;
@@ -40,7 +40,6 @@ public class JoinRequestService {
     private final MemberRepository memberRepository;
 
     //todo: 거절했는데, 계속 요청하면 어떻게 할지? --> 커뮤니티에서 유저(멤버x)차단 기능 필요?
-    @Transactional
     public Long request(Long userId, Long communityId) {
         Member alreadyJoinedMember = memberQueryService.getMemberOfTheCommunity(userId, communityId);
         if (Objects.nonNull(alreadyJoinedMember)) {
@@ -63,7 +62,7 @@ public class JoinRequestService {
         JoinRequest request = JoinRequest.of(user, community);
 
         if (community.isAutoApproval()) {
-            Member member = Member.createNewMember(community, user, MemberType.NORMAL);
+            Member member = Member.of(community, user, MemberType.NORMAL);
             memberRepository.save(member);
 
             Member manager = memberRepository.findManager(communityId);
@@ -75,7 +74,6 @@ public class JoinRequestService {
         return request.getId();
     }
 
-    @Transactional
     public void confirmUser(Long managerUserId, Long requestId, Long communityId) {
         JoinRequest joinRequest = joinRequestRepository.findByJoinRequestId(requestId);
         isValidJoinRequestEntity(joinRequest, communityId);
@@ -86,7 +84,7 @@ public class JoinRequestService {
         Long userId = joinRequest.getUser().getId();
         User user = userRepository.findByUserId(userId);
 
-        Member newMember = memberService.joinMember(userId, communityId, MemberType.NORMAL);
+        Member newMember = memberCommandService.joinMember(userId, communityId, MemberType.NORMAL);
 
         joinRequest.confirm(manager, newMember);
     }
@@ -97,7 +95,6 @@ public class JoinRequestService {
         }
     }
 
-    @Transactional
     public void confirmUserInBatch(Long managerUserId, List<Long> requestIds, Long communityId) {
         List<JoinRequest> joinRequests = joinRequestRepository.getRequestsByIds(requestIds);
         joinRequests.forEach(joinRequest -> {
@@ -108,7 +105,7 @@ public class JoinRequestService {
                 .map(r -> r.getUser().getId())
                 .collect(Collectors.toList());
 
-        List<Member> members = memberService.joinMemberInBatch(userIds, communityId, MemberType.NORMAL);
+        List<Member> members = memberCommandService.joinMemberInBatch(userIds, communityId, MemberType.NORMAL);
         Map<Long, Member> memberMap = members.stream()
                 .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 
@@ -117,7 +114,6 @@ public class JoinRequestService {
                 .forEach(r -> r.confirm(manager, memberMap.get(r.getUser().getId())));
     }
 
-    @Transactional
     public void rejectUserInBatch(Long managerUserId, List<Long> requestIds, Long communityId) {
         Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
         isOperator(manager);

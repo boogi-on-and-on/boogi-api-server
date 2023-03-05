@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.notice.application;
 
 
+import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -10,7 +12,6 @@ import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
 import boogi.apiserver.global.error.exception.InvalidValueException;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class NoticeServiceTest {
+class NoticeCommandServiceTest {
     @Mock
     NoticeRepository noticeRepository;
 
@@ -37,7 +37,7 @@ class NoticeServiceTest {
     MemberQueryService memberQueryService;
 
     @InjectMocks
-    NoticeService noticeService;
+    NoticeCommandService noticeCommandService;
 
     @Nested
     @DisplayName("공지사항 생성 테스트")
@@ -46,8 +46,7 @@ class NoticeServiceTest {
         @Test
         @DisplayName("생성 권한 없는 경우")
         void hasNoAuth() {
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "memberType", MemberType.NORMAL);
+            final Member member = TestMember.builder().memberType(MemberType.NORMAL).build();
 
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
@@ -55,7 +54,7 @@ class NoticeServiceTest {
             NoticeCreateRequest request = new NoticeCreateRequest(1L, null, null);
 
             assertThatThrownBy(() -> {
-                noticeService.create(request, 2L);
+                noticeCommandService.create(request, 2L);
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("관리자가 아닙니다.");
@@ -64,23 +63,21 @@ class NoticeServiceTest {
         @Test
         @DisplayName("생성 성공")
         void success() {
-            final Member member = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(member, "memberType", MemberType.SUB_MANAGER);
+            final Member member = TestMember.builder().memberType(MemberType.SUB_MANAGER).build();
 
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(member);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder().id(1L).build();
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            NoticeCreateRequest request = new NoticeCreateRequest(1L, "제목", "내용");
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "A".repeat(10), "B".repeat(10));
 
-            Notice notice = noticeService.create(request, 2L);
+            Notice notice = noticeCommandService.create(request, 2L);
 
-            assertThat(notice.getContent()).isEqualTo("내용");
-            assertThat(notice.getTitle()).isEqualTo("제목");
+            assertThat(notice.getTitle()).isEqualTo("A".repeat(10));
+            assertThat(notice.getContent()).isEqualTo("B".repeat(10));
             assertThat(notice.getCommunity()).isEqualTo(community);
             assertThat(notice.getMember()).isEqualTo(member);
         }

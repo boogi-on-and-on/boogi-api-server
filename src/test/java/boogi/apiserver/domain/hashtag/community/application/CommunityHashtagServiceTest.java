@@ -1,10 +1,10 @@
 package boogi.apiserver.domain.hashtag.community.application;
 
+import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,32 +40,33 @@ class CommunityHashtagServiceTest {
         @DisplayName("저장 성공")
         void success() {
             //given
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .build();
 
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            List<String> tags = List.of("테그1", "테그2");
+            final CommunityHashtag hashtag1 = CommunityHashtag.builder()
+                    .tag("테그A")
+                    .community(community)
+                    .build();
 
-            final CommunityHashtag hashtag1 = TestEmptyEntityGenerator.CommunityHashtag();
-            ReflectionTestUtils.setField(hashtag1, "tag", "테그1");
-            ReflectionTestUtils.setField(hashtag1, "community", community);
-
-            final CommunityHashtag hashtag2 = TestEmptyEntityGenerator.CommunityHashtag();
-            ReflectionTestUtils.setField(hashtag2, "tag", "테그2");
-            ReflectionTestUtils.setField(hashtag2, "community", community);
+            final CommunityHashtag hashtag2 = CommunityHashtag.builder()
+                    .tag("테그B")
+                    .community(community)
+                    .build();
 
             given(communityHashtagRepository.saveAll(any()))
                     .willReturn(List.of(hashtag1, hashtag2));
 
             //when
-            List<CommunityHashtag> communityHashtags = communityHashtagService.addTags(community.getId(), tags);
+            List<CommunityHashtag> communityHashtags = communityHashtagService.addTags(community.getId(), List.of("테그A", "테그B"));
 
             //then
             assertThat(communityHashtags.size()).isEqualTo(2);
-            assertThat(communityHashtags.get(0).getTag()).isEqualTo("테그1");
-            assertThat(communityHashtags.get(1).getTag()).isEqualTo("테그2");
+            assertThat(communityHashtags.get(0).getTag()).isEqualTo("테그A");
+            assertThat(communityHashtags.get(1).getTag()).isEqualTo("테그B");
         }
 
         @Test

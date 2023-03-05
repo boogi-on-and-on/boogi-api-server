@@ -1,16 +1,15 @@
 package boogi.apiserver.domain.user.application;
 
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -29,12 +28,13 @@ class UserQueryServiceTest {
     @DisplayName("유저 상세정보 조회")
     void userBasicInfo() {
         // given
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "username", "김선도");
-        ReflectionTestUtils.setField(user, "department", "컴퓨터공학부");
-        ReflectionTestUtils.setField(user, "introduce", "반갑습니다");
-        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+        final User user = TestUser.builder()
+                .id(1L)
+                .username("김선도")
+                .department("컴퓨터공학부")
+                .introduce("반갑습니다 반갑습니다")
+                .tagNumber("#0001")
+                .build();
 
 
         given(userRepository.findByUserId(anyLong())).willReturn(user);

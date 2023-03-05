@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class LikeService {
+public class LikeCommandService {
 
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
@@ -51,7 +51,6 @@ public class LikeService {
         return findPostLikes;
     }
 
-    @Transactional
     public Like doLikeAtPost(Long postId, Long userId) {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않습니다"));
@@ -70,7 +69,6 @@ public class LikeService {
         return newLike;
     }
 
-    @Transactional
     public Like doLikeAtComment(Long commentId, Long userId) {
         Comment findComment = commentRepository.findCommentWithMemberByCommentId(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
@@ -88,7 +86,6 @@ public class LikeService {
         return newLike;
     }
 
-    @Transactional
     public void doUnlike(Long likeId, Long userId) {
         Like findLike = likeRepository.findLikeWithMemberById(likeId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -106,12 +103,10 @@ public class LikeService {
         likeRepository.delete(findLike);
     }
 
-    @Transactional
     public void removePostLikes(Long postId) {
         likeRepository.deleteAllPostLikeByPostId(postId);
     }
 
-    @Transactional
     public void removeAllCommentLikes(Long commentId) {
         likeRepository.deleteAllCommentLikeByCommentId(commentId);
     }

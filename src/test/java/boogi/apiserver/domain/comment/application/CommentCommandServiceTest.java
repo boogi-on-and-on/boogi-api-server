@@ -9,7 +9,7 @@ import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -48,10 +48,10 @@ import static org.mockito.BDDMockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-class CommentServiceTest {
+class CommentCommandServiceTest {
 
     @InjectMocks
-    CommentService commentService;
+    CommentCommandService commentCommandService;
 
     @Mock
     CommentRepository commentRepository;
@@ -69,7 +69,7 @@ class CommentServiceTest {
     CommunityValidationService communityValidationService;
 
     @Mock
-    LikeService likeService;
+    LikeCommandService likeCommandService;
 
     @Mock
     SendPushNotification sendPushNotification;
@@ -106,7 +106,7 @@ class CommentServiceTest {
 
             CreateCommentRequest createCommentRequest = new CreateCommentRequest(post.getId(), null, "hello", List.of());
 
-            Comment createdComment = commentService.createComment(createCommentRequest, 3L);
+            Comment createdComment = commentCommandService.createComment(createCommentRequest, 3L);
 
             assertThat(createdComment.getContent()).isEqualTo(createCommentRequest.getContent());
             assertThat(createdComment.getParent()).isNull();
@@ -149,7 +149,7 @@ class CommentServiceTest {
             CreateCommentRequest createCommentRequest = new CreateCommentRequest(post.getId(), parentComment.getId(),
                     "자식댓글", List.of());
 
-            Comment createdComment = commentService.createComment(createCommentRequest, 5L);
+            Comment createdComment = commentCommandService.createComment(createCommentRequest, 5L);
 
             assertThat(createdComment.getContent()).isEqualTo("자식댓글");
             assertThat(createdComment.getChild()).isTrue();
@@ -190,12 +190,12 @@ class CommentServiceTest {
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
 
-            commentService.deleteComment(comment.getId(), user.getId());
+            commentCommandService.deleteComment(comment.getId(), user.getId());
 
             assertThat(comment.getDeletedAt()).isNotNull();
             assertThat(comment.getPost().getCommentCount()).isZero();
 
-            verify(likeService, times(1)).removeAllCommentLikes(comment.getId());
+            verify(likeCommandService, times(1)).removeAllCommentLikes(comment.getId());
         }
 
         @Test
@@ -230,12 +230,12 @@ class CommentServiceTest {
             given(memberValidationService.hasAuth(eq(user2.getId()), eq(community.getId()), eq(MemberType.SUB_MANAGER)))
                     .willReturn(true);
 
-            commentService.deleteComment(comment.getId(), user2.getId());
+            commentCommandService.deleteComment(comment.getId(), user2.getId());
 
             assertThat(comment.getDeletedAt()).isNotNull();
             assertThat(comment.getPost().getCommentCount()).isZero();
 
-            verify(likeService, times(1)).removeAllCommentLikes(comment.getId());
+            verify(likeCommandService, times(1)).removeAllCommentLikes(comment.getId());
         }
 
         @Test
@@ -267,7 +267,7 @@ class CommentServiceTest {
             given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
                     .willReturn(Optional.of(comment));
 
-            assertThatThrownBy(() -> commentService.deleteComment(comment.getId(), user2.getId()))
+            assertThatThrownBy(() -> commentCommandService.deleteComment(comment.getId(), user2.getId()))
                     .isInstanceOf(NotAuthorizedMemberException.class);
         }
     }
@@ -354,7 +354,7 @@ class CommentServiceTest {
             given(likeRepository.findCommentLikesByCommentIdsAndMemberId(anyList(), anyLong()))
                     .willReturn(commentLikes);
 
-            CommentsAtPostResponse commentsAtPostResponse = commentService.getCommentsAtPost(post.getId(), 1L, pageable);
+            CommentsAtPostResponse commentsAtPostResponse = commentCommandService.getCommentsAtPost(post.getId(), 1L, pageable);
 
             assertThat(commentsAtPostResponse.getComments().size()).isEqualTo(2);
 
@@ -406,7 +406,7 @@ class CommentServiceTest {
             PageRequest pageable = PageRequest.of(0, 1);
 
             assertThatThrownBy(() ->
-                    commentService.getCommentsAtPost(post.getId(), 1L, pageable))
+                    commentCommandService.getCommentsAtPost(post.getId(), 1L, pageable))
                     .isInstanceOf(NotJoinedMemberException.class);
         }
 
@@ -467,7 +467,7 @@ class CommentServiceTest {
             given(likeRepository.findCommentLikesByCommentIdsAndMemberId(anyList(), anyLong()))
                     .willReturn(commentLikes);
 
-            CommentsAtPostResponse commentsAtPostResponse = commentService.getCommentsAtPost(post.getId(), 1L, pageable);
+            CommentsAtPostResponse commentsAtPostResponse = commentCommandService.getCommentsAtPost(post.getId(), 1L, pageable);
 
             assertThat(commentsAtPostResponse.getComments().size()).isEqualTo(1);
 
@@ -522,7 +522,7 @@ class CommentServiceTest {
             given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
                     .willReturn(userCommentPage);
 
-            UserCommentPageResponse userCommentDto = commentService.getUserComments(user.getId(), user.getId(), pageable);
+            UserCommentPageResponse userCommentDto = commentCommandService.getUserComments(user.getId(), user.getId(), pageable);
             PaginationDto pageInfo = userCommentDto.getPageInfo();
             List<UserCommentDto> commentsDto = userCommentDto.getComments();
 
@@ -575,7 +575,7 @@ class CommentServiceTest {
                     .willReturn(userCommentPage);
 
 
-            UserCommentPageResponse userCommentDto = commentService.getUserComments(user2.getId(), user1.getId(), pageable);
+            UserCommentPageResponse userCommentDto = commentCommandService.getUserComments(user2.getId(), user1.getId(), pageable);
             PaginationDto pageInfo = userCommentDto.getPageInfo();
             List<UserCommentDto> commentsDto = userCommentDto.getComments();
 

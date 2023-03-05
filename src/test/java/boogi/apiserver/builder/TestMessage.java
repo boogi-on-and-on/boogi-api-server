@@ -6,6 +6,6 @@ public class TestMessage {
 
     public static Message.MessageBuilder builder() {
         return Message.builder()
-                .content("MESSAGE");
+                .content("테스트 메시지 내용");
     }
 }

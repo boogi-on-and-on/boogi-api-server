@@ -4,7 +4,7 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
-import boogi.apiserver.domain.notice.application.NoticeService;
+import boogi.apiserver.domain.notice.application.NoticeCommandService;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
@@ -29,7 +29,7 @@ public class NoticeApiController {
     private final NoticeQueryService noticeQueryService;
     private final MemberQueryService memberQueryService;
 
-    private final NoticeService noticeService;
+    private final NoticeCommandService noticeCommandService;
 
     private final MemberValidationService memberValidationService;
 
@@ -50,7 +50,7 @@ public class NoticeApiController {
     public SimpleIdResponse createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
         memberValidationService.hasAuth(userId, request.getCommunityId(), MemberType.SUB_MANAGER);
 
-        Notice newNotice = noticeService.create(request, userId);
+        Notice newNotice = noticeCommandService.create(request, userId);
 
         return SimpleIdResponse.from(newNotice.getId());
     }

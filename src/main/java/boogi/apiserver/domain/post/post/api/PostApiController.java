@@ -1,12 +1,12 @@
 package boogi.apiserver.domain.post.post.api;
 
-import boogi.apiserver.domain.comment.application.CommentService;
+import boogi.apiserver.domain.comment.application.CommentCommandService;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.application.PostService;
+import boogi.apiserver.domain.post.post.application.PostCommandService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
@@ -36,18 +36,18 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/posts")
 public class PostApiController {
 
-    private final PostService postService;
+    private final PostCommandService postCommandService;
     private final PostQueryService postQueryService;
 
-    private final LikeService likeService;
+    private final LikeCommandService likeCommandService;
 
-    private final CommentService commentService;
+    private final CommentCommandService commentCommandService;
 
     @PostMapping("/")
     @ResponseStatus(CREATED)
     public SimpleIdResponse createPost(@Validated @RequestBody CreatePostRequest createPostRequest,
                                        @Session Long sessionUserId) {
-        Post newPost = postService.createPost(createPostRequest, sessionUserId);
+        Post newPost = postCommandService.createPost(createPostRequest, sessionUserId);
 
         return SimpleIdResponse.from(newPost.getId());
     }
@@ -61,14 +61,14 @@ public class PostApiController {
     public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePostRequest updatePostRequest,
                                        @PathVariable Long postId,
                                        @Session Long sessionUserId) {
-        Post updatedPost = postService.updatePost(updatePostRequest, postId, sessionUserId);
+        Post updatedPost = postCommandService.updatePost(updatePostRequest, postId, sessionUserId);
 
         return SimpleIdResponse.from(updatedPost.getId());
     }
 
     @DeleteMapping("/{postId}")
     public void deletePost(@PathVariable Long postId, @Session Long sessionUserId) {
-        postService.deletePost(postId, sessionUserId);
+        postCommandService.deletePost(postId, sessionUserId);
     }
 
     @GetMapping("/users")
@@ -87,7 +87,7 @@ public class PostApiController {
 
     @PostMapping("/{postId}/likes")
     public SimpleIdResponse doLikeAtPost(@PathVariable Long postId, @Session Long sessionUserId) {
-        Like newLike = likeService.doLikeAtPost(postId, sessionUserId);
+        Like newLike = likeCommandService.doLikeAtPost(postId, sessionUserId);
 
         return SimpleIdResponse.from(newLike.getId());
     }
@@ -96,14 +96,14 @@ public class PostApiController {
     public LikeMembersAtPostResponse getLikeMembersAtPost(@PathVariable Long postId,
                                                           @Session Long sessionUserId,
                                                           Pageable pageable) {
-        return likeService.getLikeMembersAtPost(postId, sessionUserId, pageable);
+        return likeCommandService.getLikeMembersAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/{postId}/comments")
     public CommentsAtPostResponse getCommentsAtPost(@PathVariable Long postId,
                                                     @Session Long sessionUserId,
                                                     Pageable pageable) {
-        return commentService.getCommentsAtPost(postId, sessionUserId, pageable);
+        return commentCommandService.getCommentsAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/search")

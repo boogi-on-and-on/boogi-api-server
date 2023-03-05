@@ -6,7 +6,7 @@ import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberValidationService;
@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class CommentService {
+public class CommentCommandService {
 
     private final PostQueryService postQueryService;
 
@@ -48,7 +48,7 @@ public class CommentService {
     private final MemberValidationService memberValidationService;
 
     private final LikeRepository likeRepository;
-    private final LikeService likeService;
+    private final LikeCommandService likeCommandService;
 
     private final CommentRepository commentRepository;
     private final CommentValidationService commentValidationService;
@@ -56,7 +56,6 @@ public class CommentService {
     private final SendPushNotification sendPushNotification;
     private final PostRepository postRepository;
 
-    @Transactional
     public Comment createComment(CreateCommentRequest createCommentRequest, Long userId) {
         Post findPost = postRepository.findByPostId(createCommentRequest.getPostId());
 
@@ -84,7 +83,6 @@ public class CommentService {
         return newComment;
     }
 
-    @Transactional
     public void deleteComment(Long commentId, Long userId) {
         Comment findComment = commentRepository.findCommentWithMemberByCommentId(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다."));
@@ -93,7 +91,7 @@ public class CommentService {
         Long commentedUserId = findComment.getMember().getUser().getId();
         if (commentedUserId.equals(userId) ||
                 memberValidationService.hasAuth(userId, joinedCommunityId, MemberType.SUB_MANAGER)) {
-            likeService.removeAllCommentLikes(findComment.getId());
+            likeCommandService.removeAllCommentLikes(findComment.getId());
 
             findComment.deleteComment();
         } else {

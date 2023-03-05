@@ -43,7 +43,7 @@ class TagTest {
 
     @DisplayName("최소 1개의 한글이나 영어로만 구성되어 있지 않을 경우 실패")
     @ParameterizedTest(name = "{0}로 태그를 생성한다.")
-    @CsvSource({"1234", "!@#$", "태그!!", "tag~"})
+    @CsvSource({"!@#$", "태그!!", "tag~"})
     void createWrongLetterFail(String tag) {
         assertThatThrownBy(() -> new Tag(tag))
                 .isInstanceOf(InvalidTagException.class);

@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.community.community.api;
 
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityService;
+import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
@@ -12,9 +12,9 @@ import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto
 import boogi.apiserver.domain.community.community.dto.request.*;
 import boogi.apiserver.domain.community.community.dto.response.*;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberService;
+import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -48,9 +48,9 @@ import java.util.Objects;
 public class CommunityApiController {
     private final CommunityRepository communityRepository;
 
-    private final JoinRequestService joinRequestService;
-    private final CommunityService communityService;
-    private final MemberService memberService;
+    private final JoinRequestCommandService joinRequestCommandService;
+    private final CommunityCommandService communityCommandService;
+    private final MemberCommandService memberCommandService;
 
     private final MemberValidationService memberValidationService;
 
@@ -68,7 +68,7 @@ public class CommunityApiController {
         String _category = request.getCategory();
         CommunityCategory category = CommunityCategory.valueOf(_category);
         Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(), request.getAutoApproval(), category);
-        Long communityId = communityService.createCommunity(community, request.getHashtags(), userId).getId();
+        Long communityId = communityCommandService.createCommunity(community, request.getHashtags(), userId).getId();
 
         return SimpleIdResponse.from(communityId);
     }
@@ -102,14 +102,14 @@ public class CommunityApiController {
                                     @RequestBody @Validated UpdateCommunityRequest request) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        communityService.update(communityId, request.getDescription(), request.getHashtags());
+        communityCommandService.update(communityId, request.getDescription(), request.getHashtags());
     }
 
     @DeleteMapping("/{communityId}")
     public void shutdown(@PathVariable Long communityId, @Session Long userId) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        communityService.shutdown(communityId);
+        communityCommandService.shutdown(communityId);
     }
 
     @GetMapping("/{communityId}/settings")
@@ -131,10 +131,10 @@ public class CommunityApiController {
         Boolean isAuto = request.getIsAutoApproval();
         Boolean isSecret = request.getIsSecret();
         if (Objects.nonNull(isAuto)) {
-            communityService.changeApproval(communityId, isAuto);
+            communityCommandService.changeApproval(communityId, isAuto);
         }
         if (Objects.nonNull(isSecret)) {
-            communityService.changeScope(communityId, isSecret);
+            communityCommandService.changeScope(communityId, isSecret);
         }
     }
 
@@ -181,7 +181,7 @@ public class CommunityApiController {
         memberValidationService.hasAuth(userId, communityId, MemberType.SUB_MANAGER);
 
         Long banMemberId = request.getMemberId();
-        memberService.banMember(banMemberId);
+        memberCommandService.banMember(banMemberId);
     }
 
     @PostMapping("/{communityId}/members/release")
@@ -192,7 +192,7 @@ public class CommunityApiController {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
         Long memberId = request.getMemberId();
-        memberService.releaseMember(memberId);
+        memberCommandService.releaseMember(memberId);
     }
 
     @PostMapping("/{communityId}/members/delegate")
@@ -202,7 +202,7 @@ public class CommunityApiController {
     ) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        memberService.delegeteMember(request.getMemberId(), request.getType());
+        memberCommandService.delegeteMember(request.getMemberId(), request.getType());
     }
 
     @GetMapping("/{communityId}/requests")
@@ -216,7 +216,7 @@ public class CommunityApiController {
 
     @PostMapping("/{communityId}/requests")
     public SimpleIdResponse joinRequest(@Session Long userId, @PathVariable Long communityId) {
-        Long requestId = joinRequestService.request(userId, communityId);
+        Long requestId = joinRequestCommandService.request(userId, communityId);
 
         return SimpleIdResponse.from(requestId);
     }
@@ -230,7 +230,7 @@ public class CommunityApiController {
 
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestService.confirmUserInBatch(managerUserId, requestIds, communityId);
+        joinRequestCommandService.confirmUserInBatch(managerUserId, requestIds, communityId);
 
         sendPushNotification.joinNotification(requestIds);
     }
@@ -244,7 +244,7 @@ public class CommunityApiController {
 
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestService.rejectUserInBatch(managerUserId, requestIds, communityId);
+        joinRequestCommandService.rejectUserInBatch(managerUserId, requestIds, communityId);
 
         sendPushNotification.rejectNotification(requestIds);
     }

@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.report.api;
 
-import boogi.apiserver.domain.report.application.ReportService;
+import boogi.apiserver.domain.report.application.ReportCommandService;
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ReportApiControllerTest {
 
     @MockBean
-    private ReportService reportService;
+    private ReportCommandService reportCommandService;
 
     MockMvc mvc;
 

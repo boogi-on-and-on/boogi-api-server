@@ -76,7 +76,7 @@ class PostRepositoryTest {
 
         final Post post1 = TestPost.builder()
                 .community(community1)
-                .content("게시글1")
+                .content("게시글1의 내용입니다.")
                 .likeCount(10)
                 .commentCount(1)
                 .build();
@@ -84,7 +84,7 @@ class PostRepositoryTest {
 
         final Post post2 = TestPost.builder()
                 .community(community2)
-                .content("게시글2_리스팅안됨")
+                .content("게시글2의 내용입니다. 리스팅X")
                 .likeCount(100)
                 .commentCount(1)
                 .build();
@@ -92,7 +92,7 @@ class PostRepositoryTest {
 
         final Post post3 = TestPost.builder()
                 .community(community1)
-                .content("게시글3")
+                .content("게시글3의 내용입니다.")
                 .likeCount(2)
                 .commentCount(1)
                 .build();
@@ -100,7 +100,7 @@ class PostRepositoryTest {
 
         final Post post4 = TestPost.builder()
                 .community(community1)
-                .content("게시글4")
+                .content("게시글4의 내용입니다.")
                 .likeCount(2)
                 .commentCount(10)
                 .build();
@@ -320,9 +320,9 @@ class PostRepositoryTest {
         communityRepository.saveAll(List.of(community1, community2));
 
         final User user = TestUser.builder()
-                .username("김")
+                .username("홍길동")
                 .tagNumber("#0001")
-                .department("컴공")
+                .department("컴퓨터공학과")
                 .build();
         userRepository.save(user);
 

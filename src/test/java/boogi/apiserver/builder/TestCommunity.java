@@ -8,8 +8,8 @@ public class TestCommunity {
 
     public static Community.CommunityBuilder builder() {
         return Community.builder()
-                .communityName("COMMUNITY_NAME")
-                .description("COMMUNITY_DESCRIPTION")
+                .communityName("TEST COMMUNITY")
+                .description("COMMUNITY DESCRIPTION")
                 .hashtags(new ArrayList<>());
     }
 }

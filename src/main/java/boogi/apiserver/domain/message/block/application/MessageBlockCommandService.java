@@ -15,16 +15,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class MessageBlockService {
+public class MessageBlockCommandService {
 
     private final MessageBlockRepository messageBlockRepository;
     private final UserRepository userRepository;
 
     private final UserQueryService userQueryService;
 
-    @Transactional
     public void releaseUser(Long userId, Long blockedUserId) {
         MessageBlock messageBlock = messageBlockRepository.getMessageBlockByUserId(userId, blockedUserId);
 
@@ -35,7 +34,6 @@ public class MessageBlockService {
         messageBlock.release();
     }
 
-    @Transactional
     public void blockUsers(Long userId, List<Long> blockUserIds) {
         User user = userRepository.findByUserId(userId);
         List<MessageBlock> blocks = messageBlockRepository.getMessageBlocksByUserIds(userId, blockUserIds);
@@ -78,3 +76,4 @@ public class MessageBlockService {
         messageBlockRepository.updateBulkBlockedStatus(blockUserIds);
     }
 }
+

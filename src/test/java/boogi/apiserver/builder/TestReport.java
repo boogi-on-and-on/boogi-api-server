@@ -6,6 +6,6 @@ public class TestReport {
 
     public static Report.ReportBuilder builder() {
         return Report.builder()
-                .content("THIS IS REPORT CONTENT");
+                .content("테스트 신고 내용");
     }
 }

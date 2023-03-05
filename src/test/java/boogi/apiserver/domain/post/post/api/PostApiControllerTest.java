@@ -1,18 +1,18 @@
 package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.builder.*;
-import boogi.apiserver.domain.comment.application.CommentService;
+import boogi.apiserver.domain.comment.application.CommentCommandService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.application.PostService;
+import boogi.apiserver.domain.post.post.application.PostCommandService;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
@@ -75,13 +75,13 @@ class PostApiControllerTest {
     private PostQueryService postQueryService;
 
     @MockBean
-    PostService postService;
+    PostCommandService postCommandService;
 
     @MockBean
-    LikeService likeService;
+    LikeCommandService likeCommandService;
 
     @MockBean
-    CommentService commentService;
+    CommentCommandService commentCommandService;
 
     private MockMvc mvc;
 
@@ -113,7 +113,7 @@ class PostApiControllerTest {
 
         final Post post = TestPost.builder().id(2L).build();
 
-        given(postService.createPost(any(CreatePostRequest.class), anyLong()))
+        given(postCommandService.createPost(any(CreatePostRequest.class), anyLong()))
                 .willReturn(post);
 
         MockHttpSession session = createUserSession(3L);
@@ -134,7 +134,7 @@ class PostApiControllerTest {
         final User user = TestUser.builder()
                 .id(1L)
                 .username("유저")
-                .tagNumber("#1")
+                .tagNumber("#0001")
                 .profileImageUrl("url")
                 .build();
 
@@ -158,7 +158,7 @@ class PostApiControllerTest {
                 .id(5L)
                 .member(member)
                 .community(community)
-                .content("글")
+                .content("게시글의 내용입니다.")
                 .likeCount(1)
                 .commentCount(0)
                 .hashtags(List.of(postHashtag))
@@ -191,7 +191,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.id").value(5L))
                 .andExpect(jsonPath("$.user.id").value(1L))
                 .andExpect(jsonPath("$.user.name").value("유저"))
-                .andExpect(jsonPath("$.user.tagNum").value("#1"))
+                .andExpect(jsonPath("$.user.tagNum").value("#0001"))
                 .andExpect(jsonPath("$.user.profileImageUrl").value("url"))
                 .andExpect(jsonPath("$.member.id").value(2L))
                 .andExpect(jsonPath("$.member.memberType").value("MANAGER"))
@@ -202,7 +202,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.postMedias[0].url").value("mediaUrl"))
                 .andExpect(jsonPath("$.likeId").value(7L))
                 .andExpect(jsonPath("$.createdAt").value(formattedCreatedTime))
-                .andExpect(jsonPath("$.content").value("글"))
+                .andExpect(jsonPath("$.content").value("게시글의 내용입니다."))
                 .andExpect(jsonPath("$.hashtags").isArray())
                 .andExpect(jsonPath("$.hashtags[0]").value("해시태그"))
                 .andExpect(jsonPath("$.likeCount").value(1))
@@ -217,7 +217,7 @@ class PostApiControllerTest {
 
         final Post post = TestPost.builder().id(1L).build();
 
-        given(postService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
+        given(postCommandService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
                 .willReturn(post);
 
         MockHttpSession session = createUserSession(2L);
@@ -278,7 +278,7 @@ class PostApiControllerTest {
     @DisplayName("글에 좋아요하기")
     void testDoLikeAtPost() throws Exception {
         final Like like = TestLike.builder().id(2L).build();
-        given(likeService.doLikeAtPost(anyLong(), anyLong()))
+        given(likeCommandService.doLikeAtPost(anyLong(), anyLong()))
                 .willReturn(like);
 
         MockHttpSession session = createUserSession(3L);
@@ -298,7 +298,7 @@ class PostApiControllerTest {
         final User user = TestUser.builder()
                 .id(2L)
                 .username("유저")
-                .tagNumber("#1")
+                .tagNumber("#0001")
                 .profileImageUrl("url")
                 .build();
         List<User> users = List.of(user);
@@ -307,7 +307,7 @@ class PostApiControllerTest {
         Slice<User> page = PageableUtil.getSlice(users, pageable);
 
         LikeMembersAtPostResponse likeMembers = LikeMembersAtPostResponse.of(users, page);
-        given(likeService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
+        given(likeCommandService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembers);
 
         MockHttpSession session = createUserSession(3L);
@@ -322,7 +322,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.members.size()").value(1))
                 .andExpect(jsonPath("$.members[0].id").value(2L))
                 .andExpect(jsonPath("$.members[0].name").value("유저"))
-                .andExpect(jsonPath("$.members[0].tagNum").value("#1"))
+                .andExpect(jsonPath("$.members[0].tagNum").value("#0001"))
                 .andExpect(jsonPath("$.members[0].profileImageUrl").value("url"))
                 .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
                 .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
@@ -357,7 +357,7 @@ class PostApiControllerTest {
         Slice<Comment> slice = PageableUtil.getSlice(List.of(parentComment), pageable);
 
         CommentsAtPostResponse commentsAtPostResponse = CommentsAtPostResponse.of(parentCommentInfos, slice);
-        given(commentService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
+        given(commentCommandService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(commentsAtPostResponse);
 
         MockHttpSession session = createUserSession(5L);

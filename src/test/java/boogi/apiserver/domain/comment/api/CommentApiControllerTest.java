@@ -3,12 +3,12 @@ package boogi.apiserver.domain.comment.api;
 import boogi.apiserver.builder.TestComment;
 import boogi.apiserver.builder.TestLike;
 import boogi.apiserver.builder.TestUser;
-import boogi.apiserver.domain.comment.application.CommentService;
+import boogi.apiserver.domain.comment.application.CommentCommandService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.user.domain.User;
@@ -49,10 +49,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CommentApiControllerTest {
 
     @MockBean
-    CommentService commentService;
+    CommentCommandService commentCommandService;
 
     @MockBean
-    LikeService likeService;
+    LikeCommandService likeCommandService;
 
     @MockBean
     SendPushNotification sendPushNotification;
@@ -82,7 +82,7 @@ class CommentApiControllerTest {
         final PaginationDto pageInfo = new PaginationDto(1, false);
         final UserCommentPageResponse commentPage = new UserCommentPageResponse(List.of(commentDto), pageInfo);
 
-        given(commentService.getUserComments(anyLong(), any(), any(Pageable.class)))
+        given(commentCommandService.getUserComments(anyLong(), any(), any(Pageable.class)))
                 .willReturn(commentPage);
 
         MockHttpSession session = new MockHttpSession();
@@ -111,7 +111,7 @@ class CommentApiControllerTest {
 
         final Comment newComment = TestComment.builder().id(1L).build();
 
-        given(commentService.createComment(any(CreateCommentRequest.class), eq(1L)))
+        given(commentCommandService.createComment(any(CreateCommentRequest.class), eq(1L)))
                 .willReturn(newComment);
 
         MockHttpSession session = new MockHttpSession();
@@ -132,7 +132,7 @@ class CommentApiControllerTest {
     void testDoLikeAtComment() throws Exception {
         final Like like = TestLike.builder().id(1L).build();
 
-        given(likeService.doLikeAtComment(anyLong(), anyLong()))
+        given(likeCommandService.doLikeAtComment(anyLong(), anyLong()))
                 .willReturn(like);
 
         MockHttpSession session = new MockHttpSession();
@@ -175,7 +175,7 @@ class CommentApiControllerTest {
 
         LikeMembersAtCommentResponse likeMembersAtCommentResponse = LikeMembersAtCommentResponse.of(users,
                 new PageImpl((users), Pageable.ofSize(1), 1));
-        given(likeService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
+        given(likeCommandService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembersAtCommentResponse);
 
         MockHttpSession session = new MockHttpSession();

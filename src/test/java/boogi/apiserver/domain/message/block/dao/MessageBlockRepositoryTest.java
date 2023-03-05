@@ -33,11 +33,11 @@ class MessageBlockRepositoryTest {
     void getBlockedUsers() {
         //given
         final User u1 = TestUser.builder()
-                .username("탈퇴당한유저1")
+                .username("탈퇴당한유저하나")
                 .tagNumber("#0001")
                 .build();
         final User u2 = TestUser.builder()
-                .username("탈퇴당한유저2")
+                .username("탈퇴당한유저둘")
                 .tagNumber("#0001")
                 .build();
         final User user = TestUser.builder()

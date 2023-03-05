@@ -120,7 +120,7 @@ class PostQueryServiceTest {
 
             final Post post = TestPost.builder()
                     .id(4L)
-                    .content("글")
+                    .content("커뮤니티의 게시글입니다.")
                     .member(member)
                     .community(community)
                     .likeCount(0)
@@ -148,7 +148,7 @@ class PostQueryServiceTest {
             assertThat(postDetailResponse.getCommunity().getId()).isEqualTo(2L);
             assertThat(postDetailResponse.getLikeId()).isNull();
             assertThat(postDetailResponse.getCreatedAt()).isEqualTo(post.getCreatedAt());
-            assertThat(postDetailResponse.getContent()).isEqualTo("글");
+            assertThat(postDetailResponse.getContent()).isEqualTo("커뮤니티의 게시글입니다.");
             assertThat(postDetailResponse.getLikeCount()).isEqualTo(0);
             assertThat(postDetailResponse.getCommentCount()).isEqualTo(0);
             assertThat(postDetailResponse.getMe()).isFalse();
@@ -169,7 +169,7 @@ class PostQueryServiceTest {
 
             final Post post = TestPost.builder()
                     .id(1L)
-                    .content("글")
+                    .content("커뮤니티의 게시글입니다.")
                     .member(member)
                     .community(community)
                     .likeCount(1)

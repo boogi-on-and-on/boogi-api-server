@@ -2,9 +2,9 @@ package boogi.apiserver.domain.user.controller;
 
 import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.community.community.application.CommunityService;
+import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.message.block.application.MessageBlockService;
+import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
@@ -13,7 +13,6 @@ import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -53,13 +51,13 @@ class UserApiControllerTest {
     MessageBlockQueryService messageBlockQueryService;
 
     @MockBean
-    MessageBlockService messageBlockService;
+    MessageBlockCommandService messageBlockCommandService;
 
     @MockBean
     private AlarmConfigService alarmConfigService;
 
     @MockBean
-    private CommunityService communityService;
+    private CommunityCommandService communityCommandService;
 
     private MockMvc mvc;
 
@@ -269,12 +267,12 @@ class UserApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        final AlarmConfig config = TestEmptyEntityGenerator.AlarmConfig();
-        ReflectionTestUtils.setField(config, "notice", true);
-        ReflectionTestUtils.setField(config, "joinRequest", true);
-        ReflectionTestUtils.setField(config, "comment", false);
-        ReflectionTestUtils.setField(config, "mention", true);
-
+        final AlarmConfig config = AlarmConfig.builder()
+                .notice(true)
+                .joinRequest(true)
+                .comment(false)
+                .mention(true)
+                .build();
 
         given(alarmConfigService.findOrElseCreateAlarmConfig(anyLong()))
                 .willReturn(config);

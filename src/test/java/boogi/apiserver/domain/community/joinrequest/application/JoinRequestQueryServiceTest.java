@@ -1,18 +1,17 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -34,15 +33,17 @@ class JoinRequestQueryServiceTest {
     @Test
     @DisplayName("커뮤니티 가입요청 목록 조회")
     void communityJoinRequestList() {
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "username", "이름");
-        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
-        ReflectionTestUtils.setField(user, "profileImageUrl", "image");
+        final User user = TestUser.builder()
+                .id(1L)
+                .username("이름")
+                .tagNumber("#0001")
+                .profileImageUrl("image")
+                .build();
 
-        final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
-        ReflectionTestUtils.setField(joinRequest, "id", 2L);
-        ReflectionTestUtils.setField(joinRequest, "user", user);
+        final JoinRequest joinRequest = JoinRequest.builder()
+                .id(2L)
+                .user(user)
+                .build();
 
         given(joinRequestRepository.getAllRequests(anyLong()))
                 .willReturn(List.of(joinRequest));

@@ -1,17 +1,20 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
+import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestJoinRequest;
+import boogi.apiserver.builder.TestMember;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
-import boogi.apiserver.domain.member.application.MemberService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,16 +33,16 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class JoinRequestServiceTest {
+class JoinRequestCommandServiceTest {
 
     @InjectMocks
-    JoinRequestService joinRequestService;
+    JoinRequestCommandService joinRequestCommandService;
 
     @Mock
     JoinRequestRepository joinRequestRepository;
 
     @Mock
-    MemberService memberService;
+    MemberCommandService memberCommandService;
 
 
     @Mock
@@ -59,25 +61,27 @@ class JoinRequestServiceTest {
         @Test
         @DisplayName("이미 요청한 경우")
         void alreadyRequested() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-
+            final User user = TestUser.builder()
+                    .id(1L)
+                    .build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .build();
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
-            ReflectionTestUtils.setField(joinRequest, "status", JoinRequestStatus.PENDING);
+            final JoinRequest joinRequest = TestJoinRequest.builder()
+                    .status(JoinRequestStatus.PENDING)
+                    .build();
 
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
                     .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
-                joinRequestService.request(user.getId(), community.getId());
+                joinRequestCommandService.request(user.getId(), community.getId());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("이미 요청한 커뮤니티입니다.");
@@ -86,26 +90,27 @@ class JoinRequestServiceTest {
         @Test
         @DisplayName("이미 가입한 경우")
         void alreadyJoined() {
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 1L);
-
+            final User user = TestUser.builder()
+                    .id(1L)
+                    .build();
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 1L);
-
+            final Community community = TestCommunity.builder()
+                    .id(1L)
+                    .build();
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
-            ReflectionTestUtils.setField(joinRequest, "status", JoinRequestStatus.CONFIRM);
+            final JoinRequest joinRequest = TestJoinRequest.builder()
+                    .status(JoinRequestStatus.CONFIRM)
+                    .build();
 
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
                     .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
-                joinRequestService.request(user.getId(), community.getId());
+                joinRequestCommandService.request(user.getId(), community.getId());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("이미 가입한 커뮤니티입니다.");
@@ -118,22 +123,25 @@ class JoinRequestServiceTest {
         @Test
         @DisplayName("요청승인 id의 매칭 실패")
         void unmatch() {
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 2L);
+            final Community community = TestCommunity.builder()
+                    .id(2L)
+                    .build();
 
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 3L);
+            final User user = TestUser.builder()
+                    .id(3L)
+                    .build();
 
-            final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
-            ReflectionTestUtils.setField(joinRequest, "id", 1L);
-            ReflectionTestUtils.setField(joinRequest, "community", community);
-            ReflectionTestUtils.setField(joinRequest, "user", user);
+            final JoinRequest joinRequest = TestJoinRequest.builder()
+                    .id(1L)
+                    .community(community)
+                    .user(user)
+                    .build();
 
             given(joinRequestRepository.findByJoinRequestId(anyLong()))
                     .willReturn(joinRequest);
 
             assertThatThrownBy(() -> {
-                joinRequestService.confirmUser(1L, 1L, 1L);
+                joinRequestCommandService.confirmUser(1L, 1L, 1L);
             }).isInstanceOf(InvalidValueException.class);
         }
 
@@ -141,13 +149,17 @@ class JoinRequestServiceTest {
         @DisplayName("유저 여러개 승인하기")
         void confirmManyRequest() {
             //given
-            final User u1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(u1, "id", 1L);
-            final User u2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(u2, "id", 2L);
+            final User u1 = TestUser.builder()
+                    .id(1L)
+                    .build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 3L);
+            final User u2 = TestUser.builder()
+                    .id(2L)
+                    .build();
+
+            final Community community = TestCommunity.builder()
+                    .id(3L)
+                    .build();
 
             JoinRequest jr1 = JoinRequest.of(u1, community);
             JoinRequest jr2 = JoinRequest.of(u2, community);
@@ -155,26 +167,27 @@ class JoinRequestServiceTest {
             given(joinRequestRepository.getRequestsByIds(any()))
                     .willReturn(List.of(jr1, jr2));
 
-            final Member m1 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(m1, "id", 1L);
-            ReflectionTestUtils.setField(m1, "user", u1);
-            ReflectionTestUtils.setField(m1, "community", community);
+            final Member m1 = TestMember.builder()
+                    .id(1L)
+                    .user(u1)
+                    .community(community)
+                    .build();
 
-            final Member m2 = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(m2, "id", 2L);
-            ReflectionTestUtils.setField(m2, "user", u2);
-            ReflectionTestUtils.setField(m2, "community", community);
+            final Member m2 = TestMember.builder()
+                    .id(2L)
+                    .user(u2)
+                    .community(community)
+                    .build();
 
-            given(memberService.joinMemberInBatch(any(), anyLong(), any()))
+            given(memberCommandService.joinMemberInBatch(any(), anyLong(), any()))
                     .willReturn(List.of(m1, m2));
 
-            final Member manager = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(manager, "id", 1L);
+            final Member manager = TestMember.builder().id(1L).build();
 
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(manager);
             //when
-            joinRequestService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
+            joinRequestCommandService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
 
             //then
             assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.CONFIRM);
@@ -186,13 +199,10 @@ class JoinRequestServiceTest {
         @DisplayName("여러개 승인 거부하기")
         void rejectManyRequest() {
             //given
-            final User u1 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(u1, "id", 1L);
-            final User u2 = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(u2, "id", 2L);
+            final User u1 = TestUser.builder().id(1L).build();
+            final User u2 = TestUser.builder().id(2L).build();
 
-            final Community community = TestEmptyEntityGenerator.Community();
-            ReflectionTestUtils.setField(community, "id", 3L);
+            final Community community = TestCommunity.builder().id(3L).build();
 
             JoinRequest jr1 = JoinRequest.of(u1, community);
             JoinRequest jr2 = JoinRequest.of(u2, community);
@@ -200,14 +210,13 @@ class JoinRequestServiceTest {
             given(joinRequestRepository.getRequestsByIds(any()))
                     .willReturn(List.of(jr1, jr2));
 
-            final Member manager = TestEmptyEntityGenerator.Member();
-            ReflectionTestUtils.setField(manager, "id", 1L);
+            final Member manager = TestMember.builder().id(1L).build();
 
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(manager);
 
             //when
-            joinRequestService.rejectUserInBatch(anyLong(), any(), community.getId());
+            joinRequestCommandService.rejectUserInBatch(anyLong(), any(), community.getId());
             assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
             assertThat(jr2.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
         }

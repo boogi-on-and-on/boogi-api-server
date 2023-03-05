@@ -18,7 +18,7 @@ public class Tag {
     public static final int MIN_LENGTH = 1;
     public static final int MAX_LENGTH = 10;
 
-    private static final Pattern PATTERN = Pattern.compile("^[ㄱ-ㅎ|가-힣|a-z|A-Z]+$");
+    private static final Pattern PATTERN = Pattern.compile("^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9]+$");
 
     @Column(name = "tag")
     private String value;

@@ -38,10 +38,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReportServiceTest {
+class ReportCommandServiceTest {
 
     @InjectMocks
-    private ReportService reportService;
+    private ReportCommandService reportCommandService;
 
     @Mock
     private UserQueryService userQueryService;
@@ -100,8 +100,8 @@ class ReportServiceTest {
             given(commentRepository.findCommentById(anyLong()))
                     .willReturn(Optional.of(comment));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReportRequest, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "A".repeat(10));
+            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -139,9 +139,9 @@ class ReportServiceTest {
             CreateReportRequest createCommentReport = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
             CreateReportRequest createPostReport = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
 
-            assertThatThrownBy(() -> reportService.createReport(createCommentReport, 1L))
+            assertThatThrownBy(() -> reportCommandService.createReport(createCommentReport, 1L))
                     .isInstanceOf(NotJoinedMemberException.class);
-            assertThatThrownBy(() -> reportService.createReport(createPostReport, 1L))
+            assertThatThrownBy(() -> reportCommandService.createReport(createPostReport, 1L))
                     .isInstanceOf(NotJoinedMemberException.class);
         }
 
@@ -166,8 +166,8 @@ class ReportServiceTest {
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReportRequest, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "A".repeat(10));
+            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -183,8 +183,8 @@ class ReportServiceTest {
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(Optional.of(community));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReportRequest, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "A".repeat(10));
+            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -206,8 +206,8 @@ class ReportServiceTest {
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
-            reportService.createReport(createReportRequest, 1L);
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "A".repeat(10));
+            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -229,8 +229,8 @@ class ReportServiceTest {
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
-            assertThatThrownBy(() -> reportService.createReport(createReportRequest, 3L))
+            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "A".repeat(10));
+            assertThatThrownBy(() -> reportCommandService.createReport(createReportRequest, 3L))
                     .isInstanceOf(InvalidValueException.class);
         }
     }

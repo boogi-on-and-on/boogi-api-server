@@ -50,7 +50,7 @@ class PostMediaQueryServiceTest {
                     .uuid("1234")
                     .build();
             final PostMedia postMedia2 = TestPostMedia.builder()
-                    .id(1L)
+                    .id(2L)
                     .uuid("5678")
                     .build();
             List<PostMedia> postMedias = List.of(postMedia1, postMedia2);

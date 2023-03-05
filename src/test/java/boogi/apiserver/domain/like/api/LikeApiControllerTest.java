@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.like.api;
 
-import boogi.apiserver.domain.like.application.LikeService;
+import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class LikeApiControllerTest {
 
     @MockBean
-    LikeService likeService;
+    LikeCommandService likeCommandService;
 
     MockMvc mvc;
 

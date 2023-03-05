@@ -1,17 +1,17 @@
 package boogi.apiserver.domain.alarm.alarm.application;
 
+import boogi.apiserver.builder.TestAlarm;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.error.exception.InvalidValueException;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,11 +32,9 @@ class AlarmServiceTest {
     @Test
     void 알림_삭제권한_없을때() {
         //given
-        User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
+        final User user = TestUser.builder().id(1L).build();
 
-        Alarm alarm = TestEmptyEntityGenerator.Alarm();
-        ReflectionTestUtils.setField(alarm, "user", user);
+        final Alarm alarm = TestAlarm.builder().user(user).build();
 
         given(alarmRepository.findByAlarmId(anyLong()))
                 .willReturn(alarm);
@@ -54,11 +52,8 @@ class AlarmServiceTest {
     @Disabled
     void 알림_삭제성공() {
         //given
-        User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-
-        Alarm alarm = TestEmptyEntityGenerator.Alarm();
-        ReflectionTestUtils.setField(alarm, "user", user);
+        final User user = TestUser.builder().id(1L).build();
+        final Alarm alarm = TestAlarm.builder().user(user).build();
 
         given(alarmRepository.findByAlarmId(anyLong()))
                 .willReturn(alarm);

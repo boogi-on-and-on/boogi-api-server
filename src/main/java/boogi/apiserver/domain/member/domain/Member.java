@@ -52,7 +52,7 @@ public class Member extends TimeBaseEntity {
         this.memberType = type;
     }
 
-    public static Member createNewMember(Community community, User user, MemberType type) {
+    public static Member of(Community community, User user, MemberType type) {
         community.addMemberCount();
 
         return new Member(community, user, type);

@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class ReportService {
+public class ReportCommandService {
 
     private final CommunityRepository communityRepository;
     private final PostRepository postRepository;
@@ -37,7 +37,6 @@ public class ReportService {
 
     private final UserRepository userRepository;
 
-    @Transactional
     public void createReport(CreateReportRequest createReportRequest, Long userId) {
         ReportTarget target = createReportRequest.getTarget();
         Long id = createReportRequest.getId();

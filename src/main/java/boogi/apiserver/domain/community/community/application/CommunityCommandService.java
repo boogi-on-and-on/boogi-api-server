@@ -6,7 +6,7 @@ import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagService;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
-import boogi.apiserver.domain.member.application.MemberService;
+import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class CommunityService {
+@Transactional
+public class CommunityCommandService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
@@ -36,11 +36,10 @@ public class CommunityService {
     private final UserRepository userRepository;
 
     private final CommunityHashtagService communityHashtagService;
-    private final MemberService memberService;
+    private final MemberCommandService memberCommandService;
 
     private final CommunityValidationService communityValidationService;
 
-    @Transactional
     public Community createCommunity(Community community, List<String> tags, Long userId) {
         User user = userRepository.findByUserId(userId);
         communityValidationService.checkPreviousExistsCommunityName(community.getCommunityName());
@@ -48,12 +47,11 @@ public class CommunityService {
         communityRepository.save(community);
         communityHashtagService.addTags(community.getId(), tags);
 
-        memberService.joinMember(userId, community.getId(), MemberType.MANAGER);
+        memberCommandService.joinMember(userId, community.getId(), MemberType.MANAGER);
 
         return community;
     }
 
-    @Transactional
     public void shutdown(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
 
@@ -64,7 +62,6 @@ public class CommunityService {
         community.shutdown();
     }
 
-    @Transactional
     public void changeScope(Long communityId, Boolean isSecret) {
         Community community = communityRepository.findByCommunityId(communityId);
 
@@ -75,7 +72,6 @@ public class CommunityService {
         }
     }
 
-    @Transactional
     public void changeApproval(Long communityId, Boolean isAuto) {
         Community community = communityRepository.findByCommunityId(communityId);
 
@@ -86,7 +82,6 @@ public class CommunityService {
         }
     }
 
-    @Transactional
     public void update(Long communityId, String description, List<String> newTags) {
         Community community = communityRepository.findByCommunityId(communityId);
 
