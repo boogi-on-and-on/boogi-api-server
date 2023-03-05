@@ -65,7 +65,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 community.communityName.value.contains(keyword).or(
                         community.id.in(JPAExpressions.select(communityHashtag.community.id)
                                 .from(communityHashtag)
-                                .where(communityHashtag.tag.eq(keyword)))
+                                .where(communityHashtag.tag.value.eq(keyword)))
                 )
         };
 

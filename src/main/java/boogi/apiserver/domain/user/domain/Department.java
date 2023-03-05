@@ -18,7 +18,7 @@ public class Department {
     public static final int MIN_LENGTH = 3;
     public static final int MAX_LENGTH = 20;
 
-    private static final Pattern PATTERN = Pattern.compile("^[ㄱ-ㅎ|가-힣]+$");
+    private static final Pattern PATTERN = Pattern.compile("^[가-힣| ]+$");
 
     @Column(name = "department")
     private String value;

@@ -131,7 +131,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 post.id.in(
                         JPAExpressions.select(postHashtag.post.id)
                                 .from(postHashtag)
-                                .where(postHashtag.tag.eq(request.getKeyword()))
+                                .where(postHashtag.tag.value.eq(request.getKeyword()))
                 )
         };
 

@@ -18,7 +18,7 @@ public class CommunityName {
     public static final int MIN_LENGTH = 1;
     public static final int MAX_LENGTH = 30;
 
-    private static final Pattern PATTERN = Pattern.compile("^[ㄱ-ㅎ|가-힣|a-z|A-Z]+$");
+    private static final Pattern PATTERN = Pattern.compile("^[ㄱ-ㅎ|가-힣|a-z|A-Z| ]+$");
 
     @Column(name = "community_name")
     private String value;

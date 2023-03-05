@@ -24,6 +24,7 @@ public class Tag {
     private String value;
 
     public Tag(String value) {
+        validate(value);
         this.value = value;
     }
 

@@ -14,15 +14,16 @@ import java.util.regex.Pattern;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Username {
-    public static final int MIN_LENGTH = 5;
+    public static final int MIN_LENGTH = 2;
     public static final int MAX_LENGTH = 20;
 
-    private static final Pattern PATTERN = Pattern.compile("^[ㄱ-ㅎ|가-힣]+$");
+    private static final Pattern PATTERN = Pattern.compile("^[가-힣]+$");
 
     @Column(name = "username")
     private String value;
 
     public Username(final String value) {
+        validate(value);
         this.value = value;
     }
 
