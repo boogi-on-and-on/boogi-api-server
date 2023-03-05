@@ -36,6 +36,14 @@ class DescriptionTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      커뮤니티 소개란 입니다.    ";
+        Description description = new Description(BEFORE_TRIM);
+        assertThat(description.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("입력값의 길이가 올바른 경우 성공")
     void createSuccess() {
         final Description description = new Description("커뮤니티 소개란 입니다.");

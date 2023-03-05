@@ -43,6 +43,14 @@ class EmailTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      abcd@hansung.ac.kr    ";
+        Email email = new Email(BEFORE_TRIM);
+        assertThat(email.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("5 ~ 80자의 이메일 형식에 맞는 문자열일 경우 성공")
     void createSuccess() {
         Email email = new Email("abcde@hansung.ac.kr");

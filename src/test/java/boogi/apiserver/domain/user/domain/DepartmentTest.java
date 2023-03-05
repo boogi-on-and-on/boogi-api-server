@@ -43,6 +43,14 @@ class DepartmentTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      학과입니다    ";
+        Department department = new Department(BEFORE_TRIM);
+        assertThat(department.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("입력값의 길이가 올바른 한글 문자열일 경우 성공")
     void createSuccess() {
         Department department = new Department("학과 이름");

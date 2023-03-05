@@ -3,6 +3,7 @@ package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.domain.community.community.exception.InvalidCommunityNameException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -39,6 +40,14 @@ class CommunityNameTest {
     void wrongLetterFail(String name) {
         assertThatThrownBy(() -> new CommunityName(name))
                 .isInstanceOf(InvalidCommunityNameException.class);
+    }
+
+    @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      커뮤니티 이름    ";
+        CommunityName communityName = new CommunityName(BEFORE_TRIM);
+        assertThat(communityName.getValue()).isEqualTo(BEFORE_TRIM.trim());
     }
 
     @DisplayName("입력값의 길이가 올바르고, 최소 1개 이상의 한글이나 영어와 공백문자로만 구성되면 성공")

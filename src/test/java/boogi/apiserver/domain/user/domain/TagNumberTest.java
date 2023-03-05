@@ -30,6 +30,14 @@ class TagNumberTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      #0001    ";
+        TagNumber tagNumber = new TagNumber(BEFORE_TRIM);
+        assertThat(tagNumber.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("#0001 ~ #9999 사이인 경우 성공")
     void createSuccess() {
         TagNumber tagNumber = new TagNumber("#1234");

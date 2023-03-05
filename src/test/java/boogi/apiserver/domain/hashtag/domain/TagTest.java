@@ -2,6 +2,7 @@ package boogi.apiserver.domain.hashtag.domain;
 
 import boogi.apiserver.domain.hashtag.exception.InvalidTagException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -30,6 +31,14 @@ class TagTest {
     void createLengthFail(String tag) {
         assertThatThrownBy(() -> new Tag(tag))
                 .isInstanceOf(InvalidTagException.class);
+    }
+
+    @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      태그입니다    ";
+        Tag tag = new Tag(BEFORE_TRIM);
+        assertThat(tag.getValue()).isEqualTo(BEFORE_TRIM.trim());
     }
 
     @DisplayName("최소 1개의 한글이나 영어로만 구성되어 있지 않을 경우 실패")

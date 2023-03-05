@@ -1,8 +1,6 @@
 package boogi.apiserver.domain.user.domain;
 
-import boogi.apiserver.domain.user.exception.InvalidDepartmentException;
 import boogi.apiserver.domain.user.exception.InvalidIntroduceException;
-import boogi.apiserver.domain.user.exception.InvalidUsernameException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +21,9 @@ public class Introduce {
     private String value;
 
     public Introduce(final String value) {
-        validate(value);
-        this.value = value;
+        String trimedValue = StringUtils.trimWhitespace(value);
+        validate(trimedValue);
+        this.value = trimedValue;
     }
 
     private void validate(String value) {

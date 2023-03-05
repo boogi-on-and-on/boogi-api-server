@@ -35,6 +35,14 @@ class PostContentTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      게시글 내용입니다.    ";
+        PostContent postContent = new PostContent(BEFORE_TRIM);
+        assertThat(postContent.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("입력값의 길이가 올바른 경우 성공")
     void createSuccess() {
         final PostContent postContent = new PostContent("게시글 내용입니다.");

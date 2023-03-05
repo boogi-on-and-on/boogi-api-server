@@ -43,6 +43,14 @@ class UsernameTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      유저이름    ";
+        Username username = new Username(BEFORE_TRIM);
+        assertThat(username.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("입력값의 길이가 올바르고 공백으로만 이루어진 문자열이 아니면 성공")
     void createSuccess() {
         Username username = new Username("유저이름");

@@ -24,8 +24,9 @@ public class Email {
     private String value;
 
     public Email(String value) {
-        validate(value);
-        this.value = value;
+        String trimedValue = StringUtils.trimWhitespace(value);
+        validate(trimedValue);
+        this.value = trimedValue;
     }
 
     private void validate(String value) {

@@ -34,6 +34,14 @@ class TitleTest {
     }
 
     @Test
+    @DisplayName("입력값의 앞뒤 공백 문자를 제거")
+    void trimSuccess() {
+        String BEFORE_TRIM = "      공지사항 제목입니다.    ";
+        Title title = new Title(BEFORE_TRIM);
+        assertThat(title.getValue()).isEqualTo(BEFORE_TRIM.trim());
+    }
+
+    @Test
     @DisplayName("입력값의 길이가 올바르고 공백으로만 이루어진 문자열이 아니면 성공")
     void createSuccess() {
         Title title = new Title("공지사항 제목");

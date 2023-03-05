@@ -23,8 +23,9 @@ public class TagNumber {
     private static final Pattern PATTERN = Pattern.compile("^#[0-9]{3}[1-9]$");
 
     public TagNumber(final String value) {
-        validate(value);
-        this.value = value;
+        String trimedValue = StringUtils.trimWhitespace(value);
+        validate(trimedValue);
+        this.value = trimedValue;
     }
 
     private void validate(String value) {
