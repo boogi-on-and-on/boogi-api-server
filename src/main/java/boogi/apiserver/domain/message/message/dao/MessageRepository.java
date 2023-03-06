@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.message.message.dao;
 
 import boogi.apiserver.domain.message.message.domain.Message;
+import boogi.apiserver.domain.message.message.exception.MessageNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,9 @@ public interface MessageRepository extends JpaRepository<Message, Long>, Message
             "WHERE rankrow.a <= 1 ORDER BY created_at DESC",
             nativeQuery = true)
     List<Message> findMessageByUserIdWithoutBlockedUser(@Param("userId") Long userId, @Param("blockedUserIds") List<Long> blockedUserIds);
+
+    default Message findByMessageId(Long messageId) {
+        return this.findById(messageId).orElseThrow(MessageNotFoundException::new);
+
+    }
 }

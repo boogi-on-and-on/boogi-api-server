@@ -5,6 +5,7 @@ import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "ALARM_CONFIG")
@@ -22,23 +23,18 @@ public class AlarmConfig extends TimeBaseEntity {
     private User user;
 
     @Column(name = "message_alarm")
-    @Setter
     private boolean message = true;
 
     @Column(name = "notice_alarm")
-    @Setter
     private boolean notice = true;
 
     @Column(name = "join_request_alarm")
-    @Setter
     private boolean joinRequest = true;
 
     @Column(name = "comment_alarm")
-    @Setter
     private boolean comment = true;
 
     @Column(name = "mention_alarm")
-    @Setter
     private boolean mention = true;
 
     @Builder
@@ -60,6 +56,27 @@ public class AlarmConfig extends TimeBaseEntity {
     public static AlarmConfig of(User user) {
         return new AlarmConfig(user);
     }
+
+    public void switchMessage(Boolean state) {
+        this.message = Objects.requireNonNullElse(state, false);
+    }
+
+    public void switchNotice(Boolean state) {
+        this.notice = Objects.requireNonNullElse(state, false);
+    }
+
+    public void switchJoinRequest(Boolean state) {
+        this.joinRequest = Objects.requireNonNullElse(state, false);
+    }
+
+    public void switchComment(Boolean state) {
+        this.comment = Objects.requireNonNullElse(state, false);
+    }
+
+    public void switchMention(Boolean state) {
+        this.mention = Objects.requireNonNullElse(state, false);
+    }
+
 
     public boolean getMessage() {
         return message;

@@ -2,12 +2,10 @@ package boogi.apiserver.domain.alarm.alarm.application;
 
 import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
-import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -18,8 +16,8 @@ public class AlarmCommandService {
 
     public void deleteAlarm(Long userId, Long alarmId) {
         Alarm alarm = alarmRepository.findByAlarmId(alarmId);
-        if (!Objects.equals(alarm.getUser().getId(), userId)) {
-            throw new InvalidValueException("해당 알림을 삭제할 권한이 없습니다.");
+        if (!alarm.isSameUser(userId)) {
+            throw new CanNotDeleteAlarmException();
         }
 
         alarmRepository.delete(alarm);

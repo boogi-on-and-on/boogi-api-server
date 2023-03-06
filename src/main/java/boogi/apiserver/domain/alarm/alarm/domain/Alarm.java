@@ -30,4 +30,8 @@ public class Alarm extends TimeBaseEntity {
         this.head = head;
         this.body = body;
     }
+
+    public boolean isSameUser(Long userId) {
+        return user.getId().equals(userId);
+    }
 }

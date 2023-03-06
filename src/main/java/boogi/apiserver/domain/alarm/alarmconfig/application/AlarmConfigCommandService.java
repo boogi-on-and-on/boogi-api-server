@@ -20,42 +20,23 @@ public class AlarmConfigCommandService {
     public AlarmConfig findOrElseCreateAlarmConfig(Long userId) {
         AlarmConfig alarmConfig = alarmConfigRepository.getAlarmConfigByUserId(userId);
 
-        if (alarmConfig == null) {
-            User user = userRepository.findByUserId(userId);
-            AlarmConfig newAlarmConfig = AlarmConfig.of(user);
-            return alarmConfigRepository.save(newAlarmConfig);
-        }
-        return alarmConfig;
+        return alarmConfig == null ? createAlarmConfig(userId) : alarmConfig;
     }
 
     public AlarmConfig configureAlarm(Long userId, AlarmConfigSettingRequest config) {
         AlarmConfig alarmConfig = this.findOrElseCreateAlarmConfig(userId);
 
-        Boolean message = config.getMessage();
-        if (message != null) {
-            alarmConfig.setMessage(message);
-        }
-
-        Boolean notice = config.getNotice();
-        if (notice != null) {
-            alarmConfig.setNotice(notice);
-        }
-
-        Boolean joinRequest = config.getJoin();
-        if (joinRequest != null) {
-            alarmConfig.setJoinRequest(joinRequest);
-        }
-
-        Boolean comment = config.getComment();
-        if (comment != null) {
-            alarmConfig.setComment(comment);
-        }
-
-        Boolean mention = config.getMention();
-        if (mention != null) {
-            alarmConfig.setMention(mention);
-        }
+        alarmConfig.switchMessage(config.getMessage());
+        alarmConfig.switchNotice(config.getNotice());
+        alarmConfig.switchJoinRequest(config.getJoin());
+        alarmConfig.switchComment(config.getComment());
+        alarmConfig.switchMention(config.getMention());
 
         return alarmConfig;
+    }
+
+    private AlarmConfig createAlarmConfig(final Long userId) {
+        User user = userRepository.findByUserId(userId);
+        return alarmConfigRepository.save(AlarmConfig.of(user));
     }
 }

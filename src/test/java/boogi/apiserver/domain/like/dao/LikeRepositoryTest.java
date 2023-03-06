@@ -12,6 +12,7 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestTimeReflection;
 import org.junit.jupiter.api.Assertions;
@@ -50,6 +51,8 @@ class LikeRepositoryTest {
     private EntityManager em;
 
     private PersistenceUtil persistenceUtil;
+    @Autowired
+    private ReportRepository reportRepository;
 
     @BeforeEach
     void init() {

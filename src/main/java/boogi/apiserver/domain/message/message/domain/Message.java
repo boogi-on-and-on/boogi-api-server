@@ -51,6 +51,10 @@ public class Message extends TimeBaseEntity {
         return new Message(sender, receiver, content, isBlockedMessage);
     }
 
+    public boolean isMyMessage(Long userId) {
+        return sender.getId().equals(userId) || receiver.getId().equals(userId);
+    }
+
     public Long getId() {
         return id;
     }
