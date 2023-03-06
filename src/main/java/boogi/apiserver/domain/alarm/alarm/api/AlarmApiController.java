@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.alarm.alarm.api;
 
 import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
-import boogi.apiserver.domain.alarm.alarm.application.AlarmService;
+import boogi.apiserver.domain.alarm.alarm.application.AlarmCommandService;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class AlarmApiController {
 
     private final AlarmQueryService alarmQueryService;
-    private final AlarmService alarmService;
+    private final AlarmCommandService alarmCommandService;
 
     @GetMapping
     public AlarmsResponse getAlarms(@Session Long userId) {
@@ -24,6 +24,6 @@ public class AlarmApiController {
 
     @PostMapping("/{alarmId}/delete")
     public void deleteAlarm(@Session Long userId, @PathVariable Long alarmId) {
-        alarmService.deleteAlarm(userId, alarmId);
+        alarmCommandService.deleteAlarm(userId, alarmId);
     }
 }

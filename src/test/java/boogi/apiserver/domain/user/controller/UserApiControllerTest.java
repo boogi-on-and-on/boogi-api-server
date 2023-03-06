@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -54,7 +54,7 @@ class UserApiControllerTest {
     MessageBlockCommandService messageBlockCommandService;
 
     @MockBean
-    private AlarmConfigService alarmConfigService;
+    private AlarmConfigCommandService alarmConfigCommandService;
 
     @MockBean
     private CommunityCommandService communityCommandService;
@@ -274,7 +274,7 @@ class UserApiControllerTest {
                 .mention(true)
                 .build();
 
-        given(alarmConfigService.findOrElseCreateAlarmConfig(anyLong()))
+        given(alarmConfigCommandService.findOrElseCreateAlarmConfig(anyLong()))
                 .willReturn(config);
 
         mvc.perform(

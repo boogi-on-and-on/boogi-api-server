@@ -3,7 +3,6 @@ package boogi.apiserver.domain.alarm.alarmconfig.application;
 import boogi.apiserver.domain.alarm.alarmconfig.dao.AlarmConfigRepository;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class AlarmConfigService {
+@Transactional
+public class AlarmConfigCommandService {
 
     private final AlarmConfigRepository alarmConfigRepository;
     private final UserRepository userRepository;
 
-    @Transactional
     public AlarmConfig findOrElseCreateAlarmConfig(Long userId) {
         AlarmConfig alarmConfig = alarmConfigRepository.getAlarmConfigByUserId(userId);
 
@@ -30,7 +28,6 @@ public class AlarmConfigService {
         return alarmConfig;
     }
 
-    @Transactional
     public AlarmConfig configureAlarm(Long userId, AlarmConfigSettingRequest config) {
         AlarmConfig alarmConfig = this.findOrElseCreateAlarmConfig(userId);
 

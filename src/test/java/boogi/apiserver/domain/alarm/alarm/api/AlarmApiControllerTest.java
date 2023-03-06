@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.alarm.alarm.api;
 
-import boogi.apiserver.domain.alarm.alarm.application.AlarmService;
+import boogi.apiserver.domain.alarm.alarm.application.AlarmCommandService;
 import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
@@ -30,7 +30,7 @@ class AlarmApiControllerTest {
     AlarmQueryService alarmQueryService;
 
     @MockBean
-    AlarmService alarmService;
+    AlarmCommandService alarmCommandService;
 
     MockMvc mvc;
 

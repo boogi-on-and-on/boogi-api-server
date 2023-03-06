@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.community.community.application.CommunityCommandService;
@@ -40,7 +40,7 @@ public class UserApiController {
     private final CommunityCommandService communityCommandService;
 
     private final MessageBlockCommandService messageBlockCommandService;
-    private final AlarmConfigService alarmConfigService;
+    private final AlarmConfigCommandService alarmConfigCommandService;
 
     @PostMapping("/token/{email}")
     public void issueToken(HttpServletRequest request, @PathVariable String email) {
@@ -98,14 +98,14 @@ public class UserApiController {
 
     @GetMapping("/config/notifications")
     public AlarmConfigSettingInfoResponse getAlarmConfig(@Session Long userId) {
-        AlarmConfig alarmConfig = alarmConfigService.findOrElseCreateAlarmConfig(userId);
+        AlarmConfig alarmConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(userId);
 
         return AlarmConfigSettingInfoResponse.from(alarmConfig);
     }
 
     @PostMapping("/config/notifications")
     public AlarmConfigSettingInfoResponse configureAlarm(@Session Long userId, @RequestBody @Validated AlarmConfigSettingRequest request) {
-        AlarmConfig alarmConfig = alarmConfigService.configureAlarm(userId, request);
+        AlarmConfig alarmConfig = alarmConfigCommandService.configureAlarm(userId, request);
 
         return AlarmConfigSettingInfoResponse.from(alarmConfig);
     }

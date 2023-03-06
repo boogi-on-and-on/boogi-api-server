@@ -10,13 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class AlarmService {
+public class AlarmCommandService {
 
     private final AlarmRepository alarmRepository;
 
-    @Transactional
     public void deleteAlarm(Long userId, Long alarmId) {
         Alarm alarm = alarmRepository.findByAlarmId(alarmId);
         if (!Objects.equals(alarm.getUser().getId(), userId)) {

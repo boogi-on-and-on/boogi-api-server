@@ -21,10 +21,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class AlarmServiceTest {
+class AlarmCommandServiceTest {
 
     @InjectMocks
-    AlarmService alarmService;
+    AlarmCommandService alarmCommandService;
 
     @Mock
     AlarmRepository alarmRepository;
@@ -42,7 +42,7 @@ class AlarmServiceTest {
         //then
         assertThatThrownBy(() -> {
             //when
-            alarmService.deleteAlarm(2L, anyLong());
+            alarmCommandService.deleteAlarm(2L, anyLong());
         })
                 .isInstanceOf(InvalidValueException.class)
                 .hasMessage("해당 알림을 삭제할 권한이 없습니다.");
@@ -59,7 +59,7 @@ class AlarmServiceTest {
                 .willReturn(alarm);
 
         //when
-        alarmService.deleteAlarm(1L, anyLong());
+        alarmCommandService.deleteAlarm(1L, anyLong());
 
         //then
         verify(alarmRepository, times(1)).delete(any());
