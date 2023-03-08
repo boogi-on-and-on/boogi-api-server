@@ -13,14 +13,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class CommunityHashtagService {
+@Transactional
+public class CommunityHashtagCommandService {
 
     private final CommunityHashtagRepository communityHashtagRepository;
 
     private final CommunityRepository communityRepository;
 
-    @Transactional
     public List<CommunityHashtag> addTags(Long CommunityId, List<String> tags) {
         if (tags == null || tags.size() == 0) {
             return null;

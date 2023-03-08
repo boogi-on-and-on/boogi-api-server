@@ -3,7 +3,7 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
-import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagService;
+import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagCommandService;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.application.MemberCommandService;
@@ -35,7 +35,7 @@ public class CommunityCommandService {
     private final PostMediaRepository postMediaRepository;
     private final UserRepository userRepository;
 
-    private final CommunityHashtagService communityHashtagService;
+    private final CommunityHashtagCommandService communityHashtagCommandService;
     private final MemberCommandService memberCommandService;
 
     private final CommunityValidationService communityValidationService;
@@ -45,7 +45,7 @@ public class CommunityCommandService {
         communityValidationService.checkPreviousExistsCommunityName(community.getCommunityName());
 
         communityRepository.save(community);
-        communityHashtagService.addTags(community.getId(), tags);
+        communityHashtagCommandService.addTags(community.getId(), tags);
 
         memberCommandService.joinMember(userId, community.getId(), MemberType.MANAGER);
 

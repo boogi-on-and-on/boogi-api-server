@@ -21,14 +21,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
-public class MessageService {
+public class MessageCommandService {
     private final MessageRepository messageRepository;
     private final MessageBlockRepository messageBlockRepository;
     private final UserRepository userRepository;
 
-    @Transactional
     public Message sendMessage(SendMessageRequest sendMessageRequest, Long senderId) {
         User sender = userRepository.findByUserId(senderId);
         User receiver = userRepository.findByUserId(sendMessageRequest.getReceiverId());

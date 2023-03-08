@@ -3,7 +3,6 @@ package boogi.apiserver.domain.hashtag.post.application;
 
 import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +14,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class PostHashtagService {
+@Transactional
+public class PostHashtagCommandService {
 
     private final PostRepository postRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    @Transactional
     public List<PostHashtag> addTags(Long postId, List<String> tags) {
         if (tags == null || tags.size() == 0) {
             return null;
@@ -38,7 +36,6 @@ public class PostHashtagService {
         return postHashtags;
     }
 
-    @Transactional
     public void removeTagsByPostId(Long postId) {
         postHashtagRepository.deleteAllByPostId(postId);
     }

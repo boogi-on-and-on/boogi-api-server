@@ -7,7 +7,7 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
+import boogi.apiserver.domain.hashtag.post.application.PostHashtagCommandService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
@@ -80,7 +80,7 @@ class PostCommandServiceTest {
     private MemberValidationService memberValidationService;
 
     @Mock
-    private PostHashtagService postHashtagService;
+    private PostHashtagCommandService postHashtagCommandService;
 
     @Mock
     private LikeCommandService likeCommandService;
@@ -132,7 +132,7 @@ class PostCommandServiceTest {
             CreatePostRequest createPostRequest = new CreatePostRequest(community.getId(), "게시글의 내용입니다.", List.of(), List.of(), List.of());
             Post newPost = postCommandService.createPost(createPostRequest, 1L);
 
-            verify(postHashtagService, times(1)).addTags(anyLong(), anyList());
+            verify(postHashtagCommandService, times(1)).addTags(anyLong(), anyList());
 
             assertThat(newPost).isEqualTo(post);
         }
@@ -199,7 +199,7 @@ class PostCommandServiceTest {
                     .post(post)
                     .tag("해시태그")
                     .build();
-            given(postHashtagService.addTags(anyLong(), anyList()))
+            given(postHashtagCommandService.addTags(anyLong(), anyList()))
                     .willReturn(List.of(postHashtag));
 
             final PostMedia postMedia = TestPostMedia.builder()
@@ -268,7 +268,7 @@ class PostCommandServiceTest {
 
             postCommandService.deletePost(post.getId(), 1L);
 
-            verify(postHashtagService, times(1)).removeTagsByPostId(post.getId());
+            verify(postHashtagCommandService, times(1)).removeTagsByPostId(post.getId());
             verify(postMediaRepository, times(1)).deleteAllInBatch(postMedias);
             verify(postRepository, times(1)).delete(post);
 

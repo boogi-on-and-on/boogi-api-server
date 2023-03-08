@@ -21,10 +21,10 @@ import static org.mockito.BDDMockito.given;
 
 
 @ExtendWith(MockitoExtension.class)
-class PostHashtagServiceTest {
+class PostHashtagCommandServiceTest {
 
     @InjectMocks
-    PostHashtagService postHashtagService;
+    PostHashtagCommandService postHashtagCommandService;
 
     @Mock
     private PostRepository postRepository;
@@ -40,8 +40,8 @@ class PostHashtagServiceTest {
         @Test
         @DisplayName("입력된 태그가 빈 리스트나 null일시 null을 반환한다.")
         void addEmptyTagsListSuccess() {
-            List<PostHashtag> postHashtags1 = postHashtagService.addTags(1L, List.of());
-            List<PostHashtag> postHashtags2 = postHashtagService.addTags(1L, null);
+            List<PostHashtag> postHashtags1 = postHashtagCommandService.addTags(1L, List.of());
+            List<PostHashtag> postHashtags2 = postHashtagCommandService.addTags(1L, null);
 
             assertThat(postHashtags1).isNull();
             assertThat(postHashtags2).isNull();
@@ -55,7 +55,7 @@ class PostHashtagServiceTest {
                     .willReturn(post);
 
             List<String> tags = List.of("tagA", "tagB");
-            List<PostHashtag> postHashtags = postHashtagService.addTags(1L, tags);
+            List<PostHashtag> postHashtags = postHashtagCommandService.addTags(1L, tags);
 
             assertThat(postHashtags.size()).isEqualTo(2);
             assertThat(postHashtags.get(0).getPost().getId()).isEqualTo(post.getId());

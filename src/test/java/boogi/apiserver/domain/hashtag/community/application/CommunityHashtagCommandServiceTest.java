@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class CommunityHashtagServiceTest {
+class CommunityHashtagCommandServiceTest {
 
     @Mock
     CommunityRepository communityRepository;
@@ -31,7 +31,7 @@ class CommunityHashtagServiceTest {
     CommunityHashtagRepository communityHashtagRepository;
 
     @InjectMocks
-    CommunityHashtagService communityHashtagService;
+    CommunityHashtagCommandService communityHashtagCommandService;
 
     @Nested
     @DisplayName("커뮤니티 해시테그 저장")
@@ -61,7 +61,7 @@ class CommunityHashtagServiceTest {
                     .willReturn(List.of(hashtag1, hashtag2));
 
             //when
-            List<CommunityHashtag> communityHashtags = communityHashtagService.addTags(community.getId(), List.of("테그A", "테그B"));
+            List<CommunityHashtag> communityHashtags = communityHashtagCommandService.addTags(community.getId(), List.of("테그A", "테그B"));
 
             //then
             assertThat(communityHashtags.size()).isEqualTo(2);
@@ -72,14 +72,14 @@ class CommunityHashtagServiceTest {
         @Test
         @DisplayName("tag is null")
         void tagIsNullable() {
-            List<CommunityHashtag> communityHashtags = communityHashtagService.addTags(1L, null);
+            List<CommunityHashtag> communityHashtags = communityHashtagCommandService.addTags(1L, null);
             assertThat(communityHashtags).isNull();
         }
 
         @Test
         @DisplayName("tag is empty")
         void tagIsEmpty() {
-            List<CommunityHashtag> communityHashtags = communityHashtagService.addTags(1L, new ArrayList<>());
+            List<CommunityHashtag> communityHashtags = communityHashtagCommandService.addTags(1L, new ArrayList<>());
             assertThat(communityHashtags).isNull();
         }
     }

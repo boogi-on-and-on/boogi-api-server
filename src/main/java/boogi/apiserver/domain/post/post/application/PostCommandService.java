@@ -6,7 +6,7 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.post.application.PostHashtagService;
+import boogi.apiserver.domain.hashtag.post.application.PostHashtagCommandService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -48,7 +48,7 @@ public class PostCommandService {
     private final CommunityQueryService communityQueryService;
     private final PostMediaQueryService postMediaQueryService;
 
-    private final PostHashtagService postHashtagService;
+    private final PostHashtagCommandService postHashtagCommandService;
     private final LikeCommandService likeCommandService;
 
     private final SendPushNotification sendPushNotification;
@@ -62,7 +62,7 @@ public class PostCommandService {
                 Post.of(community, member, createPostRequest.getContent())
         );
 
-        postHashtagService.addTags(savedPost.getId(), createPostRequest.getHashtags());
+        postHashtagCommandService.addTags(savedPost.getId(), createPostRequest.getHashtags());
         PostMedias unmappedPostMedias = postMediaQueryService
                 .getUnmappedPostMediasByUUID(createPostRequest.getPostMediaIds());
         unmappedPostMedias.mapPost(savedPost);
@@ -84,8 +84,8 @@ public class PostCommandService {
             throw new HasNotUpdateAuthorityException();
         }
 
-        postHashtagService.removeTagsByPostId(postId);
-        List<PostHashtag> newPostHashtags = postHashtagService
+        postHashtagCommandService.removeTagsByPostId(postId);
+        List<PostHashtag> newPostHashtags = postHashtagCommandService
                 .addTags(postId, updatePostRequest.getHashtags());
 
         //추후 수정하기
@@ -116,7 +116,7 @@ public class PostCommandService {
         }
 
         Long findPostId = findPost.getId();
-        postHashtagService.removeTagsByPostId(findPostId);
+        postHashtagCommandService.removeTagsByPostId(findPostId);
 
         commentRepository.findByPostId(postId).stream()
                 .forEach(Comment::deleteComment);
