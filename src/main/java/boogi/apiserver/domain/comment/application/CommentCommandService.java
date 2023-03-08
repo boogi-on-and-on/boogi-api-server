@@ -63,8 +63,7 @@ public class CommentCommandService {
                 .orElseThrow(NotJoinedMemberException::new);
 
         Long parentCommentId = createCommentRequest.getParentCommentId();
-        commentValidationService
-                .checkCommentMaxDepthOver(parentCommentId);
+        commentValidationService.checkCommentMaxDepthOver(parentCommentId);
 
         Comment findParentComment = parentCommentId == null ? null : commentRepository.findById(parentCommentId)
                 .orElse(null);

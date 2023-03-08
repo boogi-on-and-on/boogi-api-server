@@ -11,6 +11,8 @@ public class TestPost {
                 .content("테스트 글의 컨텐츠")
                 .hashtags(new ArrayList<>())
                 .postMedias(new ArrayList<>())
+                .likeCount(0)
+                .commentCount(0)
                 .likes(new ArrayList<>());
     }
 }

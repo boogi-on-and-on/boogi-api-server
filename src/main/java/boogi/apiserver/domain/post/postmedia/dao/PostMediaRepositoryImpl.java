@@ -25,6 +25,15 @@ public class PostMediaRepositoryImpl implements PostMediaRepositoryCustom {
     }
 
     @Override
+    public List<PostMedia> findUnmappedPostMedias2(List<String> postMediaUUIds) {
+        return queryFactory.selectFrom(postMedia)
+                .where(postMedia.uuid.in(postMediaUUIds),
+                        postMedia.post.isNull(),
+                        postMedia.deletedAt.isNull()
+                ).fetch();
+    }
+
+    @Override
     public List<PostMedia> findByPostId(Long postId) {
         return queryFactory.selectFrom(postMedia)
                 .where(

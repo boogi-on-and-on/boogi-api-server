@@ -6,6 +6,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
+import boogi.apiserver.domain.hashtag.post.domain.PostHashtags;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -577,4 +578,48 @@ class PostRepositoryTest {
             }).isInstanceOf(PostNotFoundException.class);
         }
     }
+
+    @Test
+    void test1() {
+        final Post post = TestPost.builder().build();
+
+
+//        final PostHashtag p1 = TestPostHashtag.builder().build();
+//        final PostHashtag p2 = TestPostHashtag.builder().build();
+//        postHashtagRepository.saveAll(List.of(p1, p2));
+
+        post.addTags(List.of("tag1", "tag2"));
+
+        postRepository.save(post);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        final Post findPost = postRepository.findByPostId(post.getId());
+        final PostHashtags tags = findPost.getHashtags();
+        tags.getValues().forEach(i-> System.out.println("i = " + i));
+
+
+//        assertThat(findPost.getHashtags())
+    }
+
+    @Test
+    void test2() {
+        final Post post = TestPost.builder().build();
+        post.addTags(List.of("tag1", "tag2"));
+
+        postRepository.save(post);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        postRepository.delete(post);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        final List<PostHashtag> all = postHashtagRepository.findAll();
+        System.out.println("all.size() = " + all.size());
+
+
+//        assertThat(findPost.getHashtags())
+    }
+
 }

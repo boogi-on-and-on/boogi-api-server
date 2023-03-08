@@ -16,9 +16,8 @@ public class UserQueryService {
     private final UserRepository userRepository;
 
     public User getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidValueException("해당 이메일은 없는 계정입니다."));
-        return user;
     }
 
     public UserDetailInfoDto getUserDetailInfo(Long userId) {

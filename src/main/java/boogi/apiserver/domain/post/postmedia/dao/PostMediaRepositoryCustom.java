@@ -9,5 +9,7 @@ public interface PostMediaRepositoryCustom {
 
     PostMedias findUnmappedPostMediasByUUIDs(List<String> postMediaIds);
 
+    List<PostMedia> findUnmappedPostMedias2(List<String> postMediaUUIds);
+
     List<PostMedia> findByPostId(Long postId);
 }

@@ -15,7 +15,7 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.exception.HasNotUpdateAuthorityException;
+import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -168,7 +168,7 @@ class PostCommandServiceTest {
             UpdatePostRequest updatePostRequest = new UpdatePostRequest("게시글의 내용입니다.", List.of(), List.of());
 
             assertThatThrownBy(() -> postCommandService.updatePost(updatePostRequest, post.getId(), 2L))
-                    .isInstanceOf(HasNotUpdateAuthorityException.class);
+                    .isInstanceOf(CanNotUpdatePostException.class);
         }
 
         @Test

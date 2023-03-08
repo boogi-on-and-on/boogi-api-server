@@ -18,6 +18,8 @@ import boogi.apiserver.domain.post.post.dto.response.SearchPostsResponse;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.SimpleIdResponse;
+import boogi.apiserver.global.webclient.push.MentionType;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -43,11 +45,19 @@ public class PostApiController {
 
     private final CommentCommandService commentCommandService;
 
+    private final SendPushNotification sendPushNotification;
+
     @PostMapping("/")
     @ResponseStatus(CREATED)
     public SimpleIdResponse createPost(@Validated @RequestBody CreatePostRequest createPostRequest,
                                        @Session Long sessionUserId) {
         Post newPost = postCommandService.createPost(createPostRequest, sessionUserId);
+
+        sendPushNotification.mentionNotification(
+                createPostRequest.getMentionedUserIds(),
+                newPost.getId(),
+                MentionType.POST
+        );
 
         return SimpleIdResponse.from(newPost.getId());
     }

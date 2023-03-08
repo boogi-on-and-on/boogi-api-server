@@ -53,6 +53,5 @@ public class PostMedia extends TimeBaseEntity {
 
     public void mapPost(Post post) {
         this.post = post;
-//        post.getPostMedias().add(this); todo
     }
 }

@@ -24,6 +24,7 @@ public class CreatePostRequest {
 
     private List<String> hashtags;
 
+    @NotNull
     private List<String> postMediaIds;
 
     private List<Long> mentionedUserIds = new ArrayList<>();

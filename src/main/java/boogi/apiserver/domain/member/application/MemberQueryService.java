@@ -31,7 +31,8 @@ public class MemberQueryService {
     private final CommunityRepository communityRepository;
 
     public Member getJoinedMember(Long userId, Long communityId) {
-        return memberRepository.findByUserIdAndCommunityId(userId, communityId).orElseThrow(NotJoinedMemberException::new);
+        return memberRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(NotJoinedMemberException::new);
     }
 
     public Member getViewableMember(Long userId, Community community) {

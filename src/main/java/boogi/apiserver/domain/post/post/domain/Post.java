@@ -25,7 +25,7 @@ import static javax.persistence.FetchType.LAZY;
 @Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_at is null")
-@SQLDelete(sql = "UPDATE post SET deleted_at = now(), likeCount = 0 WHERE post_id = ?")
+@SQLDelete(sql = "UPDATE post SET deleted_at = now(), like_count = 0 WHERE post_id = ?")
 public class Post extends TimeBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -90,9 +90,14 @@ public class Post extends TimeBaseEntity {
         this.hashtags.addTags(tags, this);
     }
 
-    public void updatePost(String content, List<String> tags) {
+    public void addPostMedias(List<PostMedia> postMedia) {
+        this.postMedias.addPostMedias(postMedia, this);
+    }
+
+    public void updatePost(String content, List<String> tags, List<PostMedia> postMedias) {
         this.content = new PostContent(content);
         this.hashtags.updateTags(tags, this);
+        this.postMedias.updatePostMedias(postMedias, this);
     }
 
     public void addLikeCount() {

@@ -3,28 +3,22 @@ package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCommandService;
-import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.exception.HasNotDeleteAuthorityException;
-import boogi.apiserver.domain.member.exception.HasNotUpdateAuthorityException;
+import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
+import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
 import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
-import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
-import boogi.apiserver.global.webclient.push.MentionType;
-import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,90 +37,58 @@ public class PostCommandService {
 
     private final MemberValidationService memberValidationService;
 
-    private final PostQueryService postQueryService;
     private final MemberQueryService memberQueryService;
-    private final CommunityQueryService communityQueryService;
     private final PostMediaQueryService postMediaQueryService;
 
     private final PostHashtagCommandService postHashtagCommandService;
     private final LikeCommandService likeCommandService;
 
-    private final SendPushNotification sendPushNotification;
-
-    public Post createPost(CreatePostRequest createPostRequest, Long userId) {
-        Long communityId = createPostRequest.getCommunityId();
+    public Post createPost(CreatePostRequest request, Long userId) {
+        Long communityId = request.getCommunityId();
         Community community = communityRepository.findByCommunityId(communityId);
         Member member = memberQueryService.getJoinedMember(userId, communityId);
 
-        Post savedPost = postRepository.save(
-                Post.of(community, member, createPostRequest.getContent())
-        );
+        final Post newPost = Post.of(community, member, request.getContent());
+        postRepository.save(newPost);
 
-        postHashtagCommandService.addTags(savedPost.getId(), createPostRequest.getHashtags());
-        PostMedias unmappedPostMedias = postMediaQueryService
-                .getUnmappedPostMediasByUUID(createPostRequest.getPostMediaIds());
-        unmappedPostMedias.mapPost(savedPost);
+        postHashtagCommandService.addTags(newPost.getId(), request.getHashtags());
 
-        sendPushNotification.mentionNotification(
-                createPostRequest.getMentionedUserIds(),
-                savedPost.getId(),
-                MentionType.POST
-        );
+        final List<PostMedia> unmappedPostMedias =
+                postMediaQueryService.getUnmappedPostMedias(request.getPostMediaIds());
+        newPost.addPostMedias(unmappedPostMedias);
 
-        return savedPost;
+        return newPost;
     }
 
-    public Post updatePost(UpdatePostRequest updatePostRequest, Long postId, Long userId) {
+    public Post updatePost(UpdatePostRequest request, Long postId, Long userId) {
         Post findPost = postRepository.findByPostId(postId);
         communityRepository.findByCommunityId(findPost.getCommunityId());
 
         if (canNotUpdatePost(userId, findPost)) {
-            throw new HasNotUpdateAuthorityException();
+            throw new CanNotUpdatePostException();
         }
 
-        postHashtagCommandService.removeTagsByPostId(postId);
-        List<PostHashtag> newPostHashtags = postHashtagCommandService
-                .addTags(postId, updatePostRequest.getHashtags());
-
-        //추후 수정하기
-        findPost.updatePost(updatePostRequest.getContent(), updatePostRequest.getHashtags());
-
-        PostMedias findPostMedias = new PostMedias(
-                postMediaRepository.findByPostId(postId)
-        );
-
-        List<String> postMediaIds = updatePostRequest.getPostMediaIds();
-        postMediaRepository.deleteAll(
-                findPostMedias.excludedPostMedia(postMediaIds)
-        );
-        PostMedias findNewPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(
-                findPostMedias.newPostMediaIds(postMediaIds)
-        );
-        findNewPostMedias.mapPost(findPost);
+        List<PostMedia> postMediaAll = postMediaRepository.findByUuidIn(request.getPostMediaIds());
+        findPost.updatePost(request.getContent(), request.getHashtags(), postMediaAll);
 
         return findPost;
     }
 
     public void deletePost(Long postId, Long userId) {
-        Post findPost = postRepository.getPostWithCommunityAndMemberByPostId(postId)
-                .orElseThrow(PostNotFoundException::new);
+        final Post findPost = postRepository.findByPostId(postId);
 
         if (canNotDeletePost(userId, findPost)) {
-            throw new HasNotDeleteAuthorityException();
+            throw new CanNotDeletePostException();
         }
 
-        Long findPostId = findPost.getId();
-        postHashtagCommandService.removeTagsByPostId(findPostId);
-
-        commentRepository.findByPostId(postId).stream()
-                .forEach(Comment::deleteComment);
-
-        likeCommandService.removePostLikes(findPostId);
-
-        List<PostMedia> postMedias = postMediaRepository.findByPostId(postId);
-        postMediaRepository.deleteAllInBatch(postMedias);
-
+        deleteCommentsOnPost(postId);
+        likeCommandService.removePostLikes(findPost.getId());
         postRepository.delete(findPost);
+    }
+
+    private void deleteCommentsOnPost(final Long postId) {
+        commentRepository.findByPostId(postId)
+                .forEach(Comment::deleteComment);
     }
 
     private boolean canNotUpdatePost(Long userId, Post findPost) {
