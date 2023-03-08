@@ -1,11 +1,14 @@
 package boogi.apiserver.domain.alarm.alarmconfig.application;
 
+import boogi.apiserver.builder.TestAlarmConfig;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.alarm.alarmconfig.dao.AlarmConfigRepository;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,25 +35,51 @@ class AlarmConfigCommandServiceTest {
     @InjectMocks
     AlarmConfigCommandService alarmConfigCommandService;
 
-    @Test
-    void 알림_없어서_생성() {
-        //given
-        given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
-                .willReturn(null);
+    @Nested
+    @DisplayName("알람 설정 정보 조회")
+    class FindOrCreateAlarmConfig {
+        @Test
+        @DisplayName("알람설정 정보가 없어서 생성한다.")
+        void createAlarmConfig() {
+            //given
+            given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
+                    .willReturn(null);
 
-        final User user = TestUser.builder().id(1L).build();
+            final User user = TestUser.builder().id(1L).build();
 
-        given(userRepository.findByUserId(any()))
-                .willReturn(user);
-        //when
-        AlarmConfig alarmConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
+            given(userRepository.findByUserId(anyLong()))
+                    .willReturn(user);
+            //when
+            AlarmConfig alarmConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
 
-        //then
-        then(alarmConfigRepository).should(times(1)).save(any());
+            //then
+            then(userRepository).should(times(1)).findByUserId(anyLong());
+            then(alarmConfigRepository).should(times(1)).save(any());
+        }
+
+        @Test
+        @DisplayName("알람설정 정보가 이미 있어서 생성없이 리턴한다.")
+        void onlyFindAlarmConfig() {
+            final User user = TestUser.builder()
+                    .id(1L)
+                    .build();
+
+            final AlarmConfig alarmConfig = TestAlarmConfig.builder()
+                    .user(user)
+                    .build();
+
+            given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
+                    .willReturn(alarmConfig);
+
+            final AlarmConfig findConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
+            then(userRepository).should(times(0)).findByUserId(anyLong());
+            then(alarmConfigRepository).should(times(0)).save(any());
+        }
     }
 
     @Test
-    void 알림_설정_변경() {
+    @DisplayName("알람 설정을 변경한다.")
+    void updateAlarmConfig() {
         //given
         final User user = TestUser.builder().build();
         AlarmConfig alarmConfig = AlarmConfig.of(user);
@@ -58,7 +87,8 @@ class AlarmConfigCommandServiceTest {
         given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
                 .willReturn(alarmConfig);
 
-        AlarmConfigSettingRequest config = new AlarmConfigSettingRequest(false, true, false, false, false);
+        AlarmConfigSettingRequest config = new AlarmConfigSettingRequest(false, true, false,
+                null, true);
 
         //when
         alarmConfigCommandService.configureAlarm(anyLong(), config);
@@ -68,6 +98,6 @@ class AlarmConfigCommandServiceTest {
         assertThat(alarmConfig.getNotice()).isTrue();
         assertThat(alarmConfig.getJoinRequest()).isFalse();
         assertThat(alarmConfig.getComment()).isFalse();
-        assertThat(alarmConfig.getMention()).isFalse();
+        assertThat(alarmConfig.getMention()).isTrue();
     }
 }
