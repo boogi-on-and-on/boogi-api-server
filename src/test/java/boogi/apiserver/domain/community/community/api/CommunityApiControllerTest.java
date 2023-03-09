@@ -187,7 +187,7 @@ class CommunityApiControllerTest {
 
         final Member member = TestMember.builder().memberType(MemberType.NORMAL).build();
 
-        given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+        given(memberQueryService.getMember(anyLong(), anyLong()))
                 .willReturn(member);
 
         final CommunityHashtag hashtag = TestCommunityHashtag.builder()
@@ -421,7 +421,7 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("비공개 && 가입 안한 경우")
         void privateAndNotJoined() throws Exception {
-            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+            given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(null);
 
             final Community community = TestCommunity.builder()
@@ -467,7 +467,7 @@ class CommunityApiControllerTest {
                     .user(user)
                     .build();
 
-            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+            given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);
 
             final PostHashtag postHashtag1 = TestPostHashtag.builder()

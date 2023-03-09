@@ -50,7 +50,7 @@ public class NoticeApiController {
     public SimpleIdResponse createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
         memberValidationService.hasAuth(userId, request.getCommunityId(), MemberType.SUB_MANAGER);
 
-        Notice newNotice = noticeCommandService.create(request, userId);
+        Notice newNotice = noticeCommandService.createNotice(request, userId);
 
         return SimpleIdResponse.from(newNotice.getId());
     }

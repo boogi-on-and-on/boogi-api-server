@@ -38,10 +38,10 @@ public class PostCommandService {
 
     private final LikeCommandService likeCommandService;
 
-    public Post createPost(CreatePostRequest request, Long userId) {
+    public Long createPost(CreatePostRequest request, Long userId) {
         Long communityId = request.getCommunityId();
         Community community = communityRepository.findByCommunityId(communityId);
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
 
         final Post newPost = Post.of(community, member, request.getContent());
         postRepository.save(newPost);
@@ -52,19 +52,19 @@ public class PostCommandService {
                 postMediaQueryService.getUnmappedPostMediasByUUID(request.getPostMediaIds());
         newPost.addPostMedias(unmappedPostMedias);
 
-        return newPost;
+        return newPost.getId();
     }
 
-    public Post updatePost(UpdatePostRequest request, Long postId, Long userId) {
-        Post findPost = postRepository.findByPostId(postId);
-        communityRepository.findByCommunityId(findPost.getCommunityId());
+    public Long updatePost(UpdatePostRequest request, Long postId, Long userId) {
+        Post post = postRepository.findByPostId(postId);
+        communityRepository.findByCommunityId(post.getCommunityId());
 
-        validatePostUpdatable(userId, findPost);
+        validatePostUpdatable(userId, post);
 
         List<PostMedia> postMediaAll = postMediaRepository.findByUuidIn(request.getPostMediaIds());
-        findPost.updatePost(request.getContent(), request.getHashtags(), postMediaAll);
+        post.updatePost(request.getContent(), request.getHashtags(), postMediaAll);
 
-        return findPost;
+        return post.getId();
     }
 
     public void deletePost(Long postId, Long userId) {

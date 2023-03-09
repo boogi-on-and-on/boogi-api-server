@@ -27,9 +27,9 @@ public class LikeCommandService {
     public Long doPostLike(Long postId, Long userId) {
         Post findPost = postRepository.findByPostId(postId);
         Long communityId = findPost.getCommunity().getId();
-        Member joinedMember = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member joinedMember = memberQueryService.getMember(userId, communityId);
 
-        checkAlreadyPostLike(postId, joinedMember);
+        validateAlreadyPostLike(postId, joinedMember);
 
         Like newLike = Like.postOf(findPost, joinedMember);
         likeRepository.save(newLike);
@@ -39,9 +39,9 @@ public class LikeCommandService {
     public Long doCommentLike(Long commentId, Long userId) {
         Comment findComment = commentRepository.findByCommentId(commentId);
         Long communityId = findComment.getMember().getCommunity().getId();
-        Member joinedMember = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member joinedMember = memberQueryService.getMember(userId, communityId);
 
-        checkAlreadyCommentLike(commentId, joinedMember);
+        validateAlreadyCommentLike(commentId, joinedMember);
 
         Like newLike = Like.commentOf(findComment, joinedMember);
         likeRepository.save(newLike);
@@ -64,14 +64,14 @@ public class LikeCommandService {
         likeRepository.deleteAllCommentLikeByCommentId(commentId);
     }
 
-    private void checkAlreadyPostLike(Long postId, Member joinedMember) {
-        if (likeRepository.existsLikeByPostIdAndMemberId(postId, joinedMember.getId())) {
+    private void validateAlreadyPostLike(Long postId, Member member) {
+        if (likeRepository.existsLikeByPostIdAndMemberId(postId, member.getId())) {
             throw new AlreadyDoPostLikeException();
         }
     }
 
-    private void checkAlreadyCommentLike(Long commentId, Member joinedMember) {
-        if (likeRepository.existsLikeByCommentIdAndMemberId(commentId, joinedMember.getId())) {
+    private void validateAlreadyCommentLike(Long commentId, Member member) {
+        if (likeRepository.existsLikeByCommentIdAndMemberId(commentId, member.getId())) {
             throw new AlreadyDoCommentLikeException();
         }
     }

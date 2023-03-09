@@ -23,19 +23,19 @@ public class AlarmConfigCommandService {
         return alarmConfig == null ? createAlarmConfig(userId) : alarmConfig;
     }
 
-    public AlarmConfig configureAlarm(Long userId, AlarmConfigSettingRequest config) {
+    public AlarmConfig configureAlarm(Long userId, AlarmConfigSettingRequest request) {
         AlarmConfig alarmConfig = this.findOrElseCreateAlarmConfig(userId);
 
-        alarmConfig.switchMessage(config.getMessage());
-        alarmConfig.switchNotice(config.getNotice());
-        alarmConfig.switchJoinRequest(config.getJoin());
-        alarmConfig.switchComment(config.getComment());
-        alarmConfig.switchMention(config.getMention());
+        alarmConfig.switchMessage(request.getMessage());
+        alarmConfig.switchNotice(request.getNotice());
+        alarmConfig.switchJoinRequest(request.getJoin());
+        alarmConfig.switchComment(request.getComment());
+        alarmConfig.switchMention(request.getMention());
 
         return alarmConfig;
     }
 
-    private AlarmConfig createAlarmConfig(final Long userId) {
+    private AlarmConfig createAlarmConfig(Long userId) {
         User user = userRepository.findByUserId(userId);
         return alarmConfigRepository.save(AlarmConfig.of(user));
     }

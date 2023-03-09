@@ -184,7 +184,7 @@ class JoinRequestCommandServiceTest {
 
             final Member manager = TestMember.builder().id(1L).build();
 
-            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+            given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(manager);
             //when
             joinRequestCommandService.confirmUsers(manager.getId(), List.of(1L, 2L), community.getId());
@@ -212,7 +212,7 @@ class JoinRequestCommandServiceTest {
 
             final Member manager = TestMember.builder().id(1L).build();
 
-            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+            given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(manager);
 
             //when

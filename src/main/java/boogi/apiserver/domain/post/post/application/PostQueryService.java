@@ -39,8 +39,8 @@ public class PostQueryService {
     private final LikeQueryService likeQueryService;
 
     public PostDetailResponse getPostDetail(Long postId, Long userId) {
-        Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));
+        Post findPost = postRepository.getPostWithAll(postId)
+                .orElseThrow(PostNotFoundException::new);
 
         Member member = memberQueryService.getViewableMember(userId, findPost.getCommunity());
         List<PostMedia> findPostMedias = postMediaRepository.findByPostId(postId);
@@ -49,7 +49,7 @@ public class PostQueryService {
                 findPost,
                 findPostMedias,
                 userId,
-                likeQueryService.getPostLikeIdForView(postId, member)
+                getPostLikeIdForView(postId, member)
         );
     }
 
@@ -86,5 +86,9 @@ public class PostQueryService {
         }
         userRepository.findByUserId(userId);
         return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
+    }
+
+    private Long getPostLikeIdForView(Long postId, Member member) {
+        return member.isNullMember() ? null : likeQueryService.getPostLikeId(postId, member.getId());
     }
 }

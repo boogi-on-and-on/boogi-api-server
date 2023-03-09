@@ -434,7 +434,7 @@ class PostRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         Post findPost = postRepository
-                .getPostWithUserAndMemberAndCommunityByPostId(post.getId())
+                .getPostWithAll(post.getId())
                 .orElseGet(Assertions::fail);
 
         assertThat(findPost.getId()).isEqualTo(post.getId());

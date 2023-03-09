@@ -61,7 +61,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Optional<Post> getPostWithUserAndMemberAndCommunityByPostId(Long postId) {
+    public Optional<Post> getPostWithAll(Long postId) {
         Post findPost = queryFactory.selectFrom(this.post)
                 .join(this.post.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()

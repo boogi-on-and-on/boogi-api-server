@@ -30,7 +30,7 @@ public class MemberCommandService {
         User user = userRepository.findByUserId(userId);
         Community community = communityRepository.findByCommunityId(communityId);
 
-        checkAlreadyJoinedMember(userId, communityId);
+        validateAlreadyJoinedMember(userId, communityId);
 
         Member newMember = Member.of(community, user, type);
         memberRepository.save(newMember);
@@ -38,7 +38,7 @@ public class MemberCommandService {
     }
 
     public List<Member> joinMembers(List<Long> userIds, Long communityId, MemberType type) {
-        checkAlreadyJoinedMembers(userIds, communityId);
+        validateAlreadyJoinedMember(userIds, communityId);
 
         List<User> users = userRepository.findUsersByIds(userIds);
         Community community = communityRepository.findByCommunityId(communityId);
@@ -63,24 +63,22 @@ public class MemberCommandService {
     public void delegeteMember(Long userId, Long memberId, MemberType type) {
         Member member = memberRepository.findByMemberId(memberId);
 
-        Member sessionMember = memberQueryService.getMemberOfTheCommunity(userId, member.getCommunity().getId());
+        Member sessionMember = memberQueryService.getMember(userId, member.getCommunity().getId());
         if (!sessionMember.isManager()) {
             throw new NotManagerException();
         }
 
-        if(type.equals(MemberType.MANAGER)) {
+        if(MemberType.MANAGER.equals(type)) {
             sessionMember.delegate(MemberType.NORMAL);
         }
         member.delegate(type);
     }
 
-    private void checkAlreadyJoinedMember(Long userId, Long communityId) {
-        memberRepository.findByUserIdAndCommunityId(userId, communityId).ifPresent(m -> {
-            throw new AlreadyJoinedMemberException();
-        });
+    private void validateAlreadyJoinedMember(Long userId, Long communityId) {
+        validateAlreadyJoinedMember(List.of(userId), communityId);
     }
 
-    private void checkAlreadyJoinedMembers(List<Long> userIds, Long communityId) {
+    private void validateAlreadyJoinedMember(List<Long> userIds, Long communityId) {
         List<Member> joinedMembers = memberRepository.findAlreadyJoinedMemberByUserId(userIds, communityId);
 
         boolean hasJoinedMember = joinedMembers.stream()

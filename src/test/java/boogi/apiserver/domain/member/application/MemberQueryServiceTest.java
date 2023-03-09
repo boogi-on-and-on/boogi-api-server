@@ -101,7 +101,7 @@ class MemberQueryServiceTest {
                     .willReturn(Optional.of(member));
 
             //when
-            Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+            Member memberOfTheCommunity = memberQueryService.getMember(anyLong(), anyLong());
 
             //then
             assertThat(memberOfTheCommunity).isEqualTo(member);
@@ -115,7 +115,7 @@ class MemberQueryServiceTest {
                     .willReturn(Optional.empty());
 
             //when
-            Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+            Member memberOfTheCommunity = memberQueryService.getMember(anyLong(), anyLong());
 
             //then
             assertThat(memberOfTheCommunity).isEqualTo(null);
@@ -165,7 +165,7 @@ class MemberQueryServiceTest {
             Member viewableMember = memberQueryService.getViewableMember(3L, publicCommunity);
 
             assertThat(viewableMember.getId()).isEqualTo(2L);
-            assertThat(viewableMember.isJoined()).isTrue();
+            assertThat(viewableMember.isNullMember()).isTrue();
         }
 
         @Test
@@ -177,7 +177,7 @@ class MemberQueryServiceTest {
             Member viewableMember = memberQueryService.getViewableMember(2L, publicCommunity);
 
             assertThat(viewableMember).isEqualTo(new NullMember());
-            assertThat(viewableMember.isJoined()).isFalse();
+            assertThat(viewableMember.isNullMember()).isFalse();
         }
 
         @Test
@@ -194,7 +194,7 @@ class MemberQueryServiceTest {
             Member viewableMember = memberQueryService.getViewableMember(3L, privateCommunity);
 
             assertThat(viewableMember.getId()).isEqualTo(2L);
-            assertThat(viewableMember.isJoined()).isTrue();
+            assertThat(viewableMember.isNullMember()).isTrue();
         }
 
         @Test

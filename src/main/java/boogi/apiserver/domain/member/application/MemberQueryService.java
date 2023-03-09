@@ -29,7 +29,7 @@ public class MemberQueryService {
     private final MemberRepository memberRepository;
     private final CommunityRepository communityRepository;
 
-    public Member getMemberOfTheCommunity(Long userId, Long communityId) {
+    public Member getMember(Long userId, Long communityId) {
         return memberRepository.findByUserIdAndCommunityId(userId, communityId)
                 .orElseThrow(NotJoinedMemberException::new);
     }
@@ -38,7 +38,7 @@ public class MemberQueryService {
         Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId())
                 .orElse(new NullMember());
 
-        if (community.isPrivate() && !member.isJoined()) {
+        if (community.isPrivate() && member.isNullMember()) {
             throw new NotViewableMemberException();
         }
         return member;
@@ -51,8 +51,9 @@ public class MemberQueryService {
                 .collect(Collectors.toList());
     }
 
+    //todo: Api 리펙토링할 때 수정하기
     public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
-        Member member = this.getMemberOfTheCommunity(userId, communityId);
+        Member member = this.getMember(userId, communityId);
         if (Objects.isNull(member)) {
             return false;
         }
@@ -73,7 +74,7 @@ public class MemberQueryService {
 
     public List<MemberDto> getJoinedMembersAll(Long communityId, Long userId) {
         communityRepository.findByCommunityId(communityId);
-        Member sessionMember = getMemberOfTheCommunity(userId, communityId);
+        Member sessionMember = getMember(userId, communityId);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);
         findJoinedMembersAll.remove(sessionMember);

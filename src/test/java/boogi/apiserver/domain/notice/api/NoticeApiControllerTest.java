@@ -123,7 +123,7 @@ class NoticeApiControllerTest {
 
             final Notice notice = TestNotice.builder().id(1L).build();
 
-            given(noticeCommandService.create(any(NoticeCreateRequest.class), anyLong()))
+            given(noticeCommandService.createNotice(any(NoticeCreateRequest.class), anyLong()))
                     .willReturn(notice);
 
             mvc.perform(

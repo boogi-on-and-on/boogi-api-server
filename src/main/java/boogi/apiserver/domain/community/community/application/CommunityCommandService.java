@@ -31,9 +31,10 @@ public class CommunityCommandService {
 
     public Long createCommunity(CreateCommunityRequest request, Long userId) {
         userRepository.findByUserId(userId);
-        checkAlreadyExistsName(request.getName());
+        validateAlreadyExistName(request.getName());
 
-        Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(),
+        Community community = Community.of(
+                request.getName(), request.getDescription(), request.getIsPrivate(),
                 request.getAutoApproval(), request.getCategory());
 
         communityRepository.save(community);
@@ -53,32 +54,32 @@ public class CommunityCommandService {
     public void shutdown(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
 
-        checkManagerOnlyIncluded(communityId);
+        validateManagerOnlyIncluded(communityId);
 
         community.shutdown();
     }
 
     public void changeScope(Long userId, Long communityId, Boolean isSecret) {
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
 
         Community community = communityRepository.findByCommunityId(communityId);
         community.switchPrivate(isSecret, member.getMemberType());
     }
 
     public void changeApproval(Long userId, Long communityId, Boolean isAuto) {
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
 
         Community community = communityRepository.findByCommunityId(communityId);
         community.switchAutoApproval(isAuto, member.getMemberType());
     }
 
-    private void checkManagerOnlyIncluded(Long communityId) {
+    private void validateManagerOnlyIncluded(Long communityId) {
         memberRepository.findAnyMemberExceptManager(communityId).ifPresent(m -> {
             throw new CanNotDeleteCommunityException();
         });
     }
 
-    private void checkAlreadyExistsName(String name) {
+    private void validateAlreadyExistName(String name) {
         communityRepository.findByCommunityNameEquals(name).ifPresent(c -> {
             throw new AlreadyExistsCommunityNameException();
         });

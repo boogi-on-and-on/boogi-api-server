@@ -29,7 +29,7 @@ public class CommentCommandService {
 
     public Long createComment(CreateCommentRequest request, Long userId) {
         Post findPost = postRepository.findByPostId(request.getPostId());
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, findPost.getCommunityId());
+        Member member = memberQueryService.getMember(userId, findPost.getCommunityId());
 
         Long parentCommentId = request.getParentCommentId();
         checkCommentMaxDepthOver(parentCommentId);

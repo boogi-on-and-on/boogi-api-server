@@ -3,21 +3,19 @@ package boogi.apiserver.domain.member.application;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.global.error.exception.EntityNotFoundException;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+//todo : 클래스 삭제
 public class MemberValidationService {
 
     private final MemberRepository memberRepository;

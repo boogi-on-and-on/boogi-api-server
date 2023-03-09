@@ -5,11 +5,9 @@ import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.application.LikeQueryService;
-import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.application.PostCommandService;
-import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
@@ -46,7 +44,6 @@ public class PostApiController {
     private final LikeCommandService likeCommandService;
     private final LikeQueryService likeQueryService;
 
-    private final CommentCommandService commentCommandService;
     private final CommentQueryService commentQueryService;
 
     private final SendPushNotification sendPushNotification;
@@ -55,15 +52,15 @@ public class PostApiController {
     @ResponseStatus(CREATED)
     public SimpleIdResponse createPost(@Validated @RequestBody CreatePostRequest createPostRequest,
                                        @Session Long sessionUserId) {
-        Post newPost = postCommandService.createPost(createPostRequest, sessionUserId);
+        Long newPostId = postCommandService.createPost(createPostRequest, sessionUserId);
 
         sendPushNotification.mentionNotification(
                 createPostRequest.getMentionedUserIds(),
-                newPost.getId(),
+                newPostId,
                 MentionType.POST
         );
 
-        return SimpleIdResponse.from(newPost.getId());
+        return SimpleIdResponse.from(newPostId);
     }
 
     @GetMapping("/{postId}")
@@ -75,9 +72,9 @@ public class PostApiController {
     public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePostRequest updatePostRequest,
                                        @PathVariable Long postId,
                                        @Session Long sessionUserId) {
-        Post updatedPost = postCommandService.updatePost(updatePostRequest, postId, sessionUserId);
+        Long updatedPostId = postCommandService.updatePost(updatePostRequest, postId, sessionUserId);
 
-        return SimpleIdResponse.from(updatedPost.getId());
+        return SimpleIdResponse.from(updatedPostId);
     }
 
     @DeleteMapping("/{postId}")

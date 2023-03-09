@@ -14,7 +14,7 @@ public class NullMember extends Member {
     }
 
     @Override
-    public boolean isJoined() {
-        return false;
+    public boolean isNullMember() {
+        return true;
     }
 }

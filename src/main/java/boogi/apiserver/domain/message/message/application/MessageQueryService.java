@@ -29,14 +29,14 @@ public class MessageQueryService {
         List<Message> messages = messageRepository.findMessageByUserIdWithoutBlockedUser(userId, blockedUserIds);
 
         // 나와 상대방의 대화 중 가장 최근 대화 1개씩 추출 -> 순서유지를 위해 LinkedHashMap 사용
-        LinkedHashMap<Long, Message> dedupMessages = messages.stream()
+        LinkedHashMap<Long, Message> deduplicatedMessages = messages.stream()
                 .collect(Collectors.toMap(
                         m1 -> getOpponentId(userId, m1),
                         m2 -> m2,
                         (o, n) -> o,
                         LinkedHashMap::new
                 ));
-        List<Long> opponentIds = new ArrayList<>(dedupMessages.keySet());
+        List<Long> opponentIds = new ArrayList<>(deduplicatedMessages.keySet());
 
         Map<Long, User> opponentUserMap = userRepository.findUsersByIds(opponentIds).stream()
                 .collect(Collectors.toMap(
@@ -46,7 +46,7 @@ public class MessageQueryService {
                         HashMap::new
                 ));
 
-        return MessageRoomResponse.of(opponentIds, opponentUserMap, dedupMessages);
+        return MessageRoomResponse.of(opponentIds, opponentUserMap, deduplicatedMessages);
     }
 
     public MessageResponse getMessagesByOpponentId(Long opponentId, Long userId, Pageable pageable) {

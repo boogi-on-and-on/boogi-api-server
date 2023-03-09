@@ -15,6 +15,7 @@ public class UserQueryService {
 
     private final UserRepository userRepository;
 
+    //todo: OAuth
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidValueException("해당 이메일은 없는 계정입니다."));

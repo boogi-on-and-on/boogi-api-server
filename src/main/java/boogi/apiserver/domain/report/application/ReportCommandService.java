@@ -36,15 +36,15 @@ public class ReportCommandService {
 
     private final MemberQueryService memberQueryService;
 
-    public void createReport(CreateReportRequest createReportRequest, Long userId) {
+    public void createReport(CreateReportRequest request, Long userId) {
         User reportUser = userRepository.findByUserId(userId);
 
-        Object targetObject = getReportTarget(userId, createReportRequest.getTarget(), createReportRequest.getId());
+        Object targetObject = getReportTarget(userId, request.getTarget(), request.getId());
         Report newReport = Report.of(
                 targetObject,
                 reportUser,
-                createReportRequest.getContent(),
-                createReportRequest.getReason());
+                request.getContent(),
+                request.getReason());
 
         reportRepository.save(newReport);
     }
@@ -64,31 +64,31 @@ public class ReportCommandService {
         }
     }
 
-    private Post getReportedPost(final Long userId, final Long id) {
+    private Post getReportedPost(Long userId, final Long id) {
         Post findPost = postRepository.findByPostId(id);
 
         Long communityId = findPost.getCommunity().getId();
         final Community community = communityRepository.findByCommunityId(communityId);
 
         if (community.isPrivate()) {
-            memberQueryService.getMemberOfTheCommunity(userId, communityId);
+            memberQueryService.getMember(userId, communityId);
         }
         return findPost;
     }
 
-    private Comment getReportedComment(final Long userId, final Long id) {
+    private Comment getReportedComment(Long userId, final Long id) {
         Comment findComment = commentRepository.findByCommentId(id);
 
         Long communityId = findComment.getPost().getCommunity().getId();
         final Community community = communityRepository.findByCommunityId(communityId);
 
         if (community.isPrivate()) {
-            memberQueryService.getMemberOfTheCommunity(userId, communityId);
+            memberQueryService.getMember(userId, communityId);
         }
         return findComment;
     }
 
-    private Message getReportedMessage(final Long userId, final Long id) {
+    private Message getReportedMessage(Long userId, Long id) {
         Message findMessage = messageRepository.findByMessageId(id);
 
         if (!findMessage.isMyMessage(userId)) {

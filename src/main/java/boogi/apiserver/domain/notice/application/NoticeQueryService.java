@@ -21,7 +21,7 @@ public class NoticeQueryService {
 
     public List<NoticeDto> getAppLatestNotice() {
         List<Notice> notices = noticeRepository.getLatestNotice();
-        return transformToLatestNotice(notices);
+        return toNoticeDtoList(notices);
     }
 
     public List<NoticeDetailDto> getAppNotice() {
@@ -31,9 +31,10 @@ public class NoticeQueryService {
                 .collect(Collectors.toList());
     }
 
+    //todo: iOS와 같이 없애기
     public List<NoticeDto> DEFRECATED_getCommunityLatestNotice(Long communityId) {
         List<Notice> latestNotice = noticeRepository.getLatestNotice(communityId);
-        return transformToLatestNotice(latestNotice);
+        return toNoticeDtoList(latestNotice);
     }
 
     public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
@@ -51,7 +52,7 @@ public class NoticeQueryService {
 
     }
 
-    private List<NoticeDto> transformToLatestNotice(List<Notice> notices) {
+    private List<NoticeDto> toNoticeDtoList(List<Notice> notices) {
         return notices.stream()
                 .map(NoticeDto::from)
                 .collect(Collectors.toList());

@@ -21,11 +21,11 @@ public class NoticeCommandService {
 
     private final MemberQueryService memberQueryService;
 
-    public Notice create(NoticeCreateRequest request, Long userId) {
+    public Notice createNotice(NoticeCreateRequest request, Long userId) {
         Long communityId = request.getCommunityId();
         Community community = communityRepository.findByCommunityId(communityId);
 
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
         if (!member.isOperator()) {
             throw new NotOperatorException();
         }

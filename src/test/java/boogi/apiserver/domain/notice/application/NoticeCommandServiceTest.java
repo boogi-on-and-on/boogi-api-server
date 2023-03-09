@@ -48,13 +48,13 @@ class NoticeCommandServiceTest {
         void hasNoAuth() {
             final Member member = TestMember.builder().memberType(MemberType.NORMAL).build();
 
-            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+            given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);
 
             NoticeCreateRequest request = new NoticeCreateRequest(1L, null, null);
 
             assertThatThrownBy(() -> {
-                noticeCommandService.create(request, 2L);
+                noticeCommandService.createNotice(request, 2L);
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("관리자가 아닙니다.");
@@ -65,7 +65,7 @@ class NoticeCommandServiceTest {
         void success() {
             final Member member = TestMember.builder().memberType(MemberType.SUB_MANAGER).build();
 
-            given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
+            given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);
 
             final Community community = TestCommunity.builder().id(1L).build();
@@ -74,7 +74,7 @@ class NoticeCommandServiceTest {
 
             NoticeCreateRequest request = new NoticeCreateRequest(1L, "A".repeat(10), "B".repeat(10));
 
-            Notice notice = noticeCommandService.create(request, 2L);
+            Notice notice = noticeCommandService.createNotice(request, 2L);
 
             assertThat(notice.getTitle()).isEqualTo("A".repeat(10));
             assertThat(notice.getContent()).isEqualTo("B".repeat(10));

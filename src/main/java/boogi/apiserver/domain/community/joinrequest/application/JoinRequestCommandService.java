@@ -15,7 +15,6 @@ import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotOperatorException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,19 +73,19 @@ public class JoinRequestCommandService {
         confirmRequests(managerUserId, communityId, joinRequests, members);
     }
 
-    public void rejectUsers(Long managerUserId, List<Long> requestIds, Long communityId) {
-        Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
-        validateOperator(manager.getMemberType());
-        rejectRequests(requestIds, communityId, manager);
+    public void rejectUsers(Long userId, List<Long> requestIds, Long communityId) {
+        Member member = memberQueryService.getMember(userId, communityId);
+        validateOperator(member);
+        rejectRequests(requestIds, communityId, member);
     }
 
     private void validateJoinRequestStatus(Long userId, Long communityId) {
         joinRequestRepository.getLatestJoinRequest(userId, communityId)
                 .map(JoinRequest::getStatus)
-                .ifPresent(this::checkInvalidJoinRequestStatus);
+                .ifPresent(this::validateInvalidJoinRequestStatus);
     }
 
-    private void checkInvalidJoinRequestStatus(JoinRequestStatus status) {
+    private void validateInvalidJoinRequestStatus(JoinRequestStatus status) {
         switch (status) {
             case CONFIRM:
                 throw new AlreadyJoinedMemberException();
@@ -95,14 +94,14 @@ public class JoinRequestCommandService {
         }
     }
 
-    private void validateOperator(MemberType memberType) {
-        if (memberType.hasSubManagerAuth()) {
+    private void validateOperator(Member member) {
+        if (member.isOperator()) {
             throw new NotOperatorException();
         }
     }
 
     private void validateAlreadyJoinedMember(Long userId, Long communityId) {
-        Member alreadyJoinedMember = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member alreadyJoinedMember = memberQueryService.getMember(userId, communityId);
         if (alreadyJoinedMember != null) {
             throw new AlreadyJoinedMemberException();
         }
@@ -115,7 +114,7 @@ public class JoinRequestCommandService {
         Map<Long, Member> memberMap = members.stream()
                 .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 
-        Member manager = memberQueryService.getMemberOfTheCommunity(managerUserId, communityId);
+        Member manager = memberQueryService.getMember(managerUserId, communityId);
         joinRequests.forEach(r -> r.confirm(manager, memberMap.get(r.getUser().getId())));
     }
 

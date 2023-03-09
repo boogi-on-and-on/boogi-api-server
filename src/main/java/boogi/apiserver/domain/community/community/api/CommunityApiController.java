@@ -71,7 +71,7 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}")
     public CommunityDetailResponse getCommunityDetailInfo(@Session Long userId, @PathVariable Long communityId) {
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
         Community community = communityQueryService.getCommunityWithHashTag(communityId);
 
         List<NoticeDto> communityNotices = noticeQueryService.getCommunityLatestNotice(communityId);
@@ -139,7 +139,7 @@ public class CommunityApiController {
                                            @Session Long userId,
                                            Pageable pageable
     ) {
-        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
         Community community = communityRepository.findByCommunityId(communityId);
 
         //todo: 아래 로직 ValidationService로 이동

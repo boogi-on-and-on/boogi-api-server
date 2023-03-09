@@ -33,10 +33,6 @@ public class LikeQueryService {
 
     private final MemberQueryService memberQueryService;
 
-    public Long getPostLikeIdForView(Long postId, Member member) {
-        return member.isJoined() ? getPostLikeId(postId, member.getId()) : null;
-    }
-
     public Long getPostLikeId(Long postId, Long memberId) {
         return likeRepository.findPostLikeByPostIdAndMemberId(postId, memberId)
                 .map(Like::getId)

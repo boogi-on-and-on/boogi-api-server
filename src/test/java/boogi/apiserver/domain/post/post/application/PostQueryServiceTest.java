@@ -128,7 +128,7 @@ class PostQueryServiceTest {
                     .hashtags(List.of())
                     .build();
             TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
-            given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
+            given(postRepository.getPostWithAll(anyLong()))
                     .willReturn(Optional.of(post));
 
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
@@ -178,7 +178,7 @@ class PostQueryServiceTest {
                     .build();
             TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
 
-            given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
+            given(postRepository.getPostWithAll(anyLong()))
                     .willReturn(Optional.of(post));
 
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
@@ -225,7 +225,7 @@ class PostQueryServiceTest {
                     .id(1L)
                     .community(community)
                     .build();
-            given(postRepository.getPostWithUserAndMemberAndCommunityByPostId(anyLong()))
+            given(postRepository.getPostWithAll(anyLong()))
                     .willReturn(Optional.of(post));
 
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
