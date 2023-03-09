@@ -1,14 +1,17 @@
 package boogi.apiserver.domain.comment.api;
 
 import boogi.apiserver.domain.comment.application.CommentCommandService;
+import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeCommandService;
+import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.SimpleIdResponse;
+import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +29,10 @@ import java.util.Objects;
 public class CommentApiController {
 
     private final CommentCommandService commentCommandService;
+    private final CommentQueryService commentQueryService;
 
     private final LikeCommandService likeCommandService;
+    private final LikeQueryService likeQueryService;
 
     private final SendPushNotification sendPushNotification;
 
@@ -36,24 +41,27 @@ public class CommentApiController {
                                                        @Session Long sessionUserId,
                                                        Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-        return commentCommandService.getUserComments(id, sessionUserId, pageable);
+        return commentQueryService.getUserComments(id, sessionUserId, pageable);
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public SimpleIdResponse createComment(@Validated @RequestBody CreateCommentRequest createCommentRequest, @Session Long userId) {
-        Comment newComment = commentCommandService.createComment(createCommentRequest, userId);
+    public SimpleIdResponse createComment(@Validated @RequestBody CreateCommentRequest request, @Session Long userId) {
+        Long newCommentId = commentCommandService.createComment(request, userId);
 
-        sendPushNotification.commentNotification(newComment.getId());
+        sendPushNotification.commentNotification(newCommentId);
+        if (!request.getMentionedUserIds().isEmpty()) {
+            sendPushNotification.mentionNotification(request.getMentionedUserIds(), newCommentId, MentionType.COMMENT);
+        }
 
-        return SimpleIdResponse.from(newComment.getId());
+        return SimpleIdResponse.from(newCommentId);
     }
 
     @PostMapping("/{commentId}/likes")
     public SimpleIdResponse doLikeAtComment(@PathVariable Long commentId, @Session Long userId) {
-        Like newLike = likeCommandService.doLikeAtComment(commentId, userId);
+        Long newLikeId = likeCommandService.doCommentLike(commentId, userId);
 
-        return SimpleIdResponse.from(newLike.getId());
+        return SimpleIdResponse.from(newLikeId);
     }
 
     @DeleteMapping("/{commentId}")
@@ -63,6 +71,6 @@ public class CommentApiController {
 
     @GetMapping("/{commentId}/likes")
     public LikeMembersAtCommentResponse getLikeMembersAtComment(@PathVariable Long commentId, @Session Long userId, Pageable pageable) {
-        return likeCommandService.getLikeMembersAtComment(commentId, userId, pageable);
+        return likeQueryService.getLikeMembersAtComment(commentId, userId, pageable);
     }
 }

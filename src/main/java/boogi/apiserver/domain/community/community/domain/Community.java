@@ -2,6 +2,8 @@ package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtags;
+import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotManagerException;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import lombok.*;
 import org.hibernate.annotations.Where;
@@ -67,8 +69,9 @@ public class Community extends TimeBaseEntity {
         this.category = category;
     }
 
-    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
-        return new Community(name, description, isPrivate, autoApproval, category);
+    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, String category) {
+        CommunityCategory communityCategory = CommunityCategory.valueOf(category);
+        return new Community(name, description, isPrivate, autoApproval, communityCategory);
     }
 
     public void updateDescription(String description) {
@@ -84,12 +87,14 @@ public class Community extends TimeBaseEntity {
         this.hashtags.updateTags(tags, this);
     }
 
-    public void toPublic() {
-        this.isPrivate = false;
+    public void switchPrivate(boolean isPrivate, MemberType sessionMemberType) {
+        checkManagerAuth(sessionMemberType);
+        this.isPrivate = isPrivate;
     }
 
-    public void toPrivate() {
-        this.isPrivate = true;
+    public void switchAutoApproval(boolean isAutoApproval, MemberType sessionMemberType) {
+        checkManagerAuth(sessionMemberType);
+        this.autoApproval = isAutoApproval;
     }
 
     public void openAutoApproval() {
@@ -106,6 +111,12 @@ public class Community extends TimeBaseEntity {
 
     public void addMemberCount() {
         this.memberCount++;
+    }
+
+    private void checkManagerAuth(MemberType sessionMemberType) {
+        if(!sessionMemberType.hasManagerAuth()) {
+            throw new NotManagerException();
+        }
     }
 
     public Long getId() {

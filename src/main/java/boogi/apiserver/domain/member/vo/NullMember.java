@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 public class NullMember extends Member {
 
     @Override
+    public Long getId() {
+        return null;
+    }
+
+    @Override
     public boolean isJoined() {
         return false;
     }

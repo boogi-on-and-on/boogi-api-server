@@ -26,7 +26,7 @@ public class CommunityNoticeDetailDto extends NoticeDetailDto {
                 .title(notice.getTitle())
                 .createdAt(notice.getCreatedAt())
                 .content(notice.getContent())
-                .user(UserBasicProfileDto.of(user))
+                .user(UserBasicProfileDto.from(user))
                 .build();
     }
 }

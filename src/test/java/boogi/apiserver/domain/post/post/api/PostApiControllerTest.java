@@ -278,7 +278,7 @@ class PostApiControllerTest {
     @DisplayName("글에 좋아요하기")
     void testDoLikeAtPost() throws Exception {
         final Like like = TestLike.builder().id(2L).build();
-        given(likeCommandService.doLikeAtPost(anyLong(), anyLong()))
+        given(likeCommandService.doPostLike(anyLong(), anyLong()))
                 .willReturn(like);
 
         MockHttpSession session = createUserSession(3L);

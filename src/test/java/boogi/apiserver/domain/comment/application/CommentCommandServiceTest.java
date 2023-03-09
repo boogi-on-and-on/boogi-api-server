@@ -7,7 +7,6 @@ import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
@@ -64,9 +63,6 @@ class CommentCommandServiceTest {
 
     @Mock
     CommentValidationService commentValidationService;
-
-    @Mock
-    CommunityValidationService communityValidationService;
 
     @Mock
     LikeCommandService likeCommandService;

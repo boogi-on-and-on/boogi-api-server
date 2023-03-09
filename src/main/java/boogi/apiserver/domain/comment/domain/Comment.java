@@ -42,8 +42,6 @@ public class Comment extends TimeBaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private static final String DELETED_COMMENT_CONTENT = "삭제된 댓글입니다";
-
     @Builder
     private Comment(final Long id, final Post post, final Member member, final Comment parent, final String content,
                     final boolean child, final LocalDateTime deletedAt) {
@@ -64,18 +62,15 @@ public class Comment extends TimeBaseEntity {
         this.child = (parent == null) ? Boolean.FALSE : Boolean.TRUE;
     }
 
-    private Comment(Long id, String content, LocalDateTime removeAt) {
+    protected Comment(Long id, String content, LocalDateTime removeAt) {
         this.id = id;
         this.content = new CommentContent(content);
         this.deletedAt = removeAt;
     }
 
     public static Comment of(Post post, Member member, Comment parent, String content) {
+        post.addCommentCount();
         return new Comment(post, member, parent, content);
-    }
-
-    public static Comment deletedOf(Long id, LocalDateTime removeAt) {
-        return new Comment(id, DELETED_COMMENT_CONTENT, removeAt);
     }
 
     public void deleteComment() {

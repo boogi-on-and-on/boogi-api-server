@@ -46,8 +46,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<Member> findWhatIJoined(Long userId) {
         return queryFactory.selectFrom(member)
                 .where(member.user.id.eq(userId),
-                        member.bannedAt.isNull(),
-                        member.community.deletedAt.isNull()
+                        member.bannedAt.isNull()
                 )
                 .join(member.community).fetchJoin()
                 .orderBy(member.createdAt.desc())

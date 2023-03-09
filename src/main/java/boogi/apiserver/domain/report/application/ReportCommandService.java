@@ -5,7 +5,7 @@ import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.member.application.MemberValidationService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.message.message.dao.MessageRepository;
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.message.message.exception.NotParticipatedUserException;
@@ -34,7 +34,7 @@ public class ReportCommandService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
-    private final MemberValidationService memberValidationService;
+    private final MemberQueryService memberQueryService;
 
     public void createReport(CreateReportRequest createReportRequest, Long userId) {
         User reportUser = userRepository.findByUserId(userId);
@@ -71,7 +71,7 @@ public class ReportCommandService {
         final Community community = communityRepository.findByCommunityId(communityId);
 
         if (community.isPrivate()) {
-            memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+            memberQueryService.getMemberOfTheCommunity(userId, communityId);
         }
         return findPost;
     }
@@ -83,7 +83,7 @@ public class ReportCommandService {
         final Community community = communityRepository.findByCommunityId(communityId);
 
         if (community.isPrivate()) {
-            memberValidationService.checkMemberJoinedCommunity(userId, communityId);
+            memberQueryService.getMemberOfTheCommunity(userId, communityId);
         }
         return findComment;
     }

@@ -1,8 +1,10 @@
 package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.domain.comment.application.CommentCommandService;
+import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.like.application.LikeCommandService;
+import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -42,8 +44,10 @@ public class PostApiController {
     private final PostQueryService postQueryService;
 
     private final LikeCommandService likeCommandService;
+    private final LikeQueryService likeQueryService;
 
     private final CommentCommandService commentCommandService;
+    private final CommentQueryService commentQueryService;
 
     private final SendPushNotification sendPushNotification;
 
@@ -97,23 +101,23 @@ public class PostApiController {
 
     @PostMapping("/{postId}/likes")
     public SimpleIdResponse doLikeAtPost(@PathVariable Long postId, @Session Long sessionUserId) {
-        Like newLike = likeCommandService.doLikeAtPost(postId, sessionUserId);
+        Long newLikeId = likeCommandService.doPostLike(postId, sessionUserId);
 
-        return SimpleIdResponse.from(newLike.getId());
+        return SimpleIdResponse.from(newLikeId);
     }
 
     @GetMapping("/{postId}/likes")
     public LikeMembersAtPostResponse getLikeMembersAtPost(@PathVariable Long postId,
                                                           @Session Long sessionUserId,
                                                           Pageable pageable) {
-        return likeCommandService.getLikeMembersAtPost(postId, sessionUserId, pageable);
+        return likeQueryService.getLikeMembersAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/{postId}/comments")
     public CommentsAtPostResponse getCommentsAtPost(@PathVariable Long postId,
                                                     @Session Long sessionUserId,
                                                     Pageable pageable) {
-        return commentCommandService.getCommentsAtPost(postId, sessionUserId, pageable);
+        return commentQueryService.getCommentsAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/search")

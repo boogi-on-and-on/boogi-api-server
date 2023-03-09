@@ -4,6 +4,7 @@ import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandSe
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
 import boogi.apiserver.domain.community.community.application.CommunityCommandService;
+import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
@@ -36,8 +37,7 @@ import java.util.Objects;
 public class UserApiController {
     private final UserQueryService userQueryService;
     private final MessageBlockQueryService messageBlockQueryService;
-
-    private final CommunityCommandService communityCommandService;
+    private final CommunityQueryService communityQueryService;
 
     private final MessageBlockCommandService messageBlockCommandService;
     private final AlarmConfigCommandService alarmConfigCommandService;
@@ -75,8 +75,7 @@ public class UserApiController {
 
     @GetMapping("/communities/joined")
     public JoinedCommunitiesDto getUserJoinedCommunitiesInfo(@Session Long userId) {
-
-        return communityCommandService.getJoinedCommunitiesWithLatestPost(userId);
+        return communityQueryService.getJoinedCommunitiesWithLatestPost(userId);
     }
 
     @GetMapping("/messages/blocked")

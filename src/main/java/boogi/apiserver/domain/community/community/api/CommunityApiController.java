@@ -4,7 +4,6 @@ import boogi.apiserver.domain.community.community.application.CommunityQueryServ
 import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
@@ -65,10 +64,7 @@ public class CommunityApiController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SimpleIdResponse createCommunity(@RequestBody @Validated CreateCommunityRequest request, @Session Long userId) {
-        String _category = request.getCategory();
-        CommunityCategory category = CommunityCategory.valueOf(_category);
-        Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(), request.getAutoApproval(), category);
-        Long communityId = communityCommandService.createCommunity(community, request.getHashtags(), userId).getId();
+        Long communityId = communityCommandService.createCommunity(request, userId);
 
         return SimpleIdResponse.from(communityId);
     }
@@ -102,7 +98,7 @@ public class CommunityApiController {
                                     @RequestBody @Validated UpdateCommunityRequest request) {
         memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
 
-        communityCommandService.update(communityId, request.getDescription(), request.getHashtags());
+        communityCommandService.updateCommunity(communityId, request.getDescription(), request.getHashtags());
     }
 
     @DeleteMapping("/{communityId}")
@@ -131,10 +127,10 @@ public class CommunityApiController {
         Boolean isAuto = request.getIsAutoApproval();
         Boolean isSecret = request.getIsSecret();
         if (Objects.nonNull(isAuto)) {
-            communityCommandService.changeApproval(communityId, isAuto);
+            communityCommandService.changeApproval(userId, communityId, isAuto);
         }
         if (Objects.nonNull(isSecret)) {
-            communityCommandService.changeScope(communityId, isSecret);
+            communityCommandService.changeScope(userId, communityId, isSecret);
         }
     }
 
@@ -228,7 +224,7 @@ public class CommunityApiController {
 
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestCommandService.confirmUserInBatch(managerUserId, requestIds, communityId);
+        joinRequestCommandService.confirmUsers(managerUserId, requestIds, communityId);
 
         sendPushNotification.joinNotification(requestIds);
     }
@@ -242,7 +238,7 @@ public class CommunityApiController {
 
         memberValidationService.hasAuth(managerUserId, communityId, MemberType.SUB_MANAGER);
 
-        joinRequestCommandService.rejectUserInBatch(managerUserId, requestIds, communityId);
+        joinRequestCommandService.rejectUsers(managerUserId, requestIds, communityId);
 
         sendPushNotification.rejectNotification(requestIds);
     }

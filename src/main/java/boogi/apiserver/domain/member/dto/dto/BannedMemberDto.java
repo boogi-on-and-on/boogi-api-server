@@ -14,7 +14,7 @@ public class BannedMemberDto {
     @QueryProjection
     public BannedMemberDto(Long memberId, User user) {
         this.memberId = memberId;
-        this.user = UserBasicProfileDto.of(user);
+        this.user = UserBasicProfileDto.from(user);
     }
 
     public BannedMemberDto(final Long memberId, final UserBasicProfileDto user) {

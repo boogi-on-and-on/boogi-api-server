@@ -8,7 +8,7 @@ import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
-import boogi.apiserver.domain.like.exception.AlreadyDoLikeException;
+import boogi.apiserver.domain.like.exception.AlreadyDoPostLikeException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
@@ -92,7 +92,7 @@ class LikeCommandServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoPostLike(anyLong(), anyLong()))
                     .willReturn(false);
 
-            Like newLike = likeCommandService.doLikeAtPost(post.getId(), 1L);
+            Like newLike = likeCommandService.doPostLike(post.getId(), 1L);
 
             assertThat(newLike.getPost().getId()).isEqualTo(post.getId());
             assertThat(newLike.getMember().getId()).isEqualTo(member.getId());
@@ -118,8 +118,8 @@ class LikeCommandServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoPostLike(anyLong(), anyLong()))
                     .willReturn(true);
 
-            assertThatThrownBy(() -> likeCommandService.doLikeAtPost(post.getId(), 1L))
-                    .isInstanceOf(AlreadyDoLikeException.class);
+            assertThatThrownBy(() -> likeCommandService.doPostLike(post.getId(), 1L))
+                    .isInstanceOf(AlreadyDoPostLikeException.class);
         }
     }
 
@@ -142,7 +142,7 @@ class LikeCommandServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoCommentLike(anyLong(), anyLong()))
                     .willReturn(false);
 
-            Like newLike = likeCommandService.doLikeAtComment(comment.getId(), 1L);
+            Like newLike = likeCommandService.doCommentLike(comment.getId(), 1L);
 
             assertThat(newLike.getComment().getId()).isEqualTo(comment.getId());
             assertThat(newLike.getMember().getId()).isEqualTo(member.getId());
@@ -164,8 +164,8 @@ class LikeCommandServiceTest {
             given(likeValidationService.checkOnlyAlreadyDoCommentLike(anyLong(), anyLong()))
                     .willReturn(true);
 
-            assertThatThrownBy(() -> likeCommandService.doLikeAtComment(comment.getId(), 1L))
-                    .isInstanceOf(AlreadyDoLikeException.class);
+            assertThatThrownBy(() -> likeCommandService.doCommentLike(comment.getId(), 1L))
+                    .isInstanceOf(AlreadyDoPostLikeException.class);
         }
     }
 

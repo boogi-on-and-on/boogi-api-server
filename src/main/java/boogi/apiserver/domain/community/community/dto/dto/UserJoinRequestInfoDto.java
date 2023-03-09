@@ -20,7 +20,7 @@ public class UserJoinRequestInfoDto {
 
     public static UserJoinRequestInfoDto of(User user, Long id) {
         return UserJoinRequestInfoDto.builder()
-                .user(UserBasicProfileDto.of(user))
+                .user(UserBasicProfileDto.from(user))
                 .id(id)
                 .build();
     }

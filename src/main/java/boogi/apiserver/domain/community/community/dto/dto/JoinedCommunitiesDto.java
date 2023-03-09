@@ -3,6 +3,7 @@ package boogi.apiserver.domain.community.community.dto.dto;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,9 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,26 +26,58 @@ public class JoinedCommunitiesDto {
     }
 
     public static JoinedCommunitiesDto of(Map<Long, Community> joinedCommunityMap,
-                                          Map<Long, Post> latestPostMap,
-                                          Map<Long, String> postMediaUrlMap) {
+                                          List<Post> latestPosts,
+                                          List<PostMedia> postMedias) {
+
+        Map<Long, Post> latestPostMap = toLatestPostMap(latestPosts);
+        Map<Long, String> postMediaUrlMap = toPostMediaUrlMap(postMedias);
+
         List<CommunityInfo> communitiesWithPosts = latestPostMap.keySet().stream()
-                .map(ci -> {
-                    Community joinedCommunity = joinedCommunityMap.get(ci);
-                    joinedCommunityMap.remove(ci);
-                    Post latestPost = latestPostMap.get(ci);
-                    return CommunityInfo.of(joinedCommunity, latestPost, postMediaUrlMap.get(latestPost.getId()));
-                }).collect(Collectors.toList());
+                .map(ci -> getInfoWithPost(joinedCommunityMap, latestPostMap, postMediaUrlMap, ci))
+                .collect(Collectors.toList());
 
         List<CommunityInfo> communitiesWithoutPosts = joinedCommunityMap.keySet().stream()
-                .map(ci ->
-                        CommunityInfo.of(joinedCommunityMap.get(ci), null, null)
-                ).collect(Collectors.toList());
+                .filter(ci -> !latestPostMap.containsKey(ci))
+                .map(ci -> getInfoWithoutPost(joinedCommunityMap, ci))
+                .collect(Collectors.toList());
 
-        List<CommunityInfo> communities = (communitiesWithPosts.isEmpty() && communitiesWithoutPosts.isEmpty()) ? new ArrayList<>() :
-                Stream.concat(communitiesWithPosts.stream(), communitiesWithoutPosts.stream())
-                        .collect(Collectors.toList());
+        List<CommunityInfo> communities = Stream.concat(communitiesWithPosts.stream(), communitiesWithoutPosts.stream())
+                .collect(Collectors.toList());
 
         return new JoinedCommunitiesDto(communities);
+    }
+
+    private static HashMap<Long, String> toPostMediaUrlMap(List<PostMedia> postMedias) {
+        return postMedias.stream()
+                .collect(Collectors.toMap(
+                        pm1 -> pm1.getPost().getId(),
+                        pm2 -> pm2.getMediaURL(),
+                        (o, n) -> n,
+                        HashMap::new
+                ));
+    }
+
+    private static LinkedHashMap<Long, Post> toLatestPostMap(List<Post> latestPosts) {
+        return latestPosts.stream()
+                .collect(Collectors.toMap(
+                        lp1 -> lp1.getCommunity().getId(),
+                        lp2 -> lp2,
+                        (o, n) -> n,
+                        LinkedHashMap::new
+                ));
+    }
+
+    private static CommunityInfo getInfoWithoutPost(Map<Long, Community> joinedCommunityMap, Long ci) {
+        return CommunityInfo.of(joinedCommunityMap.get(ci), null, null);
+    }
+
+    private static CommunityInfo getInfoWithPost(Map<Long, Community> joinedCommunityMap,
+                                                 Map<Long, Post> latestPostMap,
+                                                 Map<Long, String> postMediaUrlMap,
+                                                 Long ci) {
+        Community joinedCommunity = joinedCommunityMap.get(ci);
+        Post latestPost = latestPostMap.get(ci);
+        return CommunityInfo.of(joinedCommunity, latestPost, postMediaUrlMap.get(latestPost.getId()));
     }
 
     @Getter
@@ -72,7 +103,6 @@ public class JoinedCommunitiesDto {
                     .build();
         }
     }
-
 
     @Getter
     static class PostInfo {

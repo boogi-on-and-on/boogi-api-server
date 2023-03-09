@@ -132,7 +132,7 @@ class CommentApiControllerTest {
     void testDoLikeAtComment() throws Exception {
         final Like like = TestLike.builder().id(1L).build();
 
-        given(likeCommandService.doLikeAtComment(anyLong(), anyLong()))
+        given(likeCommandService.doCommentLike(anyLong(), anyLong()))
                 .willReturn(like);
 
         MockHttpSession session = new MockHttpSession();

@@ -3,14 +3,12 @@ package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.domain.comment.exception.CanNotDeleteCommentException;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.post.application.PostHashtagCommandService;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -35,12 +33,9 @@ public class PostCommandService {
     private final PostMediaRepository postMediaRepository;
     private final CommunityRepository communityRepository;
 
-    private final MemberValidationService memberValidationService;
-
     private final MemberQueryService memberQueryService;
     private final PostMediaQueryService postMediaQueryService;
 
-    private final PostHashtagCommandService postHashtagCommandService;
     private final LikeCommandService likeCommandService;
 
     public Post createPost(CreatePostRequest request, Long userId) {
@@ -51,10 +46,10 @@ public class PostCommandService {
         final Post newPost = Post.of(community, member, request.getContent());
         postRepository.save(newPost);
 
-        postHashtagCommandService.addTags(newPost.getId(), request.getHashtags());
+        newPost.addTags(request.getHashtags());
 
-        final List<PostMedia> unmappedPostMedias =
-                postMediaQueryService.getUnmappedPostMedias(request.getPostMediaIds());
+        List<PostMedia> unmappedPostMedias =
+                postMediaQueryService.getUnmappedPostMediasByUUID(request.getPostMediaIds());
         newPost.addPostMedias(unmappedPostMedias);
 
         return newPost;
@@ -64,9 +59,7 @@ public class PostCommandService {
         Post findPost = postRepository.findByPostId(postId);
         communityRepository.findByCommunityId(findPost.getCommunityId());
 
-        if (canNotUpdatePost(userId, findPost)) {
-            throw new CanNotUpdatePostException();
-        }
+        validatePostUpdatable(userId, findPost);
 
         List<PostMedia> postMediaAll = postMediaRepository.findByUuidIn(request.getPostMediaIds());
         findPost.updatePost(request.getContent(), request.getHashtags(), postMediaAll);
@@ -77,26 +70,27 @@ public class PostCommandService {
     public void deletePost(Long postId, Long userId) {
         final Post findPost = postRepository.findByPostId(postId);
 
-        if (canNotDeletePost(userId, findPost)) {
-            throw new CanNotDeletePostException();
-        }
+        validatePostDeletable(userId, findPost);
 
         deleteCommentsOnPost(postId);
         likeCommandService.removePostLikes(findPost.getId());
         postRepository.delete(findPost);
     }
 
-    private void deleteCommentsOnPost(final Long postId) {
+    private void deleteCommentsOnPost(Long postId) {
         commentRepository.findByPostId(postId)
                 .forEach(Comment::deleteComment);
     }
 
-    private boolean canNotUpdatePost(Long userId, Post findPost) {
-        return !findPost.isAuthor(userId);
+    private void validatePostUpdatable(Long userId, Post post) {
+        if (!post.isAuthor(userId)) {
+            throw new CanNotUpdatePostException();
+        }
     }
 
-    private boolean canNotDeletePost(Long userId, Post findPost) {
-        return !findPost.isAuthor(userId)
-                && !memberValidationService.hasSubManagerAuthority(userId, findPost.getCommunityId());
+    private void validatePostDeletable(Long userId, Post post) {
+        if (!post.isAuthor(userId) && !post.getMember().isOperator()) {
+            throw new CanNotDeleteCommentException();
+        }
     }
 }

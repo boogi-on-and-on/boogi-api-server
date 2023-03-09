@@ -187,7 +187,7 @@ class JoinRequestCommandServiceTest {
             given(memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong()))
                     .willReturn(manager);
             //when
-            joinRequestCommandService.confirmUserInBatch(manager.getId(), List.of(1L, 2L), community.getId());
+            joinRequestCommandService.confirmUsers(manager.getId(), List.of(1L, 2L), community.getId());
 
             //then
             assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.CONFIRM);
@@ -216,7 +216,7 @@ class JoinRequestCommandServiceTest {
                     .willReturn(manager);
 
             //when
-            joinRequestCommandService.rejectUserInBatch(anyLong(), any(), community.getId());
+            joinRequestCommandService.rejectUsers(anyLong(), any(), community.getId());
             assertThat(jr1.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
             assertThat(jr2.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
         }

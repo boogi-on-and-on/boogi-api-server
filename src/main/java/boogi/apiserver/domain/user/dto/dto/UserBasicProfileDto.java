@@ -27,7 +27,7 @@ public class UserBasicProfileDto {
         this(user.getId(), user.getProfileImageUrl(), user.getTagNumber(), user.getUsername());
     }
 
-    public static UserBasicProfileDto of(User user) {
+    public static UserBasicProfileDto from(User user) {
         if (user == null) {
             return null;
         }

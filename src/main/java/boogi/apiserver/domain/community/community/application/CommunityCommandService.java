@@ -2,27 +2,20 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
-import boogi.apiserver.domain.hashtag.community.application.CommunityHashtagCommandService;
-import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
+import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
+import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
 import boogi.apiserver.domain.member.application.MemberCommandService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.post.post.dao.PostRepository;
-import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
-import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.dao.UserRepository;
-import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,128 +23,64 @@ import java.util.stream.Collectors;
 public class CommunityCommandService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
-    private final PostRepository postRepository;
-    private final CommunityHashtagRepository communityHashtagRepository;
-    private final PostMediaRepository postMediaRepository;
     private final UserRepository userRepository;
 
-    private final CommunityHashtagCommandService communityHashtagCommandService;
+    private final MemberQueryService memberQueryService;
+
     private final MemberCommandService memberCommandService;
 
-    private final CommunityValidationService communityValidationService;
+    public Long createCommunity(CreateCommunityRequest request, Long userId) {
+        userRepository.findByUserId(userId);
+        checkAlreadyExistsName(request.getName());
 
-    public Community createCommunity(Community community, List<String> tags, Long userId) {
-        User user = userRepository.findByUserId(userId);
-        communityValidationService.checkPreviousExistsCommunityName(community.getCommunityName());
+        Community community = Community.of(request.getName(), request.getDescription(), request.getIsPrivate(),
+                request.getAutoApproval(), request.getCategory());
 
         communityRepository.save(community);
-        communityHashtagCommandService.addTags(community.getId(), tags);
+        community.addTags(request.getHashtags());
 
         memberCommandService.joinMember(userId, community.getId(), MemberType.MANAGER);
 
-        return community;
+        return community.getId();
+    }
+
+    public void updateCommunity(Long communityId, String description, List<String> newTags) {
+        Community community = communityRepository.findByCommunityId(communityId);
+
+        community.updateCommunity(description, newTags);
     }
 
     public void shutdown(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
 
-        memberRepository.findAnyMemberExceptManager(communityId).ifPresent(m -> {
-            throw new InvalidValueException("탈퇴하지 않은 부매니저 혹은 일반 맴버가 있습니다.");
-        });
+        checkManagerOnlyIncluded(communityId);
 
         community.shutdown();
     }
 
-    public void changeScope(Long communityId, Boolean isSecret) {
+    public void changeScope(Long userId, Long communityId, Boolean isSecret) {
+        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+
         Community community = communityRepository.findByCommunityId(communityId);
-
-        if (isSecret) {
-            community.toPrivate();
-        } else {
-            community.toPublic();
-        }
+        community.switchPrivate(isSecret, member.getMemberType());
     }
 
-    public void changeApproval(Long communityId, Boolean isAuto) {
+    public void changeApproval(Long userId, Long communityId, Boolean isAuto) {
+        Member member = memberQueryService.getMemberOfTheCommunity(userId, communityId);
+
         Community community = communityRepository.findByCommunityId(communityId);
-
-        if (isAuto) {
-            community.openAutoApproval();
-        } else {
-            community.closeAutoApproval();
-        }
+        community.switchAutoApproval(isAuto, member.getMemberType());
     }
 
-    public void update(Long communityId, String description, List<String> newTags) {
-        Community community = communityRepository.findByCommunityId(communityId);
-
-        community.updateDescription(description);
-
-        List<CommunityHashtag> prevHashtags = community.getHashtags().getValues(); //LAZY INIT
-
-        if (Objects.isNull(newTags) || newTags.size() == 0) {
-            if (prevHashtags.size() != 0) {
-                communityHashtagRepository.deleteAllInBatch(prevHashtags);
-            }
-        } else {
-            if (!isSameHashtags(prevHashtags, newTags)) {
-                communityHashtagRepository.deleteAllInBatch(prevHashtags);
-
-                List<CommunityHashtag> newHashtags = newTags.stream()
-                        .map(t -> CommunityHashtag.of(t, community))
-                        .collect(Collectors.toList());
-                communityHashtagRepository.saveAll(newHashtags);
-            }
-        }
+    private void checkManagerOnlyIncluded(Long communityId) {
+        memberRepository.findAnyMemberExceptManager(communityId).ifPresent(m -> {
+            throw new CanNotDeleteCommunityException();
+        });
     }
 
-    public boolean isSameHashtags(List<CommunityHashtag> prevHashtags, List<String> newTags) {
-        List<String> prevTags = prevHashtags.stream()
-                .map(CommunityHashtag::getTag)
-                .collect(Collectors.toList());
-
-        prevTags.sort(Comparator.naturalOrder());
-        newTags.sort(Comparator.naturalOrder());
-
-        return String.join("", prevTags).equals(String.join("", newTags));
-    }
-
-    public JoinedCommunitiesDto getJoinedCommunitiesWithLatestPost(Long userId) {
-        User findUser = userRepository.findByUserId(userId);
-
-        List<Member> findMembers = memberRepository.findWhatIJoined(userId);
-
-        Map<Long, Community> joinedCommunityMap = findMembers.stream()
-                .map(m -> m.getCommunity())
-                .collect(Collectors.toMap(
-                        m1 -> m1.getId(),
-                        m2 -> m2,
-                        (o, n) -> n,
-                        LinkedHashMap::new
-                ));
-
-        List<Post> latestPosts = postRepository.getLatestPostByCommunityIds(joinedCommunityMap.keySet());
-        Map<Long, Post> latestPostMap = latestPosts.stream()
-                .collect(Collectors.toMap(
-                        lp1 -> lp1.getCommunity().getId(),
-                        lp2 -> lp2,
-                        (o, n) -> n,
-                        LinkedHashMap::new
-                ));
-
-        List<Long> latestPostIds = latestPosts.stream()
-                .map(lp -> lp.getId())
-                .collect(Collectors.toList());
-
-        List<PostMedia> postMedias = postMediaRepository.getPostMediasByLatestPostIds(latestPostIds);
-        Map<Long, String> postMediaUrlMap = postMedias.stream()
-                .collect(Collectors.toMap(
-                        pm1 -> pm1.getPost().getId(),
-                        pm2 -> pm2.getMediaURL(),
-                        (o, n) -> n,
-                        HashMap::new
-                ));
-
-        return JoinedCommunitiesDto.of(joinedCommunityMap, latestPostMap, postMediaUrlMap);
+    private void checkAlreadyExistsName(String name) {
+        communityRepository.findByCommunityNameEquals(name).ifPresent(c -> {
+            throw new AlreadyExistsCommunityNameException();
+        });
     }
 }

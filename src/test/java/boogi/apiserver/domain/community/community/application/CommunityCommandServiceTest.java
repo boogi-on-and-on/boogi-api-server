@@ -102,7 +102,7 @@ class CommunityCommandServiceTest {
             given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
             //when
-            communityCommandService.update(1L, "123", null);
+            communityCommandService.updateCommunity(1L, "123", null);
 
             //then
             then(communityHashtagRepository).should(times(0)).deleteAllInBatch();
@@ -134,7 +134,7 @@ class CommunityCommandServiceTest {
             newTags.add("테그B");
 
             //when
-            communityCommandService.update(1L, "1231232123", newTags);
+            communityCommandService.updateCommunity(1L, "1231232123", newTags);
 
             //then
             then(communityHashtagRepository).should(times(0)).deleteAllInBatch();
@@ -161,7 +161,7 @@ class CommunityCommandServiceTest {
             given(communityRepository.findByCommunityId(any())).willReturn(community);
 
             //when
-            communityCommandService.update(1L, "2143242343", null);
+            communityCommandService.updateCommunity(1L, "2143242343", null);
 
             //then
             then(communityHashtagRepository).should().deleteAllInBatch(any());
@@ -200,7 +200,7 @@ class CommunityCommandServiceTest {
             newTags.add("BB테그");
 
             //when
-            communityCommandService.update(1L, "2143242343", newTags);
+            communityCommandService.updateCommunity(1L, "2143242343", newTags);
 
             //then
             then(communityHashtagRepository).should().deleteAllInBatch(prevHashtags);

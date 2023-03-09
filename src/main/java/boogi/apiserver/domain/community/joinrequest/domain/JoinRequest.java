@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.community.joinrequest.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.joinrequest.exception.NotPendingJoinRequestException;
+import boogi.apiserver.domain.community.joinrequest.exception.UnmatchedJoinRequestCommunityException;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
@@ -60,18 +62,27 @@ public class JoinRequest extends TimeBaseEntity {
     }
 
     public void reject(Member manager) {
+        validateNotPending();
         this.acceptor = manager;
         this.status = JoinRequestStatus.REJECT;
     }
 
     public void confirm(Member manager, Member confirmedMember) {
+        validateNotPending();
         this.acceptor = manager;
         this.confirmedMember = confirmedMember;
         this.status = JoinRequestStatus.CONFIRM;
     }
 
-    public void confirm(Member confirmedMember) {
-        this.confirmedMember = confirmedMember;
-        this.status = JoinRequestStatus.CONFIRM;
+    public void validateJoinRequestCommunity(Long communityId) {
+        if (!communityId.equals(this.community.getId())) {
+            throw new UnmatchedJoinRequestCommunityException();
+        }
+    }
+
+    private void validateNotPending() {
+        if (!this.status.equals(JoinRequestStatus.PENDING)) {
+            throw new NotPendingJoinRequestException();
+        }
     }
 }

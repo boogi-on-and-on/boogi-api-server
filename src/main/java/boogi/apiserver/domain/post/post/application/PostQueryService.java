@@ -38,14 +38,6 @@ public class PostQueryService {
     private final MemberQueryService memberQueryService;
     private final LikeQueryService likeQueryService;
 
-    public Post findByPostId(Long postId) {
-        if (postId == null) {
-            throw new IllegalArgumentException("postId는 null일 수 없습니다.");
-        }
-        return postRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
-    }
-
     public PostDetailResponse getPostDetail(Long postId, Long userId) {
         Post findPost = postRepository.getPostWithUserAndMemberAndCommunityByPostId(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않거나, 해당 글이 작성된 커뮤니티가 존재하지 않습니다"));

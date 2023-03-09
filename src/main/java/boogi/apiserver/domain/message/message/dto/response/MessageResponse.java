@@ -35,7 +35,7 @@ public class MessageResponse {
                 .collect(Collectors.toList());
         Collections.reverse(messages);
 
-        return new MessageResponse(UserBasicProfileDto.of(user), messages, PaginationDto.of(messagePage));
+        return new MessageResponse(UserBasicProfileDto.from(user), messages, PaginationDto.of(messagePage));
     }
 
     @Getter

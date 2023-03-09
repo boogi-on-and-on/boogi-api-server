@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static boogi.apiserver.domain.like.domain.QLike.like;
 import static boogi.apiserver.domain.member.domain.QMember.member;
@@ -90,6 +88,9 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
 
     @Override
     public List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentIds, Long memberId) {
+        if (memberId == null) {
+            return new ArrayList<>();
+        }
         return queryFactory.selectFrom(like)
                 .where(
                         like.member.id.eq(memberId),
@@ -131,6 +132,9 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
 
     @Override
     public Map<Long, Long> getCommentLikeCountsByCommentIds(List<Long> commentIds) {
+        if (commentIds.size() == 0) {
+            return new HashMap<>();
+        }
         return queryFactory.select(like.count())
                 .from(like)
                 .where(

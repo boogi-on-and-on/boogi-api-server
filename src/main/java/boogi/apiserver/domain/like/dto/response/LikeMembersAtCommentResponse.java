@@ -30,7 +30,7 @@ public class LikeMembersAtCommentResponse {
 
         if (users != null && users.size() > 0) {
             builder.users(users.stream()
-                    .map(UserBasicProfileDto::of)
+                    .map(UserBasicProfileDto::from)
                     .collect(Collectors.toList()));
         }
         return builder.build();
