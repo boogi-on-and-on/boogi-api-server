@@ -58,6 +58,14 @@ public class Member extends TimeBaseEntity {
         return new Member(community, user, type);
     }
 
+    public boolean isManager() {
+        return this.memberType.hasManagerAuth();
+    }
+
+    public boolean isOperator() {
+        return this.memberType.hasSubManagerAuth();
+    }
+
     public void ban() {
         this.bannedAt = LocalDateTime.now();
     }

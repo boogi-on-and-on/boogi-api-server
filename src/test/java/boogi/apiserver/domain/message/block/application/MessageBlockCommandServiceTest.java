@@ -51,7 +51,7 @@ class MessageBlockCommandServiceTest {
 
         //expected
         assertThatThrownBy(() -> {
-            messageBlockCommandService.releaseUser(anyLong(), anyLong());
+            messageBlockCommandService.unblockUser(anyLong(), anyLong());
         })
                 .isInstanceOf(InvalidValueException.class)
                 .hasMessage("차단되지 않은 유저입니다.");
@@ -66,10 +66,10 @@ class MessageBlockCommandServiceTest {
                 .willReturn(block);
 
         //when
-        messageBlockCommandService.releaseUser(anyLong(), anyLong());
+        messageBlockCommandService.unblockUser(anyLong(), anyLong());
 
         //then
-        assertThat(block.getBlocked()).isFalse();
+        assertThat(block.isBlocked()).isFalse();
     }
 
     @Test

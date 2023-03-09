@@ -143,7 +143,7 @@ class MessageBlockRepositoryTest {
         MessageBlock b1 = messageBlockRepository.findById(block1.getId()).get();
         MessageBlock b2 = messageBlockRepository.findById(block2.getId()).get();
 
-        assertThat(b1.getBlocked()).isEqualTo(true);
-        assertThat(b2.getBlocked()).isEqualTo(true);
+        assertThat(b1.isBlocked()).isEqualTo(true);
+        assertThat(b2.isBlocked()).isEqualTo(true);
     }
 }

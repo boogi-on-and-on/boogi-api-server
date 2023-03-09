@@ -2,10 +2,9 @@ package boogi.apiserver.domain.message.block.application;
 
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.message.block.exception.NotBlockedUserException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,20 +17,16 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class MessageBlockCommandService {
-
     private final MessageBlockRepository messageBlockRepository;
     private final UserRepository userRepository;
 
-    private final UserQueryService userQueryService;
-
-    public void releaseUser(Long userId, Long blockedUserId) {
+    public void unblockUser(Long userId, Long blockedUserId) {
         MessageBlock messageBlock = messageBlockRepository.getMessageBlockByUserId(userId, blockedUserId);
 
-        if (!messageBlock.getBlocked()) {
-            throw new InvalidValueException("차단되지 않은 유저입니다.");
+        if (!messageBlock.isBlocked()) {
+            throw new NotBlockedUserException();
         }
-
-        messageBlock.release();
+        messageBlock.unblock();
     }
 
     public void blockUsers(Long userId, List<Long> blockUserIds) {
@@ -63,13 +58,7 @@ public class MessageBlockCommandService {
     }
 
     private void updatePreviousExistsMessageBlock(List<Long> blockUserIds, List<MessageBlock> blocks) {
-        blocks.forEach(MessageBlock::block);
-
-        List<Long> blockIds = blocks.stream()
-                .map(MessageBlock::getId)
-                .collect(Collectors.toList());
-
-        if (blockIds.size() == 0) {
+        if (blocks.size() == 0) {
             return;
         }
 

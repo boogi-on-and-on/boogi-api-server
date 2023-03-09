@@ -88,7 +88,7 @@ public class UserApiController {
 
     @PostMapping("/messages/unblock")
     public void releaseUser(@Session Long userId, @RequestBody BlockedUserIdRequest request) {
-        messageBlockCommandService.releaseUser(userId, request.getBlockerUserId());
+        messageBlockCommandService.unblockUser(userId, request.getBlockerUserId());
     }
 
     @PostMapping("/messages/block")
