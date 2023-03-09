@@ -42,15 +42,6 @@ public class LikeCommandService {
 
     private final LikeValidationService likeValidationService;
 
-    public List<Like> getPostLikes(Long postId) {
-        List<Like> findPostLikes = likeRepository.findPostLikesByPostId(postId);
-        if (findPostLikes.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-
-        return findPostLikes;
-    }
-
     public Like doLikeAtPost(Long postId, Long userId) {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 글이 존재하지 않습니다"));

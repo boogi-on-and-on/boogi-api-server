@@ -28,64 +28,14 @@ public class MessageCommandService {
     private final MessageBlockRepository messageBlockRepository;
     private final UserRepository userRepository;
 
-    public Message sendMessage(SendMessageRequest sendMessageRequest, Long senderId) {
+    public Long sendMessage(SendMessageRequest request, Long senderId) {
         User sender = userRepository.findByUserId(senderId);
-        User receiver = userRepository.findByUserId(sendMessageRequest.getReceiverId());
+        User receiver = userRepository.findByUserId(request.getReceiverId());
 
-        Boolean isBlockedMessage = messageBlockRepository.checkOnlyReceiverBlockedFromSender(senderId, receiver.getId());
+        boolean isBlockedMessage = messageBlockRepository.existsBlockedFromReceiver(senderId, receiver.getId());
 
-        Message sendedMessage = Message.of(sender, receiver, sendMessageRequest.getContent(), isBlockedMessage);
-
-        return messageRepository.save(sendedMessage);
-    }
-
-    public MessageRoomResponse getMessageRooms(Long userId) {
-        List<Long> blockedUserIds = messageBlockRepository.findMessageBlocksByUserId(userId).stream()
-                .map(mb -> mb.getBlockedUser().getId())
-                .collect(Collectors.toList());
-
-        // native SQL의 not in에 null 입력으로 인한 에러 처리
-        if (blockedUserIds.size() <= 0)
-            blockedUserIds.add(Long.valueOf(0l));
-
-        List<Message> messages = messageRepository.findMessageByUserIdWithoutBlockedUser(userId, blockedUserIds);
-
-        // 나와 상대방의 대화 중 가장 최근 대화 1개씩 추출 -> 순서유지를 위해 LinkedHashMap 사용
-        LinkedHashMap<Long, Message> dedupMessages = messages.stream()
-                .collect(Collectors.toMap(
-                        m1 -> {
-                            Long senderId = m1.getSender().getId();
-                            Long receiverId = m1.getReceiver().getId();
-                            return (senderId.equals(userId) ? receiverId : senderId);
-                        },
-                        m2 -> m2,
-                        (o, n) -> o,
-                        LinkedHashMap::new
-                ));
-        List<Long> opponentIds = dedupMessages.keySet().stream()
-                .collect(Collectors.toList());
-
-        Map<Long, User> opponentUserMap = userRepository.findUsersByIds(opponentIds).stream()
-                .collect(Collectors.toMap(
-                        u1 -> u1.getId(),
-                        u2 -> u2,
-                        (o, n) -> o,
-                        HashMap::new
-                ));
-
-        List<MessageRoomResponse.MessageRoom> messageRooms = opponentIds.stream()
-                .map(oid ->
-                        MessageRoomResponse.MessageRoom
-                                .of(opponentUserMap.get(oid), dedupMessages.get(oid)))
-                .collect(Collectors.toList());
-
-        return MessageRoomResponse.from(messageRooms);
-    }
-
-    public MessageResponse getMessagesByOpponentId(Long opponentId, Long userId, Pageable pageable) {
-        User opponentUser = userRepository.findByUserId(opponentId);
-        Slice<Message> messages = messageRepository.findMessagesByOpponentIdAndMyId(opponentId, userId, pageable);
-
-        return MessageResponse.of(opponentUser, messages, userId);
+        Message sendedMessage = Message.of(sender, receiver, request.getContent(), isBlockedMessage);
+        messageRepository.save(sendedMessage);
+        return sendedMessage.getId();
     }
 }

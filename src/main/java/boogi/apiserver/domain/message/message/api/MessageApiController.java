@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.message.message.api;
 
 import boogi.apiserver.domain.message.message.application.MessageCommandService;
+import boogi.apiserver.domain.message.message.application.MessageQueryService;
 import boogi.apiserver.domain.message.message.dto.request.SendMessageRequest;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
@@ -19,21 +20,22 @@ import org.springframework.web.bind.annotation.*;
 public class MessageApiController {
 
     private final MessageCommandService messageCommandService;
+    private final MessageQueryService messageQueryService;
 
     @PostMapping("/")
     public SimpleIdResponse sendMessage(@RequestBody @Validated SendMessageRequest request, @Session Long userId) {
-        Long sendedMessageId = messageCommandService.sendMessage(request, userId).getId();
+        Long sendedMessageId = messageCommandService.sendMessage(request, userId);
 
         return SimpleIdResponse.from(sendedMessageId);
     }
 
     @GetMapping("/")
     public MessageRoomResponse getMessageRooms(@Session Long userId) {
-        return messageCommandService.getMessageRooms(userId);
+        return messageQueryService.getMessageRooms(userId);
     }
 
     @GetMapping("/{opponentId}")
     public MessageResponse getMessages(@PathVariable Long opponentId, @Session Long userId, Pageable pageable) {
-        return messageCommandService.getMessagesByOpponentId(opponentId, userId, pageable);
+        return messageQueryService.getMessagesByOpponentId(opponentId, userId, pageable);
     }
 }

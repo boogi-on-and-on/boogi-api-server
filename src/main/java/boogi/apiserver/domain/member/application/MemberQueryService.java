@@ -26,17 +26,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberQueryService {
-
     private final MemberRepository memberRepository;
     private final CommunityRepository communityRepository;
 
-    public Member getJoinedMember(Long userId, Long communityId) {
+    public Member getMemberOfTheCommunity(Long userId, Long communityId) {
         return memberRepository.findByUserIdAndCommunityId(userId, communityId)
                 .orElseThrow(NotJoinedMemberException::new);
     }
 
     public Member getViewableMember(Long userId, Community community) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId()).orElse(new NullMember());
+        Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId())
+                .orElse(new NullMember());
 
         if (community.isPrivate() && !member.isJoined()) {
             throw new NotViewableMemberException();
@@ -45,11 +45,10 @@ public class MemberQueryService {
     }
 
     public List<UserJoinedCommunityDto> getJoinedMemberInfo(Long userId) {
-        return memberRepository.findByUserId(userId).stream().map(m -> UserJoinedCommunityDto.from(m.getCommunity())).collect(Collectors.toList());
-    }
-
-    public Member getMemberOfTheCommunity(Long userId, Long communityId) {
-        return memberRepository.findByUserIdAndCommunityId(userId, communityId).orElse(null);
+        return memberRepository.findByUserId(userId).stream()
+                .map(Member::getCommunity)
+                .map(UserJoinedCommunityDto::from)
+                .collect(Collectors.toList());
     }
 
     public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
@@ -74,12 +73,13 @@ public class MemberQueryService {
 
     public List<MemberDto> getJoinedMembersAll(Long communityId, Long userId) {
         communityRepository.findByCommunityId(communityId);
+        Member sessionMember = getMemberOfTheCommunity(userId, communityId);
 
-        Member findMember = memberRepository.findByUserIdAndCommunityId(userId, communityId).orElseThrow(NotJoinedMemberException::new);
+        List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);
+        findJoinedMembersAll.remove(sessionMember);
 
-        List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUserByCommunityId(communityId);
-        findJoinedMembersAll.remove(findMember);
-
-        return findJoinedMembersAll.stream().map(MemberDto::of).collect(Collectors.toList());
+        return findJoinedMembersAll.stream()
+                .map(MemberDto::of)
+                .collect(Collectors.toList());
     }
 }

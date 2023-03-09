@@ -179,7 +179,7 @@ class JoinRequestCommandServiceTest {
                     .community(community)
                     .build();
 
-            given(memberCommandService.joinMemberInBatch(any(), anyLong(), any()))
+            given(memberCommandService.joinMembers(any(), anyLong(), any()))
                     .willReturn(List.of(m1, m2));
 
             final Member manager = TestMember.builder().id(1L).build();

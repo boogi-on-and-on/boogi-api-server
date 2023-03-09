@@ -90,7 +90,7 @@ class MemberCommandServiceTest {
                 .willReturn(community);
 
         //when
-        List<Member> members = memberCommandService.joinMemberInBatch(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
+        List<Member> members = memberCommandService.joinMembers(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
 
         //then
         assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))

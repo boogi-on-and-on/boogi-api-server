@@ -12,9 +12,9 @@ public interface MessageBlockRepositoryCustom {
 
     List<MessageBlock> getMessageBlocksByUserIds(Long userId, List<Long> blockedUserIds);
 
-    void updateBulkBlockedStatus(List<Long> blockUserIds);
+    void updateBulkBlockedStatus(Long userId, List<Long> blockUserIds);
 
-    Boolean checkOnlyReceiverBlockedFromSender(Long senderId, Long receiverId);
+    boolean existsBlockedFromReceiver(Long senderId, Long receiverId);
 
     List<MessageBlock> findMessageBlocksByUserId(Long userId);
 }

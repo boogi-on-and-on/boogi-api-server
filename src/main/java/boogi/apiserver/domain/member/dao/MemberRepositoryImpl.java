@@ -95,7 +95,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Member> findJoinedMembersAllWithUserByCommunityId(Long communityId) {
+    public List<Member> findJoinedMembersAllWithUser(Long communityId) {
         return queryFactory.selectFrom(member)
                 .where(
                         member.community.id.eq(communityId),

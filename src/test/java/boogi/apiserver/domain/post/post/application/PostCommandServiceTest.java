@@ -4,16 +4,13 @@ import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.application.CommunityValidationService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.application.PostHashtagCommandService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
-import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberValidationService;
-import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
@@ -25,7 +22,6 @@ import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
-import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import org.junit.jupiter.api.DisplayName;
@@ -56,12 +52,6 @@ class PostCommandServiceTest {
     private PostRepository postRepository;
 
     @Mock
-    private MemberRepository memberRepository;
-
-    @Mock
-    private LikeRepository likeRepository;
-
-    @Mock
     private CommentRepository commentRepository;
 
     @Mock
@@ -70,11 +60,6 @@ class PostCommandServiceTest {
     @Mock
     private PostMediaRepository postMediaRepository;
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private CommunityValidationService communityValidationService;
 
     @Mock
     private MemberValidationService memberValidationService;
@@ -97,12 +82,8 @@ class PostCommandServiceTest {
     @Mock
     private CommunityQueryService communityQueryService;
 
-    @Mock
-    private SendPushNotification sendPushNotification;
-
-
     @Nested
-    @DisplayName("글 생성시")
+    @DisplayName("글 생성 테스트")
     class CreatePostTest {
 
         @Test

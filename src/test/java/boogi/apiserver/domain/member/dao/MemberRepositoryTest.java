@@ -282,7 +282,7 @@ class MemberRepositoryTest {
 
         persistenceUtil.cleanPersistenceContext();
 
-        List<Member> joinedMembers = memberRepository.findJoinedMembersAllWithUserByCommunityId(community.getId());
+        List<Member> joinedMembers = memberRepository.findJoinedMembersAllWithUser(community.getId());
 
         assertThat(joinedMembers.size()).isEqualTo(1);
 

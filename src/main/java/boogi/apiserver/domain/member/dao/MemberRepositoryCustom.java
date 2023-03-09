@@ -19,7 +19,7 @@ public interface MemberRepositoryCustom {
 
     Slice<Member> findJoinedMembers(Pageable pageable, Long communityId);
 
-    List<Member> findJoinedMembersAllWithUserByCommunityId(Long communityId);
+    List<Member> findJoinedMembersAllWithUser(Long communityId);
 
     Optional<Member> findAnyMemberExceptManager(Long communityId);
 

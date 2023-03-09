@@ -105,7 +105,7 @@ public class JoinRequestCommandService {
                 .map(r -> r.getUser().getId())
                 .collect(Collectors.toList());
 
-        List<Member> members = memberCommandService.joinMemberInBatch(userIds, communityId, MemberType.NORMAL);
+        List<Member> members = memberCommandService.joinMembers(userIds, communityId, MemberType.NORMAL);
         Map<Long, Member> memberMap = members.stream()
                 .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 

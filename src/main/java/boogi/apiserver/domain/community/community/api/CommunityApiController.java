@@ -200,9 +200,7 @@ public class CommunityApiController {
                                @PathVariable Long communityId,
                                @Validated @RequestBody DelegateMemberRequest request
     ) {
-        memberValidationService.hasAuth(userId, communityId, MemberType.MANAGER);
-
-        memberCommandService.delegeteMember(request.getMemberId(), request.getType());
+        memberCommandService.delegeteMember(userId, request.getMemberId(), request.getType());
     }
 
     @GetMapping("/{communityId}/requests")

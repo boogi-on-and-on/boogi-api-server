@@ -55,22 +55,28 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
     }
 
     @Override
-    public void updateBulkBlockedStatus(List<Long> blockUserIds) {
+    public void updateBulkBlockedStatus(Long userId, List<Long> blockUserIds) {
+        if (blockUserIds.size() == 0) {
+            return;
+        }
+
         queryFactory.update(messageBlock)
                 .set(messageBlock.blocked, true)
-                .where(messageBlock.blockedUser.id.in(blockUserIds))
+                .where(messageBlock.user.id.eq(userId),
+                        messageBlock.blockedUser.id.in(blockUserIds))
                 .execute();
     }
 
     @Override
-    public Boolean checkOnlyReceiverBlockedFromSender(Long senderId, Long receiverId) {
+    public boolean existsBlockedFromReceiver(Long senderId, Long receiverId) {
         MessageBlock findMessageBlock = queryFactory.selectFrom(messageBlock)
                 .where(
                         messageBlock.user.id.eq(senderId),
                         messageBlock.blockedUser.id.eq(receiverId),
                         messageBlock.blocked.isTrue()
                 ).fetchFirst();
-        return (findMessageBlock == null) ? Boolean.FALSE : Boolean.TRUE;
+
+        return findMessageBlock != null;
     }
 
     @Override

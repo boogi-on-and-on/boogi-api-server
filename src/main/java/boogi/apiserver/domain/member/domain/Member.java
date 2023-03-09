@@ -1,12 +1,14 @@
 package boogi.apiserver.domain.member.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.member.exception.NotBannedMemberException;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -67,10 +69,15 @@ public class Member extends TimeBaseEntity {
     }
 
     public void ban() {
-        this.bannedAt = LocalDateTime.now();
+        if (this.getBannedAt() == null) {
+            this.bannedAt = LocalDateTime.now();
+        }
     }
 
     public void release() {
+        if (this.getBannedAt() == null) {
+            throw new NotBannedMemberException();
+        }
         this.bannedAt = null;
     }
 

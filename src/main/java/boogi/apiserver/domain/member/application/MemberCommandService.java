@@ -1,21 +1,20 @@
 package boogi.apiserver.domain.member.application;
 
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
+import boogi.apiserver.domain.member.exception.NotManagerException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,58 +24,69 @@ public class MemberCommandService {
     private final UserRepository userRepository;
     private final CommunityRepository communityRepository;
 
-    private final MemberValidationService memberValidationService;
+    private final MemberQueryService memberQueryService;
 
     public Member joinMember(Long userId, Long communityId, MemberType type) {
         User user = userRepository.findByUserId(userId);
         Community community = communityRepository.findByCommunityId(communityId);
 
-        memberValidationService.checkAlreadyJoinedMember(userId, communityId);
+        checkAlreadyJoinedMember(userId, communityId);
 
-        Member member = Member.of(community, user, type);
-        memberRepository.save(member);
-
-        return member;
+        Member newMember = Member.of(community, user, type);
+        memberRepository.save(newMember);
+        return newMember;
     }
 
-    public List<Member> joinMemberInBatch(List<Long> userIds, Long communityId, MemberType type) {
-        memberValidationService.checkAlreadyJoinedMemberInBatch(userIds, communityId);
+    public List<Member> joinMembers(List<Long> userIds, Long communityId, MemberType type) {
+        checkAlreadyJoinedMembers(userIds, communityId);
 
         List<User> users = userRepository.findUsersByIds(userIds);
         Community community = communityRepository.findByCommunityId(communityId);
 
-        List<Member> members = new ArrayList<>();
-        users.forEach(user -> {
-            Member member = Member.of(community, user, type);
-            members.add(member);
-        });
-        memberRepository.saveAll(members);
-        return members;
+        List<Member> newMembers = users.stream()
+                .map(user -> Member.of(community, user, type))
+                .collect(Collectors.toList());
+        memberRepository.saveAll(newMembers);
+        return newMembers;
     }
 
     public void banMember(Long memberId) {
         Member member = memberRepository.findByMemberId(memberId);
-
-        if (Objects.nonNull(member.getBannedAt())) {
-            throw new InvalidValueException("이미 차단된 멤버입니다.");
-        }
-
         member.ban();
     }
 
     public void releaseMember(Long memberId) {
         Member member = memberRepository.findByMemberId(memberId);
-
-        if (Objects.isNull(member.getBannedAt())) {
-            throw new InvalidValueException("차단되지 않은 멤버입니다.");
-        }
-
         member.release();
     }
 
-    public void delegeteMember(Long memberId, MemberType type) {
+    public void delegeteMember(Long userId, Long memberId, MemberType type) {
         Member member = memberRepository.findByMemberId(memberId);
 
+        Member sessionMember = memberQueryService.getMemberOfTheCommunity(userId, member.getCommunity().getId());
+        if (!sessionMember.isManager()) {
+            throw new NotManagerException();
+        }
+
+        if(type.equals(MemberType.MANAGER)) {
+            sessionMember.delegate(MemberType.NORMAL);
+        }
         member.delegate(type);
+    }
+
+    private void checkAlreadyJoinedMember(Long userId, Long communityId) {
+        memberRepository.findByUserIdAndCommunityId(userId, communityId).ifPresent(m -> {
+            throw new AlreadyJoinedMemberException();
+        });
+    }
+
+    private void checkAlreadyJoinedMembers(List<Long> userIds, Long communityId) {
+        List<Member> joinedMembers = memberRepository.findAlreadyJoinedMemberByUserId(userIds, communityId);
+
+        boolean hasJoinedMember = joinedMembers.stream()
+                .anyMatch(m -> userIds.contains(m.getUser().getId()));
+        if (hasJoinedMember) {
+            throw new AlreadyJoinedMemberException();
+        }
     }
 }

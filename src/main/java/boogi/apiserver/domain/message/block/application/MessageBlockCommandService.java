@@ -34,7 +34,7 @@ public class MessageBlockCommandService {
         List<MessageBlock> blocks = messageBlockRepository.getMessageBlocksByUserIds(userId, blockUserIds);
 
         //차단당한 유저, 차단하는 유저 쌍 페어가 이미 있으면 업데이트
-        updatePreviousExistsMessageBlock(blockUserIds, blocks);
+        messageBlockRepository.updateBulkBlockedStatus(userId, blockUserIds);
 
         //로우 페어가 없으면 생성
         insertMessageBlock(blockUserIds, user, blocks);
@@ -43,26 +43,16 @@ public class MessageBlockCommandService {
     private void insertMessageBlock(List<Long> blockUserIds, User user, List<MessageBlock> messageBlocks) {
         Map<Long, MessageBlock> messageBlockMap = messageBlocks.stream()
                 .collect(Collectors.toMap(m -> m.getBlockedUser().getId(), m -> m));
+
         List<Long> newMessageBlockUserIds = blockUserIds.stream()
                 .filter(uId -> !messageBlockMap.containsKey(uId))
                 .collect(Collectors.toList());
 
-        if (newMessageBlockUserIds.size() == 0) {
-            return;
-        }
-
         List<MessageBlock> newBlocks = userRepository.findUsersByIds(newMessageBlockUserIds).stream()
                 .map(blockUser -> MessageBlock.of(user, blockUser))
                 .collect(Collectors.toList());
+        
         messageBlockRepository.saveAll(newBlocks);
-    }
-
-    private void updatePreviousExistsMessageBlock(List<Long> blockUserIds, List<MessageBlock> blocks) {
-        if (blocks.size() == 0) {
-            return;
-        }
-
-        messageBlockRepository.updateBulkBlockedStatus(blockUserIds);
     }
 }
 

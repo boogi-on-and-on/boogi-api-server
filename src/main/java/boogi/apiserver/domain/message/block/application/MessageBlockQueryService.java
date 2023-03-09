@@ -18,5 +18,4 @@ public class MessageBlockQueryService {
     public List<MessageBlockedUserDto> getBlockedMembers(Long userId) {
         return messageBlockRepository.getBlockedUsers(userId);
     }
-
 }

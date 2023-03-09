@@ -19,7 +19,7 @@ public class MessageRepositoryImpl implements MessageRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Message> findMessagesByOpponentIdAndMyId(Long opponentId, Long myId, Pageable pageable) {
+    public Slice<Message> findMessages(Long opponentId, Long myId, Pageable pageable) {
         List<Message> messages = queryFactory.selectFrom(message)
                 .where(
                         message.sender.id.eq(opponentId).and(message.receiver.id.eq(myId))

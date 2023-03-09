@@ -22,22 +22,6 @@ public class MemberValidationService {
 
     private final MemberRepository memberRepository;
 
-    public void checkAlreadyJoinedMember(Long userId, Long communityId) {
-        memberRepository.findByUserIdAndCommunityId(userId, communityId).ifPresent(m -> {
-            throw new AlreadyJoinedMemberException();
-        });
-    }
-
-    public void checkAlreadyJoinedMemberInBatch(List<Long> userIds, Long communityId) {
-        List<Member> joinedMembers = memberRepository.findAlreadyJoinedMemberByUserId(userIds, communityId);
-
-        boolean existenceOfJoinedMember = joinedMembers.stream()
-                .anyMatch(m -> userIds.contains(m.getUser().getId()));
-        if (existenceOfJoinedMember) {
-            throw new InvalidValueException("이미 가입한 멤버가 있습니다.");
-        }
-    }
-
     public void checkMemberJoinedCommunity(Long userId, Long communityId) {
         memberRepository.findByUserIdAndCommunityId(userId, communityId)
                 .orElseThrow(NotJoinedMemberException::new);

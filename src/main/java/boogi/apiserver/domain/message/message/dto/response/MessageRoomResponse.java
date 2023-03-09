@@ -9,7 +9,10 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -21,8 +24,14 @@ public class MessageRoomResponse {
         this.messageRooms = messageRooms;
     }
 
-    public static MessageRoomResponse from(List<MessageRoom> messageRooms) {
-        return new MessageRoomResponse(messageRooms);
+    public static MessageRoomResponse of(List<Long> opponentIds,
+                                         Map<Long, User> opponentUserMap,
+                                         LinkedHashMap<Long, Message> dedupMessages) {
+        List<MessageRoom> rooms = opponentIds.stream()
+                .map(oid -> MessageRoom.of(opponentUserMap.get(oid), dedupMessages.get(oid)))
+                .collect(Collectors.toList());
+
+        return new MessageRoomResponse(rooms);
     }
 
     @Getter
