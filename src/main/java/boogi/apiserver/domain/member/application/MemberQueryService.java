@@ -4,13 +4,12 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
-import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
-import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,18 +65,8 @@ public class MemberQueryService {
                 .collect(Collectors.toList());
     }
 
-    //todo: Api 리펙토링할 때 수정하기
-    public Boolean hasAuth(Long userId, Long communityId, MemberType memberType) {
-        Member member = this.getMember(userId, communityId);
-        if (Objects.isNull(member)) {
-            return false;
-        }
-        return member.getMemberType().equals(memberType);
-    }
-
-    public JoinedMembersPageResponse getCommunityJoinedMembers(Pageable pageable, Long communityId) {
-        Slice<Member> joinedMembers = memberRepository.findJoinedMembers(pageable, communityId);
-        return JoinedMembersPageResponse.from(joinedMembers);
+    public Slice<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
+        return memberRepository.findJoinedMembers(pageable, communityId);
     }
 
     public List<BannedMemberDto> getBannedMembers(Long userId, Long communityId) {
@@ -90,13 +78,13 @@ public class MemberQueryService {
         return memberRepository.findMentionMember(pageable, communityId, name);
     }
 
-    public JoinedMembersResponse getJoinedMembersAll(Long communityId, Long userId) {
+    public List<Member> getJoinedMembersAll(Long communityId, Long userId) {
         communityRepository.findByCommunityId(communityId);
         Member sessionMember = getMember(userId, communityId);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);
         findJoinedMembersAll.remove(sessionMember);
 
-        return JoinedMembersResponse.from(findJoinedMembersAll);
+        return findJoinedMembersAll;
     }
 }

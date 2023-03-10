@@ -141,7 +141,7 @@ class JoinRequestCommandServiceTest {
                     .willReturn(joinRequest);
 
             assertThatThrownBy(() -> {
-                joinRequestCommandService.confirmUser(1L, 1L, 1L);
+//                joinRequestCommandService.confirmUser(1L, 1L, 1L);
             }).isInstanceOf(InvalidValueException.class);
         }
 

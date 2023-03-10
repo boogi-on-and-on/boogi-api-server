@@ -4,15 +4,15 @@ import boogi.apiserver.domain.community.community.application.CommunityCommandSe
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
+import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.community.dto.request.*;
 import boogi.apiserver.domain.community.community.dto.response.*;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberValidationService;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
-import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -22,6 +22,7 @@ import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -93,12 +94,15 @@ public class CommunityApiController {
     public CommunityPostsResponse getPostsOfCommunity(@PathVariable Long communityId,
                                                       @Session Long userId,
                                                       Pageable pageable) {
+
         return postQueryService.getPostsOfCommunity(pageable, communityId, userId);
+
     }
 
     @GetMapping("/{communityId}/members")
     public JoinedMembersPageResponse getCommunityJoinedMembers(@PathVariable Long communityId, Pageable pageable) {
-        return memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+        Slice<Member> joinedMembers = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+        return JoinedMembersPageResponse.from(joinedMembers);
     }
 
     @GetMapping("/{communityId}/members/banned")
@@ -147,11 +151,13 @@ public class CommunityApiController {
     @GetMapping("/search")
     public CommunityQueryResponse searchCommunities(@ModelAttribute @Validated CommunityQueryRequest request,
                                                     Pageable pageable) {
-        return communityQueryService.getSearchedCommunities(pageable, request);
+        Slice<SearchCommunityDto> communities = communityQueryService.getSearchedCommunities(pageable, request);
+        return CommunityQueryResponse.from(communities);
     }
 
     @GetMapping("{communityId}/members/all")
     public JoinedMembersResponse getMembersAll(@PathVariable Long communityId, @Session Long userId) {
-        return memberQueryService.getJoinedMembersAll(communityId, userId);
+        List<Member> joinedMembersAll = memberQueryService.getJoinedMembersAll(communityId, userId);
+        return JoinedMembersResponse.from(joinedMembersAll);
     }
 }

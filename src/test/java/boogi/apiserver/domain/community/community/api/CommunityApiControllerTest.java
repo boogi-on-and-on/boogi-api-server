@@ -21,7 +21,6 @@ import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberCommandService;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
@@ -84,9 +83,6 @@ class CommunityApiControllerTest {
     MemberCommandService memberCommandService;
 
     @MockBean
-    MemberValidationService memberValidationService;
-
-    @MockBean
     CommunityQueryService communityQueryService;
 
     @MockBean
@@ -140,7 +136,7 @@ class CommunityApiControllerTest {
 
             final Community community = TestCommunity.builder().id(1L).build();
 
-            given(communityCommandService.createCommunity(any(), any(), anyLong())).willReturn(community);
+            given(communityCommandService.createCommunity(any(), anyLong())).willReturn(community.getId());
 
 
             MockHttpSession session = new MockHttpSession();
@@ -168,7 +164,7 @@ class CommunityApiControllerTest {
             List<String> hashtags = List.of("해시테그1", "해시테그1");
             CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB", "A".repeat(10), hashtags, false, true);
 
-            given(communityCommandService.createCommunity(any(), any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
+            given(communityCommandService.createCommunity(any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/communities")
@@ -216,7 +212,7 @@ class CommunityApiControllerTest {
 
         final LatestCommunityPostDto postDto = new LatestCommunityPostDto(4L, "글", LocalDateTime.now());
 
-        given(postQueryService.getLatestPostOfCommunity(anyLong()))
+        given(postQueryService.getLatestPostOfCommunity(any(), any()))
                 .willReturn(List.of(postDto));
 
         MockHttpSession session = new MockHttpSession();
@@ -254,7 +250,7 @@ class CommunityApiControllerTest {
 
         CommunityMetadataDto dto = new CommunityMetadataDto("이름", "소개", List.of("테그"));
 
-        given(communityQueryService.getCommunityMetadata(anyLong()))
+        given(communityQueryService.getCommunityMetadata(anyLong(), anyLong()))
                 .willReturn(dto);
 
         mvc.perform(
@@ -378,7 +374,7 @@ class CommunityApiControllerTest {
 
             CommunitySettingInfoDto settingInfo = CommunitySettingInfoDto.of(community);
 
-            given(communityQueryService.getSetting(anyLong())).willReturn(settingInfo);
+            given(communityQueryService.getSetting(anyLong(), anyLong())).willReturn(settingInfo);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -493,8 +489,8 @@ class CommunityApiControllerTest {
 
 
             PageImpl<Post> page = new PageImpl(List.of(post), Pageable.ofSize(1), 1);
-            given(postQueryService.getPostsOfCommunity(any(), anyLong()))
-                    .willReturn(page);
+            given(postQueryService.getPostsOfCommunity(any(), anyLong(), anyLong()))
+                    .willReturn(null);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -580,7 +576,7 @@ class CommunityApiControllerTest {
             UserBasicProfileDto user = new UserBasicProfileDto(2L, null, "#0001", "홍길동");
             BannedMemberDto dto = new BannedMemberDto(1L, user);
 
-            given(memberQueryService.getBannedMembers(anyLong()))
+            given(memberQueryService.getBannedMembers(anyLong(), anyLong()))
                     .willReturn(List.of(dto));
 
             MockHttpSession session = new MockHttpSession();
@@ -617,7 +613,7 @@ class CommunityApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        DelegateMemberRequest request = new DelegateMemberRequest(1L, MemberType.MANAGER);
+        DelegateMemberRequest request = new DelegateMemberRequest(MemberType.MANAGER);
 
         mvc.perform(
                 MockMvcRequestBuilders.post("/api/communities/1/members/delegate")
@@ -634,9 +630,6 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("가입요청 조회 권한이 없는 경우")
         void unauthorized() throws Exception {
-
-            given(memberValidationService.hasAuth(anyLong(), anyLong(), any()))
-                    .willThrow(new NotAuthorizedMemberException());
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -659,7 +652,7 @@ class CommunityApiControllerTest {
                     .tagNumber("#0001")
                     .build();
 
-            given(joinRequestQueryService.getAllRequests(anyLong()))
+            given(joinRequestQueryService.getAllRequests(anyLong(), anyLong()))
                     .willReturn(List.of(
                             UserJoinRequestInfoDto.of(user, 2L)
                     ));
@@ -764,8 +757,8 @@ class CommunityApiControllerTest {
 
         UserBasicProfileDto userDto = new UserBasicProfileDto(2L, null, null, null);
         final MemberDto dto = new MemberDto(2L, MemberType.NORMAL, userDto);
-        given(memberQueryService.getJoinedMembersAll(anyLong(), anyLong()))
-                .willReturn(List.of(dto));
+//        given(memberQueryService.getJoinedMembersAll(anyLong(), anyLong()))
+//                .willReturn((List<Member>) List.of(dto));
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);

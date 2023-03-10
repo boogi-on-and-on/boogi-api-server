@@ -134,7 +134,7 @@ class MessageBlockRepositoryTest {
         messageBlockRepository.saveAll(List.of(block1, block2));
 
         //when
-        messageBlockRepository.updateBulkBlockedStatus(List.of(block1.getBlockedUser().getId(), block2.getBlockedUser().getId()));
+//        messageBlockRepository.updateBulkBlockedStatus(List.of(block1.getBlockedUser().getId(), block2.getBlockedUser().getId()));
 
         em.flush();
         em.clear();

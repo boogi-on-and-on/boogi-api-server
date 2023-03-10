@@ -44,7 +44,8 @@ public class ReportCommandService {
                 targetObject,
                 reportUser,
                 request.getContent(),
-                request.getReason());
+                request.getReason()
+        );
 
         reportRepository.save(newReport);
     }

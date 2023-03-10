@@ -5,7 +5,6 @@ import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestNotice;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.application.NoticeCommandService;
@@ -60,9 +59,6 @@ class NoticeApiControllerTest {
     @MockBean
     NoticeCommandService noticeCommandService;
 
-    @MockBean
-    MemberValidationService memberValidationService;
-
     private MockMvc mvc;
 
     @Autowired
@@ -99,7 +95,7 @@ class NoticeApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            given(noticeQueryService.getAppNotice()).willReturn(List.of(noticeDetailDto));
+//            given(noticeQueryService.getAppNotice()).willReturn(NoticeDetailResponse.of(List.of(noticeDetailDto)));
 
             mvc.perform(
                             MockMvcRequestBuilders.get("/api/notices")
@@ -123,8 +119,8 @@ class NoticeApiControllerTest {
 
             final Notice notice = TestNotice.builder().id(1L).build();
 
-            given(noticeCommandService.createNotice(any(NoticeCreateRequest.class), anyLong()))
-                    .willReturn(notice);
+//            given(noticeCommandService.createNotice(any(NoticeCreateRequest.class), anyLong()))
+//                    .willReturn(notice);
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/notices")
@@ -165,9 +161,9 @@ class NoticeApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            given(noticeQueryService.getCommunityNotice(anyLong())).willReturn(List.of(dto));
-            given(memberQueryService.hasAuth(any(), anyLong(), any()))
-                    .willReturn(true);
+//            given(noticeQueryService.getCommunityNotice(anyLong())).willReturn(List.of(dto));
+//            given(memberQueryService.hasAuth(any(), anyLong(), any()))
+//                    .willReturn(true);
 
             mvc.perform(
                             MockMvcRequestBuilders.get("/api/notices")

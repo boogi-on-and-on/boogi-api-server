@@ -71,9 +71,8 @@ public class CommunityQueryService {
         return CommunityMetadataDto.of(community);
     }
 
-    public CommunityQueryResponse getSearchedCommunities(Pageable pageable, CommunityQueryRequest request) {
-        Slice<SearchCommunityDto> communities = communityRepository.getSearchedCommunities(pageable, request);
-        return CommunityQueryResponse.from(communities);
+    public Slice<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest request) {
+        return communityRepository.getSearchedCommunities(pageable, request);
     }
 
     public CommunitySettingInfoDto getSetting(Long userId, Long communityId) {

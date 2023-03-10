@@ -6,7 +6,6 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.message.message.dao.MessageRepository;
 import boogi.apiserver.domain.message.message.domain.Message;
@@ -66,9 +65,6 @@ class ReportCommandServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private MemberValidationService memberValidationService;
 
 
     @Nested
@@ -134,7 +130,6 @@ class ReportCommandServiceTest {
             given(commentRepository.findCommentById(anyLong()))
                     .willReturn(Optional.of(comment));
 
-            doThrow(NotJoinedMemberException.class).when(memberValidationService).checkMemberJoinedCommunity(anyLong(), anyLong());
 
             CreateReportRequest createCommentReport = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
             CreateReportRequest createPostReport = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");

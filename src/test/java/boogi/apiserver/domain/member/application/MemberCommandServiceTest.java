@@ -43,9 +43,6 @@ class MemberCommandServiceTest {
     UserRepository userRepository;
 
     @Mock
-    MemberValidationService memberValidationService;
-
-    @Mock
     UserQueryService userQueryService;
 
 
@@ -117,7 +114,7 @@ class MemberCommandServiceTest {
                     .willReturn(member);
 
             assertThatThrownBy(() -> {
-                memberCommandService.banMember(member.getId());
+                memberCommandService.banMember(2L, member.getId());
             })
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessage("이미 차단된 멤버입니다.");
@@ -138,7 +135,7 @@ class MemberCommandServiceTest {
             //then
             assertThatThrownBy(() -> {
                 //when
-                memberCommandService.releaseMember(member.getId());
+                memberCommandService.releaseMember(2L, member.getId());
             }).isInstanceOf(InvalidValueException.class);
         }
     }

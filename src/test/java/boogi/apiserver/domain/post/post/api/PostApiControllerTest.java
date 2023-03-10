@@ -2,11 +2,13 @@ package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.application.CommentCommandService;
+import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
+import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.member.domain.Member;
@@ -81,7 +83,13 @@ class PostApiControllerTest {
     LikeCommandService likeCommandService;
 
     @MockBean
+    LikeQueryService likeQueryService;
+
+    @MockBean
     CommentCommandService commentCommandService;
+
+    @MockBean
+    CommentQueryService commentQueryService;
 
     private MockMvc mvc;
 
@@ -114,7 +122,7 @@ class PostApiControllerTest {
         final Post post = TestPost.builder().id(2L).build();
 
         given(postCommandService.createPost(any(CreatePostRequest.class), anyLong()))
-                .willReturn(post);
+                .willReturn(post.getId());
 
         MockHttpSession session = createUserSession(3L);
 
@@ -218,7 +226,7 @@ class PostApiControllerTest {
         final Post post = TestPost.builder().id(1L).build();
 
         given(postCommandService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
-                .willReturn(post);
+                .willReturn(post.getId());
 
         MockHttpSession session = createUserSession(2L);
 
@@ -279,7 +287,7 @@ class PostApiControllerTest {
     void testDoLikeAtPost() throws Exception {
         final Like like = TestLike.builder().id(2L).build();
         given(likeCommandService.doPostLike(anyLong(), anyLong()))
-                .willReturn(like);
+                .willReturn(like.getId());
 
         MockHttpSession session = createUserSession(3L);
 
@@ -307,7 +315,7 @@ class PostApiControllerTest {
         Slice<User> page = PageableUtil.getSlice(users, pageable);
 
         LikeMembersAtPostResponse likeMembers = LikeMembersAtPostResponse.of(users, page);
-        given(likeCommandService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
+        given(likeQueryService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(likeMembers);
 
         MockHttpSession session = createUserSession(3L);
@@ -356,8 +364,8 @@ class PostApiControllerTest {
         Pageable pageable = PageRequest.of(0, 1);
         Slice<Comment> slice = PageableUtil.getSlice(List.of(parentComment), pageable);
 
-        CommentsAtPostResponse commentsAtPostResponse = CommentsAtPostResponse.of(parentCommentInfos, slice);
-        given(commentCommandService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
+        CommentsAtPostResponse commentsAtPostResponse = new CommentsAtPostResponse(parentCommentInfos, PaginationDto.of(slice));
+        given(commentQueryService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(commentsAtPostResponse);
 
         MockHttpSession session = createUserSession(5L);

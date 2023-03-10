@@ -67,13 +67,7 @@ public class Report extends TimeBaseEntity {
 
     private Report(Post post, Community community, Comment comment, Message message, User user, String content,
                    ReportReason reason) {
-        this.post = post;
-        this.community = community;
-        this.comment = comment;
-        this.message = message;
-        this.user = user;
-        this.content = new ReportContent(content);
-        this.reason = reason;
+        this(null, post, community, comment, message, user, content, reason);
     }
 
     public static Report of(Object targetObject, User user, String content, ReportReason reason) {
