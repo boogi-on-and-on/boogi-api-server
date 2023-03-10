@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
@@ -45,32 +46,35 @@ public class CommunityCommandService {
         return community.getId();
     }
 
-    public void updateCommunity(Long communityId, String description, List<String> newTags) {
+    public void updateCommunity(Long userId, Long communityId, String description, List<String> newTags) {
         Community community = communityRepository.findByCommunityId(communityId);
+        memberQueryService.getManager(userId, communityId);
 
         community.updateCommunity(description, newTags);
     }
 
-    public void shutdown(Long communityId) {
+    public void shutdown(Long userId, Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
+        memberQueryService.getManager(userId, communityId);
 
         validateManagerOnlyIncluded(communityId);
 
         community.shutdown();
     }
 
-    public void changeScope(Long userId, Long communityId, Boolean isSecret) {
+    public void changeSetting(Long userId, Long communityId, CommunitySettingRequest request) {
         Member member = memberQueryService.getMember(userId, communityId);
-
         Community community = communityRepository.findByCommunityId(communityId);
-        community.switchPrivate(isSecret, member.getMemberType());
-    }
 
-    public void changeApproval(Long userId, Long communityId, Boolean isAuto) {
-        Member member = memberQueryService.getMember(userId, communityId);
-
-        Community community = communityRepository.findByCommunityId(communityId);
-        community.switchAutoApproval(isAuto, member.getMemberType());
+        Boolean isAuto = request.getIsAutoApproval();
+        Boolean isSecret = request.getIsSecret();
+        MemberType memberType = member.getMemberType();
+        if (isAuto != null) {
+            community.switchAutoApproval(isAuto, memberType);
+        }
+        if (isSecret != null) {
+            community.switchPrivate(isSecret, memberType);
+        }
     }
 
     private void validateManagerOnlyIncluded(Long communityId) {

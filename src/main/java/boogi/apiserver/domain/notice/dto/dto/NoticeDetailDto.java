@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class NoticeDetailDto extends NoticeDto {
@@ -25,5 +27,11 @@ public class NoticeDetailDto extends NoticeDto {
                 .createdAt(notice.getCreatedAt())
                 .content(notice.getContent())
                 .build();
+    }
+
+    public static List<NoticeDetailDto> dtoListFrom(List<Notice> notices) {
+        return notices.stream()
+                .map(NoticeDetailDto::from)
+                .collect(Collectors.toList());
     }
 }

@@ -3,7 +3,6 @@ package boogi.apiserver.domain.user.controller;
 import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
-import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
@@ -66,7 +65,8 @@ public class UserApiController {
     }
 
     @GetMapping
-    public UserProfileDetailResponse getUserProfileInfo(@RequestParam(required = false) Long userId, @Session Long sessionUserId) {
+    public UserProfileDetailResponse getUserProfileInfo(@RequestParam(required = false) Long userId,
+                                                        @Session Long sessionUserId) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
         UserDetailInfoDto userDetailDto = userQueryService.getUserDetailInfo(id);
 
@@ -87,7 +87,7 @@ public class UserApiController {
 
     @PostMapping("/messages/unblock")
     public void releaseUser(@Session Long userId, @RequestBody BlockedUserIdRequest request) {
-        messageBlockCommandService.unblockUser(userId, request.getBlockerUserId());
+        messageBlockCommandService.unblockUser(userId, request.getBlockedUserId());
     }
 
     @PostMapping("/messages/block")
@@ -103,7 +103,8 @@ public class UserApiController {
     }
 
     @PostMapping("/config/notifications")
-    public AlarmConfigSettingInfoResponse configureAlarm(@Session Long userId, @RequestBody @Validated AlarmConfigSettingRequest request) {
+    public AlarmConfigSettingInfoResponse configureAlarm(@Session Long userId,
+                                                         @RequestBody @Validated AlarmConfigSettingRequest request) {
         AlarmConfig alarmConfig = alarmConfigCommandService.configureAlarm(userId, request);
 
         return AlarmConfigSettingInfoResponse.from(alarmConfig);

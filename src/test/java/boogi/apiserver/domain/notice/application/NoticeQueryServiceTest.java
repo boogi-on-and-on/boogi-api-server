@@ -45,7 +45,7 @@ class NoticeQueryServiceTest {
                     .build();
             TestTimeReflection.setCreatedAt(notice, LocalDateTime.now());
 
-            given(noticeRepository.getLatestNotice())
+            given(noticeRepository.getLatestAppNotice())
                     .willReturn(List.of(notice));
 
             //when

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class LatestCommunityPostDto {
@@ -23,5 +25,11 @@ public class LatestCommunityPostDto {
 
     public static LatestCommunityPostDto of(Post post) {
         return new LatestCommunityPostDto(post.getId(), post.getContent(), post.getCreatedAt());
+    }
+
+    public static List<LatestCommunityPostDto> listOf(List<Post> posts) {
+        return posts.stream()
+                .map(LatestCommunityPostDto::of)
+                .collect(Collectors.toList());
     }
 }

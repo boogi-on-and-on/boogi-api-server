@@ -7,15 +7,15 @@ import java.util.List;
 
 
 @Getter
-public class LatestNoticeResponse {
+public class LatestAppNoticeResponse {
 
     private List<NoticeDto> notices;
 
-    public LatestNoticeResponse(List<NoticeDto> notices) {
+    public LatestAppNoticeResponse(List<NoticeDto> notices) {
         this.notices = notices;
     }
 
-    public static LatestNoticeResponse from(List<NoticeDto> notices) {
-        return new LatestNoticeResponse(notices);
+    public static LatestAppNoticeResponse from(List<NoticeDto> notices) {
+        return new LatestAppNoticeResponse(notices);
     }
 }

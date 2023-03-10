@@ -6,7 +6,6 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
-import boogi.apiserver.domain.member.exception.NotManagerException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -50,28 +49,28 @@ public class MemberCommandService {
         return newMembers;
     }
 
-    public void banMember(Long memberId) {
+    public void banMember(Long sessionUserId, Long memberId) {
         Member member = memberRepository.findByMemberId(memberId);
+        memberQueryService.getOperator(sessionUserId, member.getCommunity().getId());
+
         member.ban();
     }
 
-    public void releaseMember(Long memberId) {
+    public void releaseMember(Long sessionUserId, Long memberId) {
         Member member = memberRepository.findByMemberId(memberId);
+        memberQueryService.getManager(sessionUserId, member.getCommunity().getId());
+
         member.release();
     }
 
     public void delegeteMember(Long userId, Long memberId, MemberType type) {
         Member member = memberRepository.findByMemberId(memberId);
 
-        Member sessionMember = memberQueryService.getMember(userId, member.getCommunity().getId());
-        if (!sessionMember.isManager()) {
-            throw new NotManagerException();
+        Member manager = memberQueryService.getManager(userId, member.getCommunity().getId());
+        if (MemberType.MANAGER.equals(type)) {
+            manager.changeMemberType(MemberType.NORMAL);
         }
-
-        if(MemberType.MANAGER.equals(type)) {
-            sessionMember.delegate(MemberType.NORMAL);
-        }
-        member.delegate(type);
+        member.changeMemberType(type);
     }
 
     private void validateAlreadyJoinedMember(Long userId, Long communityId) {

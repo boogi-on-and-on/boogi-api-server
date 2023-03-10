@@ -20,8 +20,8 @@ public class JoinedMemberInfoDto {
         this.user = user;
     }
 
-    public static JoinedMemberInfoDto of(Member member, User user) {
+    public static JoinedMemberInfoDto of(Member member) {
         return new JoinedMemberInfoDto(member.getId(), member.getMemberType().toString(),
-                member.getCreatedAt().toString(), UserDetailInfoDto.of(user));
+                member.getCreatedAt().toString(), UserDetailInfoDto.of(member.getUser()));
     }
 }

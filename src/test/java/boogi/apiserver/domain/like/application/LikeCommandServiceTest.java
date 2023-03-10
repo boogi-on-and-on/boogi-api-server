@@ -64,9 +64,6 @@ class LikeCommandServiceTest {
     private PostQueryService postQueryService;
 
     @Mock
-    private LikeValidationService likeValidationService;
-
-    @Mock
     private UserRepository userRepository;
 
     @Nested

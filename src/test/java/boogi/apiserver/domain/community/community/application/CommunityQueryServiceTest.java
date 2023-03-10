@@ -51,7 +51,7 @@ class CommunityQueryServiceTest {
         given(communityRepository.findByCommunityId(anyLong()))
                 .willReturn(community);
 
-        CommunitySettingInfoDto settingInfo = communityQueryService.getSettingInfo(anyLong());
+        CommunitySettingInfoDto settingInfo = communityQueryService.getSetting(anyLong());
         assertThat(settingInfo.getIsAuto()).isTrue();
         assertThat(settingInfo.getIsSecret()).isFalse();
     }

@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.post.post.api;
 
-import boogi.apiserver.domain.comment.application.CommentCommandService;
 import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.like.application.LikeCommandService;
@@ -50,12 +49,12 @@ public class PostApiController {
 
     @PostMapping("/")
     @ResponseStatus(CREATED)
-    public SimpleIdResponse createPost(@Validated @RequestBody CreatePostRequest createPostRequest,
+    public SimpleIdResponse createPost(@Validated @RequestBody CreatePostRequest request,
                                        @Session Long sessionUserId) {
-        Long newPostId = postCommandService.createPost(createPostRequest, sessionUserId);
+        Long newPostId = postCommandService.createPost(request, sessionUserId);
 
         sendPushNotification.mentionNotification(
-                createPostRequest.getMentionedUserIds(),
+                request.getMentionedUserIds(),
                 newPostId,
                 MentionType.POST
         );
@@ -63,18 +62,18 @@ public class PostApiController {
         return SimpleIdResponse.from(newPostId);
     }
 
+    @PatchMapping("/{postId}")
+    public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePostRequest request,
+                                       @PathVariable Long postId,
+                                       @Session Long sessionUserId) {
+        Long updatedPostId = postCommandService.updatePost(request, postId, sessionUserId);
+
+        return SimpleIdResponse.from(updatedPostId);
+    }
+
     @GetMapping("/{postId}")
     public PostDetailResponse getPostDetail(@PathVariable Long postId, @Session Long sessionUserId) {
         return postQueryService.getPostDetail(postId, sessionUserId);
-    }
-
-    @PatchMapping("/{postId}")
-    public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePostRequest updatePostRequest,
-                                       @PathVariable Long postId,
-                                       @Session Long sessionUserId) {
-        Long updatedPostId = postCommandService.updatePost(updatePostRequest, postId, sessionUserId);
-
-        return SimpleIdResponse.from(updatedPostId);
     }
 
     @DeleteMapping("/{postId}")
@@ -83,9 +82,9 @@ public class PostApiController {
     }
 
     @GetMapping("/users")
-    public UserPostPageResponse getUserPostsInfo(@RequestParam(required = false) Long userId,
-                                                 @Session Long sessionUserId,
-                                                 Pageable pageable) {
+    public UserPostPageResponse getUserPosts(@RequestParam(required = false) Long userId,
+                                             @Session Long sessionUserId,
+                                             Pageable pageable) {
         Long infoUserid = Objects.requireNonNullElse(userId, sessionUserId);
 
         return postQueryService.getUserPosts(infoUserid, sessionUserId, pageable);
@@ -118,9 +117,9 @@ public class PostApiController {
     }
 
     @GetMapping("/search")
-    public SearchPostsResponse searchPosts(@ModelAttribute @Validated PostQueryRequest request,
-                                           Pageable pageable,
-                                           @Session Long sessionUserId) {
+    public SearchPostsResponse getSearchPosts(@ModelAttribute @Validated PostQueryRequest request,
+                                              Pageable pageable,
+                                              @Session Long sessionUserId) {
         Slice<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, sessionUserId);
 
         return SearchPostsResponse.from(page);

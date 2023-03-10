@@ -1,5 +1,9 @@
 package boogi.apiserver.domain.post.post.application;
 
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
+import boogi.apiserver.domain.community.community.dto.response.CommunityPostsResponse;
 import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
@@ -34,6 +38,7 @@ public class PostQueryService {
     private final PostMediaRepository postMediaRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommunityRepository communityRepository;
 
     private final MemberQueryService memberQueryService;
     private final LikeQueryService likeQueryService;
@@ -59,15 +64,20 @@ public class PostQueryService {
         return HotPostsResponse.from(hots);
     }
 
-    public List<LatestCommunityPostDto> getLatestPostOfCommunity(Long communityId) {
-        return postRepository.getLatestPostOfCommunity(communityId)
-                .stream()
-                .map(LatestCommunityPostDto::of)
-                .collect(Collectors.toList());
+    public List<LatestCommunityPostDto> getLatestPostOfCommunity(Member member, Community community) {
+        if (!community.canViewMember(member)) {
+            return null;
+        }
+        List<Post> latestPostOfCommunity = postRepository.getLatestPostOfCommunity(community.getId());
+        return LatestCommunityPostDto.listOf(latestPostOfCommunity);
     }
 
-    public Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
-        return postRepository.getPostsOfCommunity(pageable, communityId);
+    public CommunityPostsResponse getPostsOfCommunity(Pageable pageable, Long communityId, Long userId) {
+        Community community = communityRepository.findByCommunityId(communityId);
+        Member member = memberQueryService.getViewableMember(userId, community);
+
+        Slice<Post> postPage = postRepository.getPostsOfCommunity(pageable, communityId);
+        return CommunityPostsResponse.of(community.getCommunityName(), userId, postPage, member);
     }
 
     public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {

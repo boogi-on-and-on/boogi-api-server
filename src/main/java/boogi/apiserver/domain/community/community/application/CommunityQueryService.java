@@ -7,10 +7,17 @@ import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDt
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
+import boogi.apiserver.domain.community.community.dto.response.CommunityDetailResponse;
+import boogi.apiserver.domain.community.community.dto.response.CommunityQueryResponse;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.notice.application.NoticeQueryService;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
+import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.dao.UserRepository;
@@ -37,6 +44,10 @@ public class CommunityQueryService {
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
 
+    private final MemberQueryService memberQueryService;
+    private final NoticeQueryService noticeQueryService;
+    private final PostQueryService postQueryService;
+
     public Community getCommunityWithHashTag(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
         community.getHashtags().getValues().size(); //LAZY INIT
@@ -44,16 +55,30 @@ public class CommunityQueryService {
         return community;
     }
 
-    public CommunityMetadataDto getCommunityMetadata(Long communityId) {
+    public CommunityDetailResponse getCommunityDetail(Long userId, Long communityId) {
+        Community community = communityRepository.findByCommunityId(communityId);
+        Member member = memberQueryService.getMemberOrNullMember(userId, community);
+
+        List<NoticeDto> communityNotices = noticeQueryService.getCommunityLatestNotice(communityId);
+        List<LatestCommunityPostDto> latestPosts = postQueryService.getLatestPostOfCommunity(member, community);
+
+        return CommunityDetailResponse.of(communityNotices, latestPosts, member, community);
+    }
+
+    public CommunityMetadataDto getCommunityMetadata(Long userId, Long communityId) {
+        memberQueryService.getManager(userId, communityId);
         Community community = getCommunityWithHashTag(communityId);
         return CommunityMetadataDto.of(community);
     }
 
-    public Slice<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest request) {
-        return communityRepository.getSearchedCommunities(pageable, request);
+    public CommunityQueryResponse getSearchedCommunities(Pageable pageable, CommunityQueryRequest request) {
+        Slice<SearchCommunityDto> communities = communityRepository.getSearchedCommunities(pageable, request);
+        return CommunityQueryResponse.from(communities);
     }
 
-    public CommunitySettingInfoDto getSettingInfo(Long communityId) {
+    public CommunitySettingInfoDto getSetting(Long userId, Long communityId) {
+        memberQueryService.getManager(userId, communityId);
+
         Community community = communityRepository.findByCommunityId(communityId);
         return CommunitySettingInfoDto.of(community);
     }

@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtags;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotManagerException;
 import boogi.apiserver.domain.model.TimeBaseEntity;
@@ -74,10 +75,6 @@ public class Community extends TimeBaseEntity {
         return new Community(name, description, isPrivate, autoApproval, communityCategory);
     }
 
-    public void updateDescription(String description) {
-        this.description = new Description(description);
-    }
-
     public void addTags(List<String> tags) {
         this.hashtags.addTags(tags, this);
     }
@@ -88,21 +85,17 @@ public class Community extends TimeBaseEntity {
     }
 
     public void switchPrivate(boolean isPrivate, MemberType sessionMemberType) {
-        checkManagerAuth(sessionMemberType);
+        validateManagerAuth(sessionMemberType);
         this.isPrivate = isPrivate;
     }
 
     public void switchAutoApproval(boolean isAutoApproval, MemberType sessionMemberType) {
-        checkManagerAuth(sessionMemberType);
+        validateManagerAuth(sessionMemberType);
         this.autoApproval = isAutoApproval;
     }
 
-    public void openAutoApproval() {
-        this.autoApproval = true;
-    }
-
-    public void closeAutoApproval() {
-        this.autoApproval = false;
+    public boolean canViewMember(Member member) {
+        return !this.isPrivate || !member.isNullMember();
     }
 
     public void shutdown() {
@@ -113,7 +106,7 @@ public class Community extends TimeBaseEntity {
         this.memberCount++;
     }
 
-    private void checkManagerAuth(MemberType sessionMemberType) {
+    private void validateManagerAuth(MemberType sessionMemberType) {
         if(!sessionMemberType.hasManagerAuth()) {
             throw new NotManagerException();
         }

@@ -378,7 +378,7 @@ class CommunityApiControllerTest {
 
             CommunitySettingInfoDto settingInfo = CommunitySettingInfoDto.of(community);
 
-            given(communityQueryService.getSettingInfo(anyLong())).willReturn(settingInfo);
+            given(communityQueryService.getSetting(anyLong())).willReturn(settingInfo);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);

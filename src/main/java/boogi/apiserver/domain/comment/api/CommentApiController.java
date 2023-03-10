@@ -2,12 +2,10 @@ package boogi.apiserver.domain.comment.api;
 
 import boogi.apiserver.domain.comment.application.CommentCommandService;
 import boogi.apiserver.domain.comment.application.CommentQueryService;
-import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.application.LikeQueryService;
-import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.SimpleIdResponse;
@@ -37,9 +35,9 @@ public class CommentApiController {
     private final SendPushNotification sendPushNotification;
 
     @GetMapping("/users")
-    public UserCommentPageResponse getUserCommentsInfo(@RequestParam(required = false) Long userId,
-                                                       @Session Long sessionUserId,
-                                                       Pageable pageable) {
+    public UserCommentPageResponse getUserComments(@RequestParam(required = false) Long userId,
+                                                   @Session Long sessionUserId,
+                                                   Pageable pageable) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
         return commentQueryService.getUserComments(id, sessionUserId, pageable);
     }
@@ -58,7 +56,7 @@ public class CommentApiController {
     }
 
     @PostMapping("/{commentId}/likes")
-    public SimpleIdResponse doLikeAtComment(@PathVariable Long commentId, @Session Long userId) {
+    public SimpleIdResponse doCommentLike(@PathVariable Long commentId, @Session Long userId) {
         Long newLikeId = likeCommandService.doCommentLike(commentId, userId);
 
         return SimpleIdResponse.from(newLikeId);
@@ -70,7 +68,9 @@ public class CommentApiController {
     }
 
     @GetMapping("/{commentId}/likes")
-    public LikeMembersAtCommentResponse getLikeMembersAtComment(@PathVariable Long commentId, @Session Long userId, Pageable pageable) {
+    public LikeMembersAtCommentResponse getLikeMembersAtComment(@PathVariable Long commentId,
+                                                                @Session Long userId,
+                                                                Pageable pageable) {
         return likeQueryService.getLikeMembersAtComment(commentId, userId, pageable);
     }
 }

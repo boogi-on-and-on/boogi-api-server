@@ -76,7 +76,7 @@ class NoticeRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         //when
-        List<Notice> latestNotices = noticeRepository.getLatestNotice();
+        List<Notice> latestNotices = noticeRepository.getLatestAppNotice();
 
         //then
         assertThat(latestNotices.size()).isEqualTo(3);

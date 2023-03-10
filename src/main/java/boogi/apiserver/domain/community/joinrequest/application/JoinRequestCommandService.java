@@ -61,7 +61,8 @@ public class JoinRequestCommandService {
         return newRequest.getId();
     }
 
-    public void confirmUsers(Long managerUserId, List<Long> requestIds, Long communityId) {
+    public void confirmUsers(Long sessionUserId, List<Long> requestIds, Long communityId) {
+        Member operator = memberQueryService.getOperator(sessionUserId, communityId);
         List<JoinRequest> joinRequests = joinRequestRepository.getRequestsByIds(requestIds);
         joinRequests.forEach(joinRequest -> joinRequest.validateJoinRequestCommunity(communityId));
 
@@ -70,13 +71,12 @@ public class JoinRequestCommandService {
                 .collect(Collectors.toList());
 
         List<Member> members = memberCommandService.joinMembers(userIds, communityId, MemberType.NORMAL);
-        confirmRequests(managerUserId, communityId, joinRequests, members);
+        confirmRequests(operator, joinRequests, members);
     }
 
     public void rejectUsers(Long userId, List<Long> requestIds, Long communityId) {
-        Member member = memberQueryService.getMember(userId, communityId);
-        validateOperator(member);
-        rejectRequests(requestIds, communityId, member);
+        Member operator = memberQueryService.getOperator(userId, communityId);
+        rejectRequests(requestIds, communityId, operator);
     }
 
     private void validateJoinRequestStatus(Long userId, Long communityId) {
@@ -107,22 +107,20 @@ public class JoinRequestCommandService {
         }
     }
 
-    private void confirmRequests(Long managerUserId,
-                                 Long communityId,
+    private void confirmRequests(Member operator,
                                  List<JoinRequest> joinRequests,
                                  List<Member> members) {
         Map<Long, Member> memberMap = members.stream()
                 .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 
-        Member manager = memberQueryService.getMember(managerUserId, communityId);
-        joinRequests.forEach(r -> r.confirm(manager, memberMap.get(r.getUser().getId())));
+        joinRequests.forEach(r -> r.confirm(operator, memberMap.get(r.getUser().getId())));
     }
 
-    private void rejectRequests(List<Long> requestIds, Long communityId, Member manager) {
+    private void rejectRequests(List<Long> requestIds, Long communityId, Member operator) {
         joinRequestRepository.getRequestsByIds(requestIds)
                 .forEach(joinRequest -> {
                     joinRequest.validateJoinRequestCommunity(communityId);
-                    joinRequest.reject(manager);
+                    joinRequest.reject(operator);
                 });
     }
 }

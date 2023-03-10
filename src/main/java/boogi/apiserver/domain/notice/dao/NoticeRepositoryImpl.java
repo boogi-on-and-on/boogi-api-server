@@ -28,7 +28,7 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
     }
 
     @Override
-    public List<Notice> getLatestNotice() {
+    public List<Notice> getLatestAppNotice() {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(notice.community.isNull());
 

@@ -21,17 +21,14 @@ public class NoticeCommandService {
 
     private final MemberQueryService memberQueryService;
 
-    public Notice createNotice(NoticeCreateRequest request, Long userId) {
+    public Long createNotice(NoticeCreateRequest request, Long userId) {
         Long communityId = request.getCommunityId();
         Community community = communityRepository.findByCommunityId(communityId);
 
-        Member member = memberQueryService.getMember(userId, communityId);
-        if (!member.isOperator()) {
-            throw new NotOperatorException();
-        }
+        Member member = memberQueryService.getOperator(userId, communityId);
 
         Notice newNotice = Notice.of(request.getContent(), request.getTitle(), member, community);
         noticeRepository.save(newNotice);
-        return newNotice;
+        return newNotice.getId();
     }
 }

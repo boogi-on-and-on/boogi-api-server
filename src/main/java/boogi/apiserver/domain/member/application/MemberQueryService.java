@@ -5,7 +5,8 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.member.dto.dto.MemberDto;
+import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
+import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
@@ -34,11 +35,26 @@ public class MemberQueryService {
                 .orElseThrow(NotJoinedMemberException::new);
     }
 
-    public Member getViewableMember(Long userId, Community community) {
-        Member member = memberRepository.findByUserIdAndCommunityId(userId, community.getId())
-                .orElse(new NullMember());
+    public Member getManager(Long userId, Long communityId) {
+        Member member = this.getMember(userId, communityId);
+        member.validateManager();
+        return member;
+    }
 
-        if (community.isPrivate() && member.isNullMember()) {
+    public Member getOperator(Long userId, Long communityId) {
+        Member member = this.getMember(userId, communityId);
+        member.validateOperator();
+        return member;
+    }
+
+    public Member getMemberOrNullMember(Long userId, Community community) {
+        return memberRepository.findByUserIdAndCommunityId(userId, community.getId())
+                .orElse(new NullMember());
+    }
+
+    public Member getViewableMember(Long userId, Community community) {
+        Member member = getMemberOrNullMember(userId, community);
+        if (!community.canViewMember(member)) {
             throw new NotViewableMemberException();
         }
         return member;
@@ -60,11 +76,13 @@ public class MemberQueryService {
         return member.getMemberType().equals(memberType);
     }
 
-    public Slice<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
-        return memberRepository.findJoinedMembers(pageable, communityId);
+    public JoinedMembersPageResponse getCommunityJoinedMembers(Pageable pageable, Long communityId) {
+        Slice<Member> joinedMembers = memberRepository.findJoinedMembers(pageable, communityId);
+        return JoinedMembersPageResponse.from(joinedMembers);
     }
 
-    public List<BannedMemberDto> getBannedMembers(Long communityId) {
+    public List<BannedMemberDto> getBannedMembers(Long userId, Long communityId) {
+        this.getOperator(userId, communityId);
         return memberRepository.findBannedMembers(communityId);
     }
 
@@ -72,15 +90,13 @@ public class MemberQueryService {
         return memberRepository.findMentionMember(pageable, communityId, name);
     }
 
-    public List<MemberDto> getJoinedMembersAll(Long communityId, Long userId) {
+    public JoinedMembersResponse getJoinedMembersAll(Long communityId, Long userId) {
         communityRepository.findByCommunityId(communityId);
         Member sessionMember = getMember(userId, communityId);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);
         findJoinedMembersAll.remove(sessionMember);
 
-        return findJoinedMembersAll.stream()
-                .map(MemberDto::of)
-                .collect(Collectors.toList());
+        return JoinedMembersResponse.from(findJoinedMembersAll);
     }
 }

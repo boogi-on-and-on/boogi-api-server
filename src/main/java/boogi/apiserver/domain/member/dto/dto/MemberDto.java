@@ -5,6 +5,9 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 public class MemberDto {
     private Long id;
@@ -19,5 +22,11 @@ public class MemberDto {
 
     public static MemberDto of(Member member) {
         return new MemberDto(member.getId(), member.getMemberType(), UserBasicProfileDto.from(member.getUser()));
+    }
+
+    public static List<MemberDto> listOf(List<Member> members) {
+        return members.stream()
+                .map(MemberDto::of)
+                .collect(Collectors.toList());
     }
 }

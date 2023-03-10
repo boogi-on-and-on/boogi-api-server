@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class BlockedUserIdRequest {
-    private Long blockerUserId;
+    private Long blockedUserId;
 
-    public BlockedUserIdRequest(final Long blockerUserId) {
-        this.blockerUserId = blockerUserId;
+    public BlockedUserIdRequest(Long blockedUserId) {
+        this.blockedUserId = blockedUserId;
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 public interface NoticeRepositoryCustom {
     List<Notice> getLatestNotice(Long communityId);
 
-    List<Notice> getLatestNotice();
+    List<Notice> getLatestAppNotice();
 
     List<Notice> getAllNotices(Long communityId);
 

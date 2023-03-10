@@ -1,11 +1,13 @@
 package boogi.apiserver.domain.notice.dto.response;
 
+import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -21,12 +23,16 @@ public class NoticeDetailResponse {
         this.manager = manager;
     }
 
-    public static NoticeDetailResponse communityNoticeOf(List<CommunityNoticeDetailDto> communityNoticeDetailDtos,
+    public static NoticeDetailResponse communityNoticeOf(List<Notice> notices,
                                                          Boolean manager) {
-        return new NoticeDetailResponse(communityNoticeDetailDtos, manager);
+        final List<CommunityNoticeDetailDto> dtos = notices.stream()
+                .map(n -> CommunityNoticeDetailDto.of(n, n.getMember().getUser()))
+                .collect(Collectors.toList());
+        return new NoticeDetailResponse(dtos, manager);
     }
 
-    public static NoticeDetailResponse of(List<NoticeDetailDto> noticeDetailDtos) {
+    public static NoticeDetailResponse from(List<Notice> notices) {
+        List<NoticeDetailDto> noticeDetailDtos = NoticeDetailDto.dtoListFrom(notices);
         return new NoticeDetailResponse(noticeDetailDtos, null);
     }
 }

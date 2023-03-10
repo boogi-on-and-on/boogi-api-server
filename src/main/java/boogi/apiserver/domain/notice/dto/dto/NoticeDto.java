@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class NoticeDto {
@@ -24,5 +26,11 @@ public class NoticeDto {
 
     public static NoticeDto from(Notice notice) {
         return new NoticeDto(notice.getId(), notice.getTitle(), notice.getCreatedAt());
+    }
+    
+    public static List<NoticeDto> listFrom(List<Notice> notices) {
+        return notices.stream()
+                .map(NoticeDto::from)
+                .collect(Collectors.toList());
     }
 }
