@@ -20,8 +20,6 @@ public interface LikeRepositoryCustom {
 
     boolean existsLikeByCommentIdAndMemberId(Long commentId, Long memberId);
 
-    Optional<Like> findLikeWithMemberById(Long likeId);
-
     Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId);
 
     List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentId, Long memberId);

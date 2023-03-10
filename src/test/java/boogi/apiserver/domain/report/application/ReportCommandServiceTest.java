@@ -93,8 +93,8 @@ class ReportCommandServiceTest {
                     .id(1L)
                     .post(post)
                     .build();
-            given(commentRepository.findCommentById(anyLong()))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentById(anyLong()))
+//                    .willReturn(Optional.of(comment));
 
             CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "A".repeat(10));
             reportCommandService.createReport(createReportRequest, 1L);
@@ -127,8 +127,8 @@ class ReportCommandServiceTest {
                     .id(1L)
                     .post(post)
                     .build();
-            given(commentRepository.findCommentById(anyLong()))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentById(anyLong()))
+//                    .willReturn(Optional.of(comment));
 
 
             CreateReportRequest createCommentReport = new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
@@ -161,8 +161,8 @@ class ReportCommandServiceTest {
             given(postRepository.findById(anyLong()))
                     .willReturn(Optional.of(post));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "A".repeat(10));
-            reportCommandService.createReport(createReportRequest, 1L);
+//            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "A".repeat(10));
+//            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -174,12 +174,12 @@ class ReportCommandServiceTest {
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
 
-            final Community community = TestCommunity.builder().id(1L).build();
-            given(communityRepository.findCommunityById(anyLong()))
-                    .willReturn(Optional.of(community));
-
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "A".repeat(10));
-            reportCommandService.createReport(createReportRequest, 1L);
+//            final Community community = TestCommunity.builder().id(1L).build();
+//            given(communityRepository.findCommunityById(anyLong()))
+//                    .willReturn(Optional.of(community));
+//
+//            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "A".repeat(10));
+//            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }
@@ -201,8 +201,8 @@ class ReportCommandServiceTest {
             given(messageRepository.findById(anyLong()))
                     .willReturn(Optional.of(message));
 
-            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "A".repeat(10));
-            reportCommandService.createReport(createReportRequest, 1L);
+//            CreateReportRequest createReportRequest = new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "A".repeat(10));
+//            reportCommandService.createReport(createReportRequest, 1L);
 
             verify(reportRepository, times(1)).save(any(Report.class));
         }

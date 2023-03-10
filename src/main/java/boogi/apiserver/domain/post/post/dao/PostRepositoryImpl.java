@@ -1,13 +1,8 @@
 package boogi.apiserver.domain.post.post.dao;
 
-import boogi.apiserver.domain.community.community.domain.QCommunity;
-import boogi.apiserver.domain.hashtag.post.domain.QPostHashtag;
-import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.domain.QPost;
-import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
-import boogi.apiserver.domain.user.domain.QUser;
+import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
 import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -22,17 +17,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
+import static boogi.apiserver.domain.hashtag.post.domain.QPostHashtag.postHashtag;
+import static boogi.apiserver.domain.member.domain.QMember.member;
+import static boogi.apiserver.domain.post.post.domain.QPost.post;
+import static boogi.apiserver.domain.user.domain.QUser.user;
+
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    private final QPost post = QPost.post;
-    private final QPostHashtag postHashtag = QPostHashtag.postHashtag;
-    private final QMember member = QMember.member;
-    private final QUser user = QUser.user;
-    private final QCommunity community = QCommunity.community;
 
     @Override
     public List<Post> getHotPosts() {
@@ -62,14 +57,14 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public Optional<Post> getPostWithAll(Long postId) {
-        Post findPost = queryFactory.selectFrom(this.post)
-                .join(this.post.member, member).fetchJoin()
+        Post findPost = queryFactory.selectFrom(post)
+                .join(post.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()
-                .join(this.post.community, community).fetchJoin()
+                .join(post.community, community).fetchJoin()
                 .where(
-                        this.post.id.eq(postId),
-                        this.post.deletedAt.isNull(),
-                        this.post.community.deletedAt.isNull()
+                        post.id.eq(postId),
+                        post.deletedAt.isNull(),
+                        post.community.deletedAt.isNull()
                 ).fetchOne();
 
         return Optional.ofNullable(findPost);
@@ -104,15 +99,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId) {
-        Post result = queryFactory.selectFrom(this.post)
-                .join(this.post.community, community).fetchJoin()
-                .join(this.post.member, member).fetchJoin()
+        final List<Post> posts = queryFactory.selectFrom(post)
+                .join(post.community, community).fetchJoin()
+                .join(post.member, member).fetchJoin()
                 .where(
-                        this.post.id.eq(postId),
-                        this.post.deletedAt.isNull())
-                .fetchOne();
-
-        return Optional.ofNullable(result);
+                        post.id.eq(postId),
+                        post.deletedAt.isNull()
+                ).limit(1)
+                .fetch();
+        return posts.size() == 0 ? Optional.empty() : Optional.of(posts.get(0));
     }
 
     @Override

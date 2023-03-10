@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -18,9 +20,8 @@ public class AlarmConfigCommandService {
     private final UserRepository userRepository;
 
     public AlarmConfig findOrElseCreateAlarmConfig(Long userId) {
-        AlarmConfig alarmConfig = alarmConfigRepository.getAlarmConfigByUserId(userId);
-
-        return alarmConfig == null ? createAlarmConfig(userId) : alarmConfig;
+        return alarmConfigRepository.getAlarmConfigByUserId(userId)
+                .orElseGet(() -> createAlarmConfig(userId));
     }
 
     public AlarmConfig configureAlarm(Long userId, AlarmConfigSettingRequest request) {

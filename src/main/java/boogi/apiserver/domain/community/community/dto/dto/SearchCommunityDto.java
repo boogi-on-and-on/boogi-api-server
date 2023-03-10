@@ -65,4 +65,10 @@ public class SearchCommunityDto {
         }
         return builder.build();
     }
+
+    public static List<SearchCommunityDto> listOf(List<Community> communities) {
+        return communities.stream()
+                .map(SearchCommunityDto::of)
+                .collect(Collectors.toList());
+    }
 }

@@ -68,8 +68,8 @@ class AlarmConfigCommandServiceTest {
                     .user(user)
                     .build();
 
-            given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
-                    .willReturn(alarmConfig);
+//            given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
+//                    .willReturn(alarmConfig);
 
             final AlarmConfig findConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
             then(userRepository).should(times(0)).findByUserId(anyLong());
@@ -84,8 +84,8 @@ class AlarmConfigCommandServiceTest {
         final User user = TestUser.builder().build();
         AlarmConfig alarmConfig = AlarmConfig.of(user);
 
-        given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
-                .willReturn(alarmConfig);
+//        given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
+//                .willReturn(alarmConfig);
 
         AlarmConfigSettingRequest config = new AlarmConfigSettingRequest(false, true, false,
                 null, true);

@@ -2,21 +2,19 @@ package boogi.apiserver.domain.community.joinrequest.dao;
 
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
-import boogi.apiserver.domain.community.joinrequest.domain.QJoinRequest;
-import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
+import static boogi.apiserver.domain.community.joinrequest.domain.QJoinRequest.joinRequest;
+import static boogi.apiserver.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 public class JoinRequestRepositoryImpl implements JoinRequestRepositoryCustom {
-    private final JPAQueryFactory queryFactory;
 
-    private final QJoinRequest joinRequest = QJoinRequest.joinRequest;
-    private final QUser user = QUser.user;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public List<JoinRequest> getAllRequests(Long communityId) {
@@ -52,5 +50,4 @@ public class JoinRequestRepositoryImpl implements JoinRequestRepositoryCustom {
                 .where(joinRequest.id.in(requestIds))
                 .fetch();
     }
-
 }

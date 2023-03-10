@@ -11,6 +11,7 @@ import static boogi.apiserver.domain.post.postmedia.domain.QPostMedia.postMedia;
 
 @RequiredArgsConstructor
 public class PostMediaRepositoryImpl implements PostMediaRepositoryCustom {
+
     private final JPAQueryFactory queryFactory;
 
     public PostMedias findUnmappedPostMediasByUUIDs(List<String> postMediaUUIds) {

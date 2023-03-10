@@ -553,18 +553,18 @@ class CommentCommandServiceTest {
                     .parent(pComment)
                     .build();
 
-            given(userRepository.findUserById(anyLong()))
-                    .willReturn(Optional.of(user2));
-
-            List<Long> findMemberIds = List.of(member2.getId());
-            given(memberRepository.findMemberIdsForQueryUserPost(anyLong(), anyLong()))
-                    .willReturn(findMemberIds);
-
-            Pageable pageable = PageRequest.of(0, 2);
-            List<Comment> comments = List.of(cComment);
-            Slice<Comment> userCommentPage = PageableUtil.getSlice(comments, pageable);
-            given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
-                    .willReturn(userCommentPage);
+//            given(userRepository.findUserById(anyLong()))
+//                    .willReturn(Optional.of(user2));
+//
+//            List<Long> findMemberIds = List.of(member2.getId());
+//            given(memberRepository.findMemberIdsForQueryUserPost(anyLong(), anyLong()))
+//                    .willReturn(findMemberIds);
+//
+//            Pageable pageable = PageRequest.of(0, 2);
+//            List<Comment> comments = List.of(cComment);
+//            Slice<Comment> userCommentPage = PageableUtil.getSlice(comments, pageable);
+//            given(commentRepository.getUserCommentPageByMemberIds(anyList(), any(Pageable.class)))
+//                    .willReturn(userCommentPage);
 
 //
 //            UserCommentPageResponse userCommentDto = commentCommandService.getUserComments(user2.getId(), user1.getId(), pageable);

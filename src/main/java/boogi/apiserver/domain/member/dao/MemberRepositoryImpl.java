@@ -1,12 +1,10 @@
 package boogi.apiserver.domain.member.dao;
 
-import boogi.apiserver.domain.community.community.domain.QCommunity;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.dto.QBannedMemberDto;
-import boogi.apiserver.domain.user.domain.QUser;
 import boogi.apiserver.domain.user.dto.dto.QUserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.util.PageableUtil;
@@ -24,13 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
+import static boogi.apiserver.domain.member.domain.QMember.member;
+import static boogi.apiserver.domain.user.domain.QUser.user;
+
+
 @RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
-
-    private final QMember member = QMember.member;
-    private final QCommunity community = QCommunity.community;
-    private final QUser user = QUser.user;
 
     @Override
     public List<Member> findByUserId(Long userId) {
@@ -107,11 +106,11 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     public Optional<Member> findAnyMemberExceptManager(Long communityId) {
         Member findMember = queryFactory
-                .selectFrom(this.member)
+                .selectFrom(member)
                 .where(
-                        this.member.community.id.eq(communityId),
-                        this.member.memberType.ne(MemberType.MANAGER),
-                        this.member.bannedAt.isNull()
+                        member.community.id.eq(communityId),
+                        member.memberType.ne(MemberType.MANAGER),
+                        member.bannedAt.isNull()
                 ).limit(1)
                 .fetchOne();
         return Optional.ofNullable(findMember);
@@ -195,8 +194,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.bannedAt.isNull()
                 )
                 .join(member.user)
-                .limit(1)
-                .fetchOne();
+                .fetchFirst();
     }
 
     @Override
@@ -209,7 +207,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         nameContains(name) //todo: username index 추가
                 ).join(member.user)
                 .orderBy(member.user.username.value.asc())
-//                .orderBy(member.user.username.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();

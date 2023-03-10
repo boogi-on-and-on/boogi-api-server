@@ -2,11 +2,9 @@ package boogi.apiserver.domain.community.community.dao;
 
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
-import boogi.apiserver.domain.community.community.domain.QCommunity;
+import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.enums.CommunityListingOrder;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
-import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
-import boogi.apiserver.domain.hashtag.community.domain.QCommunityHashtag;
 import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -19,16 +17,15 @@ import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
+import static boogi.apiserver.domain.hashtag.community.domain.QCommunityHashtag.communityHashtag;
 
 
 @RequiredArgsConstructor
 public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
-    private final JPAQueryFactory queryFactory;
 
-    private final QCommunity community = QCommunity.community;
-    private final QCommunityHashtag communityHashtag = QCommunityHashtag.communityHashtag;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public Slice<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest condition) {
@@ -52,12 +49,11 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
             // CommunityHashtag LAZY INIT
             communities.stream().anyMatch(c -> c.getHashtags().getValues().size() != 0);
 
-            List<SearchCommunityDto> dtos = transformToSearchCommunityDto(communities);
+            List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 
             return PageableUtil.getSlice(dtos, pageable);
         }
 
-        QCommunity _community = new QCommunity("communitySub");
         Predicate[] where = {
                 privateEq(condition.getIsPrivate()),
                 categoryEq(condition.getCategory()),
@@ -78,7 +74,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
         //LAZY INIT
         communities.stream().anyMatch(c -> c.getHashtags().getValues().size() != 0);
 
-        List<SearchCommunityDto> dtos = transformToSearchCommunityDto(communities);
+        List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 
         return PageableUtil.getSlice(dtos, pageable);
     }
@@ -112,25 +108,5 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
 
     private BooleanExpression categoryEq(CommunityCategory category) {
         return Objects.isNull(category) ? null : community.category.eq(category);
-    }
-
-    private BooleanExpression communityNameContains(String keyword) {
-        return Objects.isNull(keyword) ? null : community.communityName.value.contains(keyword);
-    }
-
-    private List<SearchCommunityDto> transformToSearchCommunityDto(List<Community> communities) {
-        return communities.stream()
-                .map(SearchCommunityDto::of)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<Community> findCommunityById(Long communityId) {
-        Community findCommunity = queryFactory.selectFrom(QCommunity.community)
-                .where(
-                        QCommunity.community.id.eq(communityId)
-                ).fetchOne();
-
-        return Optional.ofNullable(findCommunity);
     }
 }
