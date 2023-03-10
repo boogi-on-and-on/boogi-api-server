@@ -47,7 +47,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                     .fetch();
 
             // CommunityHashtag LAZY INIT
-            communities.stream().anyMatch(c -> c.getHashtags().getValues().size() != 0);
+            communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
 
             List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 
@@ -72,7 +72,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
         //LAZY INIT
-        communities.stream().anyMatch(c -> c.getHashtags().getValues().size() != 0);
+        communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
 
         List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 

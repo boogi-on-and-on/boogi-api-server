@@ -33,17 +33,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class CommunityRepositoryTest {
 
     @Autowired
-    private CommunityRepository communityRepository;
+    CommunityRepository communityRepository;
 
     @Autowired
-    private CommunityHashtagRepository communityHashtagRepository;
+    CommunityHashtagRepository communityHashtagRepository;
 
     @Autowired
     EntityManager em;
 
-    PersistenceUtil persistenceUtil;
     @Autowired
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
+
+    PersistenceUtil persistenceUtil;
 
     @BeforeEach
     void init() {
@@ -78,25 +79,24 @@ class CommunityRepositoryTest {
 
             communityRepository.saveAll(List.of(c1, c2));
 
-            CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
-            CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
-            CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
+            final CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
+            final CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
+            final CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
             communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
 
-            CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, "안녕");
+            final CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, "안녕");
 
-            em.flush();
-            em.clear();
+            persistenceUtil.cleanPersistenceContext();
 
             //when
-            Slice<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            final Slice<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
-            List<SearchCommunityDto> dtos = page.getContent();
+            final List<SearchCommunityDto> dtos = page.getContent();
             assertThat(dtos.size()).isEqualTo(1);
 
-            SearchCommunityDto first = dtos.get(0);
+            final SearchCommunityDto first = dtos.get(0);
             assertThat(first.getId()).isEqualTo(c1.getId());
 
             assertThat(first.getHashtags()).containsExactlyInAnyOrderElementsOf(List.of("안녕", "ㅎㅎ"));
@@ -130,25 +130,23 @@ class CommunityRepositoryTest {
 
             communityRepository.saveAll(List.of(c1, c2));
 
-            CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
-            CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
-            CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
+            final CommunityHashtag c1_t1 = CommunityHashtag.of("안녕", c1);
+            final CommunityHashtag c1_t2 = CommunityHashtag.of("ㅎㅎ", c1);
+            final CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
             communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
             CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, null);
 
-            em.flush();
-            em.clear();
+            persistenceUtil.cleanPersistenceContext();
 
             //when
-
-            Slice<SearchCommunityDto> slice = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            final Slice<SearchCommunityDto> slice = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
-            List<SearchCommunityDto> dtos = slice.getContent();
+            final List<SearchCommunityDto> dtos = slice.getContent();
             assertThat(dtos.size()).isEqualTo(2);
 
-            SearchCommunityDto first = dtos.get(0);
+            final SearchCommunityDto first = dtos.get(0);
             assertThat(first.getId()).isEqualTo(c1.getId());
 
             assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());

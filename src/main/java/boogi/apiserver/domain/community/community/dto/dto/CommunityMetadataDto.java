@@ -29,7 +29,7 @@ public class CommunityMetadataDto {
                 .introduce(community.getDescription())
                 .name(community.getCommunityName());
 
-        final List<CommunityHashtag> hashtags = community.getHashtags().getValues();
+        final List<CommunityHashtag> hashtags = community.getHashtags();
         if (hashtags != null && hashtags.size() > 0) {
             List<String> tags = hashtags.stream()
                     .map(CommunityHashtag::getTag)

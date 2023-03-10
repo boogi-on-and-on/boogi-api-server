@@ -144,7 +144,7 @@ public class Community extends TimeBaseEntity {
         return autoApproval;
     }
 
-    public CommunityHashtags getHashtags() {
-        return hashtags;
+    public List<CommunityHashtag> getHashtags() {
+        return hashtags.getValues();
     }
 }

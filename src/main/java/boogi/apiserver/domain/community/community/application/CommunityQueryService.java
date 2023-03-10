@@ -50,7 +50,7 @@ public class CommunityQueryService {
 
     public Community getCommunityWithHashTag(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
-        community.getHashtags().getValues().size(); //LAZY INIT
+        community.getHashtags().size(); //LAZY INIT
 
         return community;
     }

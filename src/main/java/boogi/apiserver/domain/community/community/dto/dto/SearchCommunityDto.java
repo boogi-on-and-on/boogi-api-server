@@ -56,7 +56,7 @@ public class SearchCommunityDto {
                 .category(community.getCategory().toString())
                 .isPrivate(community.isPrivate());
 
-        List<CommunityHashtag> hashtags = community.getHashtags().getValues();
+        List<CommunityHashtag> hashtags = community.getHashtags();
         if (Objects.nonNull(hashtags) && hashtags.size() > 0) {
             builder.hashtags(hashtags.stream()
                     .map(CommunityHashtag::getTag)
