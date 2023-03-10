@@ -6,7 +6,8 @@ import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import boogi.apiserver.domain.user.domain.User;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,37 +29,41 @@ class AlarmCommandServiceTest {
     @Mock
     AlarmRepository alarmRepository;
 
-    @Test
-    void 알림_삭제권한_없을때() {
-        //given
-        final User user = TestUser.builder().id(1L).build();
+    @Nested
+    @DisplayName("알림 삭제")
+    class DeleteAlarm {
+        @Test
+        @DisplayName("알림 삭제권한이 없을 때")
+        void cannotDeleteAlarm() {
+            //given
+            final User user = TestUser.builder().id(1L).build();
 
-        final Alarm alarm = TestAlarm.builder().user(user).build();
+            final Alarm alarm = TestAlarm.builder().user(user).build();
 
-        given(alarmRepository.findByAlarmId(anyLong()))
-                .willReturn(alarm);
+            given(alarmRepository.findByAlarmId(anyLong()))
+                    .willReturn(alarm);
 
-        //then
-        assertThatThrownBy(() -> {
+            //then
+            assertThatThrownBy(() -> {
+                //when
+                alarmCommandService.deleteAlarm(2L, anyLong());
+            }).isInstanceOf(CanNotDeleteAlarmException.class);
+        }
+
+        @Test
+        @DisplayName("알림 삭제 성공")
+        void success() {
+            //given
+            final User user = TestUser.builder().id(1L).build();
+            final Alarm alarm = TestAlarm.builder().user(user).build();
+
+            given(alarmRepository.findByAlarmId(anyLong()))
+                    .willReturn(alarm);
             //when
-            alarmCommandService.deleteAlarm(2L, anyLong());
-        }).isInstanceOf(CanNotDeleteAlarmException.class);
-    }
+            alarmCommandService.deleteAlarm(user.getId(), anyLong());
 
-    @Test
-    @Disabled
-    void 알림_삭제성공() {
-        //given
-        final User user = TestUser.builder().id(1L).build();
-        final Alarm alarm = TestAlarm.builder().user(user).build();
-
-        given(alarmRepository.findByAlarmId(anyLong()))
-                .willReturn(alarm);
-
-        //when
-        alarmCommandService.deleteAlarm(user.getId(), anyLong());
-
-        //then
-        verify(alarmRepository, times(1)).delete(alarm);
+            //then
+            verify(alarmRepository, times(1)).delete(alarm);
+        }
     }
 }

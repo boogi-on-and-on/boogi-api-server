@@ -7,6 +7,7 @@ import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.dto.dto.AlarmsDto;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import boogi.apiserver.utils.TestTimeReflection;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,7 +31,8 @@ class AlarmQueryServiceTest {
     AlarmQueryService alarmQueryService;
 
     @Test
-    void 알림목록_조회() {
+    @DisplayName("알림 목록 조회")
+    void getAlarms() {
         //given
 
         final Alarm alarm = TestAlarm.builder()
