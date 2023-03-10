@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -43,14 +45,14 @@ class AlarmConfigCommandServiceTest {
         void createAlarmConfig() {
             //given
             given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
-                    .willReturn(null);
+                    .willReturn(Optional.empty());
 
             final User user = TestUser.builder().id(1L).build();
 
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user);
             //when
-            AlarmConfig alarmConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
+            AlarmConfig config = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
 
             //then
             then(userRepository).should(times(1)).findByUserId(anyLong());
@@ -60,6 +62,7 @@ class AlarmConfigCommandServiceTest {
         @Test
         @DisplayName("알람설정 정보가 이미 있어서 생성없이 리턴한다.")
         void onlyFindAlarmConfig() {
+            //given
             final User user = TestUser.builder()
                     .id(1L)
                     .build();
@@ -68,10 +71,13 @@ class AlarmConfigCommandServiceTest {
                     .user(user)
                     .build();
 
-//            given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
-//                    .willReturn(alarmConfig);
+            given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
+                    .willReturn(Optional.of(alarmConfig));
 
-            final AlarmConfig findConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
+            //when
+            final AlarmConfig config = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
+
+            //then
             then(userRepository).should(times(0)).findByUserId(anyLong());
             then(alarmConfigRepository).should(times(0)).save(any());
         }
@@ -82,13 +88,12 @@ class AlarmConfigCommandServiceTest {
     void updateAlarmConfig() {
         //given
         final User user = TestUser.builder().build();
-        AlarmConfig alarmConfig = AlarmConfig.of(user);
+        final AlarmConfig alarmConfig = AlarmConfig.of(user);
 
-//        given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
-//                .willReturn(alarmConfig);
+        given(alarmConfigRepository.getAlarmConfigByUserId(anyLong()))
+                .willReturn(Optional.of(alarmConfig));
 
-        AlarmConfigSettingRequest config = new AlarmConfigSettingRequest(false, true, false,
-                null, true);
+        AlarmConfigSettingRequest config = new AlarmConfigSettingRequest(false, true, false, null, true);
 
         //when
         alarmConfigCommandService.configureAlarm(anyLong(), config);
