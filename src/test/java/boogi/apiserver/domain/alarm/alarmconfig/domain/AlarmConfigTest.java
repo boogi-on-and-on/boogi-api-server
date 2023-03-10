@@ -2,6 +2,8 @@ package boogi.apiserver.domain.alarm.alarmconfig.domain;
 
 import boogi.apiserver.builder.TestAlarmConfig;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -13,9 +15,10 @@ import static org.assertj.core.api.Assertions.*;
 class AlarmConfigTest {
 
     @DisplayName("알람 설정 변경 테스트")
-    static class SwitchAlarmConfigTest {
-
-        static Stream<Arguments> switchAlarmConfig() {
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class SwitchAlarmConfigTest {
+        Stream<Arguments> switchAlarmConfig() {
             return Stream.of(
                     Arguments.of(true, true),
                     Arguments.of(null, false),
