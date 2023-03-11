@@ -4,12 +4,18 @@ import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
+import boogi.apiserver.domain.community.community.domain.CommunityCategory;
+import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
+import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
+import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
+import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.member.application.MemberCommandService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.global.error.exception.InvalidValueException;
-import org.junit.jupiter.api.Disabled;
+import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,194 +24,130 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityCommandServiceTest {
 
     @Mock
+    CommunityRepository communityRepository;
+
+    @Mock
     MemberRepository memberRepository;
 
     @Mock
-    CommunityHashtagRepository communityHashtagRepository;
+    UserRepository userRepository;
 
     @Mock
-    CommunityRepository communityRepository;
+    MemberQueryService memberQueryService;
+
+    @Mock
+    MemberCommandService memberCommandService;
 
     @InjectMocks
     CommunityCommandService communityCommandService;
 
     @Nested
-    @DisplayName("커뮤니티 폐쇄 테스트")
-    class BlockCommunity {
+    @DisplayName("커뮤니티 생성 테스트")
+    class CreateCommunity {
+        final CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티 이름", CommunityCategory.ACADEMIC.toString(),
+                "커뮤니티 소개란 입니다", List.of("태그1"), true, true);
 
         @Test
-        @DisplayName("폐쇄 실패")
-        void failBlockCommunity() {
-            //given
-            final Community community = TestCommunity.builder()
-                    .id(1L)
-                    .build();
+        @DisplayName("AlreadyExistsCommunityNameException 리턴")
+        void AlreadyExistsCommunityName() {
+            final Community community = TestCommunity.builder().build();
+            given(communityRepository.findByCommunityNameEquals(any()))
+                    .willReturn(Optional.of(community));
 
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
-
-            final Member member = TestMember.builder().build();
-
-            given(memberRepository.findAnyMemberExceptManager(any()))
-                    .willReturn(Optional.of(member));
-
-            //then
             assertThatThrownBy(() -> {
-                //when
-//                communityCommandService.shutdown(community.getId());
-            }).isInstanceOf(InvalidValueException.class);
+                communityCommandService.createCommunity(request, anyLong());
+            }).isInstanceOf(AlreadyExistsCommunityNameException.class);
         }
 
         @Test
-        @DisplayName("생성 성공")
+        @DisplayName("성공")
         void success() {
-            Community community = mock(Community.class);
+            communityCommandService.createCommunity(request, anyLong());
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            then(communityRepository).should(times(1)).save(any());
+            then(memberCommandService).should(times(1)).joinMember(anyLong(), any(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("커뮤니티 업데이트 테스트 성공")
+    void updateCommunity() {
+        final Community community = TestCommunity.builder().id(1L).build();
+        given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
+
+        communityCommandService.updateCommunity(anyLong(), community.getId(), "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
+
+        assertThat(community.getDescription()).isEqualTo("커뮤니티의 소개란입니다");
+        final List<String> pureTags = community.getHashtags().stream()
+                .map(CommunityHashtag::getTag)
+                .collect(Collectors.toList());
+        assertThat(pureTags).containsExactly("태그1", "태그2");
+    }
+
+    @Nested
+    @DisplayName("커뮤니티 폐쇄 테스트")
+    class ShutdownCommunityTest {
+
+        @Test
+        @DisplayName("CanNotDeleteCommunityException 리턴")
+        void notOnlyOneMember() {
+            given(memberRepository.findAnyMemberExceptManager(anyLong()))
+                    .willReturn(Optional.of(TestMember.builder().build()));
+
+            assertThatThrownBy(() -> {
+                communityCommandService.shutdown(1L, anyLong());
+            }).isInstanceOf(CanNotDeleteCommunityException.class);
+        }
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            final Community community = mock(Community.class);
+            given(communityRepository.findByCommunityId(any()))
                     .willReturn(community);
-
-            final Member member = TestMember.builder().build();
 
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.empty());
 
-//            communityCommandService.shutdown(community.getId());
-
+            communityCommandService.shutdown(1L, anyLong());
             then(community).should(times(1)).shutdown();
         }
     }
 
-    @Nested
-    @DisplayName("커뮤니티 업데이트 테스트")
-    class CommunityUpdateTest {
+    @Test
+    @DisplayName("커뮤니티 설정정보 변경 테스트")
+    void changeSetting() {
+        final Member member = TestMember.builder()
+                .memberType(MemberType.MANAGER)
+                .build();
+        given(memberQueryService.getMember(any(), anyLong()))
+                .willReturn(member);
 
-        @Test
-        @DisplayName("새로운 테그와 이전 테그가 없는 경우")
-        @Disabled //todo: service 변경시 테스트 코드 변경
-        void thereIsNoTagOrPrevTag() {
-            //given
-            Community community = mock(Community.class);
-            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
+        final Community community = mock(Community.class);
+        given(communityRepository.findByCommunityId(anyLong()))
+                .willReturn(community);
 
-            //when
-//            communityCommandService.updateCommunity(1L, "123", null);
+        final CommunitySettingRequest request = new CommunitySettingRequest(true, false);
+        communityCommandService.changeSetting(anyLong(), anyLong(), request);
 
-            //then
-            then(communityHashtagRepository).should(times(0)).deleteAllInBatch();
-        }
-
-        @Test
-        @DisplayName("이전 테그와 새로운 테그가 같은 경우")
-        void sameCommunityTag() {
-            //given
-
-            final CommunityHashtag hashtag1 = CommunityHashtag.builder()
-                    .tag("테그A")
-                    .build();
-
-            final CommunityHashtag hashtag2 = CommunityHashtag.builder()
-                    .tag("테그B")
-                    .build();
-
-            final Community community = TestCommunity.builder()
-                    .id(1L)
-                    .hashtags(List.of(hashtag2, hashtag1))
-                    .build();
-
-
-            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
-
-            List<String> newTags = new ArrayList<>();
-            newTags.add("테그A");
-            newTags.add("테그B");
-
-            //when
-//            communityCommandService.updateCommunity(1L, "1231232123", newTags);
-
-            //then
-            then(communityHashtagRepository).should(times(0)).deleteAllInBatch();
-            then(communityHashtagRepository).should(times(0)).saveAll(any());
-        }
-
-        @Test
-        @DisplayName("테그를 삭제하는 경우")
-        void deleteAllPrevTag() {
-            //given
-            final CommunityHashtag hashtag1 = CommunityHashtag.builder()
-                    .tag("테그A")
-                    .build();
-
-            final CommunityHashtag hashtag2 = CommunityHashtag.builder()
-                    .tag("테그B")
-                    .build();
-
-            final Community community = TestCommunity.builder()
-                    .id(1L)
-                    .hashtags(List.of(hashtag2, hashtag1))
-                    .build();
-
-            given(communityRepository.findByCommunityId(any())).willReturn(community);
-
-            //when
-//            communityCommandService.updateCommunity(1L, "2143242343", null);
-
-            //then
-            then(communityHashtagRepository).should().deleteAllInBatch(any());
-            then(communityHashtagRepository).should(times(0)).saveAll(any());
-        }
-
-        @Test
-        @DisplayName("이전 테그 삭제 후, 새로운 테그 업데이트")
-        void deleteAllPrevTagAndInsertNewTag() {
-            //given
-            List<CommunityHashtag> prevHashtags = new ArrayList<>();
-
-            final CommunityHashtag hashtag1 = CommunityHashtag.builder()
-                    .id(1L)
-                    .tag("테그A")
-                    .build();
-
-            final CommunityHashtag hashtag2 = CommunityHashtag.builder()
-                    .id(2L)
-                    .tag("테그B")
-                    .build();
-
-            prevHashtags.add(hashtag2);
-            prevHashtags.add(hashtag1);
-
-            final Community community = TestCommunity.builder()
-                    .id(1L)
-                    .hashtags(List.of(hashtag2, hashtag1))
-                    .hashtags(prevHashtags)
-                    .build();
-
-            given(communityRepository.findByCommunityId(any())).willReturn(community);
-
-            List<String> newTags = new ArrayList<>();
-            newTags.add("테그");
-            newTags.add("BB테그");
-
-            //when
-//            communityCommandService.updateCommunity(1L, "2143242343", newTags);
-
-            //then
-            then(communityHashtagRepository).should().deleteAllInBatch(prevHashtags);
-
-            then(communityHashtagRepository).should().saveAll(any());
-        }
+        then(community).should(times(1))
+                .switchPrivate(true, member.getMemberType());
+        then(community).should(times(1))
+                .switchAutoApproval(false, member.getMemberType());
     }
 }

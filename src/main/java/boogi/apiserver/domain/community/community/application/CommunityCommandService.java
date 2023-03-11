@@ -41,9 +41,10 @@ public class CommunityCommandService {
         communityRepository.save(community);
         community.addTags(request.getHashtags());
 
-        memberCommandService.joinMember(userId, community.getId(), MemberType.MANAGER);
+        Long newCommunityId = community.getId();
+        memberCommandService.joinMember(userId, newCommunityId, MemberType.MANAGER);
 
-        return community.getId();
+        return newCommunityId;
     }
 
     public void updateCommunity(Long userId, Long communityId, String description, List<String> newTags) {
