@@ -63,7 +63,7 @@ public class MemberCommandService {
         member.release();
     }
 
-    public void delegeteMember(Long userId, Long memberId, MemberType type) {
+    public void delegateMember(Long userId, Long memberId, MemberType type) {
         Member member = memberRepository.findByMemberId(memberId);
 
         Member manager = memberQueryService.getManager(userId, member.getCommunity().getId());

@@ -45,6 +45,6 @@ public class MemberApiController {
     public void delegateMember(@Session Long userId,
                                @PathVariable Long memberId,
                                @Validated @RequestBody DelegateMemberRequest request) {
-        memberCommandService.delegeteMember(userId, memberId, request.getType());
+        memberCommandService.delegateMember(userId, memberId, request.getType());
     }
 }

@@ -7,7 +7,7 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.domain.User;
@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
@@ -39,6 +40,18 @@ class MemberQueryServiceTest {
 
     @InjectMocks
     MemberQueryService memberQueryService;
+
+
+    @Test
+    @DisplayName("가입하지 않은 멤버 조회시 NotJoinedMemberException")
+    void getMemberWithException() {
+        given(memberRepository.findByUserIdAndCommunityId(any(), anyLong()))
+                .willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> {
+            memberQueryService.getMember(anyLong(), anyLong());
+        }).isInstanceOf(NotJoinedMemberException.class);
+    }
 
     @Test
     @DisplayName("특정 유저가 가입한 멤버목록 조회")
@@ -106,33 +119,6 @@ class MemberQueryServiceTest {
             //then
             assertThat(memberOfTheCommunity).isEqualTo(member);
         }
-
-        @Test
-        @DisplayName("멤버 가입정보 없는 경우")
-        void noMemberInfo() {
-            //given
-            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                    .willReturn(Optional.empty());
-
-            //when
-            Member memberOfTheCommunity = memberQueryService.getMember(anyLong(), anyLong());
-
-            //then
-            assertThat(memberOfTheCommunity).isEqualTo(null);
-        }
-
-    }
-
-    @Test
-    @DisplayName("특정 유저의 권한이 같은지 확인")
-    void checkMyAuth() {
-        final Member member = TestMember.builder().memberType(MemberType.MANAGER).build();
-
-
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(Optional.of(member));
-
-//        assertThat(hasAuth).isTrue();
     }
 
     @Nested
@@ -163,7 +149,7 @@ class MemberQueryServiceTest {
             Member viewableMember = memberQueryService.getViewableMember(3L, publicCommunity);
 
             assertThat(viewableMember.getId()).isEqualTo(2L);
-            assertThat(viewableMember.isNullMember()).isTrue();
+            assertThat(viewableMember.isNullMember()).isFalse();
         }
 
         @Test
@@ -175,7 +161,7 @@ class MemberQueryServiceTest {
             Member viewableMember = memberQueryService.getViewableMember(2L, publicCommunity);
 
             assertThat(viewableMember).isEqualTo(new NullMember());
-            assertThat(viewableMember.isNullMember()).isFalse();
+            assertThat(viewableMember.isNullMember()).isTrue();
         }
 
         @Test
@@ -192,7 +178,7 @@ class MemberQueryServiceTest {
             Member viewableMember = memberQueryService.getViewableMember(3L, privateCommunity);
 
             assertThat(viewableMember.getId()).isEqualTo(2L);
-            assertThat(viewableMember.isNullMember()).isTrue();
+            assertThat(viewableMember.isNullMember()).isFalse();
         }
 
         @Test

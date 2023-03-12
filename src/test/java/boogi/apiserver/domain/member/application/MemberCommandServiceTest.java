@@ -8,10 +8,9 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,15 +19,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+
 
 @ExtendWith(MockitoExtension.class)
 class MemberCommandServiceTest {
@@ -43,100 +42,165 @@ class MemberCommandServiceTest {
     UserRepository userRepository;
 
     @Mock
-    UserQueryService userQueryService;
-
-
-    @Mock
     CommunityRepository communityRepository;
 
-
-    @Test
-    void 멤버_가입_성공() {
-        //given
-        final User user = TestUser.builder().id(1L).build();
-
-        given(userRepository.findByUserId(anyLong()))
-                .willReturn(user);
-
-        final Community community = TestCommunity.builder().id(2L).build();
-        given(communityRepository.findByCommunityId(anyLong()))
-                .willReturn(community);
-
-        //when
-        Member member = memberCommandService.joinMember(user.getId(), community.getId(), MemberType.MANAGER);
-
-        //then
-        assertThat(member.getCommunity().getId()).isEqualTo(community.getId());
-        assertThat(member.getUser().getId()).isEqualTo(user.getId());
-        assertThat(member.getCommunity().getMemberCount()).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("멤버 2명이상 추가")
-    void joinMany() {
-        //given
-        final User u1 = TestUser.builder().id(1L).build();
-        final User u2 = TestUser.builder().id(2L).build();
-
-        given(userRepository.findUsersByIds(any()))
-                .willReturn(List.of(u1, u2));
-
-        final Community community = TestCommunity.builder().id(1L).build();
-
-        given(communityRepository.findByCommunityId(anyLong()))
-                .willReturn(community);
-
-        //when
-        List<Member> members = memberCommandService.joinMembers(List.of(u1.getId(), u2.getId()), community.getId(), MemberType.NORMAL);
-
-        //then
-        assertThat(members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList()))
-                .containsExactlyInAnyOrderElementsOf(List.of(u1.getId(), u2.getId()));
-
-        assertThat(members.stream().map(Member::getMemberType).collect(Collectors.toList()))
-                .containsOnly(MemberType.NORMAL);
-    }
+    @Mock
+    MemberQueryService memberQueryService;
 
 
     @Nested
-    @DisplayName("멤버 차단")
-    class BanMember {
+    @DisplayName("멤버 가입 테스트")
+    class JoinMemberTest {
 
+        @DisplayName("이미 가입한 멤버인 경우 AlreadyJoinedMemberException 리턴")
         @Test
-        @DisplayName("이미 차단한 멤버인 경우")
-        void alreadyBanned() {
+        void alreadyJoined() {
             final Member member = TestMember.builder()
-                    .id(1L)
-                    .bannedAt(LocalDateTime.now())
-                    .build();
+                    .user(
+                            TestUser.builder()
+                                    .id(1L)
+                                    .build()
+                    ).build();
 
-            given(memberRepository.findByMemberId(anyLong()))
-                    .willReturn(member);
+            given(memberRepository.findAlreadyJoinedMemberByUserId(anyList(), anyLong()))
+                    .willReturn(List.of(member));
 
             assertThatThrownBy(() -> {
-                memberCommandService.banMember(2L, member.getId());
-            })
-                    .isInstanceOf(InvalidValueException.class)
-                    .hasMessage("이미 차단된 멤버입니다.");
-
+                memberCommandService.joinMember(member.getUser().getId(), anyLong(), MemberType.NORMAL);
+            }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
+        @DisplayName("가입 성공")
         @Test
-        @DisplayName("차단 안된 멤버를 차단해제 하는경우")
-        void failRelease() {
-            //given
+        void success() {
+            final User user = TestUser.builder().build();
+            given(userRepository.findByUserId(anyLong()))
+                    .willReturn(user);
+
+            final Community community = TestCommunity.builder().build();
+            given(communityRepository.findByCommunityId(anyLong()))
+                    .willReturn(community);
+
+            final Member member = memberCommandService.joinMember(1L, anyLong(), MemberType.NORMAL);
+
+            then(memberRepository).should(times(1))
+                    .save(any(Member.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("멤버 여러명 추가하기")
+    class JoinManyMembers {
+
+        @DisplayName("이미 가입한 멤버가 있는경우 AlreadyJoinedMemberException")
+        @Test
+        void alreadyJoined() {
             final Member member = TestMember.builder()
-                    .id(1L)
-                    .build();
+                    .user(
+                            TestUser.builder()
+                                    .id(1L)
+                                    .build()
+                    ).build();
+
+            given(memberRepository.findAlreadyJoinedMemberByUserId(anyList(), anyLong()))
+                    .willReturn(List.of(member));
+
+            assertThatThrownBy(() -> {
+                memberCommandService.joinMembers(List.of(1L, 2L), anyLong(), any(MemberType.class));
+            }).isInstanceOf(AlreadyJoinedMemberException.class);
+        }
+
+        @DisplayName("성공")
+        @Test
+        void success() {
+            final Community community = TestCommunity.builder().build();
+            given(communityRepository.findByCommunityId(anyLong()))
+                    .willReturn(community);
+
+            memberCommandService.joinMembers(List.of(1L, 2L), anyLong(), any(MemberType.class));
+            then(memberRepository).should(times(1)).saveAll(any(List.class));
+        }
+    }
+
+    @Test
+    @DisplayName("멤버 차단 테스트")
+    void ban() {
+
+        final Member member = mock(Member.class);
+
+        final Community community = TestCommunity.builder().id(1L).build();
+        given(member.getCommunity()).willReturn(community);
+
+        given(memberRepository.findByMemberId(anyLong()))
+                .willReturn(member);
+
+        memberCommandService.banMember(anyLong(), 1L);
+
+        then(member).should(times(1)).ban();
+    }
+
+    @Test
+    @DisplayName("멤버 차단해제 테스트")
+    void release() {
+        final Member member = mock(Member.class);
+
+        final Community community = TestCommunity.builder().id(1L).build();
+        given(member.getCommunity()).willReturn(community);
+
+        given(memberRepository.findByMemberId(anyLong()))
+                .willReturn(member);
+
+        memberCommandService.releaseMember(anyLong(), 1L);
+
+        then(member).should(times(1)).release();
+    }
+
+    @Nested
+    @DisplayName("멤버 권한 위임 테스트")
+    class DelegateMemberTest {
+
+        @DisplayName("매니저의 권한을 위임할 경우 매니저와 멤버 둘 다 변한다")
+        @Test
+        void managerAndNormalMemberType() {
+            final Member member = mock(Member.class);
+
+            final Community community = TestCommunity.builder().id(1L).build();
+            given(member.getCommunity()).willReturn(community);
 
             given(memberRepository.findByMemberId(anyLong()))
                     .willReturn(member);
 
-            //then
-            assertThatThrownBy(() -> {
-                //when
-                memberCommandService.releaseMember(2L, member.getId());
-            }).isInstanceOf(InvalidValueException.class);
+            final Member manager = mock(Member.class);
+
+            given(memberQueryService.getManager(anyLong(), anyLong()))
+                    .willReturn(manager);
+
+            memberCommandService.delegateMember(anyLong(), 1L, MemberType.MANAGER);
+
+            then(manager).should(times(1)).changeMemberType(MemberType.NORMAL);
+            then(member).should(times(1)).changeMemberType(MemberType.MANAGER);
+        }
+
+        @DisplayName("일반 멤버의 권한을 바꿔주는 경우 일반멤버의 권한만 변한다.")
+        @Test
+        void normalMemberType() {
+            final Member member = mock(Member.class);
+
+            final Community community = TestCommunity.builder().id(1L).build();
+            given(member.getCommunity()).willReturn(community);
+
+            given(memberRepository.findByMemberId(anyLong()))
+                    .willReturn(member);
+
+            final Member manager = mock(Member.class);
+
+            given(memberQueryService.getManager(anyLong(), anyLong()))
+                    .willReturn(manager);
+
+            memberCommandService.delegateMember(anyLong(), 1L, MemberType.NORMAL);
+
+            then(manager).should(times(0)).changeMemberType(MemberType.NORMAL);
+            then(member).should(times(1)).changeMemberType(MemberType.NORMAL);
         }
     }
 }

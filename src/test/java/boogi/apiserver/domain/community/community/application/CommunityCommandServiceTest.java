@@ -90,7 +90,7 @@ class CommunityCommandServiceTest {
 
         communityCommandService.updateCommunity(1L, anyLong(), "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
 
-        then(community).should(times(1)).updateCommunity(anyString(), anyList());
+        then(community).should(times(1)).updateCommunity("커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
     }
 
     @Nested
@@ -140,8 +140,8 @@ class CommunityCommandServiceTest {
         communityCommandService.changeSetting(anyLong(), anyLong(), request);
 
         then(community).should(times(1))
-                .switchPrivate(true, member.getMemberType());
+                .switchPrivate(true, MemberType.MANAGER);
         then(community).should(times(1))
-                .switchAutoApproval(false, member.getMemberType());
+                .switchAutoApproval(false, MemberType.MANAGER);
     }
 }
