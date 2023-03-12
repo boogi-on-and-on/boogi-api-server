@@ -18,7 +18,7 @@ public class NoticeDto {
     @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     protected LocalDateTime createdAt;
 
-    public NoticeDto(final Long id, final String title, final LocalDateTime createdAt) {
+    public NoticeDto(Long id, String title, LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.createdAt = createdAt;
@@ -27,7 +27,7 @@ public class NoticeDto {
     public static NoticeDto from(Notice notice) {
         return new NoticeDto(notice.getId(), notice.getTitle(), notice.getCreatedAt());
     }
-    
+
     public static List<NoticeDto> listFrom(List<Notice> notices) {
         return notices.stream()
                 .map(NoticeDto::from)

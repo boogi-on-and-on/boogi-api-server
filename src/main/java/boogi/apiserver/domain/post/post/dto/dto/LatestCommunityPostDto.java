@@ -3,6 +3,7 @@ package boogi.apiserver.domain.post.post.dto.dto;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,8 @@ public class LatestCommunityPostDto {
     @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
-    public LatestCommunityPostDto(final Long id, final String content, final LocalDateTime createdAt) {
+    @Builder
+    public LatestCommunityPostDto(Long id, String content, LocalDateTime createdAt) {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;

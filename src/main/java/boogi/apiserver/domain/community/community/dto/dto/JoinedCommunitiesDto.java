@@ -81,7 +81,7 @@ public class JoinedCommunitiesDto {
     }
 
     @Getter
-    static class CommunityInfo {
+    public static class CommunityInfo {
         private Long id;
         private String name;
 
@@ -105,7 +105,7 @@ public class JoinedCommunitiesDto {
     }
 
     @Getter
-    static class PostInfo {
+    public static class PostInfo {
         private Long id;
 
         @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)

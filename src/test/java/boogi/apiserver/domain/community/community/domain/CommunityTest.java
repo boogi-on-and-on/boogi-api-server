@@ -70,7 +70,7 @@ class CommunityTest {
         }
 
         @DisplayName("매니저 권한이 없어서 실패")
-        @ParameterizedTest
+        @ParameterizedTest(name = "{0}로 시도할 경우 권한 없음")
         @MethodSource("memberTypeEnum")
         void throwNotManagerException(MemberType memberType) {
             final Community community = TestCommunity.builder().build();
@@ -80,8 +80,8 @@ class CommunityTest {
             }).isInstanceOf(NotManagerException.class);
         }
 
-        @DisplayName("성공")
         @Test
+        @DisplayName("성공")
         void success() {
             final Community community = TestCommunity.builder()
                     .isPrivate(false)
@@ -93,18 +93,40 @@ class CommunityTest {
         }
     }
 
-    @Test
-    @DisplayName("자동승인 변환 성공")
-    void switchAutoApproval() {
-        final Community community = TestCommunity.builder()
-                .autoApproval(false)
-                .build();
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @DisplayName("가입요청 자동승인 변환 테스트")
+    class AutoApprovalTest {
+        Stream<Arguments> memberTypeEnum() {
+            return Stream.of(
+                    Arguments.of(MemberType.NORMAL),
+                    Arguments.of(MemberType.SUB_MANAGER)
+            );
+        }
 
-        community.switchAutoApproval(true, MemberType.MANAGER);
+        @DisplayName("매니저 권한이 없어서 실패")
+        @ParameterizedTest(name = "{0}로 시도할 경우 권한이 없음")
+        @MethodSource("memberTypeEnum")
+        void throwNotManagerException(MemberType memberType) {
+            final Community community = TestCommunity.builder().build();
 
-        assertThat(community.isAutoApproval()).isTrue();
+            assertThatThrownBy(() -> {
+                community.switchAutoApproval(true, memberType);
+            }).isInstanceOf(NotManagerException.class);
+        }
+
+        @DisplayName("자동승인 변환 성공")
+        @Test
+        void success() {
+            final Community community = TestCommunity.builder()
+                    .autoApproval(false)
+                    .build();
+
+            community.switchAutoApproval(true, MemberType.MANAGER);
+
+            assertThat(community.isAutoApproval()).isTrue();
+        }
     }
-
 
     @Nested
     @DisplayName("canViewMember 테스트")

@@ -48,13 +48,6 @@ public class CommunityQueryService {
     private final NoticeQueryService noticeQueryService;
     private final PostQueryService postQueryService;
 
-    public Community getCommunityWithHashTag(Long communityId) {
-        Community community = communityRepository.findByCommunityId(communityId);
-        community.getHashtags().size(); //LAZY INIT
-
-        return community;
-    }
-
     public CommunityDetailResponse getCommunityDetail(Long userId, Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
         Member member = memberQueryService.getMemberOrNullMember(userId, community);
@@ -67,7 +60,9 @@ public class CommunityQueryService {
 
     public CommunityMetadataDto getCommunityMetadata(Long userId, Long communityId) {
         memberQueryService.getManager(userId, communityId);
-        Community community = getCommunityWithHashTag(communityId);
+        final Community community = communityRepository.findByCommunityId(communityId);
+        community.getHashtags().size(); //LAZY INIT
+
         return CommunityMetadataDto.of(community);
     }
 

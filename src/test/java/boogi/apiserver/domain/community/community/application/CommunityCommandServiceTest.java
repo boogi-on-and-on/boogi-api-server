@@ -9,7 +9,6 @@ import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRe
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
@@ -26,14 +25,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityCommandServiceTest {
@@ -87,16 +85,12 @@ class CommunityCommandServiceTest {
     @Test
     @DisplayName("커뮤니티 업데이트 테스트 성공")
     void updateCommunity() {
-        final Community community = TestCommunity.builder().id(1L).build();
+        final Community community = mock(Community.class);
         given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
-        communityCommandService.updateCommunity(anyLong(), community.getId(), "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
+        communityCommandService.updateCommunity(1L, anyLong(), "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
 
-        assertThat(community.getDescription()).isEqualTo("커뮤니티의 소개란입니다");
-        final List<String> pureTags = community.getHashtags().stream()
-                .map(CommunityHashtag::getTag)
-                .collect(Collectors.toList());
-        assertThat(pureTags).containsExactly("태그1", "태그2");
+        then(community).should(times(1)).updateCommunity(anyString(), anyList());
     }
 
     @Nested
