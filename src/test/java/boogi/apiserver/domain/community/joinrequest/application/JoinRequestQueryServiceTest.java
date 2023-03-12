@@ -4,6 +4,7 @@ import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 
@@ -25,6 +27,9 @@ class JoinRequestQueryServiceTest {
 
     @Mock
     JoinRequestRepository joinRequestRepository;
+
+    @Mock
+    MemberQueryService memberQueryService;
 
     @InjectMocks
     JoinRequestQueryService joinRequestQueryService;
@@ -48,15 +53,15 @@ class JoinRequestQueryServiceTest {
         given(joinRequestRepository.getAllRequests(anyLong()))
                 .willReturn(List.of(joinRequest));
 
-//        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(anyLong());
+        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(eq(user.getId()), anyLong());
 
-//        UserJoinRequestInfoDto req = allRequests.get(0);
-//        assertThat(req.getId()).isEqualTo(2L);
-//
-//        UserBasicProfileDto userDto = req.getUser();
-//        assertThat(userDto.getName()).isEqualTo("이름");
-//        assertThat(userDto.getId()).isEqualTo(1L);
-//        assertThat(userDto.getProfileImageUrl()).isEqualTo("image");
-//        assertThat(userDto.getTagNum()).isEqualTo("#0001");
+        UserJoinRequestInfoDto request = allRequests.get(0);
+        assertThat(request.getId()).isEqualTo(2L);
+
+        UserBasicProfileDto userDto = request.getUser();
+        assertThat(userDto.getName()).isEqualTo("이름");
+        assertThat(userDto.getId()).isEqualTo(1L);
+        assertThat(userDto.getProfileImageUrl()).isEqualTo("image");
+        assertThat(userDto.getTagNum()).isEqualTo("#0001");
     }
 }

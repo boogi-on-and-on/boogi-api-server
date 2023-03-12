@@ -94,12 +94,6 @@ public class JoinRequestCommandService {
         }
     }
 
-    private void validateOperator(Member member) {
-        if (member.isOperator()) {
-            throw new NotOperatorException();
-        }
-    }
-
     private void validateAlreadyJoinedMember(Long userId, Long communityId) {
         Member alreadyJoinedMember = memberQueryService.getMember(userId, communityId);
         if (alreadyJoinedMember != null) {

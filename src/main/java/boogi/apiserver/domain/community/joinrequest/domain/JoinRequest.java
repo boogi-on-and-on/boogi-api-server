@@ -42,8 +42,8 @@ public class JoinRequest extends TimeBaseEntity {
     private JoinRequestStatus status = JoinRequestStatus.PENDING;
 
     @Builder
-    private JoinRequest(final Long id, final User user, final Community community, final Member confirmedMember,
-                        final Member acceptor, final JoinRequestStatus status) {
+    private JoinRequest(Long id, User user, Community community, Member confirmedMember,
+                        Member acceptor, JoinRequestStatus status) {
         this.id = id;
         this.user = user;
         this.community = community;
@@ -61,15 +61,15 @@ public class JoinRequest extends TimeBaseEntity {
         return new JoinRequest(user, community);
     }
 
-    public void reject(Member manager) {
+    public void reject(Member operator) {
         validateNotPending();
-        this.acceptor = manager;
+        this.acceptor = operator;
         this.status = JoinRequestStatus.REJECT;
     }
 
-    public void confirm(Member manager, Member confirmedMember) {
+    public void confirm(Member operator, Member confirmedMember) {
         validateNotPending();
-        this.acceptor = manager;
+        this.acceptor = operator;
         this.confirmedMember = confirmedMember;
         this.status = JoinRequestStatus.CONFIRM;
     }
