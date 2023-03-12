@@ -22,8 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class NoticeCommandServiceTest {
@@ -39,47 +43,21 @@ class NoticeCommandServiceTest {
     @InjectMocks
     NoticeCommandService noticeCommandService;
 
-    @Nested
-    @DisplayName("공지사항 생성 테스트")
-    class CreateNoticeTest {
 
-        @Test
-        @DisplayName("생성 권한 없는 경우")
-        void hasNoAuth() {
-            final Member member = TestMember.builder().memberType(MemberType.NORMAL).build();
+    @Test
+    @DisplayName("생성 성공")
+    void success() {
+        final Community community = TestCommunity.builder().id(1L).build();
+        given(communityRepository.findByCommunityId(anyLong()))
+                .willReturn(community);
 
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(member);
+        NoticeCreateRequest request = new NoticeCreateRequest(1L, "A".repeat(10), "B".repeat(10));
 
-            NoticeCreateRequest request = new NoticeCreateRequest(1L, null, null);
+        Long noticeId = noticeCommandService.createNotice(request, 2L);
 
-            assertThatThrownBy(() -> {
-                noticeCommandService.createNotice(request, 2L);
-            })
-                    .isInstanceOf(InvalidValueException.class)
-                    .hasMessage("관리자가 아닙니다.");
-        }
+        then(memberQueryService).should(times(1))
+                .getOperator(2L, 1L);
 
-        @Test
-        @DisplayName("생성 성공")
-        void success() {
-            final Member member = TestMember.builder().memberType(MemberType.SUB_MANAGER).build();
-
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(member);
-
-            final Community community = TestCommunity.builder().id(1L).build();
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
-
-            NoticeCreateRequest request = new NoticeCreateRequest(1L, "A".repeat(10), "B".repeat(10));
-//
-//            Notice notice = noticeCommandService.createNotice(request, 2L);
-//
-//            assertThat(notice.getTitle()).isEqualTo("A".repeat(10));
-//            assertThat(notice.getContent()).isEqualTo("B".repeat(10));
-//            assertThat(notice.getCommunity()).isEqualTo(community);
-//            assertThat(notice.getMember()).isEqualTo(member);
-        }
+        verify(noticeRepository).save(any(Notice.class));
     }
 }
