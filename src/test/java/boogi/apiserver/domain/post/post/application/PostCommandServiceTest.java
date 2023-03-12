@@ -175,8 +175,8 @@ class PostCommandServiceTest {
                     .id(1L)
                     .uuid("uuid")
                     .build();
-            given(postMediaRepository.findByPostId(anyLong()))
-                    .willReturn(List.of());
+//            given(postMediaRepository.findByPostId(anyLong()))
+//                    .willReturn(List.of());
 
 //            given(postMediaQueryService.getUnmappedPostMediasByUUID(anyList()))
 //                    .willReturn(new PostMedias(List.of(postMedia)));
@@ -220,8 +220,8 @@ class PostCommandServiceTest {
                     .member(member)
                     .commentCount(1)
                     .build();
-            given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
-                    .willReturn(Optional.of(post));
+//            given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
+//                    .willReturn(Optional.of(post));
 
             final Comment comment = TestComment.builder()
                     .id(1L)
@@ -232,8 +232,8 @@ class PostCommandServiceTest {
 
             final PostMedia postMedia = TestPostMedia.builder().id(1L).build();
             List<PostMedia> postMedias = List.of(postMedia);
-            given(postMediaRepository.findByPostId(anyLong()))
-                    .willReturn(postMedias);
+//            given(postMediaRepository.findByPostId(anyLong()))
+//                    .willReturn(postMedias);
 
 //            postCommandService.deletePost(post.getId(), 1L);
 //
@@ -261,8 +261,8 @@ class PostCommandServiceTest {
                     .community(community)
                     .member(member)
                     .build();
-            given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
-                    .willReturn(Optional.of(post));
+//            given(postRepository.getPostWithCommunityAndMemberByPostId(anyLong()))
+//                    .willReturn(Optional.of(post));
 //
 //            given(memberValidationService.hasSubManagerAuthority(anyLong(), anyLong()))
 //                    .willReturn(false);

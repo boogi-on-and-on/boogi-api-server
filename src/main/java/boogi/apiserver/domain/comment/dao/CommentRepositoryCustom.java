@@ -5,14 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
-import java.util.Optional;
 
 
 public interface CommentRepositoryCustom {
-    Slice<Comment> getUserCommentPage(Pageable pageable, Long userId);
-
-    Optional<Comment> findCommentWithMemberByCommentId(Long commentId);
-
     Slice<Comment> findParentCommentsWithMemberByPostId(Pageable pageable, Long postId);
 
     List<Comment> findChildCommentsWithMemberByParentCommentIds(List<Long> commentIds);

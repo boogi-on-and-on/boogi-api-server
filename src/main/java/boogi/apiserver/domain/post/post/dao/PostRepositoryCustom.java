@@ -19,8 +19,6 @@ public interface PostRepositoryCustom {
 
     Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId);
 
-    Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId);
-
     Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId);
 
     Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable);

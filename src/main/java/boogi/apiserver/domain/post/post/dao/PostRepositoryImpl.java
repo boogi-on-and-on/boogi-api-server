@@ -98,19 +98,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Optional<Post> getPostWithCommunityAndMemberByPostId(Long postId) {
-        final List<Post> posts = queryFactory.selectFrom(post)
-                .join(post.community, community).fetchJoin()
-                .join(post.member, member).fetchJoin()
-                .where(
-                        post.id.eq(postId),
-                        post.deletedAt.isNull()
-                ).limit(1)
-                .fetch();
-        return posts.size() == 0 ? Optional.empty() : Optional.of(posts.get(0));
-    }
-
-    @Override
     public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         List<Long> memberJoinedCommunityIds = queryFactory.select(member.community.id)
                 .from(member)

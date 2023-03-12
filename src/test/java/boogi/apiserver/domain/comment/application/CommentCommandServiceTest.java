@@ -179,8 +179,8 @@ class CommentCommandServiceTest {
                     .content("댓글")
                     .build();
 
-            given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
+//                    .willReturn(Optional.of(comment));
 
             commentCommandService.deleteComment(comment.getId(), user.getId());
 
@@ -216,8 +216,8 @@ class CommentCommandServiceTest {
                     .content("댓글")
                     .build();
 
-            given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
+//                    .willReturn(Optional.of(comment));
 
 //            given(memberValidationService.hasAuth(eq(user2.getId()), eq(community.getId()), eq(MemberType.SUB_MANAGER)))
 //                    .willReturn(true);
@@ -256,8 +256,8 @@ class CommentCommandServiceTest {
                     .content("댓글")
                     .build();
 
-            given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentWithMemberByCommentId(eq(comment.getId())))
+//                    .willReturn(Optional.of(comment));
 
             assertThatThrownBy(() -> commentCommandService.deleteComment(comment.getId(), user2.getId()))
                     .isInstanceOf(NotAuthorizedMemberException.class);

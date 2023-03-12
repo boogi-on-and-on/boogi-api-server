@@ -17,7 +17,7 @@ public class PostMediaQueryService {
     private final PostMediaRepository postMediaRepository;
 
     public List<PostMedia> getUnmappedPostMediasByUUID(List<String> postMediaUUIDs) {
-        final List<PostMedia> findPostMedias = postMediaRepository.findUnmappedPostMedias2(postMediaUUIDs);
+        final List<PostMedia> findPostMedias = postMediaRepository.findUnmappedPostMedias(postMediaUUIDs);
         if (findPostMedias.size() != postMediaUUIDs.size()) {
             throw new UnmappedPostMediaExcecption();
         }

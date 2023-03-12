@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public interface LikeRepositoryCustom {
 
-    List<Like> findPostLikesByPostId(Long postId);
-
     void deleteAllPostLikeByPostId(Long postId);
 
     void deleteAllCommentLikeByCommentId(Long commentId);

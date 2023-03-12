@@ -6,19 +6,13 @@ import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
-import boogi.apiserver.domain.like.exception.AlreadyDoPostLikeException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
-import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.dto.PaginationDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,12 +28,8 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -131,8 +121,8 @@ class LikeCommandServiceTest {
                     .willReturn(Optional.of(member));
 
             final Comment comment = TestComment.builder().id(1L).member(member).build();
-            given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
+//                    .willReturn(Optional.of(comment));
 
 //            given(likeValidationService.checkOnlyAlreadyDoCommentLike(anyLong(), anyLong()))
 //                    .willReturn(false);
@@ -153,8 +143,8 @@ class LikeCommandServiceTest {
                     .willReturn(Optional.of(member));
 
             final Comment comment = TestComment.builder().id(1L).member(member).build();
-            given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
-                    .willReturn(Optional.of(comment));
+//            given(commentRepository.findCommentWithMemberByCommentId(anyLong()))
+//                    .willReturn(Optional.of(comment));
 
 //            given(likeValidationService.checkOnlyAlreadyDoCommentLike(anyLong(), anyLong()))
 //                    .willReturn(true);

@@ -134,8 +134,8 @@ class PostQueryServiceTest {
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(new NullMember());
 
-            given(postMediaRepository.findByPostId(anyLong()))
-                    .willReturn(List.of());
+//            given(postMediaRepository.findByPostId(anyLong()))
+//                    .willReturn(List.of());
 //
 //            given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))
 //                    .willReturn(null);
@@ -189,8 +189,8 @@ class PostQueryServiceTest {
                     .mediaURL("url")
                     .mediaType(MediaType.IMG)
                     .build();
-            given(postMediaRepository.findByPostId(anyLong()))
-                    .willReturn(List.of(postMedia));
+//            given(postMediaRepository.findByPostId(anyLong()))
+//                    .willReturn(List.of(postMedia));
 
 //            final Like like = TestLike.builder().id(1L).build();
 //            given(likeQueryService.getPostLikeIdForView(anyLong(), any(Member.class)))

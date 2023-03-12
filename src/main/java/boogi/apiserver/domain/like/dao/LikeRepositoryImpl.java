@@ -20,13 +20,6 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Like> findPostLikesByPostId(Long postId) {
-        return queryFactory.selectFrom(like)
-                .where(like.post.id.eq(postId))
-                .fetch();
-    }
-
-    @Override
     public void deleteAllPostLikeByPostId(Long postId) {
         queryFactory.delete(like)
                 .where(

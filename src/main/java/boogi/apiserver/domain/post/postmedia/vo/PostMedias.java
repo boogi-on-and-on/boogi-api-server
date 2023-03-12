@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
+//todo: 클래스 삭제
 public class PostMedias {
 
     public static final PostMedias EMPTY = new PostMedias(List.of());

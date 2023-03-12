@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.post.postmedia.dao;
 
+import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +18,7 @@ public interface PostMediaRepository extends JpaRepository<PostMedia, Long>, Pos
             nativeQuery = true)
     List<PostMedia> getPostMediasByLatestPostIds(@Param("latestPostIds") List<Long> latestedPostIds);
 
-    List<PostMedia> findByUuidIn(List<String> uuid);
+    List<PostMedia> findByPost(Post post);
 
+    List<PostMedia> findByUuidIn(List<String> uuids);
 }

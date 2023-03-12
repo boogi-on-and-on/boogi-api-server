@@ -23,6 +23,5 @@ public interface MessageRepository extends JpaRepository<Message, Long>, Message
 
     default Message findByMessageId(Long messageId) {
         return this.findById(messageId).orElseThrow(MessageNotFoundException::new);
-
     }
 }
