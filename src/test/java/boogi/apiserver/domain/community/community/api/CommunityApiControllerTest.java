@@ -1,31 +1,27 @@
 package boogi.apiserver.domain.community.community.api;
 
 import boogi.apiserver.builder.*;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.application.CommunityCommandService;
+import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
-import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
-import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
-import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
-import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
+import boogi.apiserver.domain.community.community.dto.dto.*;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
-import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequest;
 import boogi.apiserver.domain.community.community.dto.request.UpdateCommunityRequest;
-import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
+import boogi.apiserver.domain.community.community.dto.response.CommunityDetailResponse;
+import boogi.apiserver.domain.community.community.dto.response.CommunityPostsResponse;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.application.MemberCommandService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.dto.MemberDto;
-import boogi.apiserver.domain.member.exception.NotAuthorizedMemberException;
+import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -34,28 +30,26 @@ import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
-import boogi.apiserver.global.util.time.TimePattern;
+import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import boogi.apiserver.utils.TestTimeReflection;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
+import boogi.apiserver.utils.controller.MockHttpSessionCreator;
+import boogi.apiserver.utils.controller.TestControllerSetUp;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,13 +59,18 @@ import static boogi.apiserver.domain.post.postmedia.domain.MediaType.IMG;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = CommunityApiController.class)
-class CommunityApiControllerTest {
+class CommunityApiControllerTest extends TestControllerSetUp {
 
     @MockBean
     JoinRequestCommandService joinRequestCommandService;
@@ -103,260 +102,278 @@ class CommunityApiControllerTest {
     @MockBean
     SendPushNotification sendPushNotification;
 
+    @Test
+    @DisplayName("커뮤니티 생성")
+    void createCommunity() throws Exception {
+        //given
+        CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB", "A".repeat(10),
+                List.of("해시테그1", "해시테그1"), false, true);
 
-    MockMvc mvc;
+        final Community community = TestCommunity.builder().id(1L).build();
 
-    @Autowired
-    ObjectMapper mapper = new ObjectMapper();
+        given(communityCommandService.createCommunity(any(), anyLong())).willReturn(community.getId());
 
-    @Autowired
-    WebApplicationContext ctx;
+        //when
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .post("/api/communities")
+                .content(mapper.writeValueAsBytes(request))
+                .contentType(MediaType.APPLICATION_JSON)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
 
-    @BeforeEach
-    void setup() {
-        mvc =
-                MockMvcBuilders.webAppContextSetup(ctx)
-                        .addFilter(new CharacterEncodingFilter("UTF-8", true))
-                        .alwaysDo(print())
-                        .build();
-    }
+        //then
+        response
+                .andExpect(status().isCreated())
+                .andDo(document("communities/post",
+                        requestHeaders(
+                                headerWithName(HeaderConst.AUTH_TOKEN)
+                                        .description("유저 세션의 토큰")
+                        ),
 
+                        requestFields(
+                                fieldWithPath("name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 이름"),
 
-    @Nested
-    @DisplayName("커뮤니티 생성 테스트")
-    class CommunityCreationTest {
+                                fieldWithPath("category")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 카테고리"),
 
-        @Test
-        @DisplayName("커뮤니티 생성 성공")
-        void communityCreationSuccess() throws Exception {
+                                fieldWithPath("description")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 소개"),
 
-            //given
-            List<String> hashtags = List.of("해시테그1", "해시테그1");
-            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB", "A".repeat(10), hashtags, false, true);
+                                fieldWithPath("hashtags")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 해시태그"),
 
-            final Community community = TestCommunity.builder().id(1L).build();
+                                fieldWithPath("isPrivate")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 커뮤니티 공개"),
 
-            given(communityCommandService.createCommunity(any(), anyLong())).willReturn(community.getId());
+                                fieldWithPath("autoApproval")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 커뮤니티 가입 자동 승인")
+                        ),
 
-
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-            //when, then
-            mvc.perform(
-                            MockMvcRequestBuilders.post("/api/communities")
-                                    .content(mapper.writeValueAsBytes(request))
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    )
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value("1"));
-        }
-
-        @Test
-        @DisplayName("커뮤니티의 이름이 이미 존재하는 경우")
-        void communityAlreadyExistsName() throws Exception {
-
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-            List<String> hashtags = List.of("해시테그1", "해시테그1");
-            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB", "A".repeat(10), hashtags, false, true);
-
-            given(communityCommandService.createCommunity(any(), anyLong())).willThrow(new AlreadyExistsCommunityNameException());
-
-            mvc.perform(
-                            MockMvcRequestBuilders.post("/api/communities")
-                                    .content(mapper.writeValueAsBytes(request))
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    )
-                    .andExpect(jsonPath("$.message").value("이미 해당 커뮤니티 이름이 존재합니다."));
-        }
+                        responseFields(
+                                fieldWithPath("id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("생성된 커뮤니티 ID")
+                        )
+                ));
     }
 
     @Test
-    @DisplayName("커뮤니티 상세조회 (글 목록 조회)")
-    void communityDetailWithPosts() throws Exception {
+    @DisplayName("커뮤니티 상세조회 with 글/게시글 목록")
+    void getCommunityDetail() throws Exception {
+        final CommunityDetailInfoDto communityDetailInfoDto = new CommunityDetailInfoDto(true, CommunityCategory.ACADEMIC.toString(), "커뮤니티 이름", "소개",
+                List.of("태그1"), "1", LocalDateTime.now());
+        final NoticeDto noticeDto = new NoticeDto(1L, "공지", LocalDateTime.now());
+        final LatestCommunityPostDto postDto = new LatestCommunityPostDto(1L, "글 내용", LocalDateTime.now());
+        final CommunityDetailResponse dto = new CommunityDetailResponse(MemberType.MANAGER, communityDetailInfoDto, List.of(noticeDto), List.of(postDto));
 
-        final Member member = TestMember.builder().memberType(MemberType.NORMAL).build();
+        given(communityQueryService.getCommunityDetail(anyLong(), anyLong()))
+                .willReturn(dto);
 
-        given(memberQueryService.getMember(anyLong(), anyLong()))
-                .willReturn(member);
 
-        final CommunityHashtag hashtag = TestCommunityHashtag.builder()
-                .tag("테그")
-                .build();
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/{communityId}", 1L)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
 
-        final Community community = Community.builder()
-                .id(1L)
-                .communityName("커뮤니티")
-                .description("A".repeat(10))
-                .isPrivate(false)
-                .hashtags(List.of(hashtag))
-                .memberCount(3)
-                .category(CommunityCategory.ACADEMIC)
-                .build();
-        TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-communityId",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
 
-//
-//        given(communityQueryService.getCommunityWithHashTag(anyLong()))
-//                .willReturn(community);
-////
-//        final NoticeDto noticeDto = new NoticeDto(1L, "노티스", LocalDateTime.now());
-//
-//        given(noticeQueryService.getCommunityLatestNotice(anyLong()))
-//                .willReturn(List.of(noticeDto));
-//
-//        final LatestCommunityPostDto postDto = new LatestCommunityPostDto(4L, "글", LocalDateTime.now());
-//
-//        given(postQueryService.getLatestPostOfCommunity(any(), any()))
-//                .willReturn(List.of(postDto));
-//
-//        MockHttpSession session = new MockHttpSession();
-//        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-//
-//        //when
-//        mvc.perform(
-//                        MockMvcRequestBuilders.get("/api/communities/1")
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .session(session)
-//                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-//
-//                )
-//                .andExpect(jsonPath("$.community.isPrivated").value(false))
-//                .andExpect(jsonPath("$.community.category").value("ACADEMIC"))
-//                .andExpect(jsonPath("$.community.name").value("커뮤니티"))
-//                .andExpect(jsonPath("$.community.introduce").value("A".repeat(10)))
-//                .andExpect(jsonPath("$.community.hashtags[0]").value("테그"))
-//                .andExpect(jsonPath("$.community.memberCount").value("3"))
-//                .andExpect(jsonPath("$.community.createdAt").value(CustomDateTimeFormatter.toString(community.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-//                .andExpect(jsonPath("$.sessionMemberType").value("NORMAL"))
-//                .andExpect(jsonPath("$.posts[0].id").value(4))
-//                .andExpect(jsonPath("$.posts[0].content").value("글"))
-//                .andExpect(jsonPath("$.posts[0].createdAt").value(CustomDateTimeFormatter.toString(postDto.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-//                .andExpect(jsonPath("$.notices[0].id").value(1))
-//                .andExpect(jsonPath("$.notices[0].title").value("노티스"))
-//                .andExpect(jsonPath("$.notices[0].createdAt").value(CustomDateTimeFormatter.toString(noticeDto.getCreatedAt(), TimePattern.BASIC_FORMAT)));
+                        requestHeaders(
+                                headerWithName(HeaderConst.AUTH_TOKEN)
+                                        .description("유저 세션의 토큰")
+                        ),
+
+                        responseFields(
+                                fieldWithPath("sessionMemberType")
+                                        .type(JsonFieldType.STRING)
+                                        .description("요청한 유저의 멤버타입")
+                                        .optional(),
+
+                                fieldWithPath("community")
+                                        .type(JsonFieldType.OBJECT)
+                                        .description("커뮤니티 정보"),
+
+                                fieldWithPath("community.isPrivated")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 비공개 커뮤니티"),
+
+                                fieldWithPath("community.category")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 카테고리"),
+
+                                fieldWithPath("community.name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 이름"),
+
+                                fieldWithPath("community.introduce")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 소개"),
+
+                                fieldWithPath("community.hashtags")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 해시태그")
+                                        .optional(),
+
+                                fieldWithPath("community.memberCount")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 멤버 수"),
+
+                                fieldWithPath("community.createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 생성시각"),
+
+                                fieldWithPath("notices")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티의 공지사항 목록"),
+
+                                fieldWithPath("notices[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("공지사항 ID"),
+
+                                fieldWithPath("notices[].title")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 제목"),
+
+                                fieldWithPath("notices[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 생성시각"),
+
+                                fieldWithPath("posts")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티의 최근 글의 목록")
+                                        .optional(),
+
+                                fieldWithPath("posts[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("게시글 ID"),
+
+                                fieldWithPath("posts[].content")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글의 내용"),
+
+                                fieldWithPath("posts[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글의 생성시각")
+
+                        )
+                ));
     }
 
     @Test
     @DisplayName("기본 메타데이터 전달")
     void getMetadata() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         CommunityMetadataDto dto = new CommunityMetadataDto("이름", "소개", List.of("테그"));
 
         given(communityQueryService.getCommunityMetadata(anyLong(), anyLong()))
                 .willReturn(dto);
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/metadata")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.metadata.name").value("이름"))
-                .andExpect(jsonPath("$.metadata.introduce").value("소개"))
-                .andExpect(jsonPath("$.metadata.hashtags[0]").value("테그"));
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/1/metadata")
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
+
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-communityId-metadata",
+                        requestHeaders(
+                                headerWithName(HeaderConst.AUTH_TOKEN)
+                                        .description("유저 세션의 토큰")
+                        ),
+                        responseFields(
+                                fieldWithPath("metadata")
+                                        .type(JsonFieldType.OBJECT)
+                                        .description("커뮤니티 메타데이터"),
+
+                                fieldWithPath("metadata.name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 이름"),
+
+                                fieldWithPath("metadata.introduce")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 소개"),
+
+                                fieldWithPath("metadata.hashtags")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 해시태그")
+                        )
+                ));
     }
 
-    @Nested
-    @DisplayName("커뮤니티 기본정보 테스트")
-    class CommunityUpdateTest {
 
-        @Test
-        @DisplayName("커뮤니티 업데이트 소개란이 없는 경우")
-        void noIntroduce() throws Exception {
+    @Test
+    @DisplayName("커뮤니티 업데이트 성공")
+    void updateSuccess() throws Exception {
+        UpdateCommunityRequest request = new UpdateCommunityRequest("@1fasdfadsfasdf3", List.of("t1", "t2", "t3", "t4"));
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .patch("/api/communities/{communityId}", 1L)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request))
+        );
 
-            UpdateCommunityRequest request = new UpdateCommunityRequest(null, List.of("t1"));
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/patch-communityId",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
 
-            mvc.perform(
-                            MockMvcRequestBuilders.patch("/api/communities/1")
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(mapper.writeValueAsString(request))
-                    ).andExpect(status().is4xxClientError())
-                    .andExpect(jsonPath("$.code").value("COMMON_004"))
-                    .andExpect(jsonPath("$.message").value("커뮤니티 소개란을 입력해주세요."));
-        }
+                        requestHeaders(
+                                headerWithName(HeaderConst.AUTH_TOKEN)
+                                        .description("유저 세션의 토큰")
+                        ),
 
-        @Test
-        @DisplayName("커뮤니티 업데이트 소개란이 10글자 미만인 경우")
-        void introduceIsLessThan10() throws Exception {
+                        requestFields(
+                                fieldWithPath("description")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 소개란"),
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                                fieldWithPath("hashtags")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 해시테그")
+                                        .optional()
+                        )
+                ));
 
-            UpdateCommunityRequest request = new UpdateCommunityRequest("@13", List.of("t1"));
-
-            mvc.perform(
-                            MockMvcRequestBuilders.patch("/api/communities/1")
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(mapper.writeValueAsString(request))
-                    ).andExpect(status().is4xxClientError())
-                    .andExpect(jsonPath("$.code").value("COMMON_004"))
-                    .andExpect(jsonPath("$.message").value("10글자 이상 소개란을 입력해주세요."));
-        }
-
-        @Test
-        @DisplayName("해시테그가 5개 초과하는 경우")
-        void hashTagsIsGreaterThan5() throws Exception {
-
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-            UpdateCommunityRequest request = new UpdateCommunityRequest("@1fasdfadsfasdf3", List.of("t1", "t2", "t3", "t4", "t5", "t6"));
-
-            mvc.perform(
-                            MockMvcRequestBuilders.patch("/api/communities/1")
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(mapper.writeValueAsString(request))
-                    ).andExpect(status().is4xxClientError())
-                    .andExpect(jsonPath("$.code").value("COMMON_004"))
-                    .andExpect(jsonPath("$.message").value("해시테그는 5개까지만 입력가능합니다."));
-        }
-
-        @Test
-        @DisplayName("커뮤니티 업데이트 성공")
-        void updateSuccess() throws Exception {
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-            UpdateCommunityRequest request = new UpdateCommunityRequest("@1fasdfadsfasdf3", List.of("t1", "t2", "t3", "t4"));
-
-            mvc.perform(
-                    MockMvcRequestBuilders.patch("/api/communities/1")
-                            .session(session)
-                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(request))
-            ).andExpect(status().isOk());
-        }
     }
 
     @Test
     @DisplayName("커뮤니티 폐쇄")
     void communityShutdown() throws Exception {
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .delete("/api/communities/{communityId}", 1L)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/delete-communityId",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
 
-        mvc.perform(
-                MockMvcRequestBuilders.delete("/api/communities/1")
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-        ).andExpect(status().isOk());
+                        requestHeaders(
+                                headerWithName(HeaderConst.AUTH_TOKEN)
+                                        .description("유저 세션의 토큰")
+                        )
+                ));
     }
 
     @Nested
@@ -366,7 +383,6 @@ class CommunityApiControllerTest {
         @Test
         @DisplayName("설정정보 조회")
         void getSettingInfo() throws Exception {
-
             final Community community = TestCommunity.builder()
                     .isPrivate(true)
                     .autoApproval(true)
@@ -376,275 +392,353 @@ class CommunityApiControllerTest {
 
             given(communityQueryService.getSetting(anyLong(), anyLong())).willReturn(settingInfo);
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .get("/api/communities/{communityId}/settings", 1L)
+                    .session(MockHttpSessionCreator.dummySession1L())
+                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    .contentType(MediaType.APPLICATION_JSON)
+            );
 
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/communities/1/settings")
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                    )
-                    .andExpect(jsonPath("$.settingInfo.isAuto").value(true))
-                    .andExpect(jsonPath("$.settingInfo.isSecret").value(true));
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("communities/get-communityId-settings",
+                            pathParameters(
+                                    parameterWithName("communityId").description("커뮤니티 ID")
+                            ),
 
+                            requestHeaders(
+                                    headerWithName(HeaderConst.AUTH_TOKEN)
+                                            .description("유저 세션의 토큰")
+                            ),
+
+                            responseFields(
+                                    fieldWithPath("settingInfo")
+                                            .type(JsonFieldType.OBJECT)
+                                            .description("커뮤니티 설정 정보"),
+
+                                    fieldWithPath("settingInfo.isAuto")
+                                            .type(JsonFieldType.BOOLEAN)
+                                            .description("true -> 자동 가입 커뮤니티로 전환"),
+
+                                    fieldWithPath("settingInfo.isSecret")
+                                            .type(JsonFieldType.BOOLEAN)
+                                            .description("true -> 비공개 커뮤니티로 전환")
+                            )
+                    ));
         }
 
-
         @Test
-        @DisplayName("설정정보 수정하기")
+        @DisplayName("설정정보 수정")
         void postSettingCommunity() throws Exception {
-
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
             final CommunitySettingRequest request = new CommunitySettingRequest(true, true);
 
-            mvc.perform(
-                    MockMvcRequestBuilders.post("/api/communities/1/settings")
-                            .session(session)
-                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(request))
-            ).andExpect(status().isOk());
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .post("/api/communities/{communityId}/settings", 1L)
+                    .session(MockHttpSessionCreator.dummySession1L())
+                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(request))
+            );
+
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("communities/post-communityId-settings",
+                            pathParameters(
+                                    parameterWithName("communityId").description("커뮤니티 ID")
+                            ),
+
+                            requestHeaders(
+                                    headerWithName(HeaderConst.AUTH_TOKEN)
+                                            .description("유저 세션의 토큰")
+                            ),
+
+                            requestFields(
+                                    fieldWithPath("isSecret")
+                                            .type(JsonFieldType.BOOLEAN)
+                                            .description("true -> 비공개 커뮤니티로 전환"),
+
+                                    fieldWithPath("isAutoApproval")
+                                            .type(JsonFieldType.BOOLEAN)
+                                            .description("true -> 자동 가입 커뮤니티로 전환")
+                            ),
+
+                            requestHeaders(
+                                    headerWithName(HeaderConst.AUTH_TOKEN)
+                                            .description("유저 세션의 토큰")
+                            )
+                    ));
         }
     }
 
-    @Nested
-    @DisplayName("커뮤니티 게시글목록 조회 테스트")
-    class CommunityPostsTest {
 
-        @Test
-        @DisplayName("비공개 && 가입 안한 경우")
-        void privateAndNotJoined() throws Exception {
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(null);
+    @Test
+    @DisplayName("커뮤니티 게시글 목록 조회")
+    void getCommunityPostList() throws Exception {
+        given(postQueryService.getPostsOfCommunity(any(), anyLong(), anyLong()))
+                .willReturn(setUpGetCommunityWithPostId());
 
-            final Community community = TestCommunity.builder()
-                    .isPrivate(true)
-                    .build();
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/{communityId}/posts", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                .session(MockHttpSessionCreator.dummySession1L())
+                .queryParam("page", "0")
+                .queryParam("size", "3")
+        );
 
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-communityId-posts",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                        requestHeaders(
+                                headerWithName(HeaderConst.AUTH_TOKEN)
+                                        .description("유저 세션의 토큰")
+                        ),
 
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/communities/1/posts")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                    .session(session)
-                                    .queryParam("page", "0")
-                                    .queryParam("size", "3")
-                    )
-                    .andExpect(jsonPath("$.message").value("비공개 커뮤니티이면서, 가입되지 않았습니다."));
-        }
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("페이지 사이즈")
+                        ),
 
-        @Test
-        @DisplayName("커뮤니티 게시글 목록 조회")
-        void getCommunityPostList() throws Exception {
-            final Community community = TestCommunity.builder()
-                    .communityName("커뮤니티")
-                    .build();
-            TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
+                        responseFields(
+                                fieldWithPath("communityName")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 이름"),
 
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
+                                fieldWithPath("memberType")
+                                        .type(JsonFieldType.STRING)
+                                        .description("멤버의 타입"),
 
-            final User user = TestUser.builder()
-                    .id(1L)
-                    .username("홍길동")
-                    .tagNumber("#0001")
-                    .build();
+                                fieldWithPath("posts")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티의 게시글 목록"),
 
-            final Member member = Member.builder()
-                    .memberType(MemberType.NORMAL)
-                    .user(user)
-                    .build();
+                                fieldWithPath("posts[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("게시글 ID"),
 
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(member);
+                                fieldWithPath("posts[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글 생성시각"),
 
-            final PostHashtag postHashtag1 = TestPostHashtag.builder()
-                    .tag("tag")
-                    .build();
+                                fieldWithPath("posts[].content")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글 내용"),
 
-            final PostMedia postMedia = TestPostMedia.builder()
-                    .mediaURL("123")
-                    .mediaType(IMG)
-                    .build();
+                                fieldWithPath("posts[].hashtags")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("해시태그")
+                                        .optional(),
 
-            final Post post = TestPost.builder()
-                    .id(1L)
-                    .content("A".repeat(10))
-                    .likeCount(1)
-                    .postMedias(List.of(postMedia))
-                    .commentCount(1)
-                    .member(member)
-                    .community(community)
-                    .hashtags(List.of(postHashtag1))
-                    .build();
-            TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
+                                fieldWithPath("posts[].postMedias")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("게시글 미디어 정보")
+                                        .optional(),
 
+                                fieldWithPath("posts[].postMedias[].url")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글 미디어 경로"),
 
-            PageImpl<Post> page = new PageImpl(List.of(post), Pageable.ofSize(1), 1);
-            given(postQueryService.getPostsOfCommunity(any(), anyLong(), anyLong()))
-                    .willReturn(null);
+                                fieldWithPath("posts[].postMedias[].type")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글 미디어 타입"),
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                                fieldWithPath("posts[].likeCount")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("게시글 좋아요 수"),
 
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/communities/1/posts")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                    .session(session)
-                                    .queryParam("page", "0")
-                                    .queryParam("size", "3")
+                                fieldWithPath("posts[].commentCount")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("게시글 댓글 수"),
 
-                    ).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.memberType").value("NORMAL"))
-                    .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                    .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
-                    .andExpect(jsonPath("$.communityName").value("커뮤니티"))
-                    .andExpect(jsonPath("$.posts.size()").value(1))
-                    .andExpect(jsonPath("$.posts[0].likeId").doesNotExist())
-                    .andExpect(jsonPath("$.posts[0].postMedias[0].url").value("123"))
-                    .andExpect(jsonPath("$.posts[0].id").value(1L))
-                    .andExpect(jsonPath("$.posts[0].content").value("A".repeat(10)))
-                    .andExpect(jsonPath("$.posts[0].createdAt").value(CustomDateTimeFormatter.toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-                    .andExpect(jsonPath("$.posts[0].hashtags.size()").value(1))
-                    .andExpect(jsonPath("$.posts[0].hashtags[0]").value("tag"))
-                    .andExpect(jsonPath("$.posts[0].likeCount").value(1))
-                    .andExpect(jsonPath("$.posts[0].commentCount").value(1))
-                    .andExpect(jsonPath("$.posts[0].me").value(true))
-                    .andExpect(jsonPath("$.posts[0].user.id").value(1L))
-                    .andExpect(jsonPath("$.posts[0].user.name").value("홍길동"))
-                    .andExpect(jsonPath("$.posts[0].user.tagNum").value("#0001"));
-        }
+                                fieldWithPath("posts[].me")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 내가 작성한 게시글"),
+
+                                fieldWithPath("posts[].likeId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("좋아요 ID /요청한 유저가 좋아요 한 경우")
+                                        .optional(),
+
+                                fieldWithPath("posts[].user")
+                                        .type(JsonFieldType.OBJECT)
+                                        .description("게시글 작성자 정보"),
+
+                                fieldWithPath("posts[].user.id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("유저 ID"),
+
+                                fieldWithPath("posts[].user.profileImageUrl")
+                                        .type(JsonFieldType.STRING)
+                                        .description("유저 프로필 경로")
+                                        .optional(),
+
+                                fieldWithPath("posts[].user.tagNum")
+                                        .type(JsonFieldType.STRING)
+                                        .description("태그번호"),
+
+                                fieldWithPath("posts[].user.name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("이름"),
+
+                                //todo: PagnationInfo extract하기
+                                fieldWithPath("pageInfo")
+                                        .type(JsonFieldType.OBJECT)
+                                        .description("페이지네이션 정보"),
+
+                                fieldWithPath("pageInfo.nextPage")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("다음 페이지 번호"),
+
+                                fieldWithPath("pageInfo.hasNext")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 다음 페이지가 있는 경우")
+                        )
+                ));
     }
 
     @Test
     @DisplayName("커뮤니티 멤버 목록 페이지네이션")
-    @Disabled
-        //todo: 추후 Projection을 Dto로 받도록 하고 수정하기
     void communityMembersPagination() throws Exception {
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        final UserDetailInfoDto userDto = new UserDetailInfoDto(1L, "url", "#0001", "name", "introduce", "department");
+        final JoinedMemberInfoDto memberDto = new JoinedMemberInfoDto(1L, MemberType.SUB_MANAGER.toString(), LocalDateTime.now().toString(), userDto);
 
-        final User user = TestUser.builder()
-                .id(1L)
-                .username("김가나")
-                .tagNumber("#0001")
-                .department("컴퓨터공학과")
-                .build();
+        final JoinedMembersPageResponse dto = new JoinedMembersPageResponse(List.of(memberDto), new PaginationDto(1, false));
+        given(memberQueryService.getCommunityJoinedMembers(any(), anyLong()))
+                .willReturn(dto);
 
-        final Member member = TestMember.builder()
-                .id(2L)
-                .memberType(MemberType.NORMAL)
-                .user(user)
-                .build();
-        TestTimeReflection.setCreatedAt(member, LocalDateTime.now());
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/{communityId}/members", 1L)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
 
-        PageImpl<Member> page = new PageImpl<>(List.of(member), Pageable.ofSize(1), 1);
-        given(memberQueryService.getCommunityJoinedMembers(any(), anyLong())).willReturn(page);
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-communityId-members",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("members")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("가입한 멤버 목록"),
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/members")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.hasNext").value(false))
-                .andExpect(jsonPath("$.members[0].id").value(2))
-                .andExpect(jsonPath("$.members[0].memberType").value("NORMAL"))
-                .andExpect(jsonPath("$.members[0].createdAt").value(CustomDateTimeFormatter.toString(member.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-                .andExpect(jsonPath("$.members[0].user.id").value(1))
-                .andExpect(jsonPath("$.members[0].user.tagNum").value("#0001"))
-                .andExpect(jsonPath("$.members[0].user.name").value("김가나"))
-                .andExpect(jsonPath("$.members[0].user.department").value("컴퓨터공학과"));
-    }
+                                fieldWithPath("members[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("멤버 아이디"),
 
-    @Nested
-    @DisplayName("커뮤니티 멤버 차단")
-    class BlockedMember {
-        @Test
-        @DisplayName("차단된 멤버 목록 조회")
-        void getBlockedMemberList() throws Exception {
-            UserBasicProfileDto user = new UserBasicProfileDto(2L, null, "#0001", "홍길동");
-            BannedMemberDto dto = new BannedMemberDto(1L, user);
+                                fieldWithPath("members[].memberType")
+                                        .type(JsonFieldType.STRING)
+                                        .description("멤버 타입"),
 
-            given(memberQueryService.getBannedMembers(anyLong(), anyLong()))
-                    .willReturn(List.of(dto));
+                                fieldWithPath("members[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 가입일"),
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                                //todo: UserDetailInfoDto 공통화하기
+                                fieldWithPath("members[].user.id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("유저의 ID"),
 
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/communities/1/members/banned")
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    ).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.banned[0].memberId").value(1L))
-                    .andExpect(jsonPath("$.banned[0].user.id").value(2L));
-        }
+                                fieldWithPath("members[].user.profileImageUrl")
+                                        .type(JsonFieldType.STRING)
+                                        .description("프로필이미지 경로")
+                                        .optional(),
 
-        @Test
-        @DisplayName("멤버 차단 해제")
-        void unblockMember() throws Exception {
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                                fieldWithPath("members[].user.name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("유저의 이름"),
 
-            mvc.perform(
-                    MockMvcRequestBuilders.post("/api/communities/1/members/release")
-                            .session(session)
-                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(Map.of("memberId", "1")))
-            ).andExpect(status().isOk());
-        }
+                                fieldWithPath("members[].user.tagNum")
+                                        .type(JsonFieldType.STRING)
+                                        .description("태그번호"),
+
+                                fieldWithPath("members[].user.introduce")
+                                        .type(JsonFieldType.STRING)
+                                        .description("자기소개"),
+
+                                fieldWithPath("members[].user.department")
+                                        .type(JsonFieldType.STRING)
+                                        .description("학과"),
+
+                                //todo: PagnationInfo extract하기
+                                fieldWithPath("pageInfo")
+                                        .type(JsonFieldType.OBJECT)
+                                        .description("페이지네이션 정보"),
+
+                                fieldWithPath("pageInfo.nextPage")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("다음 페이지 번호"),
+
+                                fieldWithPath("pageInfo.hasNext")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 다음 페이지가 있는 경우")
+                        )
+                ));
     }
 
     @Test
-    @DisplayName("멤버 권한 부여하기")
-    void delegate() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+    @DisplayName("차단된 멤버 목록 조회")
+    void getBlockedMemberList() throws Exception {
+        UserBasicProfileDto user = new UserBasicProfileDto(2L, "adsf", "#0001", "홍길동");
+        BannedMemberDto dto = new BannedMemberDto(1L, user);
 
-        DelegateMemberRequest request = new DelegateMemberRequest(MemberType.MANAGER);
+        given(memberQueryService.getBannedMembers(anyLong(), anyLong()))
+                .willReturn(List.of(dto));
 
-        mvc.perform(
-                MockMvcRequestBuilders.post("/api/communities/1/members/delegate")
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request))
-        ).andExpect(status().isOk());
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/{communityId}/members/banned", 1L)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
+
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-communityId-members-banned",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
+
+                        responseFields(
+                                fieldWithPath("banned")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("차단된 멤버 목록"),
+
+                                fieldWithPath("banned[].memberId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("멤버 아이디"),
+
+                                //todo: UserBasicProfile 공통화하기
+                                fieldWithPath("banned[].user.id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("유저의 ID"),
+
+                                fieldWithPath("banned[].user.profileImageUrl")
+                                        .type(JsonFieldType.STRING)
+                                        .description("프로필이미지 경로")
+                                        .optional(),
+
+                                fieldWithPath("banned[].user.name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("유저의 이름"),
+
+                                fieldWithPath("banned[].user.tagNum")
+                                        .type(JsonFieldType.STRING)
+                                        .description("태그번호")
+                        )
+                ));
     }
 
     @Nested
     @DisplayName("커뮤니티 가입요청 테스트")
     class JoinRequestTest {
         @Test
-        @DisplayName("가입요청 조회 권한이 없는 경우")
-        void unauthorized() throws Exception {
-
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/communities/1/requests")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    )
-                    .andExpect(jsonPath("$.code").value("MEMBER_002"));
-        }
-
-        @Test
-        @DisplayName("관리자의 가입요청목록 조회 성공")
+        @DisplayName("관리자의 가입요청목록 조회")
         void getJoinRequestList() throws Exception {
             final User user = TestUser.builder()
                     .id(1L)
@@ -657,64 +751,140 @@ class CommunityApiControllerTest {
                             UserJoinRequestInfoDto.of(user, 2L)
                     ));
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .get("/api/communities/{communityId}/requests", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .session(MockHttpSessionCreator.dummySession1L())
+                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+            );
 
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/communities/1/requests")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    )
-                    .andExpect(jsonPath("$.requests[0].id").value(2))
-                    .andExpect(jsonPath("$.requests[0].user.tagNum").value("#0001"))
-                    .andExpect(jsonPath("$.requests[0].user.id").value(1))
-                    .andExpect(jsonPath("$.requests[0].user.name").value("홍길동"))
-                    .andExpect(jsonPath("$.requests[0].user.profileImageUrl").doesNotExist());
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("communities/get-communityId-requests",
+                            pathParameters(
+                                    parameterWithName("communityId").description("커뮤니티 ID")
+                            ),
+                            responseFields(
+                                    fieldWithPath("requests[].id")
+                                            .type(JsonFieldType.NUMBER)
+                                            .description("가입요청 ID"),
+
+                                    fieldWithPath("requests[].user")
+                                            .type(JsonFieldType.OBJECT)
+                                            .description("가입요청한 유저 정보"),
+
+                                    //todo: UserBasicProfile extract하기
+                                    fieldWithPath("requests[].user.id")
+                                            .type(JsonFieldType.NUMBER)
+                                            .description("유저의 ID"),
+
+                                    fieldWithPath("requests[].user.profileImageUrl")
+                                            .type(JsonFieldType.STRING)
+                                            .description("프로필이미지 경로")
+                                            .optional(),
+
+                                    fieldWithPath("requests[].user.name")
+                                            .type(JsonFieldType.STRING)
+                                            .description("유저의 이름"),
+
+                                    fieldWithPath("requests[].user.tagNum")
+                                            .type(JsonFieldType.STRING)
+                                            .description("태그번호")
+                            )
+                    ));
         }
 
         @Test
         @DisplayName("가입요청 성공")
         void applySuccess() throws Exception {
-
             given(joinRequestCommandService.request(anyLong(), anyLong()))
                     .willReturn(1L);
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            mvc.perform(
-                    MockMvcRequestBuilders.post("/api/communities/1/requests")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .session(session)
-                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-            ).andExpect(jsonPath("$.id").value(1));
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .post("/api/communities/{communityId}/requests", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .session(MockHttpSessionCreator.dummySession1L())
+                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+            );
+
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("communities/post-communityId-requests",
+                            pathParameters(
+                                    parameterWithName("communityId").description("커뮤니티 ID")
+                            ),
+                            responseFields(
+                                    fieldWithPath("id")
+                                            .type(JsonFieldType.NUMBER)
+                                            .description("가입요청 ID")
+
+                            )
+                    ));
 
         }
 
         @Test
-        @DisplayName("관리가자 가입요청 컨펌 성공")
+        @DisplayName("관리자가 가입요청 컨펌 성공")
         void confirm() throws Exception {
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .post("/api/communities/{communityId}/requests/confirm", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    .session(MockHttpSessionCreator.dummySession1L())
+                    .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
+            );
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+            then(sendPushNotification).should(times(1))
+                    .joinNotification(List.of(1L, 2L));
 
-            mvc.perform(
-                    MockMvcRequestBuilders.post("/api/communities/1/requests/confirm")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                            .session(session)
-                            .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
-            ).andExpect(status().isOk());
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("communities/post-communityId-requests-confirm",
+                            pathParameters(
+                                    parameterWithName("communityId").description("커뮤니티 ID")
+                            ),
+
+                            requestFields(
+                                    fieldWithPath("requestIds")
+                                            .type(JsonFieldType.ARRAY)
+                                            .description("가입요청 ID 목록")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("관리자가 가입요청 거절 성공")
+        void reject() throws Exception {
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .post("/api/communities/{communityId}/requests/reject", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                    .session(MockHttpSessionCreator.dummySession1L())
+                    .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
+            );
+
+            then(sendPushNotification).should(times(1))
+                    .rejectNotification(List.of(1L, 2L));
+
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("communities/post-communityId-requests-reject",
+                            pathParameters(
+                                    parameterWithName("communityId").description("커뮤니티 ID")
+                            ),
+
+                            requestFields(
+                                    fieldWithPath("requestIds")
+                                            .type(JsonFieldType.ARRAY)
+                                            .description("가입요청 ID 목록")
+                            )
+                    ));
         }
     }
 
     @Test
     @DisplayName("커뮤니티 검색하기")
     void searchCommunity() throws Exception {
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         List<String> hashtags = List.of("안녕", "헤헤");
         SearchCommunityDto dto = new SearchCommunityDto(1L, "커뮤니티1", "소개", LocalDateTime.now(),
                 hashtags, 23, "HOBBY", false);
@@ -722,54 +892,186 @@ class CommunityApiControllerTest {
         given(communityQueryService.getSearchedCommunities(any(), any()))
                 .willReturn(new PageImpl<>(List.of(dto), Pageable.ofSize(1), 1));
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/search")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .queryParam("isPrivate", "FALSE")
-                                .queryParam("order", "OLDER")
-                                .queryParam("category", "HOBBY")
-                                .queryParam("keyword", "안녕")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.communities[0].id").value(1))
-                .andExpect(jsonPath("$.communities[0].name").value("커뮤니티1"))
-                .andExpect(jsonPath("$.communities[0].description").value("소개"))
-                .andExpect(jsonPath("$.communities[0].hashtags.size()").value(2))
-                .andExpect(jsonPath("$.communities[0].hashtags[0]").value("안녕"))
-                .andExpect(jsonPath("$.communities[0].memberCount").value(23))
-                .andExpect(jsonPath("$.communities[0].category").value("HOBBY"))
-                .andExpect(jsonPath("$.communities[0].isPrivate").value(false));
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/search")
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("isPrivate", "FALSE")
+                .queryParam("order", "OLDER")
+                .queryParam("category", "HOBBY")
+                .queryParam("keyword", "안녕")
+                .queryParam("page", "0")
+                .queryParam("size", "10")
+        );
+
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-search",
+                        requestParameters(
+                                parameterWithName("isPrivate").description("true -> 비공개로 검색").optional(),
+                                parameterWithName("category").description("검색할 카테고리 정보").optional(),
+                                parameterWithName("order")
+                                        .description("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / MANY_PEOPLE(많은 사람 순) / LESS_PEOPLE(적은 사람 순)"),
+                                parameterWithName("keyword").description("검색 키워드").optional(),
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("페이지 사이즈")
+                        ),
+
+                        responseFields(
+                                fieldWithPath("communities")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 정보"),
+
+                                fieldWithPath("communities[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("커뮤니티 ID"),
+
+                                fieldWithPath("communities[].name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 이름"),
+
+                                fieldWithPath("communities[].description")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 소개란"),
+
+                                fieldWithPath("communities[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 생성시각"),
+
+                                fieldWithPath("communities[].hashtags")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 해시태그 목록")
+                                        .optional(),
+
+                                fieldWithPath("communities[].memberCount")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("커뮤니티 멤버 수"),
+
+                                fieldWithPath("communities[].category")
+                                        .type(JsonFieldType.STRING)
+                                        .description("커뮤니티 카테고리"),
+
+                                fieldWithPath("communities[].isPrivate")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 커뮤니티가 비공개 커뮤니티"),
+
+                                fieldWithPath("communities")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("커뮤니티 정보"),
+
+                                //todo: PagnationInfo extract하기
+                                fieldWithPath("pageInfo")
+                                        .type(JsonFieldType.OBJECT)
+                                        .description("페이지네이션 정보"),
+
+                                fieldWithPath("pageInfo.nextPage")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("다음 페이지 번호"),
+
+                                fieldWithPath("pageInfo.hasNext")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 다음 페이지가 있는 경우")
+                        )
+                ));
     }
 
     @Test
     @DisplayName("해당 커뮤니티에 가입된 모든 멤버 가져오기")
     void testGetMembersAll() throws Exception {
-        final User user = TestUser.builder().id(2L).build();
+        final UserBasicProfileDto profile = new UserBasicProfileDto(1L, "url", "#0001", "이름");
+        final MemberDto memberDto = new MemberDto(1L, MemberType.MANAGER, profile);
+        given(memberQueryService.getJoinedMembersAll(anyLong(), anyLong()))
+                .willReturn(List.of(memberDto));
 
-        final Community community = TestCommunity.builder().id(1L).build();
+        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                .get("/api/communities/{communityId}/members/all", 1L)
+                .session(MockHttpSessionCreator.dummySession1L())
+                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
 
-        final Member member = TestMember.builder()
-                .id(2L)
-                .community(community)
+        response
+                .andExpect(status().isOk())
+                .andDo(document("communities/get-communityId-members-all",
+                        pathParameters(
+                                parameterWithName("communityId").description("커뮤니티 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("members")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("가입한 멤버 정보"),
+
+                                fieldWithPath("members[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("멤버 ID"),
+
+                                fieldWithPath("members[].type")
+                                        .type(JsonFieldType.STRING)
+                                        .description("멤버 타입"),
+
+                                //todo: UserBasicProfile extract하기
+                                fieldWithPath("members[].user.id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("유저의 ID"),
+
+                                fieldWithPath("members[].user.profileImageUrl")
+                                        .type(JsonFieldType.STRING)
+                                        .description("프로필이미지 경로")
+                                        .optional(),
+
+                                fieldWithPath("members[].user.name")
+                                        .type(JsonFieldType.STRING)
+                                        .description("유저의 이름"),
+
+                                fieldWithPath("members[].user.tagNum")
+                                        .type(JsonFieldType.STRING)
+                                        .description("태그번호")
+                        )
+                ));
+    }
+
+
+    private CommunityPostsResponse setUpGetCommunityWithPostId() {
+        final Community community = TestCommunity.builder()
+                .communityName("커뮤니티")
+                .build();
+        TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
+
+        final User user = TestUser.builder()
+                .id(1L)
+                .username("홍길동")
+                .tagNumber("#0001")
+                .build();
+
+        final Member member = Member.builder()
+                .memberType(MemberType.NORMAL)
                 .user(user)
                 .build();
 
-        UserBasicProfileDto userDto = new UserBasicProfileDto(2L, null, null, null);
-        final MemberDto dto = new MemberDto(2L, MemberType.NORMAL, userDto);
-//        given(memberQueryService.getJoinedMembersAll(anyLong(), anyLong()))
-//                .willReturn((List<Member>) List.of(dto));
+        final PostHashtag postHashtag1 = TestPostHashtag.builder()
+                .tag("tag")
+                .build();
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        final PostMedia postMedia = TestPostMedia.builder()
+                .mediaURL("123")
+                .mediaType(IMG)
+                .build();
 
-        mvc.perform(
-                        MockMvcRequestBuilders.get("/api/communities/1/members/all")
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                                .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.members[0].id").value(2L))
-                .andExpect(jsonPath("$.members[0].user.id").value(2L));
+        final Post post = TestPost.builder()
+                .id(1L)
+                .content("A".repeat(10))
+                .likeCount(1)
+                .postMedias(List.of(postMedia))
+                .commentCount(1)
+                .member(member)
+                .community(community)
+                .hashtags(List.of(postHashtag1))
+                .build();
+        TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
+
+        PageImpl<Post> page = new PageImpl(List.of(post), Pageable.ofSize(1), 1);
+
+        return CommunityPostsResponse.of("커뮤니티 이름", 1L, page, member);
     }
 }
