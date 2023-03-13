@@ -2,9 +2,11 @@ package boogi.apiserver.domain.message.message.dto.response;
 
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Slice;
@@ -15,46 +17,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-@Builder
 public class MessageResponse {
 
-    private UserInfo user;
+    private UserBasicProfileDto user;
     private List<MessageInfo> messages;
     private PaginationDto pageInfo;
 
+    public MessageResponse(UserBasicProfileDto user, List<MessageInfo> messages, PaginationDto pageInfo) {
+        this.user = user;
+        this.messages = messages;
+        this.pageInfo = pageInfo;
+    }
+
     public static MessageResponse of(User user, Slice<Message> messagePage, Long userId) {
         List<MessageInfo> messages = messagePage.getContent().stream()
-                .map(m -> MessageInfo.toDto(m, userId))
+                .map(m -> MessageInfo.of(m, userId))
                 .collect(Collectors.toList());
         Collections.reverse(messages);
 
-        return MessageResponse.builder()
-                .user(UserInfo.toDto(user))
-                .messages(messages)
-                .pageInfo(PaginationDto.of(messagePage))
-                .build();
+        return new MessageResponse(UserBasicProfileDto.from(user), messages, PaginationDto.of(messagePage));
     }
 
     @Getter
-    @Builder
-    static class UserInfo {
-        private Long id;
-        private String name;
-        private String tagNum;
-        private String profileImageUrl;
-
-        public static UserInfo toDto(User user) {
-            return UserInfo.builder()
-                    .id(user.getId())
-                    .name(user.getUsername())
-                    .tagNum(user.getTagNumber())
-                    .profileImageUrl(user.getProfileImageUrl())
-                    .build();
-        }
-    }
-
-    @Getter
-    @Builder
     static class MessageInfo {
         private Long id;
         private String content;
@@ -63,13 +47,22 @@ public class MessageResponse {
         private LocalDateTime receivedAt;
         private Boolean me;
 
-        public static MessageInfo toDto(Message message, Long userId) {
+        @Builder(access = AccessLevel.PRIVATE)
+        public MessageInfo(Long id, String content, LocalDateTime receivedAt, Boolean me) {
+            this.id = id;
+            this.content = content;
+            this.receivedAt = receivedAt;
+            this.me = me;
+        }
+
+        public static MessageInfo of(Message message, Long userId) {
+            Boolean me = Boolean.valueOf(userId.equals(message.getSender().getId()));
+
             return MessageInfo.builder()
                     .id(message.getId())
                     .content(message.getContent())
                     .receivedAt(message.getCreatedAt())
-                    .me((userId.equals(message.getSender().getId())) ?
-                            Boolean.TRUE : Boolean.FALSE)
+                    .me(me)
                     .build();
         }
     }

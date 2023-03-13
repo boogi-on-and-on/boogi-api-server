@@ -1,25 +1,19 @@
 package boogi.apiserver.domain.notice.api;
 
-import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberValidationService;
-import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.notice.application.NoticeCoreService;
+import boogi.apiserver.domain.notice.application.NoticeCommandService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
-import boogi.apiserver.domain.notice.domain.Notice;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
-import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDto;
+import boogi.apiserver.domain.notice.dto.response.LatestAppNoticeResponse;
+import boogi.apiserver.domain.notice.dto.response.NoticeDetailResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
+import boogi.apiserver.global.dto.SimpleIdResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,56 +22,29 @@ import java.util.Map;
 public class NoticeApiController {
 
     private final NoticeQueryService noticeQueryService;
-    private final MemberQueryService memberQueryService;
 
-    private final NoticeCoreService noticeCoreService;
-
-    private final MemberValidationService memberValidationService;
+    private final NoticeCommandService noticeCommandService;
 
     @GetMapping
-    public ResponseEntity<Object> getAllNotice(@RequestParam(required = false) Long communityId,
-                                               @Session Long userId
-    ) {
+    public NoticeDetailResponse getAllNotice(@RequestParam(required = false) Long communityId,
+                                             @Session Long userId) {
         if (communityId == null) {
-            List<NoticeDetailDto> appAllNotice = noticeQueryService.getAppNotice();
-            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                    "notices", appAllNotice
-            ));
+            return noticeQueryService.getAppNotice();
         }
-
-        List<CommunityNoticeDetailDto> communityAllNotice = noticeQueryService.getCommunityNotice(communityId);
-        Boolean hasManagerAuth = memberQueryService.hasAuth(userId, communityId, MemberType.MANAGER);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "notices", communityAllNotice,
-                "manager", hasManagerAuth
-        ));
+        return noticeQueryService.getCommunityNotice(userId, communityId);
     }
 
     @PostMapping
-    public ResponseEntity<Object> createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
-        memberValidationService.hasAuth(userId, request.getCommunityId(), MemberType.SUB_MANAGER);
+    public SimpleIdResponse createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
+        Long newNoticeId = noticeCommandService.createNotice(request, userId);
 
-        Notice notice = noticeCoreService.create(Map.of(
-                "title", request.getTitle(),
-                "content", request.getContent()
-        ), userId, request.getCommunityId());
-
-        return ResponseEntity.ok(Map.of(
-                "id", notice.getId()
-        ));
+        return SimpleIdResponse.from(newNoticeId);
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<Object> getLatestNotice(@RequestParam(required = false) Long communityId) {
-        List<NoticeDto> latestNotice;
-        if (communityId == null) {
-            latestNotice = noticeQueryService.getAppLatestNotice();
-        } else {
-            latestNotice = noticeQueryService.DEFRECATED_getCommunityLatestNotice(communityId);
-        }
+    public LatestAppNoticeResponse getlatestAppNotices() {
+        List<NoticeDto> latestAppNotices = noticeQueryService.getAppLatestNotice();
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "notices", latestNotice
-        ));
+        return LatestAppNoticeResponse.from(latestAppNotices);
     }
 }

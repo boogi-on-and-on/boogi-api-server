@@ -1,17 +1,15 @@
 package boogi.apiserver.domain.user.domain;
 
-import boogi.apiserver.domain.Installation.domain.Installation;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "USER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class User extends TimeBaseEntity {
 
     @Id
@@ -19,22 +17,69 @@ public class User extends TimeBaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    private String email;
+    @Embedded
+    private Email email;
 
-    private String username;
+    @Embedded
+    private Username username;
 
-    private String department;
+    @Embedded
+    private Department department;
 
     @Column(name = "tag_num")
-    private String tagNumber;
+    private TagNumber tagNumber;
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    private String introduce;
+    @Embedded
+    private Introduce introduce;
 
     private boolean messageNotAllowed;
 
-    @OneToMany(mappedBy = "user")
-    private List<Installation> installations = new ArrayList<>();
+
+    @Builder
+    private User(Long id, String email, String username, String department, String tagNumber,
+                 String profileImageUrl, String introduce, boolean messageNotAllowed) {
+        this.id = id;
+        this.email = new Email(email);
+        this.username = new Username(username);
+        this.department = new Department(department);
+        this.tagNumber = new TagNumber(tagNumber);
+        this.profileImageUrl = profileImageUrl;
+        this.introduce = new Introduce(introduce);
+        this.messageNotAllowed = messageNotAllowed;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email.getValue();
+    }
+
+    public String getUsername() {
+        return username.getValue();
+    }
+
+    public String getDepartment() {
+        return department.getValue();
+    }
+
+    public String getTagNumber() {
+        return tagNumber.getValue();
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public String getIntroduce() {
+        return introduce.getValue();
+    }
+
+    public boolean isMessageNotAllowed() {
+        return messageNotAllowed;
+    }
 }

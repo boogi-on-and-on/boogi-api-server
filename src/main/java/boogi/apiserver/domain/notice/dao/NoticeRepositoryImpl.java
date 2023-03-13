@@ -1,23 +1,20 @@
 package boogi.apiserver.domain.notice.dao;
 
-import boogi.apiserver.domain.member.domain.QMember;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.domain.QNotice;
-import boogi.apiserver.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+import static boogi.apiserver.domain.member.domain.QMember.member;
+import static boogi.apiserver.domain.notice.domain.QNotice.notice;
+import static boogi.apiserver.domain.user.domain.QUser.user;
+
 @RequiredArgsConstructor
 public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    private final QNotice notice = QNotice.notice;
-    private final QMember member = QMember.member;
-    private final QUser user = QUser.user;
 
     @Override
     public List<Notice> getLatestNotice(Long communityId) {
@@ -28,7 +25,7 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
     }
 
     @Override
-    public List<Notice> getLatestNotice() {
+    public List<Notice> getLatestAppNotice() {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(notice.community.isNull());
 

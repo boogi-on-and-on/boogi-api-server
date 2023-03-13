@@ -1,25 +1,25 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
+import boogi.apiserver.builder.TestUser;
+import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
-import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
-import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +28,9 @@ class JoinRequestQueryServiceTest {
     @Mock
     JoinRequestRepository joinRequestRepository;
 
+    @Mock
+    MemberQueryService memberQueryService;
+
     @InjectMocks
     JoinRequestQueryService joinRequestQueryService;
 
@@ -35,25 +38,27 @@ class JoinRequestQueryServiceTest {
     @Test
     @DisplayName("커뮤니티 가입요청 목록 조회")
     void communityJoinRequestList() {
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "username", "이름");
-        ReflectionTestUtils.setField(user, "tagNumber", "#0001");
-        ReflectionTestUtils.setField(user, "profileImageUrl", "image");
+        final User user = TestUser.builder()
+                .id(1L)
+                .username("이름")
+                .tagNumber("#0001")
+                .profileImageUrl("image")
+                .build();
 
-        final JoinRequest joinRequest = TestEmptyEntityGenerator.JoinRequest();
-        ReflectionTestUtils.setField(joinRequest, "id", 2L);
-        ReflectionTestUtils.setField(joinRequest, "user", user);
+        final JoinRequest joinRequest = JoinRequest.builder()
+                .id(2L)
+                .user(user)
+                .build();
 
         given(joinRequestRepository.getAllRequests(anyLong()))
                 .willReturn(List.of(joinRequest));
 
-        List<Map<String, Object>> allRequests = joinRequestQueryService.getAllRequests(anyLong());
+        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(eq(user.getId()), anyLong());
 
-        Map<String, Object> req = allRequests.get(0);
-        assertThat(req.get("id")).isEqualTo(2L);
+        UserJoinRequestInfoDto request = allRequests.get(0);
+        assertThat(request.getId()).isEqualTo(2L);
 
-        UserBasicProfileDto userDto = (UserBasicProfileDto) req.get("user");
+        UserBasicProfileDto userDto = request.getUser();
         assertThat(userDto.getName()).isEqualTo("이름");
         assertThat(userDto.getId()).isEqualTo(1L);
         assertThat(userDto.getProfileImageUrl()).isEqualTo("image");

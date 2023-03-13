@@ -1,34 +1,34 @@
 package boogi.apiserver.domain.post.post.api;
 
-import boogi.apiserver.domain.comment.application.CommentCoreService;
-import boogi.apiserver.domain.comment.dto.response.CommentsAtPost;
-import boogi.apiserver.domain.like.application.LikeCoreService;
-import boogi.apiserver.domain.like.domain.Like;
-import boogi.apiserver.domain.like.dto.response.LikeMembersAtPost;
-import boogi.apiserver.domain.post.post.application.PostCoreService;
+import boogi.apiserver.domain.comment.application.CommentQueryService;
+import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
+import boogi.apiserver.domain.like.application.LikeCommandService;
+import boogi.apiserver.domain.like.application.LikeQueryService;
+import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
+import boogi.apiserver.domain.post.post.application.PostCommandService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.post.post.dto.request.CreatePost;
+import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
+import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.request.UpdatePost;
-import boogi.apiserver.domain.post.post.dto.response.HotPost;
-import boogi.apiserver.domain.post.post.dto.response.PostDetail;
-import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
-import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
+import boogi.apiserver.domain.post.post.dto.response.HotPostsResponse;
+import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
+import boogi.apiserver.domain.post.post.dto.response.SearchPostsResponse;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
 import boogi.apiserver.global.argument_resolver.session.Session;
-import boogi.apiserver.global.dto.PaginationDto;
+import boogi.apiserver.global.dto.SimpleIdResponse;
+import boogi.apiserver.global.webclient.push.MentionType;
+import boogi.apiserver.global.webclient.push.SendPushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.CREATED;
 
 
 @RestController
@@ -37,101 +37,91 @@ import java.util.Objects;
 @RequestMapping("/api/posts")
 public class PostApiController {
 
-    private final PostCoreService postCoreService;
+    private final PostCommandService postCommandService;
     private final PostQueryService postQueryService;
 
-    private final LikeCoreService likeCoreService;
+    private final LikeCommandService likeCommandService;
+    private final LikeQueryService likeQueryService;
 
-    private final CommentCoreService commentCoreService;
+    private final CommentQueryService commentQueryService;
+
+    private final SendPushNotification sendPushNotification;
 
     @PostMapping("/")
-    public ResponseEntity<Object> createPost(@Validated @RequestBody CreatePost createPost, @Session Long userId) {
-        Post newPost = postCoreService.createPost(createPost, userId);
+    @ResponseStatus(CREATED)
+    public SimpleIdResponse createPost(@Validated @RequestBody CreatePostRequest request,
+                                       @Session Long sessionUserId) {
+        Long newPostId = postCommandService.createPost(request, sessionUserId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "id", newPost.getId()
-        ));
-    }
+        sendPushNotification.mentionNotification(
+                request.getMentionedUserIds(),
+                newPostId,
+                MentionType.POST
+        );
 
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostDetail> getPostDetail(@PathVariable Long postId, @Session Long userId) {
-        PostDetail postDetail = postCoreService.getPostDetail(postId, userId);
-
-        return ResponseEntity.ok().body(postDetail);
+        return SimpleIdResponse.from(newPostId);
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<Object> updatePost(@Validated @RequestBody UpdatePost updatePost,
-                                             @PathVariable Long postId,
-                                             @Session Long userId) {
-        Post updatedPost = postCoreService.updatePost(updatePost, postId, userId);
+    public SimpleIdResponse updatePost(@Validated @RequestBody UpdatePostRequest request,
+                                       @PathVariable Long postId,
+                                       @Session Long sessionUserId) {
+        Long updatedPostId = postCommandService.updatePost(request, postId, sessionUserId);
 
-        return ResponseEntity.ok().body(Map.of(
-                "id", updatedPost.getId()
-        ));
+        return SimpleIdResponse.from(updatedPostId);
+    }
+
+    @GetMapping("/{postId}")
+    public PostDetailResponse getPostDetail(@PathVariable Long postId, @Session Long sessionUserId) {
+        return postQueryService.getPostDetail(postId, sessionUserId);
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId, @Session Long userId) {
-        postCoreService.deletePost(postId, userId);
-
-        return ResponseEntity.ok().build();
+    public void deletePost(@PathVariable Long postId, @Session Long sessionUserId) {
+        postCommandService.deletePost(postId, sessionUserId);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<UserPostPage> getUserPostsInfo(@RequestParam(required = false) Long userId,
-                                                         @Session Long sessionUserId,
-                                                         Pageable pageable) {
-        Long id = Objects.requireNonNullElse(userId, sessionUserId);
-//        UserPostPage userPostsPage = postQueryService.getUserPosts(pageable, id);
-        UserPostPage userPostsPage = postCoreService.getUserPosts(id, sessionUserId, pageable);
+    public UserPostPageResponse getUserPosts(@RequestParam(required = false) Long userId,
+                                             @Session Long sessionUserId,
+                                             Pageable pageable) {
+        Long infoUserid = Objects.requireNonNullElse(userId, sessionUserId);
 
-        return ResponseEntity.ok().body(userPostsPage);
+        return postQueryService.getUserPosts(infoUserid, sessionUserId, pageable);
     }
 
     @GetMapping("/hot")
-    public ResponseEntity<Object> getHotPosts() {
-        List<HotPost> hotPosts = postQueryService.getHotPosts();
-
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "hots", hotPosts
-        ));
+    public HotPostsResponse getHotPosts() {
+        return postQueryService.getHotPosts();
     }
 
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<Object> doLikeAtPost(@PathVariable Long postId, @Session Long userId) {
-        Like newLike = likeCoreService.doLikeAtPost(postId, userId);
+    public SimpleIdResponse doLikeAtPost(@PathVariable Long postId, @Session Long sessionUserId) {
+        Long newLikeId = likeCommandService.doPostLike(postId, sessionUserId);
 
-        return ResponseEntity.ok().body(Map.of(
-                "id", newLike.getId()
-        ));
+        return SimpleIdResponse.from(newLikeId);
     }
 
     @GetMapping("/{postId}/likes")
-    public ResponseEntity<Object> getLikeMembersAtPost(@PathVariable Long postId, @Session Long userId, Pageable pageable) {
-        LikeMembersAtPost likeMembersAtPost = likeCoreService.getLikeMembersAtPost(postId, userId, pageable);
-
-        return ResponseEntity.ok().body(likeMembersAtPost);
+    public LikeMembersAtPostResponse getLikeMembersAtPost(@PathVariable Long postId,
+                                                          @Session Long sessionUserId,
+                                                          Pageable pageable) {
+        return likeQueryService.getLikeMembersAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<Object> getCommentsAtPost(@PathVariable Long postId, @Session Long userId, Pageable pageable) {
-        CommentsAtPost commentsAtPost = commentCoreService.getCommentsAtPost(postId, userId, pageable);
-
-        return ResponseEntity.ok().body(commentsAtPost);
+    public CommentsAtPostResponse getCommentsAtPost(@PathVariable Long postId,
+                                                    @Session Long sessionUserId,
+                                                    Pageable pageable) {
+        return commentQueryService.getCommentsAtPost(postId, sessionUserId, pageable);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchPosts(@ModelAttribute @Validated PostQueryRequest request,
+    public SearchPostsResponse getSearchPosts(@ModelAttribute @Validated PostQueryRequest request,
                                               Pageable pageable,
-                                              @Session Long userId) {
-        Slice<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, userId);
-        PaginationDto pageInfo = PaginationDto.of(page);
-        List<SearchPostDto> dtos = page.getContent();
+                                              @Session Long sessionUserId) {
+        Slice<SearchPostDto> page = postQueryService.getSearchedPosts(pageable, request, sessionUserId);
 
-        return ResponseEntity.ok(Map.of(
-                "posts", dtos,
-                "pageInfo", pageInfo
-        ));
+        return SearchPostsResponse.from(page);
     }
 }

@@ -1,55 +1,103 @@
 package boogi.apiserver.domain.post.post.application;
 
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.dto.response.CommunityPostsResponse;
+import boogi.apiserver.domain.like.application.LikeQueryService;
+import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
+import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.request.PostQueryRequest;
-import boogi.apiserver.domain.post.post.dto.response.HotPost;
-import boogi.apiserver.domain.post.post.dto.response.SearchPostDto;
-import boogi.apiserver.domain.post.post.dto.response.UserPostPage;
+import boogi.apiserver.domain.post.post.dto.response.HotPostsResponse;
+import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
+import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
+import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
+import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostQueryService {
 
+    private final MemberRepository memberRepository;
+    private final PostMediaRepository postMediaRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final CommunityRepository communityRepository;
 
-    public UserPostPage getUserPosts(Pageable pageable, Long userId) {
-        Slice<Post> userPostSlice = postRepository.getUserPostPage(pageable, userId);
+    private final MemberQueryService memberQueryService;
+    private final LikeQueryService likeQueryService;
 
-        return UserPostPage.of(userPostSlice);
+    public PostDetailResponse getPostDetail(Long postId, Long userId) {
+        Post findPost = postRepository.getPostWithAll(postId)
+                .orElseThrow(PostNotFoundException::new);
+
+        Member member = memberQueryService.getViewableMember(userId, findPost.getCommunity());
+        List<PostMedia> findPostMedias = postMediaRepository.findByPost(findPost);
+
+        return PostDetailResponse.of(
+                findPost,
+                findPostMedias,
+                userId,
+                getPostLikeIdForView(postId, member)
+        );
     }
 
-    public List<HotPost> getHotPosts() {
-        return postRepository.getHotPosts()
-                .stream()
-                .map(HotPost::of)
-                .collect(Collectors.toList());
+    public HotPostsResponse getHotPosts() {
+        List<Post> hotPosts = postRepository.getHotPosts();
+        List<HotPostDto> hots = HotPostDto.mapOf(hotPosts);
+        return HotPostsResponse.from(hots);
     }
 
-    public Post getPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
-        return post;
+    public List<LatestCommunityPostDto> getLatestPostOfCommunity(Member member, Community community) {
+        if (!community.canViewMember(member)) {
+            return null;
+        }
+        List<Post> latestPostOfCommunity = postRepository.getLatestPostOfCommunity(community.getId());
+        return LatestCommunityPostDto.listOf(latestPostOfCommunity);
     }
 
-    public List<Post> getLatestPostOfCommunity(Long communityId) {
-        return postRepository.getLatestPostOfCommunity(communityId);
-    }
+    public CommunityPostsResponse getPostsOfCommunity(Pageable pageable, Long communityId, Long userId) {
+        Community community = communityRepository.findByCommunityId(communityId);
+        Member member = memberQueryService.getViewableMember(userId, community);
 
-    public Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
-        return postRepository.getPostsOfCommunity(pageable, communityId);
+        Slice<Post> postPage = postRepository.getPostsOfCommunity(pageable, communityId);
+        return CommunityPostsResponse.of(community.getCommunityName(), userId, postPage, member);
     }
 
     public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         return postRepository.getSearchedPosts(pageable, request, userId);
+    }
+
+    public UserPostPageResponse getUserPosts(Long userId, Long sessionUserId, Pageable pageable) {
+        List<Long> findMemberIds = getMemberIdsForQueryUserPost(userId, sessionUserId);
+        Slice<Post> userPostPage = postRepository.getUserPostPageByMemberIds(findMemberIds, pageable);
+        return UserPostPageResponse.from(userPostPage);
+    }
+
+    private List<Long> getMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
+        if (userId.equals(sessionUserId)) {
+            return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
+        }
+        userRepository.findByUserId(userId);
+        return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
+    }
+
+    private Long getPostLikeIdForView(Long postId, Member member) {
+        return member.isNullMember() ? null : likeQueryService.getPostLikeId(postId, member.getId());
     }
 }

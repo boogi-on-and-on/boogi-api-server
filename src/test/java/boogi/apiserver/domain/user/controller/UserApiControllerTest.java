@@ -1,19 +1,18 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCoreService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.community.community.application.CommunityCoreService;
+import boogi.apiserver.domain.community.community.application.CommunityCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.message.block.application.MessageBlockCoreService;
+import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
-import boogi.apiserver.domain.user.dto.response.UserDetailInfoResponse;
-import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
+import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
+import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -53,13 +51,13 @@ class UserApiControllerTest {
     MessageBlockQueryService messageBlockQueryService;
 
     @MockBean
-    MessageBlockCoreService messageBlockCoreService;
+    MessageBlockCommandService messageBlockCommandService;
 
     @MockBean
-    private AlarmConfigCoreService alarmConfigCoreService;
+    private AlarmConfigCommandService alarmConfigCommandService;
 
     @MockBean
-    private CommunityCoreService communityCoreService;
+    private CommunityCommandService communityCommandService;
 
     private MockMvc mvc;
 
@@ -114,13 +112,8 @@ class UserApiControllerTest {
     @DisplayName("유저 프로필 개인정보 조회")
     void userBasicInfo() throws Exception {
         // given
-        UserDetailInfoResponse response = UserDetailInfoResponse.builder()
-                .id(4L)
-                .name("김선도")
-                .tagNum("#0001")
-                .introduce("반갑습니다")
-                .department("컴퓨터공학부")
-                .build();
+        UserDetailInfoDto response = new UserDetailInfoDto(4L, null, "김선도", "#0001",
+                "반갑습니다", "컴퓨터공학부");
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
@@ -147,15 +140,9 @@ class UserApiControllerTest {
     @Disabled
     void 유저_가입한_커뮤니티_조회() throws Exception {
         //given
-        UserJoinedCommunity dto1 = UserJoinedCommunity.builder()
-                .id(1L)
-                .name("커뮤니티1")
-                .build();
+        UserJoinedCommunityDto dto1 = new UserJoinedCommunityDto(1L, "커뮤니티1");
 
-        UserJoinedCommunity dto2 = UserJoinedCommunity.builder()
-                .id(2L)
-                .name("커뮤니티2")
-                .build();
+        UserJoinedCommunityDto dto2 = new UserJoinedCommunityDto(2L, "커뮤니티2");
 
         given(memberQueryService.getJoinedMemberInfo(anyLong()))
                 .willReturn(List.of(dto1, dto2));
@@ -220,10 +207,7 @@ class UserApiControllerTest {
         @Test
         @DisplayName("차단한 유저 목록 조회")
         void blockUserList() throws Exception {
-            MessageBlockedUserDto dto = MessageBlockedUserDto.builder()
-                    .userId(1L)
-                    .nameTag("가나다#0001")
-                    .build();
+            MessageBlockedUserDto dto = new MessageBlockedUserDto(1L, "가나다#0001");
 
             given(messageBlockQueryService.getBlockedMembers(anyLong()))
                     .willReturn(List.of(dto));
@@ -263,9 +247,7 @@ class UserApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            BlockMessageUsersRequest request = BlockMessageUsersRequest.builder()
-                    .blockUserIds(List.of())
-                    .build();
+            BlockMessageUsersRequest request = new BlockMessageUsersRequest(List.of());
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/users/messages/block")
@@ -285,14 +267,14 @@ class UserApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        final AlarmConfig config = TestEmptyEntityGenerator.AlarmConfig();
-        ReflectionTestUtils.setField(config, "notice", true);
-        ReflectionTestUtils.setField(config, "joinRequest", true);
-        ReflectionTestUtils.setField(config, "comment", false);
-        ReflectionTestUtils.setField(config, "mention", true);
+        final AlarmConfig config = AlarmConfig.builder()
+                .notice(true)
+                .joinRequest(true)
+                .comment(false)
+                .mention(true)
+                .build();
 
-
-        given(alarmConfigCoreService.findOrElseCreateAlarmConfig(anyLong()))
+        given(alarmConfigCommandService.findOrElseCreateAlarmConfig(anyLong()))
                 .willReturn(config);
 
         mvc.perform(

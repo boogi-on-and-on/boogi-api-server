@@ -1,15 +1,13 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
+import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
-import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.member.application.MemberQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,19 +16,14 @@ import java.util.stream.Collectors;
 public class JoinRequestQueryService {
     private final JoinRequestRepository joinRequestRepository;
 
-    public JoinRequest getJoinRequest(Long joinRequestId) {
-        JoinRequest joinRequest = joinRequestRepository.findById(joinRequestId)
-                .orElseThrow(EntityNotFoundException::new);
-        return joinRequest;
-    }
+    private final MemberQueryService memberQueryService;
 
-    public List<Map<String, Object>> getAllRequests(Long communityId) {
+    public List<UserJoinRequestInfoDto> getAllRequests(Long userId, Long communityId) {
+        memberQueryService.getOperator(userId, communityId);
+
         return joinRequestRepository.getAllRequests(communityId)
                 .stream()
-                .map(r -> Map.of(
-                        "user", UserBasicProfileDto.of(r.getUser()),
-                        "id", r.getId())
-                )
+                .map(r -> UserJoinRequestInfoDto.of(r.getUser(), r.getId()))
                 .collect(Collectors.toList());
     }
 }

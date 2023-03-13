@@ -1,21 +1,23 @@
 package boogi.apiserver.domain.post.post.dto.request;
 
 import boogi.apiserver.domain.post.post.dto.enums.PostListingOrder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 
-@Data
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
-@Builder
 public class PostQueryRequest {
 
     @NotEmpty(message = "키워드를 입력해주세요")
     private String keyword;
 
     private PostListingOrder order = PostListingOrder.NEWER;
+
+
+    public PostQueryRequest(String keyword, PostListingOrder order) {
+        this.keyword = keyword;
+        this.order = order;
+    }
 }

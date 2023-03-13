@@ -1,6 +1,8 @@
 package boogi.apiserver.domain.community.joinrequest.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.joinrequest.exception.NotPendingJoinRequestException;
+import boogi.apiserver.domain.community.joinrequest.exception.UnmatchedJoinRequestCommunityException;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
@@ -39,28 +41,48 @@ public class JoinRequest extends TimeBaseEntity {
     @Enumerated(EnumType.STRING)
     private JoinRequestStatus status = JoinRequestStatus.PENDING;
 
+    @Builder
+    private JoinRequest(Long id, User user, Community community, Member confirmedMember,
+                        Member acceptor, JoinRequestStatus status) {
+        this.id = id;
+        this.user = user;
+        this.community = community;
+        this.confirmedMember = confirmedMember;
+        this.acceptor = acceptor;
+        this.status = status;
+    }
+
     private JoinRequest(User user, Community community) {
         this.user = user;
         this.community = community;
     }
 
-    public void reject(Member manager) {
-        this.acceptor = manager;
+    public static JoinRequest of(User user, Community community) {
+        return new JoinRequest(user, community);
+    }
+
+    public void reject(Member operator) {
+        validateNotPending();
+        this.acceptor = operator;
         this.status = JoinRequestStatus.REJECT;
     }
 
-    public void confirm(Member manager, Member confirmedMember) {
-        this.acceptor = manager;
+    public void confirm(Member operator, Member confirmedMember) {
+        validateNotPending();
+        this.acceptor = operator;
         this.confirmedMember = confirmedMember;
         this.status = JoinRequestStatus.CONFIRM;
     }
 
-    public void confirm(Member confirmedMember) {
-        this.confirmedMember = confirmedMember;
-        this.status = JoinRequestStatus.CONFIRM;
+    public void validateJoinRequestCommunity(Long communityId) {
+        if (!communityId.equals(this.community.getId())) {
+            throw new UnmatchedJoinRequestCommunityException();
+        }
     }
 
-    public static JoinRequest of(User user, Community community) {
-        return new JoinRequest(user, community);
+    private void validateNotPending() {
+        if (!this.status.equals(JoinRequestStatus.PENDING)) {
+            throw new NotPendingJoinRequestException();
+        }
     }
 }

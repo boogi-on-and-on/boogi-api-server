@@ -26,23 +26,31 @@ public class MessageBlock extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private User blockedUser;
 
-    private Boolean blocked;
+    private boolean blocked = true;
 
-    public void release() {
-        this.blocked = false;
-    }
 
-    public void block() {
-        this.blocked = true;
+    @Builder
+    private MessageBlock(Long id, User user, User blockedUser, boolean blocked) {
+        this.id = id;
+        this.user = user;
+        this.blockedUser = blockedUser;
+        this.blocked = blocked;
     }
 
     private MessageBlock(User user, User blockedUser) {
         this.user = user;
         this.blockedUser = blockedUser;
-        this.blocked = true;
     }
 
     public static MessageBlock of(User user, User blockedUser) {
         return new MessageBlock(user, blockedUser);
+    }
+
+    public void unblock() {
+        this.blocked = false;
+    }
+
+    public void block() {
+        this.blocked = true;
     }
 }

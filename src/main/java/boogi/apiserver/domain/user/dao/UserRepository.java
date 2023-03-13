@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.user.dao;
 
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     Optional<User> findByEmail(String email);
 
+    default User findByUserId(Long userId) {
+        return this.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
 }

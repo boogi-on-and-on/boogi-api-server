@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.message.block.dao;
 
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ public interface MessageBlockRepositoryCustom {
 
     List<MessageBlock> getMessageBlocksByUserIds(Long userId, List<Long> blockedUserIds);
 
-    void updateBulkBlockedStatus(List<Long> blockUserIds);
+    void updateBulkBlockedStatus(Long userId, List<Long> blockUserIds);
 
-    Boolean checkOnlyReceiverBlockedFromSender(Long senderId, Long receiverId);
+    boolean existsBlockedFromReceiver(Long senderId, Long receiverId);
 
     List<MessageBlock> findMessageBlocksByUserId(Long userId);
 }

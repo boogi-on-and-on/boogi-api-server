@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.like.domain;
 
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.domain.like.exception.UnmatchedLikeUserException;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -32,17 +33,39 @@ public class Like extends TimeBaseEntity {
     @ManyToOne(fetch = LAZY)
     private Comment comment;
 
-    private Like(Post post, Comment comment, Member member){
+    @Builder
+    private Like(final Long id, final Post post, final Member member, final Comment comment) {
+        this.id = id;
         this.post = post;
         this.member = member;
         this.comment = comment;
     }
 
-    public static Like postOf(Post post, Member member){
+    private Like(Post post, Comment comment, Member member) {
+        this.post = post;
+        this.member = member;
+        this.comment = comment;
+    }
+
+    public static Like postOf(Post post, Member member) {
+        post.addLikeCount();
         return new Like(post, null, member);
     }
 
-    public static Like commentOf(Comment comment, Member member){
+    public static Like commentOf(Comment comment, Member member) {
         return new Like(null, comment, member);
+    }
+
+    public void validateLikedUser(Long userId) {
+        Long likedUserId = this.member.getUser().getId();
+        if(!likedUserId.equals(userId)) {
+            throw new UnmatchedLikeUserException();
+        }
+    }
+
+    public void removeLikeCount() {
+        if (this.post != null) {
+            this.post.removeLikeCount();
+        }
     }
 }

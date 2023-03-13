@@ -1,20 +1,21 @@
 package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtags;
+import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotManagerException;
 import boogi.apiserver.domain.model.TimeBaseEntity;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "COMMUNITY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 @Where(clause = "deleted_at is null")
 public class Community extends TimeBaseEntity {
     @Id
@@ -22,15 +23,15 @@ public class Community extends TimeBaseEntity {
     @Column(name = "community_id")
     private Long id;
 
-    @Column(name = "community_name")
-    private String communityName;
+    @Embedded
+    private CommunityName communityName;
 
-    private String description;
+    @Embedded
+    private Description description;
 
     @Column(name = "private")
     private boolean isPrivate;
 
-    // 카테고리 --> enum
     @Enumerated(value = EnumType.STRING)
     private CommunityCategory category;
 
@@ -43,50 +44,107 @@ public class Community extends TimeBaseEntity {
     @Column(name = "auto_approval")
     private boolean autoApproval;
 
-    //todo: 생성메서드 만들어서 커뮤니티 생성.
-    @OneToMany(mappedBy = "community")
-    private List<CommunityHashtag> hashtags = new ArrayList<>();
+    @Embedded
+    private CommunityHashtags hashtags = new CommunityHashtags();
 
-    public void updateDescription(String description) {
-        if (description.length() < 10) {
-            throw new InvalidValueException("10글자 이상의 소개란 입력이 필요합니다.");
-        }
-        this.description = description;
+    @Builder
+    private Community(final Long id, final String communityName, final String description, final boolean isPrivate,
+                      final CommunityCategory category, final int memberCount, final LocalDateTime deletedAt,
+                      final boolean autoApproval, final List<CommunityHashtag> hashtags) {
+        this.id = id;
+        this.communityName = new CommunityName(communityName);
+        this.description = new Description(description);
+        this.isPrivate = isPrivate;
+        this.category = category;
+        this.memberCount = memberCount;
+        this.deletedAt = deletedAt;
+        this.autoApproval = autoApproval;
+        this.hashtags = new CommunityHashtags(hashtags);
     }
 
-    public void toPublic() {
-        this.isPrivate = false;
+    private Community(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
+        this.communityName = new CommunityName(name);
+        this.description = new Description(description);
+        this.isPrivate = isPrivate;
+        this.autoApproval = autoApproval;
+        this.category = category;
     }
 
-    public void toPrivate() {
-        this.isPrivate = true;
+    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, String category) {
+        CommunityCategory communityCategory = CommunityCategory.valueOf(category);
+        return new Community(name, description, isPrivate, autoApproval, communityCategory);
     }
 
-    public void openAutoApproval() {
-        this.autoApproval = true;
+    public void addTags(List<String> tags) {
+        this.hashtags.addTags(tags, this);
     }
 
-    public void closeAutoApproval() {
-        this.autoApproval = false;
+    public void updateCommunity(String description, List<String> tags) {
+        this.description = new Description(description);
+        this.hashtags.updateTags(tags, this);
+    }
+
+    public void switchPrivate(boolean isPrivate, MemberType sessionMemberType) {
+        validateManagerAuth(sessionMemberType);
+        this.isPrivate = isPrivate;
+    }
+
+    public void switchAutoApproval(boolean isAutoApproval, MemberType sessionMemberType) {
+        validateManagerAuth(sessionMemberType);
+        this.autoApproval = isAutoApproval;
+    }
+
+    public boolean canViewMember(Member member) {
+        return !this.isPrivate || !member.isNullMember();
     }
 
     public void shutdown() {
         this.deletedAt = LocalDateTime.now();
     }
 
-    private Community(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
-        this.communityName = name;
-        this.description = description;
-        this.isPrivate = isPrivate;
-        this.autoApproval = autoApproval;
-        this.category = category;
-    }
-
-    public static Community of(String name, String description, boolean isPrivate, boolean autoApproval, CommunityCategory category) {
-        return new Community(name, description, isPrivate, autoApproval, category);
-    }
-
     public void addMemberCount() {
         this.memberCount++;
+    }
+
+    private void validateManagerAuth(MemberType sessionMemberType) {
+        if(!sessionMemberType.hasManagerAuth()) {
+            throw new NotManagerException();
+        }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getCommunityName() {
+        return communityName.getValue();
+    }
+
+    public String getDescription() {
+        return description.getValue();
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public CommunityCategory getCategory() {
+        return category;
+    }
+
+    public int getMemberCount() {
+        return memberCount;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public boolean isAutoApproval() {
+        return autoApproval;
+    }
+
+    public List<CommunityHashtag> getHashtags() {
+        return hashtags.getValues();
     }
 }

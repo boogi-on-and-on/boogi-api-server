@@ -34,35 +34,43 @@ public class Comment extends TimeBaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    private String content;
+    @Embedded
+    private CommentContent content;
 
-    private Boolean child;
+    private boolean child;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private static final String DELETED_COMMENT_CONTENT = "삭제된 댓글입니다";
+    @Builder
+    private Comment(final Long id, final Post post, final Member member, final Comment parent, final String content,
+                    final boolean child, final LocalDateTime deletedAt) {
+        this.id = id;
+        this.post = post;
+        this.member = member;
+        this.parent = parent;
+        this.content = new CommentContent(content);
+        this.child = child;
+        this.deletedAt = deletedAt;
+    }
 
     private Comment(Post post, Member member, Comment parent, String content) {
         this.post = post;
         this.member = member;
         this.parent = parent;
-        this.content = content;
+        this.content = new CommentContent(content);
         this.child = (parent == null) ? Boolean.FALSE : Boolean.TRUE;
     }
 
-    private Comment(Long id, String content, LocalDateTime removeAt) {
+    protected Comment(Long id, String content, LocalDateTime removeAt) {
         this.id = id;
-        this.content = content;
+        this.content = new CommentContent(content);
         this.deletedAt = removeAt;
     }
 
     public static Comment of(Post post, Member member, Comment parent, String content) {
+        post.addCommentCount();
         return new Comment(post, member, parent, content);
-    }
-
-    public static Comment deletedOf(Long id, LocalDateTime removeAt) {
-        return new Comment(id, DELETED_COMMENT_CONTENT, removeAt);
     }
 
     public void deleteComment() {
@@ -70,5 +78,33 @@ public class Comment extends TimeBaseEntity {
         if (post != null) {
             post.removeCommentCount();
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public Comment getParent() {
+        return parent;
+    }
+
+    public String getContent() {
+        return content.getValue();
+    }
+
+    public boolean getChild() {
+        return child;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
     }
 }

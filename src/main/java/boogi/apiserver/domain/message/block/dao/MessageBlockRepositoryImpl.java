@@ -1,14 +1,14 @@
 package boogi.apiserver.domain.message.block.dao;
 
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
-import boogi.apiserver.domain.message.block.domain.QMessageBlock;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
-import boogi.apiserver.domain.message.block.dto.response.QMessageBlockedUserDto;
-import boogi.apiserver.domain.user.domain.QUser;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.QMessageBlockedUserDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+
+import static boogi.apiserver.domain.message.block.domain.QMessageBlock.messageBlock;
 
 
 @RequiredArgsConstructor
@@ -16,15 +16,12 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
 
     private final JPAQueryFactory queryFactory;
 
-    private final QMessageBlock messageBlock = QMessageBlock.messageBlock;
-    private final QUser user = QUser.user;
-
     @Override
     public List<MessageBlockedUserDto> getBlockedUsers(Long userId) {
         return queryFactory.select(new QMessageBlockedUserDto(
                         messageBlock.blockedUser.id,
-                        messageBlock.blockedUser.username,
-                        messageBlock.blockedUser.tagNumber
+                        messageBlock.blockedUser.username.value,
+                        messageBlock.blockedUser.tagNumber.value
                 ))
                 .from(messageBlock)
                 .where(
@@ -55,22 +52,28 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
     }
 
     @Override
-    public void updateBulkBlockedStatus(List<Long> blockUserIds) {
+    public void updateBulkBlockedStatus(Long userId, List<Long> blockUserIds) {
+        if (blockUserIds.size() == 0) {
+            return;
+        }
+
         queryFactory.update(messageBlock)
                 .set(messageBlock.blocked, true)
-                .where(messageBlock.blockedUser.id.in(blockUserIds))
+                .where(messageBlock.user.id.eq(userId),
+                        messageBlock.blockedUser.id.in(blockUserIds))
                 .execute();
     }
 
     @Override
-    public Boolean checkOnlyReceiverBlockedFromSender(Long senderId, Long receiverId) {
+    public boolean existsBlockedFromReceiver(Long senderId, Long receiverId) {
         MessageBlock findMessageBlock = queryFactory.selectFrom(messageBlock)
                 .where(
                         messageBlock.user.id.eq(senderId),
                         messageBlock.blockedUser.id.eq(receiverId),
                         messageBlock.blocked.isTrue()
                 ).fetchFirst();
-        return (findMessageBlock == null) ? Boolean.FALSE : Boolean.TRUE;
+
+        return findMessageBlock != null;
     }
 
     @Override

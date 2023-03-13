@@ -2,17 +2,19 @@ package boogi.apiserver.domain.community.community.dto.request;
 
 
 import boogi.apiserver.domain.member.domain.MemberType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@AllArgsConstructor
+import javax.validation.constraints.NotNull;
+
 @NoArgsConstructor
+@Getter
 public class DelegateMemberRequest {
 
-    private Long memberId;
+    @NotNull
     private MemberType type;
+
+    public DelegateMemberRequest(MemberType type) {
+        this.type = type;
+    }
 }

@@ -2,7 +2,7 @@ package boogi.apiserver.domain.member.api;
 
 
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,11 +82,7 @@ class MemberApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            UserBasicProfileDto dto = UserBasicProfileDto.builder()
-                    .name("이름")
-                    .tagNum("태그")
-                    .id(1L)
-                    .build();
+            UserBasicProfileDto dto = new UserBasicProfileDto(1L, null, "태그", "이름");
 
             PageImpl<UserBasicProfileDto> slice = new PageImpl(List.of(dto), Pageable.ofSize(1), 1);
             given(memberQueryService.getMentionSearchMembers(any(), anyLong(), any()))

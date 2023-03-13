@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.message.block.application;
 
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
-import boogi.apiserver.domain.message.block.dto.response.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,5 +18,4 @@ public class MessageBlockQueryService {
     public List<MessageBlockedUserDto> getBlockedMembers(Long userId) {
         return messageBlockRepository.getBlockedUsers(userId);
     }
-
 }

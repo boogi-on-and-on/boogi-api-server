@@ -10,22 +10,14 @@ import static boogi.apiserver.domain.post.postmedia.domain.QPostMedia.postMedia;
 
 @RequiredArgsConstructor
 public class PostMediaRepositoryImpl implements PostMediaRepositoryCustom {
+
     private final JPAQueryFactory queryFactory;
 
-    public List<PostMedia> findUnmappedPostMediasByUUIDs(List<String> postMediaUUIds) {
-        return queryFactory.selectFrom(postMedia)
-                .where(
-                        postMedia.uuid.in(postMediaUUIds),
-                        postMedia.post.isNull(),
-                        postMedia.deletedAt.isNull()
-                ).fetch();
-    }
-
     @Override
-    public List<PostMedia> findByPostId(Long postId) {
+    public List<PostMedia> findUnmappedPostMedias(List<String> postMediaUUIDs) {
         return queryFactory.selectFrom(postMedia)
-                .where(
-                        postMedia.post.id.eq(postId),
+                .where(postMedia.uuid.in(postMediaUUIDs),
+                        postMedia.post.isNull(),
                         postMedia.deletedAt.isNull()
                 ).fetch();
     }

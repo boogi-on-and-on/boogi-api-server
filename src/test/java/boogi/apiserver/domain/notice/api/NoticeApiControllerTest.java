@@ -1,21 +1,23 @@
 package boogi.apiserver.domain.notice.api;
 
 
+import boogi.apiserver.builder.TestMember;
+import boogi.apiserver.builder.TestNotice;
+import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.application.MemberValidationService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.notice.application.NoticeCoreService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
+import boogi.apiserver.domain.notice.application.NoticeCommandService;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
-import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
 import boogi.apiserver.global.util.time.TimePattern;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
+import boogi.apiserver.utils.TestTimeReflection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +30,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -56,10 +57,7 @@ class NoticeApiControllerTest {
     MemberQueryService memberQueryService;
 
     @MockBean
-    NoticeCoreService noticeCoreService;
-
-    @MockBean
-    MemberValidationService memberValidationService;
+    NoticeCommandService noticeCommandService;
 
     private MockMvc mvc;
 
@@ -85,20 +83,19 @@ class NoticeApiControllerTest {
         @Test
         @DisplayName("전체 공지 조회")
         void allAppNotice() throws Exception {
+            final Notice notice = TestNotice.builder()
+                    .id(1L)
+                    .title("공지사항의 제목입니다.")
+                    .content("공지사항의 내용입니다.")
+                    .build();
+            TestTimeReflection.setCreatedAt(notice, LocalDateTime.now());
 
-
-            final Notice notice = TestEmptyEntityGenerator.Notice();
-            ReflectionTestUtils.setField(notice, "id", 1L);
-            ReflectionTestUtils.setField(notice, "title", "제목");
-            ReflectionTestUtils.setField(notice, "content", "내용");
-            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
-
-            NoticeDetailDto noticeDetailDto = NoticeDetailDto.of(notice);
+            NoticeDetailDto noticeDetailDto = NoticeDetailDto.from(notice);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            given(noticeQueryService.getAppNotice()).willReturn(List.of(noticeDetailDto));
+//            given(noticeQueryService.getAppNotice()).willReturn(NoticeDetailResponse.of(List.of(noticeDetailDto)));
 
             mvc.perform(
                             MockMvcRequestBuilders.get("/api/notices")
@@ -118,17 +115,12 @@ class NoticeApiControllerTest {
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            NoticeCreateRequest request = NoticeCreateRequest.builder()
-                    .content("내용")
-                    .title("제목")
-                    .communityId(1L)
-                    .build();
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
-            final Notice notice = TestEmptyEntityGenerator.Notice();
-            ReflectionTestUtils.setField(notice, "id", 1L);
+            final Notice notice = TestNotice.builder().id(1L).build();
 
-            given(noticeCoreService.create(any(), anyLong(), anyLong()))
-                    .willReturn(notice);
+//            given(noticeCommandService.createNotice(any(NoticeCreateRequest.class), anyLong()))
+//                    .willReturn(notice);
 
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/notices")
@@ -148,28 +140,30 @@ class NoticeApiControllerTest {
         @Test
         @DisplayName("전체 공지 조회")
         void allCommunityNotice() throws Exception {
-            final Member member = TestEmptyEntityGenerator.Member();
+            final Member member = TestMember.builder().build();
 
-            final Notice notice = TestEmptyEntityGenerator.Notice();
-            ReflectionTestUtils.setField(notice, "id", 1L);
-            ReflectionTestUtils.setField(notice, "title", "제목");
-            ReflectionTestUtils.setField(notice, "content", "내용");
-            ReflectionTestUtils.setField(notice, "member", member);
-            ReflectionTestUtils.setField(notice, "createdAt", LocalDateTime.now());
+            final Notice notice = TestNotice.builder()
+                    .id(1L)
+                    .member(member)
+                    .title("공지사항의 제목입니다.")
+                    .content("공지사항의 내용입니다.")
+                    .build();
+            TestTimeReflection.setCreatedAt(notice, LocalDateTime.now());
 
-            final User user = TestEmptyEntityGenerator.User();
-            ReflectionTestUtils.setField(user, "id", 3L);
-            ReflectionTestUtils.setField(user, "username", "김");
-            ReflectionTestUtils.setField(user, "tagNumber", "#0001");
+            final User user = TestUser.builder()
+                    .id(3L)
+                    .username("홍길동")
+                    .tagNumber("#0001")
+                    .build();
 
             CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, user);
 
             MockHttpSession session = new MockHttpSession();
             session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-            given(noticeQueryService.getCommunityNotice(anyLong())).willReturn(List.of(dto));
-            given(memberQueryService.hasAuth(any(), anyLong(), any()))
-                    .willReturn(true);
+//            given(noticeQueryService.getCommunityNotice(anyLong())).willReturn(List.of(dto));
+//            given(memberQueryService.hasAuth(any(), anyLong(), any()))
+//                    .willReturn(true);
 
             mvc.perform(
                             MockMvcRequestBuilders.get("/api/notices")
@@ -180,8 +174,8 @@ class NoticeApiControllerTest {
                     ).andExpect(status().isOk())
                     .andExpect(jsonPath("$.manager").value(true))
                     .andExpect(jsonPath("$.notices[0].id").value(1L))
-                    .andExpect(jsonPath("$.notices[0].title").value("제목"))
-                    .andExpect(jsonPath("$.notices[0].content").value("내용"))
+                    .andExpect(jsonPath("$.notices[0].title").value("공지사항의 제목입니다."))
+                    .andExpect(jsonPath("$.notices[0].content").value("공지사항의 내용입니다."))
                     .andExpect(jsonPath("$.notices[0].user.id").value(3L))
                     .andExpect(jsonPath("$.notices[0].user.tagNum").value("#0001"));
         }

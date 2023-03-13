@@ -1,19 +1,18 @@
 package boogi.apiserver.domain.member.dao;
 
-import boogi.apiserver.domain.community.community.domain.QCommunity;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.domain.QMember;
-import boogi.apiserver.domain.member.dto.response.BannedMemberDto;
-import boogi.apiserver.domain.member.dto.response.QBannedMemberDto;
-import boogi.apiserver.domain.user.domain.QUser;
-import boogi.apiserver.domain.user.dto.response.QUserBasicProfileDto;
-import boogi.apiserver.domain.user.dto.response.UserBasicProfileDto;
+import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.QBannedMemberDto;
+import boogi.apiserver.domain.user.dto.dto.QUserBasicProfileDto;
+import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.util.PageableUtil;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,13 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static boogi.apiserver.domain.community.community.domain.QCommunity.community;
+import static boogi.apiserver.domain.member.domain.QMember.member;
+import static boogi.apiserver.domain.user.domain.QUser.user;
+
+
 @RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
-
-    private final QMember member = QMember.member;
-    private final QCommunity community = QCommunity.community;
-    private final QUser user = QUser.user;
 
     @Override
     public List<Member> findByUserId(Long userId) {
@@ -45,8 +45,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<Member> findWhatIJoined(Long userId) {
         return queryFactory.selectFrom(member)
                 .where(member.user.id.eq(userId),
-                        member.bannedAt.isNull(),
-                        member.community.deletedAt.isNull()
+                        member.bannedAt.isNull()
                 )
                 .join(member.community).fetchJoin()
                 .orderBy(member.createdAt.desc())
@@ -94,7 +93,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Member> findJoinedMembersAllWithUserByCommunityId(Long communityId) {
+    public List<Member> findJoinedMembersAllWithUser(Long communityId) {
         return queryFactory.selectFrom(member)
                 .where(
                         member.community.id.eq(communityId),
@@ -107,11 +106,11 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     public Optional<Member> findAnyMemberExceptManager(Long communityId) {
         Member findMember = queryFactory
-                .selectFrom(this.member)
+                .selectFrom(member)
                 .where(
-                        this.member.community.id.eq(communityId),
-                        this.member.memberType.ne(MemberType.MANAGER),
-                        this.member.bannedAt.isNull()
+                        member.community.id.eq(communityId),
+                        member.memberType.ne(MemberType.MANAGER),
+                        member.bannedAt.isNull()
                 ).limit(1)
                 .fetchOne();
         return Optional.ofNullable(findMember);
@@ -141,8 +140,29 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Long> findMemberIdsForQueryUserPostByUserIdAndSessionUserId(Long userId, Long sessionUserId) {
+    public List<Long> findMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
         QMember memberSub = new QMember("memberSub");
+
+        JPQLQuery<Long> sameJoinedCommunityIds = JPAExpressions
+                .select(memberSub.community.id)
+                .from(memberSub)
+                .where(
+                        memberSub.user.id.in(userId, sessionUserId),
+                        memberSub.bannedAt.isNull()
+                )
+                .groupBy(memberSub.community.id)
+                .having(memberSub.community.id.count().lt(2));
+
+        JPQLQuery<Long> privateCommunityFromSameJoinedCommunity = JPAExpressions
+                .select(community.id)
+                .from(community)
+                .where(
+                        community.isPrivate.isTrue(),
+                        community.deletedAt.isNull(),
+                        community.id.in(
+                                sameJoinedCommunityIds
+                        )
+                );
 
         return queryFactory.select(member.id)
                 .from(member)
@@ -150,30 +170,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.user.id.eq(userId),
                         member.bannedAt.isNull(),
                         member.community.id.notIn(
-                                JPAExpressions
-                                        .select(community.id)
-                                        .from(community)
-                                        .where(
-                                                community.isPrivate.isTrue(),
-                                                community.deletedAt.isNull(),
-                                                community.id.in(
-                                                        JPAExpressions
-                                                                .select(memberSub.community.id)
-                                                                .from(memberSub)
-                                                                .where(
-                                                                        memberSub.user.id.in(userId, sessionUserId),
-                                                                        memberSub.bannedAt.isNull()
-                                                                )
-                                                                .groupBy(memberSub.community.id)
-                                                                .having(memberSub.community.id.count().lt(2))
-                                                )
-                                        )
+                                privateCommunityFromSameJoinedCommunity
                         )
                 ).fetch();
     }
 
     @Override
-    public List<Long> findMemberIdsForQueryUserPostBySessionUserId(Long sessionUserId) {
+    public List<Long> findMemberIdsForQueryUserPost(Long sessionUserId) {
         return queryFactory.select(member.id)
                 .from(member)
                 .where(
@@ -191,8 +194,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.bannedAt.isNull()
                 )
                 .join(member.user)
-                .limit(1)
-                .fetchOne();
+                .fetchFirst();
     }
 
     @Override
@@ -204,7 +206,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.bannedAt.isNull(),
                         nameContains(name) //todo: username index 추가
                 ).join(member.user)
-                .orderBy(member.user.username.asc())
+                .orderBy(member.user.username.value.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -213,6 +215,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     private BooleanExpression nameContains(String name) {
-        return Objects.isNull(name) ? null : member.user.username.contains(name);
+        return Objects.isNull(name) ? null : member.user.username.value.contains(name);
     }
 }

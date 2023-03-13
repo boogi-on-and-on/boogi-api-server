@@ -18,7 +18,7 @@ public class AsyncHttpInvocationPushNotification implements SendPushNotification
     private final WebClient client = WebClient.create();
 
     @Override
-    public void joinNotification(List<Long>  joinRequestIds) {
+    public void joinNotification(List<Long> joinRequestIds) {
         log.info("send push. joinRequestId: {}", joinRequestIds);
 
         client
@@ -85,6 +85,11 @@ public class AsyncHttpInvocationPushNotification implements SendPushNotification
 
     @Override
     public void mentionNotification(List<Long> receiverIds, Long entityId, MentionType type) {
+        if (receiverIds.isEmpty()) {
+            log.info("receiverIds is empty. did not sended push.");
+            return;
+        }
+
         log.info("send push. receiverIds: {}, entityId: {} ,mentionType: {}", receiverIds, entityId, type);
 
         client

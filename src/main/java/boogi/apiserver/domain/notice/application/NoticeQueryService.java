@@ -1,16 +1,16 @@
 package boogi.apiserver.domain.notice.application;
 
+import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.response.CommunityNoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDetailDto;
-import boogi.apiserver.domain.notice.dto.response.NoticeDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
+import boogi.apiserver.domain.notice.dto.response.NoticeDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,38 +19,28 @@ public class NoticeQueryService {
 
     private final NoticeRepository noticeRepository;
 
+    private final MemberQueryService memberQueryService;
+
     public List<NoticeDto> getAppLatestNotice() {
-        List<Notice> notices = noticeRepository.getLatestNotice();
-        return transformToLatestNotice(notices);
+        List<Notice> notices = noticeRepository.getLatestAppNotice();
+        return NoticeDto.listFrom(notices);
     }
 
-    public List<NoticeDetailDto> getAppNotice() {
+    public NoticeDetailResponse getAppNotice() {
         List<Notice> notices = noticeRepository.getAllNotices();
-        return notices.stream()
-                .map(NoticeDetailDto::of)
-                .collect(Collectors.toList());
+        return NoticeDetailResponse.from(notices);
     }
 
-    public List<NoticeDto> DEFRECATED_getCommunityLatestNotice(Long communityId) {
-        List<Notice> latestNotice = noticeRepository.getLatestNotice(communityId);
-        return transformToLatestNotice(latestNotice);
+    public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
+        List<Notice> latestNotices = noticeRepository.getLatestNotice(communityId);
+        return NoticeDto.listFrom(latestNotices);
     }
 
-    public List<Notice> getCommunityLatestNotice(Long communityId) {
-        return noticeRepository.getLatestNotice(communityId);
-    }
+    public NoticeDetailResponse getCommunityNotice(Long userId, Long communityId) {
+        Member member = memberQueryService.getMember(userId, communityId);
+        member.isManager();
 
-    public List<CommunityNoticeDetailDto> getCommunityNotice(Long communityId) {
-        return noticeRepository.getAllNotices(communityId)
-                .stream()
-                .map(n->CommunityNoticeDetailDto.of(n, n.getMember().getUser()))
-                .collect(Collectors.toList());
-
-    }
-
-    private List<NoticeDto> transformToLatestNotice(List<Notice> notices) {
-        return notices.stream()
-                .map(NoticeDto::of)
-                .collect(Collectors.toList());
+        List<Notice> allNotices = noticeRepository.getAllNotices(communityId);
+        return NoticeDetailResponse.communityNoticeOf(allNotices, member.isManager());
     }
 }

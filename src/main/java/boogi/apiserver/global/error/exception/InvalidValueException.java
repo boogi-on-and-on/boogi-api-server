@@ -2,11 +2,11 @@ package boogi.apiserver.global.error.exception;
 
 public class InvalidValueException extends BusinessException {
     public InvalidValueException() {
-        super(ErrorInfo.INVALID_INPUT_ERROR);
+        super(ErrorInfo.COMMON_INVALID_INPUT_ERROR);
     }
 
     public InvalidValueException(String message) {
-        super(message, ErrorInfo.INVALID_INPUT_ERROR);
+        super(message, ErrorInfo.COMMON_INVALID_INPUT_ERROR);
     }
 
     public InvalidValueException(String message, ErrorInfo errorInfo) {

@@ -1,6 +1,9 @@
 package boogi.apiserver.domain.member.domain;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.member.exception.NotBannedMemberException;
+import boogi.apiserver.domain.member.exception.NotManagerException;
+import boogi.apiserver.domain.member.exception.NotOperatorException;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.*;
@@ -36,16 +39,14 @@ public class Member extends TimeBaseEntity {
     @Column(name = "banned_at")
     private LocalDateTime bannedAt;
 
-    public void ban() {
-        this.bannedAt = LocalDateTime.now();
-    }
-
-    public void release() {
-        this.bannedAt = null;
-    }
-
-    public void delegate(MemberType memberType) {
+    @Builder
+    private Member(final Long id, final Community community, final User user, final MemberType memberType,
+                   final LocalDateTime bannedAt) {
+        this.id = id;
+        this.community = community;
+        this.user = user;
         this.memberType = memberType;
+        this.bannedAt = bannedAt;
     }
 
     private Member(Community community, User user, MemberType type) {
@@ -54,9 +55,50 @@ public class Member extends TimeBaseEntity {
         this.memberType = type;
     }
 
-    public static Member createNewMember(Community community, User user, MemberType type) {
+    public static Member of(Community community, User user, MemberType type) {
         community.addMemberCount();
+
         return new Member(community, user, type);
     }
 
+    public boolean isManager() {
+        return this.memberType.hasManagerAuth();
+    }
+
+    public boolean isOperator() {
+        return this.memberType.hasSubManagerAuth();
+    }
+
+    public void validateManager() {
+        if (!this.isManager()) {
+            throw new NotManagerException();
+        }
+    }
+
+    public void validateOperator() {
+        if (!this.isOperator()) {
+            throw new NotOperatorException();
+        }
+    }
+
+    public void ban() {
+        if (this.getBannedAt() == null) {
+            this.bannedAt = LocalDateTime.now();
+        }
+    }
+
+    public void release() {
+        if (this.getBannedAt() == null) {
+            throw new NotBannedMemberException();
+        }
+        this.bannedAt = null;
+    }
+
+    public void changeMemberType(MemberType memberType) {
+        this.memberType = memberType;
+    }
+
+    public boolean isNullMember() {
+        return false;
+    }
 }

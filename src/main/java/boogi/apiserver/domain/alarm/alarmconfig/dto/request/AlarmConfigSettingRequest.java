@@ -1,14 +1,10 @@
 package boogi.apiserver.domain.alarm.alarmconfig.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class AlarmConfigSettingRequest {
 
     private Boolean message;
@@ -16,4 +12,12 @@ public class AlarmConfigSettingRequest {
     private Boolean join;
     private Boolean comment;
     private Boolean mention;
+
+    public AlarmConfigSettingRequest(Boolean message, Boolean notice, Boolean join, Boolean comment, Boolean mention) {
+        this.message = message;
+        this.notice = notice;
+        this.join = join;
+        this.comment = comment;
+        this.mention = mention;
+    }
 }

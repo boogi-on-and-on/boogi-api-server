@@ -23,4 +23,15 @@ public class Alarm extends TimeBaseEntity {
     private String head;
     private String body;
 
+    @Builder
+    private Alarm(final Long id, final User user, final String head, final String body) {
+        this.id = id;
+        this.user = user;
+        this.head = head;
+        this.body = body;
+    }
+
+    public boolean isSameUser(Long userId) {
+        return user.getId().equals(userId);
+    }
 }

@@ -41,8 +41,17 @@ public class PostMedia extends TimeBaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Builder
+    private PostMedia(final Long id, final String uuid, final Post post, final MediaType mediaType, final String mediaURL, final LocalDateTime deletedAt) {
+        this.id = id;
+        this.uuid = uuid;
+        this.post = post;
+        this.mediaType = mediaType;
+        this.mediaURL = mediaURL;
+        this.deletedAt = deletedAt;
+    }
+
     public void mapPost(Post post) {
         this.post = post;
-        post.getPostMedias().add(this);
     }
 }

@@ -1,12 +1,17 @@
 package boogi.apiserver.domain.member.application;
 
+import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestMember;
+import boogi.apiserver.builder.TestUser;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
+import boogi.apiserver.domain.member.exception.NotViewableMemberException;
+import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.domain.user.dto.response.UserJoinedCommunity;
-import boogi.apiserver.utils.TestEmptyEntityGenerator;
+import boogi.apiserver.domain.user.dto.dto.UserJoinedCommunityDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,12 +19,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
@@ -29,50 +35,68 @@ class MemberQueryServiceTest {
     @Mock
     MemberRepository memberRepository;
 
+    @Mock
+    CommunityRepository communityRepository;
+
     @InjectMocks
     MemberQueryService memberQueryService;
+
+
+    @Test
+    @DisplayName("가입하지 않은 멤버 조회시 NotJoinedMemberException")
+    void getMemberWithException() {
+        given(memberRepository.findByUserIdAndCommunityId(any(), anyLong()))
+                .willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> {
+            memberQueryService.getMember(anyLong(), anyLong());
+        }).isInstanceOf(NotJoinedMemberException.class);
+    }
 
     @Test
     @DisplayName("특정 유저가 가입한 멤버목록 조회")
     void myCommunityList() {
 
         //given
-        final User user = TestEmptyEntityGenerator.User();
-        ReflectionTestUtils.setField(user, "id", 1L);
+        final User user = TestUser.builder().id(1L).build();
 
-        final Community community1 = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community1, "id", 2L);
-        ReflectionTestUtils.setField(community1, "communityName", "커뮤니티1");
+        final Community community1 = TestCommunity.builder()
+                .id(2L)
+                .communityName("커뮤니티A")
+                .build();
 
-        final Community community2 = TestEmptyEntityGenerator.Community();
-        ReflectionTestUtils.setField(community2, "id", 3L);
-        ReflectionTestUtils.setField(community2, "communityName", "커뮤니티2");
+        final Community community2 = TestCommunity.builder()
+                .id(3L)
+                .communityName("커뮤니티B")
+                .build();
 
-        final Member member1 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member1, "id", 4L);
-        ReflectionTestUtils.setField(member1, "user", user);
-        ReflectionTestUtils.setField(member1, "community", community1);
+        final Member member1 = TestMember.builder()
+                .id(4L)
+                .user(user)
+                .community(community1)
+                .build();
 
-        final Member member2 = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member2, "id", 4L);
-        ReflectionTestUtils.setField(member2, "user", user);
-        ReflectionTestUtils.setField(member2, "community", community2);
+        final Member member2 = TestMember.builder()
+                .id(5L)
+                .user(user)
+                .community(community2)
+                .build();
 
         given(memberRepository.findByUserId(anyLong()))
                 .willReturn(List.of(member1, member2));
 
         //when
-        List<UserJoinedCommunity> dtos = memberQueryService.getJoinedMemberInfo(user.getId());
+        List<UserJoinedCommunityDto> dtos = memberQueryService.getJoinedMemberInfo(user.getId());
 
         //then
-        UserJoinedCommunity dto1 = findUserJoinedCommunityById(dtos, 2L);
-        assertThat(dto1.getName()).isEqualTo("커뮤니티1");
+        UserJoinedCommunityDto dto1 = findUserJoinedCommunityById(dtos, 2L);
+        assertThat(dto1.getName()).isEqualTo("커뮤니티A");
 
-        UserJoinedCommunity dto2 = findUserJoinedCommunityById(dtos, 3L);
-        assertThat(dto2.getName()).isEqualTo("커뮤니티2");
+        UserJoinedCommunityDto dto2 = findUserJoinedCommunityById(dtos, 3L);
+        assertThat(dto2.getName()).isEqualTo("커뮤니티B");
     }
 
-    private UserJoinedCommunity findUserJoinedCommunityById(List<UserJoinedCommunity> dtos, Long id) {
+    private UserJoinedCommunityDto findUserJoinedCommunityById(List<UserJoinedCommunityDto> dtos, Long id) {
         return dtos.stream().filter(d -> d.getId().equals(id)).findFirst().get();
     }
 
@@ -84,47 +108,87 @@ class MemberQueryServiceTest {
         @DisplayName("가입정보 조회 성공")
         void success() {
             //given
-            final Member member = TestEmptyEntityGenerator.Member();
-
+            final Member member = TestMember.builder().build();
 
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.of(member));
 
             //when
-            Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+            Member memberOfTheCommunity = memberQueryService.getMember(anyLong(), anyLong());
 
             //then
             assertThat(memberOfTheCommunity).isEqualTo(member);
         }
+    }
+
+    @Nested
+    @DisplayName("커뮤니티의 내부를 열람 가능한 멤버를 조회할때")
+    class GetViewableMemberTest {
+
+        private final Community publicCommunity = TestCommunity.builder()
+                .id(1L)
+                .isPrivate(false)
+                .build();
+
+        private final Community privateCommunity = TestCommunity.builder()
+                .id(1L)
+                .isPrivate(true)
+                .build();
 
         @Test
-        @DisplayName("멤버 가입정보 없는 경우")
-        void noMemberInfo() {
-            //given
+        @DisplayName("공개 커뮤니티에 가입된 멤버의 경우 해당 멤버를 가져온다.")
+        void publicCommunityJoinedMemberSuccess() {
+            final Member member = TestMember.builder()
+                    .id(2L)
+                    .community(publicCommunity)
+                    .build();
+
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.of(member));
+
+            Member viewableMember = memberQueryService.getViewableMember(3L, publicCommunity);
+
+            assertThat(viewableMember.getId()).isEqualTo(2L);
+            assertThat(viewableMember.isNullMember()).isFalse();
+        }
+
+        @Test
+        @DisplayName("공개 커뮤니티에 가입하지 않은 멤버의 경우 NullMember를 가져온다.")
+        void publicCommunityNotJoinedMemberSuccess() {
             given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
                     .willReturn(Optional.empty());
 
-            //when
-            Member memberOfTheCommunity = memberQueryService.getMemberOfTheCommunity(anyLong(), anyLong());
+            Member viewableMember = memberQueryService.getViewableMember(2L, publicCommunity);
 
-            //then
-            assertThat(memberOfTheCommunity).isEqualTo(null);
+            assertThat(viewableMember).isEqualTo(new NullMember());
+            assertThat(viewableMember.isNullMember()).isTrue();
         }
 
-    }
+        @Test
+        @DisplayName("비공개 커뮤니티에 가입된 멤버의 경우 해당 멤버를 가져온다.")
+        void privateCommunityJoinedMemberSuccess() {
+            final Member member = TestMember.builder()
+                    .id(2L)
+                    .community(privateCommunity)
+                    .build();
 
-    @Test
-    @DisplayName("특정 유저의 권한이 같은지 확인")
-    void checkMyAuth() {
-        final Member member = TestEmptyEntityGenerator.Member();
-        ReflectionTestUtils.setField(member, "memberType", MemberType.MANAGER);
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.of(member));
 
+            Member viewableMember = memberQueryService.getViewableMember(3L, privateCommunity);
 
-        given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
-                .willReturn(Optional.of(member));
+            assertThat(viewableMember.getId()).isEqualTo(2L);
+            assertThat(viewableMember.isNullMember()).isFalse();
+        }
 
-        Boolean hasAuth = memberQueryService.hasAuth(anyLong(), anyLong(), MemberType.MANAGER);
+        @Test
+        @DisplayName("비공개 커뮤니티에 가입되어있지 않는 멤버일 경우 NotViewableMemberException이 발생한다.")
+        void privateCommunityNotJoinedMemberFail() {
+            given(memberRepository.findByUserIdAndCommunityId(anyLong(), anyLong()))
+                    .willReturn(Optional.empty());
 
-        assertThat(hasAuth).isTrue();
+            assertThatThrownBy(() -> memberQueryService.getViewableMember(2L, privateCommunity))
+                    .isInstanceOf(NotViewableMemberException.class);
+        }
     }
 }

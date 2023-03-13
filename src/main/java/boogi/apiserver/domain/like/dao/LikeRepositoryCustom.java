@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public interface LikeRepositoryCustom {
 
-    List<Like> findPostLikesByPostId(Long postId);
-
     void deleteAllPostLikeByPostId(Long postId);
 
     void deleteAllCommentLikeByCommentId(Long commentId);
@@ -19,8 +17,6 @@ public interface LikeRepositoryCustom {
     boolean existsLikeByPostIdAndMemberId(Long postId, Long memberId);
 
     boolean existsLikeByCommentIdAndMemberId(Long commentId, Long memberId);
-
-    Optional<Like> findLikeWithMemberById(Long likeId);
 
     Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId);
 
