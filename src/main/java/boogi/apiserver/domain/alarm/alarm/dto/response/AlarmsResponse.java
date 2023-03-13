@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class AlarmsResponse {
     List<AlarmsDto> alarms;
 
-    private AlarmsResponse(List<AlarmsDto> alarms) {
+    public AlarmsResponse(List<AlarmsDto> alarms) {
         this.alarms = alarms;
     }
 
