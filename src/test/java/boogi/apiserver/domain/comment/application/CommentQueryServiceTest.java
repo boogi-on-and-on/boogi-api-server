@@ -7,12 +7,12 @@ import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.dao.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
@@ -54,9 +54,6 @@ class CommentQueryServiceTest {
     PostRepository postRepository;
 
     @Mock
-    LikeCommandService likeCommandService;
-
-    @Mock
     MemberRepository memberRepository;
 
     @Mock
@@ -69,6 +66,7 @@ class CommentQueryServiceTest {
     @Nested
     @DisplayName("글에 작성된 댓글들 조회시")
     class GetCommentsAtPostTest {
+
         @Test
         @DisplayName("부모 댓글 개수를 기준으로 페이지네이션해서 가져온다.")
         void getCommentsAtPostSuccess() {
@@ -169,6 +167,76 @@ class CommentQueryServiceTest {
             assertThat(parentCommentInfo2.getChild().get(0).getLikeCount()).isEqualTo(0L);
             assertThat(parentCommentInfo2.getChild().get(0).getLikeId()).isNull();
             assertThat(parentCommentInfo2.getChild().get(0).getParentId()).isEqualTo(6L);
+
+            PaginationDto pageInfo = response.getPageInfo();
+            assertThat(pageInfo.getNextPage()).isEqualTo(1);
+            assertThat(pageInfo.isHasNext()).isFalse();
+        }
+
+        @Test
+        @DisplayName("공개 커뮤니티에 비가입된 유저가 요청하면 가져온 모든 댓글의 likeId가 null이다.")
+        void notJoinedMemberGetCommentsAtPostSuccess() {
+            final User user = TestUser.builder().id(1L).build();
+
+            final Community community = TestCommunity.builder().id(2L).build();
+
+            final Member member = TestMember.builder()
+                    .id(3L)
+                    .user(user)
+                    .community(community)
+                    .build();
+
+            final Post post = TestPost.builder()
+                    .id(4L)
+                    .community(community)
+                    .build();
+
+            final Comment pComment1 = TestComment.builder()
+                    .id(5L)
+                    .member(member)
+                    .post(post)
+                    .build();
+            final Comment pComment2 = TestComment.builder()
+                    .id(6L)
+                    .member(member)
+                    .post(post)
+                    .build();
+            final Comment cComment1 = TestComment.builder()
+                    .id(7L)
+                    .member(member)
+                    .post(post)
+                    .parent(pComment1)
+                    .build();
+            final Comment cComment2 = TestComment.builder()
+                    .id(8L)
+                    .member(member)
+                    .post(post)
+                    .parent(pComment2)
+                    .build();
+
+            given(postRepository.findByPostId(anyLong()))
+                    .willReturn(post);
+            given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
+                    .willReturn(new NullMember());
+
+            PageRequest pageable = PageRequest.of(0, 2);
+            List<Comment> parentComments = List.of(pComment1, pComment2);
+            Slice<Comment> parentCommentPage = PageableUtil.getSlice(parentComments, pageable);
+            given(commentRepository.findParentCommentsWithMemberByPostId(any(Pageable.class), anyLong()))
+                    .willReturn(parentCommentPage);
+
+            List<Comment> childComments = List.of(cComment1, cComment2);
+            given(commentRepository.findChildCommentsWithMemberByParentCommentIds(anyList()))
+                    .willReturn(childComments);
+
+            Map<Long, Long> commentLikeCountMap = Map.of(pComment1.getId(), 1L, cComment1.getId(), 1L);
+            given(likeRepository.getCommentLikeCountsByCommentIds(anyList()))
+                    .willReturn(commentLikeCountMap);
+
+            CommentsAtPostResponse response = commentQueryService.getCommentsAtPost(post.getId(), 1L, pageable);
+
+            assertThat(response.getComments().size()).isEqualTo(2);
+            assertThat(response.getComments()).extracting("likeId").containsOnlyNulls();
 
             PaginationDto pageInfo = response.getPageInfo();
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
