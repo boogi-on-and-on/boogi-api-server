@@ -18,6 +18,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,9 +42,7 @@ public class CommentQueryService {
         Member sessionMember = memberQueryService.getViewableMember(userId, findPost.getCommunity());
         Slice<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);
 
-        List<Long> parentCommentIds = commentPage.getContent().stream()
-                .map(Comment::getId)
-                .collect(Collectors.toList());
+        List<Long> parentCommentIds = toCommentIdList(commentPage.getContent());
 
         List<Comment> childComments = commentRepository.findChildCommentsWithMemberByParentCommentIds(parentCommentIds);
 
@@ -80,15 +79,22 @@ public class CommentQueryService {
     }
 
     private List<Long> getAllCommentIds(List<Long> parentCommentIds, List<Comment> childComments) {
-        List<Long> commentIds = childComments.stream()
-                .map(Comment::getId)
-                .collect(Collectors.toList());
+        List<Long> commentIds = toCommentIdList(childComments);
         commentIds.addAll(parentCommentIds);
         return commentIds;
     }
 
     private Map<Long, Like> getSessionMemberCommentLikeMap(List<Long> commentIds, Long sessionMemberId) {
+        if (sessionMemberId == null) {
+            return new HashMap<>();
+        }
         List<Like> commentLikes = likeRepository.findCommentLikesByCommentIdsAndMemberId(commentIds, sessionMemberId);
         return commentLikes.stream().collect(Collectors.toMap(c -> c.getComment().getId(), c -> c));
+    }
+
+    private List<Long> toCommentIdList(List<Comment> comments) {
+        return comments.stream()
+                .map(Comment::getId)
+                .collect(Collectors.toList());
     }
 }
