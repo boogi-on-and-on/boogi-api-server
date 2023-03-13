@@ -77,6 +77,7 @@ public class PostCommandService {
         postRepository.delete(findPost);
     }
 
+    //todo: repository로 내리기
     private void deleteCommentsOnPost(Long postId) {
         commentRepository.findByPostId(postId)
                 .forEach(Comment::deleteComment);

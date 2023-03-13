@@ -9,7 +9,6 @@ import lombok.Getter;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class LikeMembersAtCommentResponse {
@@ -29,9 +28,7 @@ public class LikeMembersAtCommentResponse {
                 .pageInfo(PaginationDto.of(page));
 
         if (users != null && users.size() > 0) {
-            builder.users(users.stream()
-                    .map(UserBasicProfileDto::from)
-                    .collect(Collectors.toList()));
+            builder.users(UserBasicProfileDto.listFrom(users));
         }
         return builder.build();
     }

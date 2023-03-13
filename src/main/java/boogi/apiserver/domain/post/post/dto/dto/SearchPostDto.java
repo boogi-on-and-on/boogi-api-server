@@ -73,7 +73,7 @@ public class SearchPostDto {
 
         return SearchPostDto.builder()
                 .id(post.getId())
-                .user(UserBasicProfileDto.of(post.getMember()))
+                .user(UserBasicProfileDto.from(post.getMember()))
                 .communityId(community.getId())
                 .communityName(community.getCommunityName())
                 .createdAt(post.getCreatedAt())

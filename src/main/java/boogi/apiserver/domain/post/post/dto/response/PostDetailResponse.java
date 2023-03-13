@@ -80,7 +80,7 @@ public class PostDetailResponse {
 
         return PostDetailResponse.builder()
                 .id(post.getId())
-                .user(UserBasicProfileDto.of(post.getMember()))
+                .user(UserBasicProfileDto.from(post.getMember()))
                 .member(MemberInfo.from(post.getMember()))
                 .community(CommunityInfo.from(post.getCommunity()))
                 .postMedias(postMediaInfos)
