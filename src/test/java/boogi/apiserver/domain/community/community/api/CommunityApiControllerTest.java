@@ -118,7 +118,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                 .post("/api/communities")
                 .content(mapper.writeValueAsBytes(request))
                 .contentType(MediaType.APPLICATION_JSON)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -126,11 +126,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         response
                 .andExpect(status().isCreated())
                 .andDo(document("communities/post",
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
-                        ),
-
                         requestFields(
                                 fieldWithPath("name")
                                         .type(JsonFieldType.STRING)
@@ -180,7 +175,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/communities/{communityId}", 1L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -189,11 +184,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                 .andDo(document("communities/get-communityId",
                         pathParameters(
                                 parameterWithName("communityId").description("커뮤니티 ID")
-                        ),
-
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
                         ),
 
                         responseFields(
@@ -282,7 +272,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/communities/1/metadata")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -321,7 +311,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .patch("/api/communities/{communityId}", 1L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(request))
@@ -358,7 +348,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
     void communityShutdown() throws Exception {
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .delete("/api/communities/{communityId}", 1L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -394,7 +384,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .get("/api/communities/{communityId}/settings", 1L)
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     .contentType(MediaType.APPLICATION_JSON)
             );
@@ -434,7 +424,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .post("/api/communities/{communityId}/settings", 1L)
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(mapper.writeValueAsString(request))
@@ -481,7 +471,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                 .get("/api/communities/{communityId}/posts", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .queryParam("page", "0")
                 .queryParam("size", "3")
         );
@@ -613,7 +603,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/communities/{communityId}/members", 1L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -693,7 +683,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/communities/{communityId}/members/banned", 1L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -754,7 +744,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .get("/api/communities/{communityId}/requests", 1L)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
             );
 
@@ -803,7 +793,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .post("/api/communities/{communityId}/requests", 1L)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
             );
 
@@ -830,7 +820,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                     .post("/api/communities/{communityId}/requests/confirm", 1L)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
             );
 
@@ -859,7 +849,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                     .post("/api/communities/{communityId}/requests/reject", 1L)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .content(mapper.writeValueAsString(Map.of("requestIds", List.of(1L, 2L))))
             );
 
@@ -894,7 +884,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/communities/search")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .queryParam("isPrivate", "FALSE")
@@ -986,7 +976,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/communities/{communityId}/members/all", 1L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 .contentType(MediaType.APPLICATION_JSON)
         );

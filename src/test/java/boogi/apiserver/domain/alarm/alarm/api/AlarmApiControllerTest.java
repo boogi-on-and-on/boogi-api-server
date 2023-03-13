@@ -5,27 +5,17 @@ import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
 import boogi.apiserver.domain.alarm.alarm.dto.dto.AlarmsDto;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.utils.controller.MockHttpSessionCreator;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,7 +55,7 @@ class AlarmApiControllerTest extends TestControllerSetUp {
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/alarms")
                 .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
         );
 
         response
@@ -104,7 +94,7 @@ class AlarmApiControllerTest extends TestControllerSetUp {
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .post("/api/alarms/{alarmId}/delete", 1L)
                 .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
         );
 
         response

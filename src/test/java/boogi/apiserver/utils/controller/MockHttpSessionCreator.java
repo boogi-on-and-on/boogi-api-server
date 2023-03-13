@@ -5,7 +5,7 @@ import org.springframework.mock.web.MockHttpSession;
 
 public class MockHttpSessionCreator {
 
-    public static MockHttpSession dummySession1L() {
+    public static MockHttpSession dummySession() {
         final MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
         return session;

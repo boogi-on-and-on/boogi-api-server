@@ -60,7 +60,7 @@ class MemberApiControllerTest extends TestControllerSetUp {
                         .queryParam("communityId", "1")
                         .queryParam("page", "0")
                         .queryParam("size", "3")
-                        .session(MockHttpSessionCreator.dummySession1L())
+                        .session(MockHttpSessionCreator.dummySession())
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -115,7 +115,7 @@ class MemberApiControllerTest extends TestControllerSetUp {
     void banMember() throws Exception {
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .post("/api/members/{memberId}/ban", 2L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -136,7 +136,7 @@ class MemberApiControllerTest extends TestControllerSetUp {
     void releaseMember() throws Exception {
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .post("/api/members/{memberId}/release", 2L)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -161,7 +161,7 @@ class MemberApiControllerTest extends TestControllerSetUp {
                 .post("/api/members/{memberId}/delegate", 2L)
                 .content(mapper.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON)
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 

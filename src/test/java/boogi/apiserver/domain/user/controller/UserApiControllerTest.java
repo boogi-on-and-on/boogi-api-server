@@ -74,7 +74,7 @@ class UserApiControllerTest extends TestControllerSetUp {
 
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .post("/api/users/token/validation")
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN"));
 
             response.andExpect(status().isOk())
@@ -117,7 +117,7 @@ class UserApiControllerTest extends TestControllerSetUp {
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/users")
                 .queryParam("userId", "4")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                 .contentType(MediaType.APPLICATION_JSON)
         );
@@ -179,7 +179,7 @@ class UserApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                 .get("/api/users/communities/joined")
-                .session(MockHttpSessionCreator.dummySession1L())
+                .session(MockHttpSessionCreator.dummySession())
                 .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
@@ -255,7 +255,7 @@ class UserApiControllerTest extends TestControllerSetUp {
 
             final ResultActions response = mvc.perform(
                     RestDocumentationRequestBuilders.get("/api/users/messages/blocked")
-                            .session(MockHttpSessionCreator.dummySession1L())
+                            .session(MockHttpSessionCreator.dummySession())
                             .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
             );
 
@@ -288,7 +288,7 @@ class UserApiControllerTest extends TestControllerSetUp {
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .post("/api/users/messages/unblock")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     .content(mapper.writeValueAsString(Map.of("blockedUserId", 2L)))
             );
@@ -316,7 +316,7 @@ class UserApiControllerTest extends TestControllerSetUp {
             mvc.perform(RestDocumentationRequestBuilders
                             .post("/api/users/messages/block")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .session(MockHttpSessionCreator.dummySession1L())
+                            .session(MockHttpSessionCreator.dummySession())
                             .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                             .content(mapper.writeValueAsString(request))
                     ).andExpect(status().is4xxClientError())
@@ -343,7 +343,7 @@ class UserApiControllerTest extends TestControllerSetUp {
 
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .get("/api/users/config/notifications")
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
             );
 
@@ -411,7 +411,7 @@ class UserApiControllerTest extends TestControllerSetUp {
             final AlarmConfigSettingRequest request = new AlarmConfigSettingRequest(true, true, true, true, true);
             final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
                     .get("/api/users/config/notifications")
-                    .session(MockHttpSessionCreator.dummySession1L())
+                    .session(MockHttpSessionCreator.dummySession())
                     .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(mapper.writeValueAsString(request))

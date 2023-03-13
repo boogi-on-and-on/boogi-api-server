@@ -70,7 +70,7 @@ class NoticeApiControllerTest extends TestControllerSetUp {
                 MockMvcRequestBuilders.get("/api/notices")
                         .queryParam("communityId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(MockHttpSessionCreator.dummySession1L())
+                        .session(MockHttpSessionCreator.dummySession())
                         .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN")
         );
 
@@ -123,7 +123,7 @@ class NoticeApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(
                 MockMvcRequestBuilders.post("/api/notices")
-                        .session(MockHttpSessionCreator.dummySession1L())
+                        .session(MockHttpSessionCreator.dummySession())
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
@@ -164,7 +164,7 @@ class NoticeApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(
                 MockMvcRequestBuilders.get("/api/notices/recent")
-                        .session(MockHttpSessionCreator.dummySession1L())
+                        .session(MockHttpSessionCreator.dummySession())
                         .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
         );
 
