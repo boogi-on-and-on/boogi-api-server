@@ -11,8 +11,8 @@ import boogi.apiserver.domain.community.community.dto.response.*;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
 import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
@@ -101,8 +101,7 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/members")
     public JoinedMembersPageResponse getCommunityJoinedMembers(@PathVariable Long communityId, Pageable pageable) {
-        Slice<Member> joinedMembers = memberQueryService.getCommunityJoinedMembers(pageable, communityId);
-        return JoinedMembersPageResponse.from(joinedMembers);
+        return memberQueryService.getCommunityJoinedMembers(pageable, communityId);
     }
 
     @GetMapping("/{communityId}/members/banned")
@@ -157,7 +156,7 @@ public class CommunityApiController {
 
     @GetMapping("{communityId}/members/all")
     public JoinedMembersResponse getMembersAll(@PathVariable Long communityId, @Session Long userId) {
-        List<Member> joinedMembersAll = memberQueryService.getJoinedMembersAll(communityId, userId);
-        return JoinedMembersResponse.from(joinedMembersAll);
+        final List<MemberDto> joinedMembers = memberQueryService.getJoinedMembersAll(communityId, userId);
+        return JoinedMembersResponse.from(joinedMembers);
     }
 }

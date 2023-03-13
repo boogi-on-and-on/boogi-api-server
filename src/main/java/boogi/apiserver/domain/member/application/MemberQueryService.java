@@ -5,8 +5,8 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
-import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
@@ -65,8 +65,9 @@ public class MemberQueryService {
                 .collect(Collectors.toList());
     }
 
-    public Slice<Member> getCommunityJoinedMembers(Pageable pageable, Long communityId) {
-        return memberRepository.findJoinedMembers(pageable, communityId);
+    public JoinedMembersPageResponse getCommunityJoinedMembers(Pageable pageable, Long communityId) {
+        final Slice<Member> members = memberRepository.findJoinedMembers(pageable, communityId);
+        return JoinedMembersPageResponse.from(members);
     }
 
     public List<BannedMemberDto> getBannedMembers(Long userId, Long communityId) {
@@ -78,13 +79,13 @@ public class MemberQueryService {
         return memberRepository.findMentionMember(pageable, communityId, name);
     }
 
-    public List<Member> getJoinedMembersAll(Long communityId, Long userId) {
+    public List<MemberDto> getJoinedMembersAll(Long communityId, Long userId) {
         communityRepository.findByCommunityId(communityId);
         Member sessionMember = getMember(userId, communityId);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);
         findJoinedMembersAll.remove(sessionMember);
 
-        return findJoinedMembersAll;
+        return MemberDto.listOf(findJoinedMembersAll);
     }
 }
