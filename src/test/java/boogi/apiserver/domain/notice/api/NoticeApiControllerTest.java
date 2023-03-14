@@ -1,40 +1,29 @@
 package boogi.apiserver.domain.notice.api;
 
 
-import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestNotice;
-import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.application.NoticeCommandService;
+import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.domain.Notice;
-import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
+import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
-import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.notice.dto.response.NoticeDetailResponse;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
-import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
-import boogi.apiserver.global.util.time.TimePattern;
 import boogi.apiserver.utils.TestTimeReflection;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import boogi.apiserver.utils.controller.MockHttpSessionCreator;
+import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,13 +31,15 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = NoticeApiController.class)
-class NoticeApiControllerTest {
+class NoticeApiControllerTest extends TestControllerSetUp {
 
     @MockBean
     NoticeQueryService noticeQueryService;
@@ -59,126 +50,144 @@ class NoticeApiControllerTest {
     @MockBean
     NoticeCommandService noticeCommandService;
 
-    private MockMvc mvc;
 
-    @Autowired
-    ObjectMapper mapper = new ObjectMapper();
+    @Test
+    @DisplayName("전체 앱공지 조회")
+    void allAppNotice() throws Exception {
+        final Notice notice = TestNotice.builder()
+                .id(1L)
+                .title("공지사항의 제목입니다.")
+                .content("공지사항의 내용입니다.")
+                .build();
+        TestTimeReflection.setCreatedAt(notice, LocalDateTime.now());
 
-    @Autowired
-    private WebApplicationContext ctx;
+        NoticeDetailDto noticeDetailDto = NoticeDetailDto.from(notice);
+        given(noticeQueryService.getCommunityNotice(anyLong(), anyLong()))
+                .willReturn(new NoticeDetailResponse(List.of(noticeDetailDto), true));
 
-    @BeforeEach
-    private void setup() {
-        mvc =
-                MockMvcBuilders.webAppContextSetup(ctx)
-                        .addFilter(new CharacterEncodingFilter("UTF-8", true))
-                        .alwaysDo(print())
-                        .build();
+
+        final ResultActions response = mvc.perform(
+                MockMvcRequestBuilders.get("/api/notices")
+                        .queryParam("communityId", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(MockHttpSessionCreator.dummySession())
+                        .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN")
+        );
+
+        response
+                .andExpect(status().isOk())
+                .andDo(document("notices/get",
+                        requestParameters(
+                                parameterWithName("communityId")
+                                        .description("커뮤니티의 공지사항 조회인 경우")
+                                        .optional()
+                        ),
+
+                        responseFields(
+                                fieldWithPath("manager")
+                                        .type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 커뮤니티의 공지 조회 && 조회를 요청하는 맴버가 매니저인 경우")
+                                        .optional(),
+
+                                fieldWithPath("notices")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("공지사항 목록"),
+
+                                fieldWithPath("notices[].content")
+                                        .type(JsonFieldType.STRING)
+                                        .description("글 내용"),
+
+                                fieldWithPath("notices[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("공지사항 ID"),
+
+                                fieldWithPath("notices[].title")
+                                        .type(JsonFieldType.STRING)
+                                        .description("글 제목"),
+
+                                fieldWithPath("notices[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 생성시각")
+                        )
+                ));
     }
 
-    @Nested
-    @DisplayName("앱 공지사항 테스트")
-    class AppNoticeTest {
 
-        @Test
-        @DisplayName("전체 공지 조회")
-        void allAppNotice() throws Exception {
-            final Notice notice = TestNotice.builder()
-                    .id(1L)
-                    .title("공지사항의 제목입니다.")
-                    .content("공지사항의 내용입니다.")
-                    .build();
-            TestTimeReflection.setCreatedAt(notice, LocalDateTime.now());
+    @Test
+    @DisplayName("공지사항 생성")
+    void createNewAppNotice() throws Exception {
+        NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
-            NoticeDetailDto noticeDetailDto = NoticeDetailDto.from(notice);
+        given(noticeCommandService.createNotice(any(), anyLong()))
+                .willReturn(2L);
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        final ResultActions response = mvc.perform(
+                MockMvcRequestBuilders.post("/api/notices")
+                        .session(MockHttpSessionCreator.dummySession())
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request))
+        );
 
-//            given(noticeQueryService.getAppNotice()).willReturn(NoticeDetailResponse.of(List.of(noticeDetailDto)));
+        response
+                .andExpect(status().isOk())
+                .andDo(document("notices/post",
+                        requestFields(
+                                fieldWithPath("communityId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("커뮤니티 ID"),
 
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/notices")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN")
-                    ).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.notices[0].id").isNumber())
-                    .andExpect(jsonPath("$.notices[0].title").isString())
-                    .andExpect(jsonPath("$.notices[0].createdAt").value(CustomDateTimeFormatter.toString(notice.getCreatedAt(), TimePattern.BASIC_FORMAT)))
-                    .andExpect(jsonPath("$.notices[0].content").isString());
-        }
+                                fieldWithPath("title")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 제목"),
 
-        @Test
-        @DisplayName("공지사항 생성")
-        void createNewAppNotice() throws Exception {
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                                fieldWithPath("content")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 내용")
+                        ),
 
-            NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
-
-            final Notice notice = TestNotice.builder().id(1L).build();
-
-//            given(noticeCommandService.createNotice(any(NoticeCreateRequest.class), anyLong()))
-//                    .willReturn(notice);
-
-            mvc.perform(
-                            MockMvcRequestBuilders.post("/api/notices")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(mapper.writeValueAsString(request))
-                                    .session(session)
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                    ).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1L));
-        }
+                        responseFields(
+                                fieldWithPath("id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("생성된 공지사항의 ID")
+                        )
+                ));
     }
 
-    @Nested
-    @DisplayName("커뮤니티 공지사항 테스트")
-    class CommunityNoticeTest {
+    @DisplayName("최근 앱 공지사항 목록 조회")
+    @Test
+    void latestAppNotice() throws Exception {
+        final NoticeDto dto = new NoticeDto(1L, "제목", LocalDateTime.now());
 
-        @Test
-        @DisplayName("전체 공지 조회")
-        void allCommunityNotice() throws Exception {
-            final Member member = TestMember.builder().build();
+        given(noticeQueryService.getAppLatestNotice())
+                .willReturn(List.of(dto));
 
-            final Notice notice = TestNotice.builder()
-                    .id(1L)
-                    .member(member)
-                    .title("공지사항의 제목입니다.")
-                    .content("공지사항의 내용입니다.")
-                    .build();
-            TestTimeReflection.setCreatedAt(notice, LocalDateTime.now());
+        final ResultActions response = mvc.perform(
+                MockMvcRequestBuilders.get("/api/notices/recent")
+                        .session(MockHttpSessionCreator.dummySession())
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
 
-            final User user = TestUser.builder()
-                    .id(3L)
-                    .username("홍길동")
-                    .tagNumber("#0001")
-                    .build();
+        response
+                .andExpect(status().isOk())
+                .andDo(document("notices/get-recent",
+                        responseFields(
+                                fieldWithPath("notices")
+                                        .type(JsonFieldType.ARRAY)
+                                        .description("최근 앱 공지사항 목록"),
 
-            CommunityNoticeDetailDto dto = CommunityNoticeDetailDto.of(notice, user);
+                                fieldWithPath("notices[].id")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("공지사항 ID"),
 
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute(SessionInfoConst.USER_ID, 1L);
+                                fieldWithPath("notices[].title")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 제목"),
 
-//            given(noticeQueryService.getCommunityNotice(anyLong())).willReturn(List.of(dto));
-//            given(memberQueryService.hasAuth(any(), anyLong(), any()))
-//                    .willReturn(true);
-
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/api/notices")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .session(session)
-                                    .queryParam("communityId", "1")
-                                    .header(HeaderConst.AUTH_TOKEN, "AUTO_TOKEN")
-                    ).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.manager").value(true))
-                    .andExpect(jsonPath("$.notices[0].id").value(1L))
-                    .andExpect(jsonPath("$.notices[0].title").value("공지사항의 제목입니다."))
-                    .andExpect(jsonPath("$.notices[0].content").value("공지사항의 내용입니다."))
-                    .andExpect(jsonPath("$.notices[0].user.id").value(3L))
-                    .andExpect(jsonPath("$.notices[0].user.tagNum").value("#0001"));
-        }
-
+                                fieldWithPath("notices[].createdAt")
+                                        .type(JsonFieldType.STRING)
+                                        .description("공지사항 생성 시각")
+                        )
+                ));
     }
 }

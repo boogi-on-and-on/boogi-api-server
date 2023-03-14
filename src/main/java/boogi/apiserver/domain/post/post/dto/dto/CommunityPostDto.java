@@ -82,7 +82,7 @@ public class CommunityPostDto {
 
         return CommunityPostDto.builder()
                 .id(post.getId())
-                .user(UserBasicProfileDto.of(post.getMember()))
+                .user(UserBasicProfileDto.from(post.getMember()))
                 .createdAt(post.getCreatedAt())
                 .content(post.getContent())
                 .hashtags(hashtags)

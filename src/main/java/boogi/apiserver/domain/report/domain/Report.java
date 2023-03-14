@@ -5,9 +5,8 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.report.exception.InvalidReportException;
+import boogi.apiserver.domain.report.exception.InvalidReportTargetException;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -80,7 +79,7 @@ public class Report extends TimeBaseEntity {
         } else if (targetObject instanceof Message) {
             return new Report(null, null, null, (Message) targetObject, user, content, reason);
         } else {
-            throw new InvalidReportException();
+            throw new InvalidReportTargetException();
         }
     }
 

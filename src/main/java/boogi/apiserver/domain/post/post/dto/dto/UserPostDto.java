@@ -49,10 +49,8 @@ public class UserPostDto {
                         .collect(Collectors.toList());
 
         List<PostMedia> postMedias = post.getPostMedias().getValues();
-        List<PostMediaMetadataDto> postMediaMetadataDtos = (postMedias == null || postMedias.size() == 0) ? null :
-                postMedias.stream()
-                        .map(PostMediaMetadataDto::from)
-                        .collect(Collectors.toList());
+        List<PostMediaMetadataDto> postMediaMetadataDtos =
+                (postMedias == null || postMedias.size() == 0) ? null : PostMediaMetadataDto.listFrom(postMedias);
 
         return UserPostDto.builder()
                 .id(post.getId())
@@ -78,6 +76,5 @@ public class UserPostDto {
         public static CommunityDto from(Community community) {
             return new CommunityDto(community.getId(), community.getCommunityName());
         }
-
     }
 }

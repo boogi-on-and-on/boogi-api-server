@@ -59,7 +59,7 @@ public class Comment extends TimeBaseEntity {
         this.member = member;
         this.parent = parent;
         this.content = new CommentContent(content);
-        this.child = (parent == null) ? Boolean.FALSE : Boolean.TRUE;
+        this.child = parent != null;
     }
 
     protected Comment(Long id, String content, LocalDateTime removeAt) {

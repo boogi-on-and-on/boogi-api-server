@@ -22,7 +22,6 @@ public class UserCommentDto {
     }
 
     public static UserCommentDto of(Comment comment) {
-
         return new UserCommentDto(comment.getContent(), comment.getCreatedAt(), comment.getPost().getId());
     }
 }

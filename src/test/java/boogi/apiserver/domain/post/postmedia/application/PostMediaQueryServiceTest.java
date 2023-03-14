@@ -3,7 +3,7 @@ package boogi.apiserver.domain.post.postmedia.application;
 import boogi.apiserver.builder.TestPostMedia;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.global.error.exception.InvalidValueException;
+import boogi.apiserver.domain.post.postmedia.exception.UnmappedPostMediaExcecption;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class PostMediaQueryServiceTest {
@@ -29,13 +32,15 @@ class PostMediaQueryServiceTest {
     @Nested
     @DisplayName("postId가 세팅되지 않은 PostMedia들을 UUID로 조회할시")
     class GetUnmappedPostMediasByUUIDTest {
+        private static final String POSTMEDIA1_UUID = "1234";
+        private static final String POSTMEDIA2_UUID = "5678";
+
         @Test
         @DisplayName("입력한 PostMedia의 UUID가 없을때 빈 리스트를 반환한다.")
         void getUnmappedPostMediasByUUIDEmptyArrSuccess() {
-//            PostMedias unmappedPostMedias = postMediaQueryService
-//                    .getUnmappedPostMediasByUUID(List.of());
-//
-//            assertThat(unmappedPostMedias.getPostMedias().isEmpty()).isTrue();
+            List<PostMedia> unmappedPostMedias = postMediaQueryService.getUnmappedPostMediasByUUID(List.of());
+
+            assertThat(unmappedPostMedias.isEmpty()).isTrue();
         }
 
         @Test
@@ -43,46 +48,40 @@ class PostMediaQueryServiceTest {
         void getUnmappedPostMediasByUUIDSuccess() {
             final PostMedia postMedia1 = TestPostMedia.builder()
                     .id(1L)
-                    .uuid("1234")
+                    .uuid(POSTMEDIA1_UUID)
                     .build();
             final PostMedia postMedia2 = TestPostMedia.builder()
                     .id(2L)
-                    .uuid("5678")
+                    .uuid(POSTMEDIA2_UUID)
                     .build();
             List<PostMedia> postMedias = List.of(postMedia1, postMedia2);
 
-//            given(postMediaRepository.findUnmappedPostMediasByUUIDs(anyList()))
-//                    .willReturn(new PostMedias(postMedias));
+            given(postMediaRepository.findUnmappedPostMedias(anyList()))
+                    .willReturn(postMedias);
 
-//            PostMedias unmappedPostMedias = postMediaQueryService
-//                    .getUnmappedPostMediasByUUID(List.of(postMedia1.getUuid(), postMedia2.getUuid()));
-//
-//            List<PostMedia> unmappedPostMediaList = unmappedPostMedias.getPostMedias();
-//
-//            assertThat(unmappedPostMediaList.size()).isEqualTo(2);
-//            assertThat(unmappedPostMediaList).extracting("id").containsExactly(1L, 2L);
-//            assertThat(unmappedPostMediaList).extracting("uuid").containsExactly("1234", "5678");
+            List<PostMedia> unmappedPostMedias = postMediaQueryService
+                    .getUnmappedPostMediasByUUID(List.of(POSTMEDIA1_UUID, POSTMEDIA2_UUID));
+
+            assertThat(unmappedPostMedias).hasSize(2);
+            assertThat(unmappedPostMedias).extracting("id").containsExactly(1L, 2L);
+            assertThat(unmappedPostMedias).extracting("uuid")
+                    .containsExactly(POSTMEDIA1_UUID, POSTMEDIA2_UUID);
         }
 
         @Test
-        @DisplayName("입력한 PostMedia의 UUID의 개수와 조회한 PostMedia의 개수가 다르면 InvalidValueException 발생한다.")
+        @DisplayName("입력한 PostMedia의 UUID의 개수와 조회한 PostMedia의 개수가 다르면 UnmappedPostMediaExcecption 발생한다.")
         void getUnmappedPostMediasByUUIDFail() {
-            final PostMedia postMedia1 = TestPostMedia.builder()
+            final PostMedia postMedia = TestPostMedia.builder()
                     .id(1L)
-                    .uuid("1234")
+                    .uuid(POSTMEDIA1_UUID)
                     .build();
-            final PostMedia postMedia2 = TestPostMedia.builder()
-                    .id(2L)
-                    .uuid("5678")
-                    .build();
-            List<PostMedia> postMedias = List.of(postMedia1);
 
-//            given(postMediaRepository.findUnmappedPostMediasByUUIDs(anyList()))
-//                    .willReturn(new PostMedias(postMedias));
+            given(postMediaRepository.findUnmappedPostMedias(anyList()))
+                    .willReturn(List.of(postMedia));
 
             assertThatThrownBy(() -> postMediaQueryService
-                    .getUnmappedPostMediasByUUID(List.of(postMedia1.getUuid(), postMedia2.getUuid())))
-                    .isInstanceOf(InvalidValueException.class);
+                    .getUnmappedPostMediasByUUID(List.of(POSTMEDIA1_UUID, POSTMEDIA2_UUID)))
+                    .isInstanceOf(UnmappedPostMediaExcecption.class);
         }
     }
 }

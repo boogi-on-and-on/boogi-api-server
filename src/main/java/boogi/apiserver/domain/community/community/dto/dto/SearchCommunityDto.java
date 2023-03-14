@@ -30,7 +30,7 @@ public class SearchCommunityDto {
     private String category;
 
     @JsonProperty("isPrivate")
-    private boolean isPrivate;
+    private boolean privated;
 
     @Builder(access = AccessLevel.PRIVATE)
     public SearchCommunityDto(final Long id, final String name, final String description,
@@ -43,7 +43,7 @@ public class SearchCommunityDto {
         this.hashtags = hashtags;
         this.memberCount = memberCount;
         this.category = category;
-        this.isPrivate = isPrivate;
+        this.privated = isPrivate;
     }
 
     public static SearchCommunityDto of(Community community) {

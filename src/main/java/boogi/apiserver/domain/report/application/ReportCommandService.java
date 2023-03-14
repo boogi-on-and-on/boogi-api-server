@@ -15,7 +15,7 @@ import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
-import boogi.apiserver.domain.report.exception.InvalidReportException;
+import boogi.apiserver.domain.report.exception.InvalidReportTargetException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -61,14 +61,14 @@ public class ReportCommandService {
             case MESSAGE:
                 return getReportedMessage(userId, id);
             default:
-                throw new InvalidReportException();
+                throw new InvalidReportTargetException();
         }
     }
 
     private Post getReportedPost(Long userId, final Long id) {
         Post findPost = postRepository.findByPostId(id);
 
-        Long communityId = findPost.getCommunity().getId();
+        Long communityId = findPost.getCommunityId();
         final Community community = communityRepository.findByCommunityId(communityId);
 
         if (community.isPrivate()) {
@@ -80,7 +80,7 @@ public class ReportCommandService {
     private Comment getReportedComment(Long userId, final Long id) {
         Comment findComment = commentRepository.findByCommentId(id);
 
-        Long communityId = findComment.getPost().getCommunity().getId();
+        Long communityId = findComment.getPost().getCommunityId();
         final Community community = communityRepository.findByCommunityId(communityId);
 
         if (community.isPrivate()) {

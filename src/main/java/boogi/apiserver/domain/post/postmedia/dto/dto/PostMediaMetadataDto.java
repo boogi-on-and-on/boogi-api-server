@@ -3,6 +3,9 @@ package boogi.apiserver.domain.post.postmedia.dto.dto;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 public class PostMediaMetadataDto {
 
@@ -16,5 +19,11 @@ public class PostMediaMetadataDto {
 
     public static PostMediaMetadataDto from(PostMedia postMedia) {
         return new PostMediaMetadataDto(postMedia.getMediaURL(), postMedia.getMediaType().toString());
+    }
+
+    public static List<PostMediaMetadataDto> listFrom(List<PostMedia> postMedias) {
+        return postMedias.stream()
+                .map(PostMediaMetadataDto::from)
+                .collect(Collectors.toList());
     }
 }

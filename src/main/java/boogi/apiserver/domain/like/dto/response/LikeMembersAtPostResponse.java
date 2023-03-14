@@ -23,9 +23,7 @@ public class LikeMembersAtPostResponse {
     }
 
     public static LikeMembersAtPostResponse of(List<User> users, Slice page) {
-        List<UserBasicProfileDto> members = users.stream()
-                .map(UserBasicProfileDto::from)
-                .collect(Collectors.toList());
+        List<UserBasicProfileDto> members = UserBasicProfileDto.listFrom(users);
         PaginationDto pageInfo = PaginationDto.of(page);
 
         return new LikeMembersAtPostResponse(members, pageInfo);

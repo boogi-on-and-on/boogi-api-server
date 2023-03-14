@@ -8,7 +8,7 @@ public enum MemberType {
     MANAGER, SUB_MANAGER, NORMAL;
 
     public boolean hasManagerAuth() {
-        return this.equals(MANAGER);
+        return MANAGER.equals(this);
     }
 
     public boolean hasSubManagerAuth() {

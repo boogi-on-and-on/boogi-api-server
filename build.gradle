@@ -9,6 +9,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 
@@ -24,6 +25,10 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
 }
 
 dependencies {
@@ -51,12 +56,21 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }
 
 def profile = project.hasProperty("profile") ? project.property("profile").toString() : "local"
 
 tasks.named('test') {
     useJUnitPlatform()
+    outputs.dir snippetsDir
+
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
 }
 
 def querydslDir = "$buildDir/generated/querydsl"

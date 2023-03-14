@@ -44,9 +44,7 @@ public class CommentCommandService {
     public void deleteComment(Long commentId, Long userId) {
         Comment findComment = commentRepository.findByCommentId(commentId);
 
-        Long commentedUserId = findComment.getMember().getUser().getId();
-
-        validateCommentDeletable(userId, findComment, commentedUserId);
+        validateCommentDeletable(userId, findComment);
 
         likeCommandService.removeAllCommentLikes(findComment.getId());
         findComment.deleteComment();
@@ -65,13 +63,18 @@ public class CommentCommandService {
     }
 
     private Comment getParentComment(Long parentCommentId) {
-        return parentCommentId == null ? null : commentRepository.findById(parentCommentId)
-                .orElse(null);
+        return parentCommentId == null ? null :
+                commentRepository.findById(parentCommentId).orElse(null);
     }
 
-    private void validateCommentDeletable(Long userId, Comment comment, Long commentedUserId) {
-        if(!commentedUserId.equals(userId) && !comment.getMember().isOperator()) {
-            throw new CanNotDeleteCommentException();
+    private void validateCommentDeletable(Long userId, Comment comment) {
+        Long commentedUserId = comment.getMember().getUser().getId();
+
+        if (!commentedUserId.equals(userId)) {
+            Member sessionMember = memberQueryService.getMember(userId, comment.getPost().getCommunityId());
+            if (!sessionMember.isOperator()) {
+                throw new CanNotDeleteCommentException();
+            }
         }
     }
 }

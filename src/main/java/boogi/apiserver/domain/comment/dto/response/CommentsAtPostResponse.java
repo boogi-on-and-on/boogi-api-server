@@ -89,7 +89,7 @@ public class CommentsAtPostResponse {
 
             ParentCommentInfoBuilder commentBuilder = ParentCommentInfo.builder()
                     .id(comment.getId())
-                    .user(UserBasicProfileDto.of(member))
+                    .user(UserBasicProfileDto.from(member))
                     .member(MemberInfo.from(member))
                     .likeId(getLikeId(commentLikes, comment.getId()))
                     .createdAt(comment.getCreatedAt())

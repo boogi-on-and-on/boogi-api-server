@@ -77,6 +77,7 @@ public class PostCommandService {
         postRepository.delete(findPost);
     }
 
+    //todo: repository로 내리기
     private void deleteCommentsOnPost(Long postId) {
         commentRepository.findByPostId(postId)
                 .forEach(Comment::deleteComment);
@@ -89,8 +90,11 @@ public class PostCommandService {
     }
 
     private void validatePostDeletable(Long userId, Post post) {
-        if (!post.isAuthor(userId) && !post.getMember().isOperator()) {
-            throw new CanNotDeleteCommentException();
+        if (!post.isAuthor(userId)) {
+            Member sessionMember = memberQueryService.getMember(userId, post.getCommunityId());
+            if (!sessionMember.isOperator()) {
+                throw new CanNotDeleteCommentException();
+            }
         }
     }
 }

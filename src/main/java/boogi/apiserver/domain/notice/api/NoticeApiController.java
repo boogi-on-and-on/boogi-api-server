@@ -42,7 +42,7 @@ public class NoticeApiController {
     }
 
     @GetMapping("/recent")
-    public LatestAppNoticeResponse getlatestAppNotices() {
+    public LatestAppNoticeResponse getLatestAppNotices() {
         List<NoticeDto> latestAppNotices = noticeQueryService.getAppLatestNotice();
 
         return LatestAppNoticeResponse.from(latestAppNotices);

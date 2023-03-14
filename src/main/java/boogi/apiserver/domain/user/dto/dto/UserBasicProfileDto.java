@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 public class UserBasicProfileDto {
     private Long id;
@@ -34,10 +37,16 @@ public class UserBasicProfileDto {
         return new UserBasicProfileDto(user);
     }
 
-    public static UserBasicProfileDto of(Member member) {
+    public static UserBasicProfileDto from(Member member) {
         if (member == null || member.getUser() == null) {
             return null;
         }
         return new UserBasicProfileDto(member.getUser());
+    }
+
+    public static List<UserBasicProfileDto> listFrom(List<User> user) {
+        return user.stream()
+                .map(UserBasicProfileDto::from)
+                .collect(Collectors.toList());
     }
 }

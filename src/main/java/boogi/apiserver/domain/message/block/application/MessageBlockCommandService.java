@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,17 +41,18 @@ public class MessageBlockCommandService {
     }
 
     private void insertMessageBlock(List<Long> blockUserIds, User user, List<MessageBlock> messageBlocks) {
-        Map<Long, MessageBlock> messageBlockMap = messageBlocks.stream()
-                .collect(Collectors.toMap(m -> m.getBlockedUser().getId(), m -> m));
+        Set<Long> messageBlockIds = messageBlocks.stream()
+                .map(mb -> mb.getBlockedUser().getId())
+                .collect(Collectors.toSet());
 
         List<Long> newMessageBlockUserIds = blockUserIds.stream()
-                .filter(uId -> !messageBlockMap.containsKey(uId))
+                .filter(uId -> !messageBlockIds.contains(uId))
                 .collect(Collectors.toList());
 
         List<MessageBlock> newBlocks = userRepository.findUsersByIds(newMessageBlockUserIds).stream()
                 .map(blockUser -> MessageBlock.of(user, blockUser))
                 .collect(Collectors.toList());
-        
+
         messageBlockRepository.saveAll(newBlocks);
     }
 }
