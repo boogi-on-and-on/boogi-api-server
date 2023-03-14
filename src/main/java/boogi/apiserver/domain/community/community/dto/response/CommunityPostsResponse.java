@@ -5,13 +5,13 @@ import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.dto.CommunityPostDto;
 import boogi.apiserver.global.dto.PaginationDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -20,6 +20,8 @@ public class CommunityPostsResponse {
     private final String communityName;
     private final List<CommunityPostDto> posts;
     private final PaginationDto pageInfo;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final MemberType memberType;
 
     @Builder(access = AccessLevel.PRIVATE)
@@ -43,7 +45,7 @@ public class CommunityPostsResponse {
                 .posts(posts)
                 .pageInfo(pageInfo);
 
-        if (Objects.nonNull(member) && Objects.nonNull(member.getMemberType())) {
+        if (member != null && member.getMemberType() != null) {
             builder.memberType(member.getMemberType());
         }
 

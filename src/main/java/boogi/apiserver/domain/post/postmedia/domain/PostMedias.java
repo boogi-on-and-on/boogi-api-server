@@ -30,7 +30,7 @@ public class PostMedias {
     public void updatePostMedias(List<PostMedia> updatePostMedias, Post post) {
         this.removePreviousPostMedias(updatePostMedias);
         List<PostMedia> postMediaForInsert
-            = OneToManyUpdateOptimizer.inputsToBeInserted(updatePostMedias, this.values);
+                = OneToManyUpdateOptimizer.inputsToBeInserted(this.values, updatePostMedias);
         this.addPostMedias(postMediaForInsert, post);
     }
 
@@ -40,13 +40,13 @@ public class PostMedias {
     }
 
     private void removePreviousPostMedias(List<PostMedia> updatePostMedias) {
-        List<String> updatePostMediaUUIDs = convertToUUIDs(updatePostMedias);
+        List<String> updatePostMediaUUIDs = toUUIDList(updatePostMedias);
         final List<PostMedia> postMediasForRemove =
                 OneToManyUpdateOptimizer.entityToBeDeleted(this.values, PostMedia::getUuid, updatePostMediaUUIDs);
         this.values.removeAll(postMediasForRemove);
     }
 
-    private List<String> convertToUUIDs(final List<PostMedia> postMedias) {
+    private List<String> toUUIDList(final List<PostMedia> postMedias) {
         return postMedias.stream()
                 .map(PostMedia::getUuid)
                 .collect(Collectors.toList());

@@ -90,7 +90,7 @@ public class PostQueryService {
     }
 
     private List<Long> getMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
-        if (userId.equals(sessionUserId)) {
+        if (sessionUserId.equals(userId)) {
             return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
         }
         userRepository.findByUserId(userId);

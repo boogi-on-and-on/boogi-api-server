@@ -69,14 +69,10 @@ public class PostDetailResponse {
     }
 
     public static PostDetailResponse of(Post post, List<PostMedia> postMedias, Long sessionUserId, Long likeId) {
-        List<PostMediaInfo> postMediaInfos = postMedias.isEmpty() ? null : postMedias.stream()
-                .map(PostMediaInfo::from)
-                .collect(Collectors.toList());
+        List<PostMediaInfo> postMediaInfos = postMedias.isEmpty() ? null : PostMediaInfo.listFrom(postMedias);
 
         List<PostHashtag> postHashtags = post.getHashtags().getValues();
-        List<String> hashtags = (postHashtags.isEmpty()) ? null : postHashtags.stream()
-                .map(PostHashtag::getTag)
-                .collect(Collectors.toList());
+        List<String> hashtags = postHashtags.isEmpty() ? null : toTagList(postHashtags);
 
         return PostDetailResponse.builder()
                 .id(post.getId())
@@ -92,6 +88,12 @@ public class PostDetailResponse {
                 .commentCount(post.getCommentCount())
                 .me(post.isAuthor(sessionUserId))
                 .build();
+    }
+
+    private static List<String> toTagList(List<PostHashtag> postHashtags) {
+        return postHashtags.stream()
+                .map(PostHashtag::getTag)
+                .collect(Collectors.toList());
     }
 
     @Getter
@@ -139,6 +141,12 @@ public class PostDetailResponse {
 
         public static PostMediaInfo from(PostMedia postMedia) {
             return new PostMediaInfo(postMedia.getMediaType(), postMedia.getMediaURL());
+        }
+
+        public static List<PostMediaInfo> listFrom(List<PostMedia> postMedias) {
+            return postMedias.stream()
+                    .map(PostMediaInfo::from)
+                    .collect(Collectors.toList());
         }
     }
 }
