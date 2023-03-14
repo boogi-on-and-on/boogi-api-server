@@ -35,8 +35,6 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -80,9 +78,6 @@ class UserApiControllerTest extends TestControllerSetUp {
             response.andExpect(status().isOk())
                     .andExpect(jsonPath("$.isValid").value(true))
                     .andDo(document("users/post-token-validation",
-                            requestHeaders(headerWithName(HeaderConst.AUTH_TOKEN)
-                                    .description("유저 세션의 토큰")),
-
                             responseFields(
                                     fieldWithPath("isValid")
                                             .type(JsonFieldType.BOOLEAN)
@@ -186,11 +181,6 @@ class UserApiControllerTest extends TestControllerSetUp {
         response
                 .andExpect(status().isOk())
                 .andDo(document("users/get-communities-joined",
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
-                        ),
-
                         responseFields(
                                 fieldWithPath("communities")
                                         .type(JsonFieldType.ARRAY)
@@ -262,10 +252,6 @@ class UserApiControllerTest extends TestControllerSetUp {
             response
                     .andExpect(status().isOk())
                     .andDo(document("users/get-messages-blocked",
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")),
-
                             responseFields(
                                     fieldWithPath("blocked")
                                             .type(JsonFieldType.ARRAY)
@@ -296,10 +282,6 @@ class UserApiControllerTest extends TestControllerSetUp {
             response
                     .andExpect(status().isOk())
                     .andDo(document("users/post-messages-unblock",
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")
-                            ),
                             requestFields(
                                     fieldWithPath("blockedUserId")
                                             .type(JsonFieldType.NUMBER)
@@ -349,11 +331,6 @@ class UserApiControllerTest extends TestControllerSetUp {
 
             response.andExpect(status().isOk())
                     .andDo(document("users/get-config-notifications",
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")
-                            ),
-
                             responseFields(
                                     fieldWithPath("alarmInfo")
                                             .type(JsonFieldType.OBJECT)
@@ -419,11 +396,6 @@ class UserApiControllerTest extends TestControllerSetUp {
 
             response.andExpect(status().isOk())
                     .andDo(document("users/get-config-notifications",
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")
-                            ),
-
                             requestFields(
                                     fieldWithPath("message")
                                             .type(JsonFieldType.BOOLEAN)

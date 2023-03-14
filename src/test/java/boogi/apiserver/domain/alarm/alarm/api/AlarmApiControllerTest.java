@@ -22,14 +22,11 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,9 +58,6 @@ class AlarmApiControllerTest extends TestControllerSetUp {
         response
                 .andExpect(status().isOk())
                 .andDo(document("alarms/get",
-                        requestHeaders(headerWithName(HeaderConst.AUTH_TOKEN)
-                                .description("유저 세션의 토큰")),
-
                         responseFields(
                                 fieldWithPath("alarms")
                                         .type(JsonFieldType.ARRAY)
@@ -100,9 +94,6 @@ class AlarmApiControllerTest extends TestControllerSetUp {
         response
                 .andExpect(status().isOk())
                 .andDo(document("alarms/post-alarmId-delete",
-                        requestHeaders(headerWithName(HeaderConst.AUTH_TOKEN)
-                                .description("유저 세션의 토큰")),
-
                         pathParameters(
                                 parameterWithName("alarmId").description("알람 ID")
                         )

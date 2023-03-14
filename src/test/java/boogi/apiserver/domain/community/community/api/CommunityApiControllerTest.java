@@ -61,8 +61,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -279,10 +277,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         response
                 .andExpect(status().isOk())
                 .andDo(document("communities/get-communityId-metadata",
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
-                        ),
                         responseFields(
                                 fieldWithPath("metadata")
                                         .type(JsonFieldType.OBJECT)
@@ -324,11 +318,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                                 parameterWithName("communityId").description("커뮤니티 ID")
                         ),
 
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
-                        ),
-
                         requestFields(
                                 fieldWithPath("description")
                                         .type(JsonFieldType.STRING)
@@ -357,11 +346,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                 .andDo(document("communities/delete-communityId",
                         pathParameters(
                                 parameterWithName("communityId").description("커뮤니티 ID")
-                        ),
-
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
                         )
                 ));
     }
@@ -395,12 +379,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             pathParameters(
                                     parameterWithName("communityId").description("커뮤니티 ID")
                             ),
-
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")
-                            ),
-
                             responseFields(
                                     fieldWithPath("settingInfo")
                                             .type(JsonFieldType.OBJECT)
@@ -437,11 +415,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                                     parameterWithName("communityId").description("커뮤니티 ID")
                             ),
 
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")
-                            ),
-
                             requestFields(
                                     fieldWithPath("isSecret")
                                             .type(JsonFieldType.BOOLEAN)
@@ -450,11 +423,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                                     fieldWithPath("isAutoApproval")
                                             .type(JsonFieldType.BOOLEAN)
                                             .description("true -> 자동 가입 커뮤니티로 전환")
-                            ),
-
-                            requestHeaders(
-                                    headerWithName(HeaderConst.AUTH_TOKEN)
-                                            .description("유저 세션의 토큰")
                             )
                     ));
         }
@@ -481,11 +449,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                 .andDo(document("communities/get-communityId-posts",
                         pathParameters(
                                 parameterWithName("communityId").description("커뮤니티 ID")
-                        ),
-
-                        requestHeaders(
-                                headerWithName(HeaderConst.AUTH_TOKEN)
-                                        .description("유저 세션의 토큰")
                         ),
 
                         requestParameters(
