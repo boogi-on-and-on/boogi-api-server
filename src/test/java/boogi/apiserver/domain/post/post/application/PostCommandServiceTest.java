@@ -19,7 +19,6 @@ import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
 import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

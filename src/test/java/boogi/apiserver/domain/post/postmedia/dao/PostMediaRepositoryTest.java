@@ -6,7 +6,6 @@ import boogi.apiserver.builder.TestPostMedia;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.post.postmedia.vo.PostMedias;
 import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestTimeReflection;
 import org.junit.jupiter.api.BeforeEach;
