@@ -4,10 +4,12 @@ import boogi.apiserver.domain.alarm.alarm.application.AlarmCommandService;
 import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
 import boogi.apiserver.domain.alarm.alarm.dto.dto.AlarmsDto;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
+import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.utils.controller.MockHttpSessionCreator;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,7 +23,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -82,21 +86,43 @@ class AlarmApiControllerTest extends TestControllerSetUp {
                 ));
     }
 
-    @Test
+    @Nested
     @DisplayName("알림 삭제 테스트")
-    void deleteAlarm() throws Exception {
-        final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
-                .post("/api/alarms/{alarmId}/delete", 1L)
-                .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                .session(MockHttpSessionCreator.dummySession())
-        );
+    class DeleteAlarm {
+        @Test
+        @DisplayName("성공")
+        void success() throws Exception {
 
-        response
-                .andExpect(status().isOk())
-                .andDo(document("alarms/post-alarmId-delete",
-                        pathParameters(
-                                parameterWithName("alarmId").description("알람 ID")
-                        )
-                ));
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .post("/api/alarms/{alarmId}/delete", 1L)
+                    .header(HeaderConst.AUTH_TOKEN, "TOKEN")
+                    .session(MockHttpSessionCreator.dummySession())
+            );
+
+            response
+                    .andExpect(status().isOk())
+                    .andDo(document("alarms/post-alarmId-delete",
+                            pathParameters(
+                                    parameterWithName("alarmId").description("알람 ID")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("자신이 알람이 아니라서 throw Exception")
+        void notSameUser() throws Exception {
+            doThrow(new CanNotDeleteAlarmException())
+                    .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
+
+            final ResultActions response = mvc.perform(RestDocumentationRequestBuilders
+                    .post("/api/alarms/{alarmId}/delete", 1L)
+                    .header(HeaderConst.AUTH_TOKEN, "TOKEN")
+                    .session(MockHttpSessionCreator.dummySession())
+            );
+
+            response
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("alarms/post-alarmId-delete-CanNotDeleteAlarmException"));
+        }
     }
 }
