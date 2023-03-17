@@ -2,64 +2,49 @@ package boogi.apiserver.domain.like.api;
 
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import boogi.apiserver.utils.controller.MockHttpSessionCreator;
+import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.test.web.servlet.ResultActions;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(LikeApiController.class)
-class LikeApiControllerTest {
+class LikeApiControllerTest extends TestControllerSetUp {
 
     @MockBean
     LikeCommandService likeCommandService;
 
-    MockMvc mvc;
-
-    @Autowired
-    ObjectMapper mapper = new ObjectMapper();
-
-    @Autowired
-    WebApplicationContext ctx;
-
-    @BeforeEach
-    void setup() {
-        mvc =
-                MockMvcBuilders.webAppContextSetup(ctx)
-                        .addFilter(new CharacterEncodingFilter("UTF-8", true))
-                        .alwaysDo(print())
-                        .build();
-    }
-
-
     @Test
     @DisplayName("좋아요 취소하기")
     void testDoUnlike() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        MockHttpSession session = MockHttpSessionCreator.dummySession();
 
-        mvc.perform(
-                        MockMvcRequestBuilders.delete("/api/likes/1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                )
-                .andExpect(status().isOk());
+        ResultActions result = mvc.perform(
+                delete("/api/likes/{likeId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andDo(document("like/delete",
+                        pathParameters(
+                                parameterWithName("likeId").description("좋아요 ID")
+                        )
+                ));
     }
 }

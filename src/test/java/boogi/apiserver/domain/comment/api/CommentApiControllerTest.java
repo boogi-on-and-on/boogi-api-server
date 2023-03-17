@@ -14,22 +14,18 @@ import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,14 +34,15 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = CommentApiController.class)
-class CommentApiControllerTest {
+class CommentApiControllerTest extends TestControllerSetUp {
 
     @MockBean
     CommentQueryService commentQueryService;
@@ -62,22 +59,6 @@ class CommentApiControllerTest {
     @MockBean
     SendPushNotification sendPushNotification;
 
-    MockMvc mvc;
-
-    @Autowired
-    ObjectMapper mapper = new ObjectMapper();
-
-    @Autowired
-    WebApplicationContext ctx;
-
-    @BeforeEach
-    void setup() {
-        mvc =
-                MockMvcBuilders.webAppContextSetup(ctx)
-                        .addFilter(new CharacterEncodingFilter("UTF-8", true))
-                        .alwaysDo(print())
-                        .build();
-    }
 
     @Test
     @DisplayName("유저의 댓글을 페이지네이션으로 가져온다.")
@@ -92,20 +73,36 @@ class CommentApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        mvc.perform(
-                        get("/api/comments/users")
-                                .queryParam("userId", "4")
-                                .queryParam("page", "0")
-                                .queryParam("size", "1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.comments.size()").value(1))
-                .andExpect(jsonPath("$.comments[0].content").value("내용1"))
-                .andExpect(jsonPath("$.comments[0].postId").value(1))
-                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
+        ResultActions result = mvc.perform(
+                get("/api/comments/users")
+                        .queryParam("userId", "4")
+                        .queryParam("page", "0")
+                        .queryParam("size", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andDo(document("comment/get-user-comments",
+                        responseFields(
+                                fieldWithPath("comments").type(JsonFieldType.ARRAY)
+                                        .description("댓글 목록"),
+                                fieldWithPath("comments[].content").type(JsonFieldType.STRING)
+                                        .description("댓글 내용"),
+                                fieldWithPath("comments[].createdAt").type(JsonFieldType.STRING)
+                                        .description("댓글 생성시간"),
+                                fieldWithPath("comments[].postId").type(JsonFieldType.NUMBER)
+                                        .description("댓글이 작성된 게시글의 ID"),
+                                fieldWithPath("pageInfo").type(JsonFieldType.OBJECT)
+                                        .description("페이지네이션 정보"),
+                                fieldWithPath("pageInfo.nextPage").type(JsonFieldType.NUMBER)
+                                        .description("다음 페이지 번호"),
+                                fieldWithPath("pageInfo.hasNext").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 다음 페이지가 있는 경우")
+                        )
+                ));
     }
 
     @Test
@@ -122,14 +119,31 @@ class CommentApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        mvc.perform(
-                        post("/api/comments/")
-                                .content(mapper.writeValueAsBytes(request))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
-                ).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(NEW_COMMENT_ID));
+        ResultActions result = mvc.perform(
+                post("/api/comments/")
+                        .content(mapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+        );
+
+        result
+                .andExpect(status().isCreated())
+                .andDo(document("comment/post",
+                        requestFields(
+                                fieldWithPath("postId").type(JsonFieldType.NUMBER)
+                                        .description("게시글 ID"),
+                                fieldWithPath("parentCommentId").type(JsonFieldType.VARIES)
+                                        .description("부모 댓글 ID -> 생성할 댓글이 부모 댓글일 경우 null"),
+                                fieldWithPath("content").type(JsonFieldType.STRING)
+                                        .description("댓글 내용"),
+                                fieldWithPath("mentionedUserIds").type(JsonFieldType.ARRAY)
+                                        .description("맨션할 유저의 ID들")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER)
+                                        .description("생성된 댓글 ID")
+                        )));
     }
 
     @Test
@@ -189,13 +203,24 @@ class CommentApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        mvc.perform(
-                        post("/api/comments/1/likes")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(NEW_LIKE_ID));
+        ResultActions result = mvc.perform(
+                post("/api/comments/{commentId}/likes", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andDo(document("comment/post-commentId-likes",
+                        pathParameters(
+                                parameterWithName("commentId").description("좋아요할 댓글 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER)
+                                        .description("생성된 좋아요 ID")
+                        ))
+                );
     }
 
     @Test
@@ -204,12 +229,18 @@ class CommentApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        mvc.perform(
-                delete("/api/comments/1")
+        ResultActions result = mvc.perform(
+                delete("/api/comments/{commentId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .session(session)
                         .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
-        ).andExpect(status().isOk());
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andDo(document("comment/delete-commentId",
+                        pathParameters(parameterWithName("commentId").description("삭제할 댓글 ID"))
+                ));
     }
 
     @Test
@@ -231,19 +262,43 @@ class CommentApiControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
-        mvc.perform(
-                        get("/api/comments/1/likes")
-                                .queryParam("page", "0")
-                                .queryParam("size", "1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .session(session)
-                                .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.members[0].id").value(USER_ID))
-                .andExpect(jsonPath("$.members[0].name").value(USERNAME))
-                .andExpect(jsonPath("$.members[0].tagNum").value(TAG_NUM))
-                .andExpect(jsonPath("$.members[0].profileImageUrl").value(PROFILE_URL))
-                .andExpect(jsonPath("$.pageInfo.nextPage").value(1))
-                .andExpect(jsonPath("$.pageInfo.hasNext").value(false));
+        ResultActions result = mvc.perform(
+                get("/api/comments/{commentId}/likes", 1L)
+                        .queryParam("page", "0")
+                        .queryParam("size", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andDo(document("comment/get-commentId-likes",
+                        pathParameters(
+                                parameterWithName("commentId").description("댓글 ID")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("페이지 사이즈")
+                        ),
+                        responseFields(
+                                fieldWithPath("members").type(JsonFieldType.ARRAY)
+                                        .description("좋아요한 유저 목록"),
+                                fieldWithPath("members[].id").type(JsonFieldType.NUMBER)
+                                        .description("유저 ID"),
+                                fieldWithPath("members[].profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("프로필 이미지 주소").optional(),
+                                fieldWithPath("members[].tagNum").type(JsonFieldType.STRING)
+                                        .description("태그 번호"),
+                                fieldWithPath("members[].name").type(JsonFieldType.STRING)
+                                        .description("유저 이름"),
+                                fieldWithPath("pageInfo").type(JsonFieldType.OBJECT)
+                                        .description("페이지네이션 정보"),
+                                fieldWithPath("pageInfo.nextPage").type(JsonFieldType.NUMBER)
+                                        .description("다음 페이지 번호"),
+                                fieldWithPath("pageInfo.hasNext").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 다음 페이지가 있는 경우")
+                        )
+                ));
     }
 }
