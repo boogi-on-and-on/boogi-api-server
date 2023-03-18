@@ -13,7 +13,7 @@ public class UserJoinRequestInfoDto {
     private final Long id;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private UserJoinRequestInfoDto(UserBasicProfileDto user, Long id) {
+    public UserJoinRequestInfoDto(UserBasicProfileDto user, Long id) {
         this.user = user;
         this.id = id;
     }

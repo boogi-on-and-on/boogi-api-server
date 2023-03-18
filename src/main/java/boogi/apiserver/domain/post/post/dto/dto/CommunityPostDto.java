@@ -59,16 +59,11 @@ public class CommunityPostDto {
 
     public static CommunityPostDto of(Post post, Long userId, Member sessionMember) {
         List<PostHashtag> postHashtags = post.getHashtags().getValues();
-        List<String> hashtags = (postHashtags == null || postHashtags.size() == 0) ? null :
-                postHashtags.stream()
-                        .map(PostHashtag::getTag)
-                        .collect(Collectors.toList());
+        List<String> hashtags = (postHashtags == null || postHashtags.size() == 0) ? null : toTagList(postHashtags);
 
         List<PostMedia> postMedias = post.getPostMedias().getValues();
-        List<PostMediaMetadataDto> postMediaMetadataDtos = (postMedias == null || postMedias.size() == 0) ? null :
-                postMedias.stream()
-                        .map(PostMediaMetadataDto::from)
-                        .collect(Collectors.toList());
+        List<PostMediaMetadataDto> postMediaMetadataDtos = (postMedias == null || postMedias.size() == 0)
+                ? null : PostMediaMetadataDto.listFrom(postMedias);
 
         List<Like> likes = post.getLikes();
         Long likeId = null;
@@ -92,5 +87,11 @@ public class CommunityPostDto {
                 .commentCount(post.getCommentCount())
                 .me(post.isAuthor(userId))
                 .build();
+    }
+
+    private static List<String> toTagList(List<PostHashtag> postHashtags) {
+        return postHashtags.stream()
+                .map(PostHashtag::getTag)
+                .collect(Collectors.toList());
     }
 }
