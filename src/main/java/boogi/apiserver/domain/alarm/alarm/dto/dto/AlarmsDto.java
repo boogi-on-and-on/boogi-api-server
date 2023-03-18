@@ -3,9 +3,13 @@ package boogi.apiserver.domain.alarm.alarm.dto.dto;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class AlarmsDto {
@@ -31,5 +35,11 @@ public class AlarmsDto {
                 .body(alarm.getBody())
                 .createdAt(alarm.getCreatedAt())
                 .build();
+    }
+
+    public static List<AlarmsDto> listOf(List<Alarm> alarms) {
+        return alarms.stream()
+                .map(AlarmsDto::of)
+                .collect(Collectors.toList());
     }
 }

@@ -5,7 +5,6 @@ import boogi.apiserver.domain.alarm.alarm.dto.dto.AlarmsDto;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class AlarmsResponse {
@@ -16,9 +15,7 @@ public class AlarmsResponse {
     }
 
     public static AlarmsResponse from(List<Alarm> alarms) {
-        List<AlarmsDto> alarmsDtos = alarms.stream()
-                .map(AlarmsDto::of)
-                .collect(Collectors.toList());
+        List<AlarmsDto> alarmsDtos = AlarmsDto.listOf(alarms);
 
         return new AlarmsResponse(alarmsDtos);
     }
