@@ -3,6 +3,7 @@ package boogi.apiserver.utils.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @ExtendWith(RestDocumentationExtension.class)
 public class TestControllerSetUp {
+    protected static final MockHttpSession dummySession = MockHttpSessionCreator.dummySession();
+    protected static final String TOKEN = "AUTH_TOKEN";
+
     protected ObjectMapper mapper = new ObjectMapper();
 
     protected MockMvc mvc;

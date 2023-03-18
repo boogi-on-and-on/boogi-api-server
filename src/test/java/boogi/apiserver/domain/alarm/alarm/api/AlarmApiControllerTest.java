@@ -7,7 +7,6 @@ import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import boogi.apiserver.domain.alarm.alarm.exception.AlarmNotFoundException;
 import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.utils.controller.MockHttpSessionCreator;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,7 +44,6 @@ class AlarmApiControllerTest extends TestControllerSetUp {
     @MockBean
     AlarmCommandService alarmCommandService;
 
-
     @Test
     @DisplayName("알람 목록 조회")
     void getAlarms() throws Exception {
@@ -56,8 +54,8 @@ class AlarmApiControllerTest extends TestControllerSetUp {
 
         final ResultActions response = mvc.perform(MockMvcRequestBuilders
                 .get("/api/alarms")
-                .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                .session(MockHttpSessionCreator.dummySession())
+                .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                .session(dummySession)
         );
 
         response
@@ -86,8 +84,8 @@ class AlarmApiControllerTest extends TestControllerSetUp {
         void success() throws Exception {
             final ResultActions result = mvc.perform(
                     post("/api/alarms/{alarmId}/delete", 1L)
-                            .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                            .session(MockHttpSessionCreator.dummySession())
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .session(dummySession)
             );
 
             result
@@ -106,8 +104,8 @@ class AlarmApiControllerTest extends TestControllerSetUp {
                     .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(post("/api/alarms/{alarmId}/delete", 1L)
-                    .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                    .session(MockHttpSessionCreator.dummySession())
+                    .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                    .session(dummySession)
             );
 
             result
@@ -122,8 +120,8 @@ class AlarmApiControllerTest extends TestControllerSetUp {
                     .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(post("/api/alarms/{alarmId}/delete", 999L)
-                    .header(HeaderConst.AUTH_TOKEN, "TOKEN")
-                    .session(MockHttpSessionCreator.dummySession())
+                    .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                    .session(dummySession)
             );
 
             result
