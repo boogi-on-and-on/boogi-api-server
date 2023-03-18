@@ -2,13 +2,11 @@ package boogi.apiserver.domain.post.post.api;
 
 import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.application.CommentQueryService;
-import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.application.LikeQueryService;
-import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -29,13 +27,11 @@ import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
+import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
-import boogi.apiserver.global.util.time.CustomDateTimeFormatter;
-import boogi.apiserver.global.util.time.TimePattern;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
 import boogi.apiserver.utils.TestTimeReflection;
-import boogi.apiserver.utils.controller.MockHttpSessionCreator;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,14 +42,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static boogi.apiserver.global.constant.HeaderConst.AUTH_TOKEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -90,21 +84,18 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글 생성")
     void testCreatePost() throws Exception {
+        final Long NEW_POST_ID = 2L;
         CreatePostRequest request = new CreatePostRequest(1L, "글", List.of(), List.of(), List.of());
 
-        final Post post = TestPost.builder().id(2L).build();
-
         given(postCommandService.createPost(any(CreatePostRequest.class), anyLong()))
-                .willReturn(post.getId());
-
-        MockHttpSession session = MockHttpSessionCreator.session(3L);
+                .willReturn(NEW_POST_ID);
 
         ResultActions result = mvc.perform(
                 post("/api/posts/")
                         .contentType(APPLICATION_JSON)
                         .content(mapper.writeValueAsBytes(request))
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isCreated())
@@ -172,21 +163,16 @@ class PostApiControllerTest extends TestControllerSetUp {
                 .mediaType(MediaType.IMG)
                 .build();
 
-        MockHttpSession session = MockHttpSessionCreator.session(1L);
-
-        PostDetailResponse postDetailResponse = PostDetailResponse.of(post, List.of(postMedia), 1L, 7L);
+        PostDetailResponse response = PostDetailResponse.of(post, List.of(postMedia), 1L, 7L);
 
         given(postQueryService.getPostDetail(anyLong(), anyLong()))
-                .willReturn(postDetailResponse);
-
-        String formattedCreatedTime = CustomDateTimeFormatter
-                .toString(post.getCreatedAt(), TimePattern.BASIC_FORMAT);
+                .willReturn(response);
 
         ResultActions result = mvc.perform(
                 get("/api/posts/{postId}", 5L)
                         .contentType(APPLICATION_JSON)
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -246,21 +232,18 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글 수정")
     void testUpdatePost() throws Exception {
+        final Long UPDATE_POST_ID = 2L;
         UpdatePostRequest request = new UpdatePostRequest("글 수정", List.of(), List.of());
 
-        final Post post = TestPost.builder().id(1L).build();
-
         given(postCommandService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
-                .willReturn(post.getId());
-
-        MockHttpSession session = MockHttpSessionCreator.session(2L);
+                .willReturn(UPDATE_POST_ID);
 
         ResultActions result = mvc.perform(
-                patch("/api/posts/{postId}", post.getId())
+                patch("/api/posts/{postId}", UPDATE_POST_ID)
                         .contentType(APPLICATION_JSON)
                         .content(mapper.writeValueAsBytes(request))
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -286,13 +269,11 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글 삭제")
     void testDeletePost() throws Exception {
-        MockHttpSession session = MockHttpSessionCreator.session(2L);
-
         ResultActions result = mvc.perform(
                 delete("/api/posts/{postId}", 1L)
                         .contentType(APPLICATION_JSON)
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -306,9 +287,11 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("유저가 작성한 게시글을 페이지네이션해서 조회하기")
     void testGetUserPosts() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+
         UserPostDto.CommunityDto communityDto = new UserPostDto.CommunityDto(2L, "커뮤니티1");
         UserPostDto postsDto =
-                new UserPostDto(1L, "게시글 내용1", communityDto, LocalDateTime.now(), null, null);
+                new UserPostDto(1L, "게시글 내용1", communityDto, now, null, null);
 
         UserPostPageResponse pageInfo =
                 new UserPostPageResponse(List.of(postsDto), new PaginationDto(1, false));
@@ -316,15 +299,13 @@ class PostApiControllerTest extends TestControllerSetUp {
         given(postQueryService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(pageInfo);
 
-        MockHttpSession session = MockHttpSessionCreator.session(3L);
-
         ResultActions result = mvc.perform(
                 get("/api/posts/users")
                         .queryParam("page", "0")
                         .queryParam("size", "1")
                         .contentType(APPLICATION_JSON)
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -370,17 +351,15 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글에 좋아요하기")
     void testDoLikeAtPost() throws Exception {
-        final Like like = TestLike.builder().id(2L).build();
+        final Long NEW_LIKE_ID = 2L;
         given(likeCommandService.doPostLike(anyLong(), anyLong()))
-                .willReturn(like.getId());
-
-        MockHttpSession session = MockHttpSessionCreator.session(3L);
+                .willReturn(NEW_LIKE_ID);
 
         ResultActions result = mvc.perform(
                 post("/api/posts/{postId}/likes", 1L)
                         .contentType(APPLICATION_JSON)
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -397,30 +376,20 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글에 좋아요 한 유저들 조회하기")
     void testGetLikeMembersAtPost() throws Exception {
-        final User user = TestUser.builder()
-                .id(2L)
-                .username("유저")
-                .tagNumber("#0001")
-                .profileImageUrl("url")
-                .build();
-        List<User> users = List.of(user);
+        UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#0001", "유저");
+        LikeMembersAtPostResponse response =
+                new LikeMembersAtPostResponse(List.of(userDto), new PaginationDto(1, false));
 
-        Pageable pageable = PageRequest.of(0, 1);
-        Slice<User> page = PageableUtil.getSlice(users, pageable);
-
-        LikeMembersAtPostResponse likeMembers = LikeMembersAtPostResponse.of(users, page);
         given(likeQueryService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
-                .willReturn(likeMembers);
-
-        MockHttpSession session = MockHttpSessionCreator.session(3L);
+                .willReturn(response);
 
         ResultActions result = mvc.perform(
                 get("/api/posts/{postId}/likes", 1L)
                         .param("page", "0")
                         .param("size", "1")
                         .contentType(APPLICATION_JSON)
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -456,44 +425,31 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글에 달린 댓글들 조회하기")
     void testGetCommentsAtPost() throws Exception {
-        UserBasicProfileDto userInfo = new UserBasicProfileDto(1L, "url", "#1", "유저");
+        UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#1", "유저");
 
         CommentsAtPostResponse.MemberInfo memberInfo = new CommentsAtPostResponse.MemberInfo(2L, MemberType.MANAGER);
 
         CommentsAtPostResponse.ChildCommentInfo childCommentInfo =
-                new CommentsAtPostResponse.ChildCommentInfo(4L, userInfo, memberInfo, 5L, LocalDateTime.now(),
+                new CommentsAtPostResponse.ChildCommentInfo(4L, userDto, memberInfo, 5L, LocalDateTime.now(),
                         "자식댓글", 0L, false, 3L);
 
-        List<CommentsAtPostResponse.ChildCommentInfo> childCommentInfos = List.of(childCommentInfo);
-
-        final Comment parentComment = TestComment.builder()
-                .id(3L)
-                .content("부모댓글")
-                .build();
-        TestTimeReflection.setCreatedAt(parentComment, LocalDateTime.now());
-
         CommentsAtPostResponse.ParentCommentInfo parentCommentInfo =
-                new CommentsAtPostResponse.ParentCommentInfo(parentComment.getId(), userInfo, memberInfo, 6L,
-                        parentComment.getCreatedAt(), parentComment.getContent(), 0L, false, childCommentInfos);
+                new CommentsAtPostResponse.ParentCommentInfo(3L, userDto, memberInfo, 6L, LocalDateTime.now(),
+                        "부모댓글", 0L, false, List.of(childCommentInfo));
 
-        List<CommentsAtPostResponse.ParentCommentInfo> parentCommentInfos = List.of(parentCommentInfo);
+        CommentsAtPostResponse response =
+                new CommentsAtPostResponse(List.of(parentCommentInfo), new PaginationDto(1, false));
 
-        Pageable pageable = PageRequest.of(0, 1);
-        Slice<Comment> slice = PageableUtil.getSlice(List.of(parentComment), pageable);
-
-        CommentsAtPostResponse response = new CommentsAtPostResponse(parentCommentInfos, PaginationDto.of(slice));
         given(commentQueryService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(response);
-
-        MockHttpSession session = MockHttpSessionCreator.session(5L);
 
         ResultActions result = mvc.perform(
                 get("/api/posts/{postId}/comments", 6L)
                         .contentType(APPLICATION_JSON)
                         .param("page", "0")
                         .param("size", "1")
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTO_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -580,23 +536,18 @@ class PostApiControllerTest extends TestControllerSetUp {
 
     @Test
     void 핫한게시물() throws Exception {
-        HotPostDto hotPostDto1 =
-                new HotPostDto(1L, 1, 1, "내용1", 1L, List.of("hashtag1"));
-        HotPostDto hotPostDto2 =
-                new HotPostDto(2L, 2, 2, "내용2", 2L, null);
-        HotPostDto hotPostDto3 =
-                new HotPostDto(3L, 3, 3, "내용3", 3L, null);
+        HotPostDto hotPostDto =
+                new HotPostDto(1L, 1, 1, "내용", 1L, List.of("hashtag"));
 
-        given(postQueryService.getHotPosts())
-                .willReturn(HotPostsResponse.from(List.of(hotPostDto1, hotPostDto2, hotPostDto3)));
+        HotPostsResponse response = new HotPostsResponse(List.of(hotPostDto));
 
-        MockHttpSession session = MockHttpSessionCreator.session(1L);
+        given(postQueryService.getHotPosts()).willReturn(response);
 
         ResultActions result = mvc.perform(
                 get("/api/posts/hot")
                         .contentType(APPLICATION_JSON)
-                        .session(session)
-                        .header(AUTH_TOKEN, "AUTH_TOKEN"));
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
         result
                 .andExpect(status().isOk())
@@ -622,27 +573,22 @@ class PostApiControllerTest extends TestControllerSetUp {
 
     @Test
     void 게시물_검색() throws Exception {
-        UserBasicProfileDto user = new UserBasicProfileDto(1L, null, "#0001", "김");
-        List<PostMediaMetadataDto> postMedias = List.of(
-                new PostMediaMetadataDto("123", "IMG"),
-                new PostMediaMetadataDto("456", "IMG")
-        );
-        List<String> hashtags = List.of("해시테그1", "해시태그2");
+        UserBasicProfileDto userDto = new UserBasicProfileDto(1L, null, "#0001", "김");
+        List<PostMediaMetadataDto> postMediaDto = List.of(new PostMediaMetadataDto("123", "IMG"));
 
-        SearchPostDto dto = new SearchPostDto(1L, user, 2L, "팍스", LocalDateTime.now(),
-                hashtags, postMedias, 1, 2, "게시글내용");
+        SearchPostDto searchPostDto = new SearchPostDto(1L, userDto, 2L, "팍스",
+                LocalDateTime.now(), List.of("해시태그"), postMediaDto, 1, 2, "내용");
 
-        Slice<SearchPostDto> page = PageableUtil.getSlice(List.of(dto), Pageable.ofSize(1));
+        Slice<SearchPostDto> page = PageableUtil.getSlice(List.of(searchPostDto), PageRequest.of(0, 1));
+
         given(postQueryService.getSearchedPosts(any(), any(), anyLong()))
                 .willReturn(page);
-
-        MockHttpSession session = MockHttpSessionCreator.session(1L);
 
         ResultActions result = mvc.perform(
                 get("/api/posts/search")
                         .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                        .header(AUTH_TOKEN, "AUTH_TOKEN")
-                        .session(session)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                        .session(dummySession)
                         .queryParam("page", "0")
                         .queryParam("size", "1")
                         .queryParam("keyword", "헤헤")
