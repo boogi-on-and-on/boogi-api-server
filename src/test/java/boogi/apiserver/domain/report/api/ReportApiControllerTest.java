@@ -5,7 +5,6 @@ import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -38,15 +36,12 @@ class ReportApiControllerTest extends TestControllerSetUp {
         CreateReportRequest request =
                 new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         ResultActions result = mvc.perform(
                 post("/api/reports/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsBytes(request))
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
         result

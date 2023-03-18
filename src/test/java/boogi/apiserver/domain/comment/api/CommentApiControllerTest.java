@@ -10,7 +10,6 @@ import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.global.constant.SessionInfoConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.webclient.push.MentionType;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
@@ -23,7 +22,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -59,19 +57,15 @@ class CommentApiControllerTest extends TestControllerSetUp {
     @MockBean
     SendPushNotification sendPushNotification;
 
-
     @Test
     @DisplayName("유저의 댓글을 페이지네이션으로 가져온다.")
     void userCommentSlice() throws Exception {
-        final UserCommentDto commentDto = new UserCommentDto("내용1", LocalDateTime.now(), 1L);
+        final UserCommentDto commentDto = new UserCommentDto("내용", LocalDateTime.now(), 1L);
         final PaginationDto pageInfo = new PaginationDto(1, false);
         final UserCommentPageResponse response = new UserCommentPageResponse(List.of(commentDto), pageInfo);
 
         given(commentQueryService.getUserComments(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(response);
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         ResultActions result = mvc.perform(
                 get("/api/comments/users")
@@ -79,8 +73,8 @@ class CommentApiControllerTest extends TestControllerSetUp {
                         .queryParam("page", "0")
                         .queryParam("size", "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
         result
@@ -110,21 +104,17 @@ class CommentApiControllerTest extends TestControllerSetUp {
     void testCreateComment() throws Exception {
         final long NEW_COMMENT_ID = 3L;
 
-        CreateCommentRequest request =
-                new CreateCommentRequest(2L, null, "댓글", List.of());
+        CreateCommentRequest request = new CreateCommentRequest(2L, null, "댓글", List.of());
 
         given(commentCommandService.createComment(any(CreateCommentRequest.class), anyLong()))
                 .willReturn(NEW_COMMENT_ID);
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
 
         ResultActions result = mvc.perform(
                 post("/api/comments/")
                         .content(mapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
         result
@@ -149,18 +139,14 @@ class CommentApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("댓글 생성시 맨션할 유저 아이디를 추가하지 않으면 댓글 생성 푸시 알람만 보낸다.")
     void verifyOnlyCreateCommentPushNotification() throws Exception {
-        CreateCommentRequest request =
-                new CreateCommentRequest(2L, null, "댓글", List.of());
-
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
+        CreateCommentRequest request = new CreateCommentRequest(2L, null, "댓글", List.of());
 
         mvc.perform(
                 post("/api/comments/")
                         .content(mapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         ).andExpect(status().isCreated());
 
         verify(sendPushNotification, times(1))
@@ -175,15 +161,12 @@ class CommentApiControllerTest extends TestControllerSetUp {
         CreateCommentRequest request =
                 new CreateCommentRequest(2L, null, "댓글", List.of(3L));
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         mvc.perform(
                 post("/api/comments/")
                         .content(mapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH_TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         ).andExpect(status().isCreated());
 
         verify(sendPushNotification, times(1))
@@ -200,14 +183,11 @@ class CommentApiControllerTest extends TestControllerSetUp {
         given(likeCommandService.doCommentLike(anyLong(), anyLong()))
                 .willReturn(NEW_LIKE_ID);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         ResultActions result = mvc.perform(
                 post("/api/comments/{commentId}/likes", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
         result
@@ -226,14 +206,11 @@ class CommentApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("댓글을 삭제한다.")
     void testDeleteComment() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         ResultActions result = mvc.perform(
                 delete("/api/comments/{commentId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
         result
@@ -259,16 +236,13 @@ class CommentApiControllerTest extends TestControllerSetUp {
         given(likeQueryService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(response);
 
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionInfoConst.USER_ID, 1L);
-
         ResultActions result = mvc.perform(
                 get("/api/comments/{commentId}/likes", 1L)
                         .queryParam("page", "0")
                         .queryParam("size", "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .session(session)
-                        .header(HeaderConst.AUTH_TOKEN, "AUTH-TOKEN")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
         result

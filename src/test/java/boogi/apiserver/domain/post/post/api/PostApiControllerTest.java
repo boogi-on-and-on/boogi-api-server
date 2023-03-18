@@ -1,18 +1,13 @@
 package boogi.apiserver.domain.post.post.api;
 
-import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
-import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
-import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.post.post.application.PostCommandService;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
@@ -23,15 +18,12 @@ import boogi.apiserver.domain.post.post.dto.response.HotPostsResponse;
 import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
 import boogi.apiserver.domain.post.postmedia.domain.MediaType;
-import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
-import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.TestTimeReflection;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -122,54 +114,20 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("글 상세 조회하기")
     void testGetPostDetail() throws Exception {
-        final User user = TestUser.builder()
-                .id(1L)
-                .username("유저")
-                .tagNumber("#0001")
-                .profileImageUrl("url")
-                .build();
+        UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#0001", "유저");
+        PostDetailResponse.MemberInfo memberDto = new PostDetailResponse.MemberInfo(1L, MemberType.NORMAL);
+        PostDetailResponse.CommunityInfo communityDto = new PostDetailResponse.CommunityInfo(1L, "커뮤니티 이름");
+        PostDetailResponse.PostMediaInfo postMediaDto = new PostDetailResponse.PostMediaInfo(MediaType.IMG, "media url");
 
-        final Member member = TestMember.builder()
-                .id(2L)
-                .user(user)
-                .memberType(MemberType.MANAGER)
-                .build();
-
-        final Community community = TestCommunity.builder()
-                .id(3L)
-                .communityName("커뮤니티")
-                .build();
-
-        final PostHashtag postHashtag = TestPostHashtag.builder()
-                .id(4L)
-                .tag("해시태그")
-                .build();
-
-        final Post post = TestPost.builder()
-                .id(5L)
-                .member(member)
-                .community(community)
-                .content("게시글의 내용입니다.")
-                .likeCount(1)
-                .commentCount(0)
-                .hashtags(List.of(postHashtag))
-                .build();
-        TestTimeReflection.setCreatedAt(post, LocalDateTime.now());
-
-        final PostMedia postMedia = TestPostMedia.builder()
-                .id(6L)
-                .post(post)
-                .mediaURL("mediaUrl")
-                .mediaType(MediaType.IMG)
-                .build();
-
-        PostDetailResponse response = PostDetailResponse.of(post, List.of(postMedia), 1L, 7L);
+        PostDetailResponse response =
+                new PostDetailResponse(1L, userDto, memberDto, communityDto, List.of(postMediaDto), 1L,
+                        LocalDateTime.now(), "내용", List.of("해시태그"), 1, 1, true);
 
         given(postQueryService.getPostDetail(anyLong(), anyLong()))
                 .willReturn(response);
 
         ResultActions result = mvc.perform(
-                get("/api/posts/{postId}", 5L)
+                get("/api/posts/{postId}", 1L)
                         .contentType(APPLICATION_JSON)
                         .session(dummySession)
                         .header(HeaderConst.AUTH_TOKEN, TOKEN));
@@ -287,11 +245,9 @@ class PostApiControllerTest extends TestControllerSetUp {
     @Test
     @DisplayName("유저가 작성한 게시글을 페이지네이션해서 조회하기")
     void testGetUserPosts() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-
         UserPostDto.CommunityDto communityDto = new UserPostDto.CommunityDto(2L, "커뮤니티1");
         UserPostDto postsDto =
-                new UserPostDto(1L, "게시글 내용1", communityDto, now, null, null);
+                new UserPostDto(1L, "게시글 내용1", communityDto, LocalDateTime.now(), null, null);
 
         UserPostPageResponse pageInfo =
                 new UserPostPageResponse(List.of(postsDto), new PaginationDto(1, false));
@@ -385,8 +341,8 @@ class PostApiControllerTest extends TestControllerSetUp {
 
         ResultActions result = mvc.perform(
                 get("/api/posts/{postId}/likes", 1L)
-                        .param("page", "0")
-                        .param("size", "1")
+                        .queryParam("page", "0")
+                        .queryParam("size", "1")
                         .contentType(APPLICATION_JSON)
                         .session(dummySession)
                         .header(HeaderConst.AUTH_TOKEN, TOKEN));
@@ -426,7 +382,6 @@ class PostApiControllerTest extends TestControllerSetUp {
     @DisplayName("글에 달린 댓글들 조회하기")
     void testGetCommentsAtPost() throws Exception {
         UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#1", "유저");
-
         CommentsAtPostResponse.MemberInfo memberInfo = new CommentsAtPostResponse.MemberInfo(2L, MemberType.MANAGER);
 
         CommentsAtPostResponse.ChildCommentInfo childCommentInfo =
@@ -446,8 +401,8 @@ class PostApiControllerTest extends TestControllerSetUp {
         ResultActions result = mvc.perform(
                 get("/api/posts/{postId}/comments", 6L)
                         .contentType(APPLICATION_JSON)
-                        .param("page", "0")
-                        .param("size", "1")
+                        .queryParam("page", "0")
+                        .queryParam("size", "1")
                         .session(dummySession)
                         .header(HeaderConst.AUTH_TOKEN, TOKEN));
 
