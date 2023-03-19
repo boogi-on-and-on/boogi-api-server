@@ -37,10 +37,10 @@ public class MemberCommandService {
     }
 
     public List<Member> joinMembers(List<Long> userIds, Long communityId, MemberType type) {
-        validateAlreadyJoinedMember(userIds, communityId);
-
         List<User> users = userRepository.findUsersByIds(userIds);
         Community community = communityRepository.findByCommunityId(communityId);
+
+        validateAlreadyJoinedMember(userIds, communityId);
 
         List<Member> newMembers = users.stream()
                 .map(user -> Member.of(community, user, type))

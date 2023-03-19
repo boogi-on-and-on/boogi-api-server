@@ -8,7 +8,6 @@ import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequest;
 import boogi.apiserver.domain.community.community.dto.response.CommunityDetailResponse;
-import boogi.apiserver.domain.community.community.dto.response.CommunityQueryResponse;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -59,9 +58,8 @@ public class CommunityQueryService {
     }
 
     public CommunityMetadataDto getCommunityMetadata(Long userId, Long communityId) {
-        memberQueryService.getManager(userId, communityId);
         final Community community = communityRepository.findByCommunityId(communityId);
-        community.getHashtags().size(); //LAZY INIT
+        memberQueryService.getManager(userId, communityId);
 
         return CommunityMetadataDto.of(community);
     }
@@ -71,9 +69,9 @@ public class CommunityQueryService {
     }
 
     public CommunitySettingInfoDto getSetting(Long userId, Long communityId) {
+        Community community = communityRepository.findByCommunityId(communityId);
         memberQueryService.getManager(userId, communityId);
 
-        Community community = communityRepository.findByCommunityId(communityId);
         return CommunitySettingInfoDto.of(community);
     }
 

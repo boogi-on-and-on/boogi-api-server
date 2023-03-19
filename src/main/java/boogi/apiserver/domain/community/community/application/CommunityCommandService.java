@@ -64,8 +64,8 @@ public class CommunityCommandService {
     }
 
     public void changeSetting(Long userId, Long communityId, CommunitySettingRequest request) {
-        Member member = memberQueryService.getMember(userId, communityId);
         Community community = communityRepository.findByCommunityId(communityId);
+        Member member = memberQueryService.getMember(userId, communityId);
 
         Boolean isAuto = request.getIsAutoApproval();
         Boolean isSecret = request.getIsSecret();
