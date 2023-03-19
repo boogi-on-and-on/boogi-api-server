@@ -12,7 +12,6 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
-import boogi.apiserver.domain.member.exception.NotOperatorException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,7 @@ public class JoinRequestCommandService {
         User user = userRepository.findByUserId(userId);
         Community community = communityRepository.findByCommunityId(communityId);
 
-        validateAlreadyJoinedMember(userId, communityId);
+        validateAlreadyJoinedMember(userId, community);
         validateJoinRequestStatus(userId, communityId);
 
         JoinRequest newRequest = JoinRequest.of(user, community);
@@ -62,6 +61,7 @@ public class JoinRequestCommandService {
     }
 
     public void confirmUsers(Long sessionUserId, List<Long> requestIds, Long communityId) {
+        communityRepository.findByCommunityId(communityId);
         Member operator = memberQueryService.getOperator(sessionUserId, communityId);
         List<JoinRequest> joinRequests = joinRequestRepository.getRequestsByIds(requestIds);
         joinRequests.forEach(joinRequest -> joinRequest.validateJoinRequestCommunity(communityId));
@@ -75,6 +75,7 @@ public class JoinRequestCommandService {
     }
 
     public void rejectUsers(Long userId, List<Long> requestIds, Long communityId) {
+        communityRepository.findByCommunityId(communityId);
         Member operator = memberQueryService.getOperator(userId, communityId);
         rejectRequests(requestIds, communityId, operator);
     }
@@ -87,6 +88,7 @@ public class JoinRequestCommandService {
 
     private void validateInvalidJoinRequestStatus(JoinRequestStatus status) {
         switch (status) {
+            // todo: confirm 확인 부분 삭제
             case CONFIRM:
                 throw new AlreadyJoinedMemberException();
             case PENDING:
@@ -94,9 +96,9 @@ public class JoinRequestCommandService {
         }
     }
 
-    private void validateAlreadyJoinedMember(Long userId, Long communityId) {
-        Member alreadyJoinedMember = memberQueryService.getMember(userId, communityId);
-        if (alreadyJoinedMember != null) {
+    private void validateAlreadyJoinedMember(Long userId, Community community) {
+        Member member = memberQueryService.getMemberOrNullMember(userId, community);
+        if (!member.isNullMember()) {
             throw new AlreadyJoinedMemberException();
         }
     }
