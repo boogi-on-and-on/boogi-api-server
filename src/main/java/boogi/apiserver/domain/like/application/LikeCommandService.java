@@ -38,12 +38,12 @@ public class LikeCommandService {
 
     public Long doCommentLike(Long commentId, Long userId) {
         Comment findComment = commentRepository.findByCommentId(commentId);
-        Long communityId = findComment.getMember().getCommunity().getId();
+        Long communityId = findComment.getPost().getCommunityId();
         Member joinedMember = memberQueryService.getMember(userId, communityId);
 
         validateAlreadyCommentLike(commentId, joinedMember);
 
-        Like newLike = Like.commentOf(findComment, joinedMember);
+        Like newLike = Like.ofComment(findComment, joinedMember);
         likeRepository.save(newLike);
         return newLike.getId();
     }

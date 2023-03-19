@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class UserCommentDto {
@@ -23,5 +25,11 @@ public class UserCommentDto {
 
     public static UserCommentDto of(Comment comment) {
         return new UserCommentDto(comment.getContent(), comment.getCreatedAt(), comment.getPost().getId());
+    }
+
+    public static List<UserCommentDto> listOf(List<Comment> comments) {
+        return comments.stream()
+                .map(UserCommentDto::of)
+                .collect(Collectors.toList());
     }
 }

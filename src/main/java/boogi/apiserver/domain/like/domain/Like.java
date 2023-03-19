@@ -52,7 +52,7 @@ public class Like extends TimeBaseEntity {
         return new Like(post, null, member);
     }
 
-    public static Like commentOf(Comment comment, Member member) {
+    public static Like ofComment(Comment comment, Member member) {
         return new Like(null, comment, member);
     }
 
