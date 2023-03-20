@@ -5,11 +5,13 @@ import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequ
 import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.*;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,8 +28,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -47,8 +48,8 @@ class MemberApiControllerTest extends TestControllerSetUp {
     MemberCommandService memberCommandService;
 
     @Test
-    @DisplayName("맨션할 멤버 검색하기")
-    void searchMentionMember() throws Exception {
+    @DisplayName("맨션할 멤버 검색 후 페이지네이션해서 조회한다.")
+    void searchMentionMemberSuccess() throws Exception {
         UserBasicProfileDto userDto = new UserBasicProfileDto(1L, null, "태그", "유저");
         Slice<UserBasicProfileDto> userPage = PageableUtil.getSlice(List.of(userDto), PageRequest.of(0, 1));
 
@@ -59,7 +60,7 @@ class MemberApiControllerTest extends TestControllerSetUp {
                 get("/api/members/search/mention")
                         .queryParam("communityId", "1")
                         .queryParam("page", "0")
-                        .queryParam("size", "3")
+                        .queryParam("size", "1")
                         .session(dummySession)
                         .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
@@ -96,72 +97,266 @@ class MemberApiControllerTest extends TestControllerSetUp {
                 ));
     }
 
-    @Test
+    @Nested
     @DisplayName("멤버 차단")
-    void banMember() throws Exception {
-        final ResultActions result = mvc.perform(
-                post("/api/members/{memberId}/ban", 2L)
-                        .session(dummySession)
-                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
-        );
+    class BanMember {
+        @Test
+        @DisplayName("멤버 차단에 성공한다.")
+        void banMemberSuccess() throws Exception {
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/ban", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
 
-        verify(memberCommandService, times(1)).banMember(anyLong(), anyLong());
+            verify(memberCommandService, times(1)).banMember(anyLong(), anyLong());
 
-        result
-                .andExpect(status().isOk())
-                .andDo(document("members/post-memberId-ban",
-                        pathParameters(
-                                parameterWithName("memberId").description("멤버 ID")
-                        )
-                ));
+            result
+                    .andExpect(status().isOk())
+                    .andDo(document("members/post-memberId-ban",
+                            pathParameters(
+                                    parameterWithName("memberId").description("멤버 ID")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 멤버 ID로 요청한 경우 MemberNotFoundException 발생")
+        void notExistMemberFail() throws Exception {
+            doThrow(new MemberNotFoundException())
+                    .when(memberCommandService).banMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/ban", 9999L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-ban-MemberNotFoundException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
+        void notMemberFail() throws Exception {
+            doThrow(new NotJoinedMemberException())
+                    .when(memberCommandService).banMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/ban", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-ban-NotJoinedMemberException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티의 관리자가 아닌 경우 NotOperatorException 발생")
+        void notOperatorFail() throws Exception {
+            doThrow(new NotOperatorException())
+                    .when(memberCommandService).banMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/ban", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-ban-NotOperatorException"));
+        }
     }
 
-    @Test
+    @Nested
     @DisplayName("멤버 차단 해제")
-    void releaseMember() throws Exception {
-        final ResultActions result = mvc.perform(
-                post("/api/members/{memberId}/release", 2L)
-                        .session(dummySession)
-                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
-        );
+    class ReleaseMember {
+        @Test
+        @DisplayName("멤버 차단 해제")
+        void releaseMember() throws Exception {
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/release", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
 
-        verify(memberCommandService, times(1)).releaseMember(anyLong(), anyLong());
+            verify(memberCommandService, times(1)).releaseMember(anyLong(), anyLong());
 
-        result
-                .andExpect(status().isOk())
-                .andDo(document("members/post-memberId-release",
-                        pathParameters(
-                                parameterWithName("memberId").description("멤버 ID")
-                        )
-                ));
+            result
+                    .andExpect(status().isOk())
+                    .andDo(document("members/post-memberId-release",
+                            pathParameters(
+                                    parameterWithName("memberId").description("멤버 ID")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 멤버 ID로 요청한 경우 MemberNotFoundException 발생")
+        void notExistMemberFail() throws Exception {
+            doThrow(new MemberNotFoundException())
+                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/release", 9999L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-release-MemberNotFoundException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
+        void notMemberFail() throws Exception {
+            doThrow(new NotJoinedMemberException())
+                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/release", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-release-NotJoinedMemberException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티의 매니저가 아닌 경우 NotManagerException 발생")
+        void notManagerFail() throws Exception {
+            doThrow(new NotManagerException())
+                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/release", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-release-NotManagerException"));
+        }
+
+        @Test
+        @DisplayName("차단 해제할 멤버가 차단된 멤버가 아닌 경우 NotBannedMemberException 발생")
+        void notBannedMemberFail() throws Exception {
+            doThrow(new NotBannedMemberException())
+                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/release", 1L)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-release-NotBannedMemberException"));
+        }
     }
 
-    @Test
+    @Nested
     @DisplayName("멤버 권한 위임")
-    void delegateMember() throws Exception {
-        final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
+    class DelegateMember {
+        @Test
+        @DisplayName("멤버 권한 위임에 성공한다.")
+        void delegateMemberSuccess() throws Exception {
+            final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
 
-        final ResultActions result = mvc.perform(
-                post("/api/members/{memberId}/delegate", 2L)
-                        .content(mapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .session(dummySession)
-                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
-        );
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/delegate", 1L)
+                            .content(mapper.writeValueAsString(request))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
 
-        verify(memberCommandService, times(1))
-                .delegateMember(anyLong(), anyLong(), any(MemberType.class));
+            verify(memberCommandService, times(1))
+                    .delegateMember(anyLong(), anyLong(), any(MemberType.class));
 
-        result
-                .andExpect(status().isOk())
-                .andDo(document("members/post-memberId-delegate",
-                        pathParameters(
-                                parameterWithName("memberId").description("멤버 ID")
-                        ),
-                        requestFields(
-                                fieldWithPath("type").type(JsonFieldType.STRING)
-                                        .description("멤버 타입")
-                        )
-                ));
+            result
+                    .andExpect(status().isOk())
+                    .andDo(document("members/post-memberId-delegate",
+                            pathParameters(
+                                    parameterWithName("memberId").description("멤버 ID")
+                            ),
+                            requestFields(
+                                    fieldWithPath("type").type(JsonFieldType.STRING)
+                                            .description("멤버 타입")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 멤버 ID로 요청한 경우 MemberNotFoundException 발생")
+        void notExistMemberFail() throws Exception {
+            final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
+
+            doThrow(new MemberNotFoundException())
+                    .when(memberCommandService).delegateMember(anyLong(), anyLong(), any(MemberType.class));
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/delegate", 9999L)
+                            .content(mapper.writeValueAsString(request))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-delegate-MemberNotFoundException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
+        void notMemberFail() throws Exception {
+            final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
+
+            doThrow(new NotJoinedMemberException())
+                    .when(memberCommandService).delegateMember(anyLong(), anyLong(), any(MemberType.class));
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/delegate", 1L)
+                            .content(mapper.writeValueAsString(request))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-delegate-NotJoinedMemberException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티의 매니저가 아닌 경우 NotManagerException 발생")
+        void notManagerFail() throws Exception {
+            final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
+
+            doThrow(new NotManagerException())
+                    .when(memberCommandService).delegateMember(anyLong(), anyLong(), any(MemberType.class));
+
+            final ResultActions result = mvc.perform(
+                    post("/api/members/{memberId}/delegate", 1L)
+                            .content(mapper.writeValueAsString(request))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("members/post-memberId-delegate-NotManagerException"));
+        }
     }
 }
