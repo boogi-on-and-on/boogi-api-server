@@ -333,7 +333,7 @@ class PostRepositoryTest {
                 .build();
         final Member member2 = TestMember.builder()
                 .user(user)
-                .community(community1)
+                .community(community2)
                 .build();
         memberRepository.saveAll(List.of(member1, member2));
 
@@ -373,11 +373,9 @@ class PostRepositoryTest {
                 .build();
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2));
 
-        PostHashtag p1_ht1 = PostHashtag.of("헤헤", p1);
-        PostHashtag p1_ht2 = PostHashtag.of("ㅋㅋ", p1);
-        PostHashtag p2_ht1 = PostHashtag.of("호호", p2);
-        PostHashtag p3_ht1 = PostHashtag.of("헤헤", p3);
-        postHashtagRepository.saveAll(List.of(p1_ht1, p1_ht2, p2_ht1, p3_ht1));
+        p1.addTags(List.of("헤헤", "ㅋㅋ"));
+        p2.addTags(List.of("호호"));
+        p3.addTags(List.of("헤헤"));
 
         PostQueryRequest request = new PostQueryRequest("헤헤", PostListingOrder.NEWER);
 
@@ -530,7 +528,7 @@ class PostRepositoryTest {
         TestTimeReflection.setCreatedAt(post1, LocalDateTime.now());
 
         final Post post2 = TestPost.builder()
-                .community(community3)
+                .community(community1)
                 .build();
         TestTimeReflection.setCreatedAt(post2, LocalDateTime.now());
 

@@ -120,21 +120,25 @@ class MessageBlockRepositoryTest {
     @DisplayName("messageBlock의 block update bulk")
     void updateBulkBlockedStatus() {
         //given
+        final User user = TestUser.builder().build();
+
         final User blockedUser1 = TestUser.builder().build();
         final User blockedUser2 = TestUser.builder().build();
-        userRepository.saveAll(List.of(blockedUser1, blockedUser2));
+        userRepository.saveAll(List.of(user, blockedUser1, blockedUser2));
 
         final MessageBlock block1 = TestMessageBlock.builder()
                 .blocked(false)
+                .user(user)
                 .blockedUser(blockedUser1)
                 .build();
         final MessageBlock block2 = TestMessageBlock.builder()
+                .user(user)
                 .blockedUser(blockedUser2)
                 .build();
         messageBlockRepository.saveAll(List.of(block1, block2));
 
         //when
-//        messageBlockRepository.updateBulkBlockedStatus(List.of(block1.getBlockedUser().getId(), block2.getBlockedUser().getId()));
+        messageBlockRepository.updateBulkBlockedStatus(user.getId(), List.of(block1.getBlockedUser().getId(), block2.getBlockedUser().getId()));
 
         em.flush();
         em.clear();
