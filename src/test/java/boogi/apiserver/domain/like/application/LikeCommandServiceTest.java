@@ -120,9 +120,11 @@ class LikeCommandServiceTest {
         void doLikeAtCommentSuccess() {
             final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestMember.builder().id(2L).community(community).build();
+            final Post post = TestPost.builder().id(2L).community(community).build();
 
-            final Comment comment = TestComment.builder().id(3L).member(member).build();
+            final Member member = TestMember.builder().id(3L).community(community).build();
+
+            final Comment comment = TestComment.builder().id(4L).post(post).member(member).build();
 
             given(commentRepository.findByCommentId(anyLong()))
                     .willReturn(comment);
@@ -136,8 +138,8 @@ class LikeCommandServiceTest {
             verify(likeRepository, times(1)).save(likeCaptor.capture());
             Like newLike = likeCaptor.getValue();
 
-            assertThat(newLike.getComment().getId()).isEqualTo(3L);
-            assertThat(newLike.getMember().getId()).isEqualTo(2L);
+            assertThat(newLike.getComment().getId()).isEqualTo(4L);
+            assertThat(newLike.getMember().getId()).isEqualTo(3L);
         }
 
         @Test
@@ -145,9 +147,11 @@ class LikeCommandServiceTest {
         void alreadyDoLikeFail() {
             final Community community = TestCommunity.builder().id(1L).build();
 
-            final Member member = TestMember.builder().id(2L).community(community).build();
+            final Post post = TestPost.builder().id(2L).community(community).build();
 
-            final Comment comment = TestComment.builder().id(3L).member(member).build();
+            final Member member = TestMember.builder().id(3L).community(community).build();
+
+            final Comment comment = TestComment.builder().id(4L).post(post).member(member).build();
 
             given(commentRepository.findByCommentId(anyLong()))
                     .willReturn(comment);

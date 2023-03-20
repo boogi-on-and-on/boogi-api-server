@@ -19,12 +19,15 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
 class JoinRequestQueryServiceTest {
+    @InjectMocks
+    JoinRequestQueryService joinRequestQueryService;
 
     @Mock
     JoinRequestRepository joinRequestRepository;
@@ -34,10 +37,6 @@ class JoinRequestQueryServiceTest {
 
     @Mock
     CommunityRepository communityRepository;
-
-    @InjectMocks
-    JoinRequestQueryService joinRequestQueryService;
-
 
     @Test
     @DisplayName("커뮤니티 가입요청 목록 조회")
@@ -57,7 +56,10 @@ class JoinRequestQueryServiceTest {
         given(joinRequestRepository.getAllRequests(anyLong()))
                 .willReturn(List.of(joinRequest));
 
-        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(eq(user.getId()), 1L);
+        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(user.getId(), 3L);
+
+        verify(communityRepository, times(1)).findByCommunityId(anyLong());
+        verify(memberQueryService, times(1)).getOperator(anyLong(), anyLong());
 
         UserJoinRequestInfoDto request = allRequests.get(0);
         assertThat(request.getId()).isEqualTo(2L);

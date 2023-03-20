@@ -162,7 +162,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                     "커뮤니티 설명입니다.", List.of("해시태그"), false, true);
 
             doThrow(new UserNotFoundException())
-                    .when(userRepository).findByUserId(anyLong());
+                    .when(communityCommandService).createCommunity(any(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/communities")
@@ -184,7 +184,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                     "커뮤니티 설명입니다.", List.of("해시태그"), false, true);
 
             doThrow(new AlreadyExistsCommunityNameException())
-                    .when(userRepository).findByUserId(anyLong());
+                    .when(communityCommandService).createCommunity(any(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/communities")
