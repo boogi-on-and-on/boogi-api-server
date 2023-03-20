@@ -150,7 +150,7 @@ class MemberCommandServiceTest {
         given(memberRepository.findByMemberId(anyLong()))
                 .willReturn(member);
 
-        memberCommandService.releaseMember(anyLong(), 1L);
+        memberCommandService.releaseMember(2L, 1L);
 
         then(member).should(times(1)).release();
     }
