@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
 import boogi.apiserver.builder.TestUser;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
@@ -31,6 +32,9 @@ class JoinRequestQueryServiceTest {
     @Mock
     MemberQueryService memberQueryService;
 
+    @Mock
+    CommunityRepository communityRepository;
+
     @InjectMocks
     JoinRequestQueryService joinRequestQueryService;
 
@@ -53,7 +57,7 @@ class JoinRequestQueryServiceTest {
         given(joinRequestRepository.getAllRequests(anyLong()))
                 .willReturn(List.of(joinRequest));
 
-        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(eq(user.getId()), anyLong());
+        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(eq(user.getId()), 1L);
 
         UserJoinRequestInfoDto request = allRequests.get(0);
         assertThat(request.getId()).isEqualTo(2L);

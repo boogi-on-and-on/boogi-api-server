@@ -104,7 +104,7 @@ class NoticeQueryServiceTest {
         given(noticeRepository.getLatestNotice(anyLong()))
                 .willReturn(List.of(notice));
 
-        final List<NoticeDto> dtos = noticeQueryService.getCommunityLatestNotice(anyLong());
+        final List<NoticeDto> dtos = noticeQueryService.getCommunityLatestNotice(1L);
 
         assertThat(dtos.size()).isEqualTo(1);
 
@@ -135,7 +135,7 @@ class NoticeQueryServiceTest {
         given(noticeRepository.getAllNotices(anyLong()))
                 .willReturn(List.of(notice));
 
-        final NoticeDetailResponse response = noticeQueryService.getCommunityNotice(anyLong(), anyLong());
+        final NoticeDetailResponse response = noticeQueryService.getCommunityNotice(1L, 1L);
 
         final List<? extends NoticeDetailDto> dtos = response.getNotices();
         assertThat(response.getManager()).isTrue();

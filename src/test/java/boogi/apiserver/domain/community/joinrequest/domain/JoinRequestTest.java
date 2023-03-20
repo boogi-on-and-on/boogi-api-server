@@ -2,6 +2,7 @@ package boogi.apiserver.domain.community.joinrequest.domain;
 
 
 import boogi.apiserver.builder.TestCommunity;
+import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.exception.NotPendingJoinRequestException;
 import boogi.apiserver.domain.community.joinrequest.exception.UnmatchedJoinRequestCommunityException;
@@ -44,7 +45,8 @@ class JoinRequestTest {
         @ParameterizedTest
         void exception(JoinRequest joinRequest) {
             assertThatThrownBy(() -> {
-                joinRequest.reject(any(Member.class));
+                final Member member = TestMember.builder().build();
+                joinRequest.reject(member);
             }).isInstanceOf(NotPendingJoinRequestException.class);
         }
 
@@ -55,8 +57,7 @@ class JoinRequestTest {
                     .status(JoinRequestStatus.PENDING)
                     .build();
 
-            final Member manager = mock(Member.class);
-
+            final Member manager = TestMember.builder().build();
             joinRequest.reject(manager);
 
             assertThat(joinRequest.getStatus()).isEqualTo(JoinRequestStatus.REJECT);
@@ -86,8 +87,8 @@ class JoinRequestTest {
         @ParameterizedTest
         void exception(JoinRequest joinRequest) {
             assertThatThrownBy(() -> {
-                final Member manager = mock(Member.class);
-                final Member confirmedMember = mock(Member.class);
+                final Member manager = TestMember.builder().build();
+                final Member confirmedMember = TestMember.builder().build();
                 joinRequest.confirm(manager, confirmedMember);
             }).isInstanceOf(NotPendingJoinRequestException.class);
         }
@@ -100,8 +101,8 @@ class JoinRequestTest {
                     .status(JoinRequestStatus.PENDING)
                     .build();
 
-            final Member manager = mock(Member.class);
-            final Member confirmedMember = mock(Member.class);
+            final Member manager = TestMember.builder().build();
+            final Member confirmedMember = TestMember.builder().build();
 
             joinRequest.confirm(manager, confirmedMember);
 

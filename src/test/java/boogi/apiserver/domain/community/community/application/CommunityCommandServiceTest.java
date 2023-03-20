@@ -68,14 +68,14 @@ class CommunityCommandServiceTest {
                     .willReturn(Optional.of(community));
 
             assertThatThrownBy(() -> {
-                communityCommandService.createCommunity(request, anyLong());
+                communityCommandService.createCommunity(request, 1L);
             }).isInstanceOf(AlreadyExistsCommunityNameException.class);
         }
 
         @Test
         @DisplayName("성공")
         void success() {
-            communityCommandService.createCommunity(request, anyLong());
+            communityCommandService.createCommunity(request, 1L);
 
             then(communityRepository).should(times(1)).save(any());
             then(memberCommandService).should(times(1)).joinMember(anyLong(), any(), any());
@@ -88,7 +88,7 @@ class CommunityCommandServiceTest {
         final Community community = mock(Community.class);
         given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
-        communityCommandService.updateCommunity(1L, anyLong(), "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
+        communityCommandService.updateCommunity(1L, 1L, "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
 
         then(community).should(times(1)).updateCommunity("커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
     }
@@ -104,7 +104,7 @@ class CommunityCommandServiceTest {
                     .willReturn(Optional.of(TestMember.builder().build()));
 
             assertThatThrownBy(() -> {
-                communityCommandService.shutdown(1L, anyLong());
+                communityCommandService.shutdown(1L, 1L);
             }).isInstanceOf(CanNotDeleteCommunityException.class);
         }
 
@@ -118,7 +118,7 @@ class CommunityCommandServiceTest {
             given(memberRepository.findAnyMemberExceptManager(any()))
                     .willReturn(Optional.empty());
 
-            communityCommandService.shutdown(1L, anyLong());
+            communityCommandService.shutdown(1L, 1L);
             then(community).should(times(1)).shutdown();
         }
     }
@@ -137,7 +137,7 @@ class CommunityCommandServiceTest {
                 .willReturn(community);
 
         final CommunitySettingRequest request = new CommunitySettingRequest(true, false);
-        communityCommandService.changeSetting(anyLong(), anyLong(), request);
+        communityCommandService.changeSetting(1L, 1L, request);
 
         then(community).should(times(1))
                 .switchPrivate(true, MemberType.MANAGER);

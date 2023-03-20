@@ -49,7 +49,7 @@ class MemberQueryServiceTest {
                 .willReturn(Optional.empty());
 
         assertThatThrownBy(() -> {
-            memberQueryService.getMember(anyLong(), anyLong());
+            memberQueryService.getMember(1L, 1L);
         }).isInstanceOf(NotJoinedMemberException.class);
     }
 
@@ -114,7 +114,7 @@ class MemberQueryServiceTest {
                     .willReturn(Optional.of(member));
 
             //when
-            Member memberOfTheCommunity = memberQueryService.getMember(anyLong(), anyLong());
+            Member memberOfTheCommunity = memberQueryService.getMember(1L, 1L);
 
             //then
             assertThat(memberOfTheCommunity).isEqualTo(member);

@@ -96,7 +96,7 @@ class AlarmConfigCommandServiceTest {
         AlarmConfigSettingRequest config = new AlarmConfigSettingRequest(false, true, false, null, true);
 
         //when
-        alarmConfigCommandService.configureAlarm(anyLong(), config);
+        alarmConfigCommandService.configureAlarm(1L, config);
 
         //then
         assertThat(alarmConfig.getMessage()).isFalse();

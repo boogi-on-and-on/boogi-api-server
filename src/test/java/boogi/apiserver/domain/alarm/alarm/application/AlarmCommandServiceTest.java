@@ -46,7 +46,7 @@ class AlarmCommandServiceTest {
             //then
             assertThatThrownBy(() -> {
                 //when
-                alarmCommandService.deleteAlarm(2L, anyLong());
+                alarmCommandService.deleteAlarm(2L, 1L);
             }).isInstanceOf(CanNotDeleteAlarmException.class);
         }
 
@@ -60,7 +60,7 @@ class AlarmCommandServiceTest {
             given(alarmRepository.findByAlarmId(anyLong()))
                     .willReturn(alarm);
             //when
-            alarmCommandService.deleteAlarm(user.getId(), anyLong());
+            alarmCommandService.deleteAlarm(user.getId(), 1L);
 
             //then
             verify(alarmRepository, times(1)).delete(alarm);

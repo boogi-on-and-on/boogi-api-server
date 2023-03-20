@@ -131,7 +131,7 @@ class CommunityQueryServiceTest {
         given(communityRepository.findByCommunityId(anyLong()))
                 .willReturn(community);
 
-        final CommunityMetadataDto dto = communityQueryService.getCommunityMetadata(anyLong(), anyLong());
+        final CommunityMetadataDto dto = communityQueryService.getCommunityMetadata(1L, 1L);
 
         then(memberQueryService).should(times(1)).getManager(anyLong(), anyLong());
 
@@ -151,7 +151,7 @@ class CommunityQueryServiceTest {
         given(communityRepository.findByCommunityId(anyLong()))
                 .willReturn(community);
 
-        CommunitySettingInfoDto dto = communityQueryService.getSetting(anyLong(), anyLong());
+        CommunitySettingInfoDto dto = communityQueryService.getSetting(1L, 1L);
 
         then(memberQueryService).should(times(1)).getManager(anyLong(), anyLong());
         assertThat(dto.getIsAuto()).isTrue();
@@ -191,7 +191,7 @@ class CommunityQueryServiceTest {
         given(postMediaRepository.getPostMediasByLatestPostIds(any()))
                 .willReturn(List.of(postMedia));
 
-        final JoinedCommunitiesDto dto = communityQueryService.getJoinedCommunitiesWithLatestPost(anyLong());
+        final JoinedCommunitiesDto dto = communityQueryService.getJoinedCommunitiesWithLatestPost(1L);
 
         then(userRepository).should(times(1)).findByUserId(anyLong());
 

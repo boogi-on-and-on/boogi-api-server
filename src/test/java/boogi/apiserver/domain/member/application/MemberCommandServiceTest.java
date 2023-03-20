@@ -66,7 +66,7 @@ class MemberCommandServiceTest {
                     .willReturn(List.of(member));
 
             assertThatThrownBy(() -> {
-                memberCommandService.joinMember(member.getUser().getId(), anyLong(), MemberType.NORMAL);
+                memberCommandService.joinMember(member.getUser().getId(), 1L, MemberType.NORMAL);
             }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
@@ -81,7 +81,7 @@ class MemberCommandServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            final Member member = memberCommandService.joinMember(1L, anyLong(), MemberType.NORMAL);
+            final Member member = memberCommandService.joinMember(1L, 1L, MemberType.NORMAL);
 
             then(memberRepository).should(times(1))
                     .save(any(Member.class));
@@ -106,7 +106,7 @@ class MemberCommandServiceTest {
                     .willReturn(List.of(member));
 
             assertThatThrownBy(() -> {
-                memberCommandService.joinMembers(List.of(1L, 2L), anyLong(), any(MemberType.class));
+                memberCommandService.joinMembers(List.of(1L, 2L), 1L, MemberType.NORMAL);
             }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
@@ -117,7 +117,7 @@ class MemberCommandServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            memberCommandService.joinMembers(List.of(1L, 2L), anyLong(), any(MemberType.class));
+            memberCommandService.joinMembers(List.of(1L, 2L), 3L, MemberType.NORMAL);
             then(memberRepository).should(times(1)).saveAll(any(List.class));
         }
     }
@@ -134,7 +134,7 @@ class MemberCommandServiceTest {
         given(memberRepository.findByMemberId(anyLong()))
                 .willReturn(member);
 
-        memberCommandService.banMember(anyLong(), 1L);
+        memberCommandService.banMember(2L, 1L);
 
         then(member).should(times(1)).ban();
     }
@@ -175,7 +175,7 @@ class MemberCommandServiceTest {
             given(memberQueryService.getManager(anyLong(), anyLong()))
                     .willReturn(manager);
 
-            memberCommandService.delegateMember(anyLong(), 1L, MemberType.MANAGER);
+            memberCommandService.delegateMember(2L, 1L, MemberType.MANAGER);
 
             then(manager).should(times(1)).changeMemberType(MemberType.NORMAL);
             then(member).should(times(1)).changeMemberType(MemberType.MANAGER);
@@ -197,7 +197,7 @@ class MemberCommandServiceTest {
             given(memberQueryService.getManager(anyLong(), anyLong()))
                     .willReturn(manager);
 
-            memberCommandService.delegateMember(anyLong(), 1L, MemberType.NORMAL);
+            memberCommandService.delegateMember(2L, 1L, MemberType.NORMAL);
 
             then(manager).should(times(0)).changeMemberType(MemberType.NORMAL);
             then(member).should(times(1)).changeMemberType(MemberType.NORMAL);

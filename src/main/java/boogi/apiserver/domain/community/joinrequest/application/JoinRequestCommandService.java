@@ -88,9 +88,6 @@ public class JoinRequestCommandService {
 
     private void validateInvalidJoinRequestStatus(JoinRequestStatus status) {
         switch (status) {
-            // todo: confirm 확인 부분 삭제
-            case CONFIRM:
-                throw new AlreadyJoinedMemberException();
             case PENDING:
                 throw new AlreadyRequestedException();
         }

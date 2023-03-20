@@ -15,6 +15,7 @@ import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
+import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
@@ -68,26 +69,14 @@ class JoinRequestCommandServiceTest {
         @DisplayName("이미 가입한 경우")
         @Test
         void alreadyJoined() {
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(mock(Member.class));
+            given(memberQueryService.getMemberOrNullMember(anyLong(), any(Community.class)))
+                    .willReturn(TestMember.builder().build());
+
+            given(communityRepository.findByCommunityId(anyLong()))
+                    .willReturn(TestCommunity.builder().id(1L).build());
 
             assertThatThrownBy(() -> {
-                joinRequestCommandService.request(anyLong(), 1L);
-            }).isInstanceOf(AlreadyJoinedMemberException.class);
-        }
-
-        @DisplayName("이미 Confirm인 경우")
-        @Test
-        void alreadyRequested() {
-            final JoinRequest joinRequest = TestJoinRequest.builder()
-                    .status(JoinRequestStatus.CONFIRM)
-                    .build();
-
-            given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
-                    .willReturn(Optional.of(joinRequest));
-
-            assertThatThrownBy(() -> {
-                joinRequestCommandService.request(anyLong(), 1L);
+                joinRequestCommandService.request(1L, 1L);
             }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
@@ -98,11 +87,14 @@ class JoinRequestCommandServiceTest {
                     .status(JoinRequestStatus.PENDING)
                     .build();
 
+            given(memberQueryService.getMemberOrNullMember(anyLong(), any()))
+                    .willReturn(new NullMember());
+
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
                     .willReturn(Optional.of(joinRequest));
 
             assertThatThrownBy(() -> {
-                joinRequestCommandService.request(anyLong(), 1L);
+                joinRequestCommandService.request(1L, 1L);
             }).isInstanceOf(AlreadyRequestedException.class);
         }
 
@@ -117,7 +109,10 @@ class JoinRequestCommandServiceTest {
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            joinRequestCommandService.request(anyLong(), community.getId());
+            given(memberQueryService.getMemberOrNullMember(anyLong(), any()))
+                    .willReturn(new NullMember());
+
+            joinRequestCommandService.request(1L, community.getId());
 
             then(memberRepository).should(times(1))
                     .save(any(Member.class));
@@ -137,10 +132,13 @@ class JoinRequestCommandServiceTest {
                     .autoApproval(false)
                     .build();
 
+            given(memberQueryService.getMemberOrNullMember(anyLong(), any()))
+                    .willReturn(new NullMember());
+
             given(communityRepository.findByCommunityId(anyLong()))
                     .willReturn(community);
 
-            joinRequestCommandService.request(anyLong(), community.getId());
+            joinRequestCommandService.request(1L, community.getId());
 
             then(memberRepository).should(times(0))
                     .save(any(Member.class));
@@ -182,7 +180,7 @@ class JoinRequestCommandServiceTest {
                 .willReturn(List.of(m1, m2));
 
         //when
-        joinRequestCommandService.confirmUsers(operator.getId(), any(), anyLong());
+        joinRequestCommandService.confirmUsers(operator.getId(), List.of(1L, 2L), 1L);
 
         //then
         then(jr1).should(times(1)).confirm(operator, m1);
@@ -207,7 +205,7 @@ class JoinRequestCommandServiceTest {
         given(joinRequestRepository.getRequestsByIds(any()))
                 .willReturn(List.of(jr1, jr2));
         //when
-        joinRequestCommandService.rejectUsers(anyLong(), any(), community.getId());
+        joinRequestCommandService.rejectUsers(1L, List.of(1L, 2L), community.getId());
 
         //then
         then(jr1).should(times(1)).reject(operator);
