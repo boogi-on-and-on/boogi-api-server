@@ -51,7 +51,7 @@ class MessageBlockCommandServiceTest {
                     .willReturn(block);
 
             //expected
-            assertThatThrownBy(() -> messageBlockCommandService.unblockUser(anyLong(), anyLong()))
+            assertThatThrownBy(() -> messageBlockCommandService.unblockUser(1L, 1L))
                     .isInstanceOf(NotBlockedUserException.class);
         }
 
@@ -64,7 +64,7 @@ class MessageBlockCommandServiceTest {
                     .willReturn(block);
 
             //when
-            messageBlockCommandService.unblockUser(anyLong(), anyLong());
+            messageBlockCommandService.unblockUser(1L, 1L);
 
             //then
             assertThat(block.isBlocked()).isFalse();
