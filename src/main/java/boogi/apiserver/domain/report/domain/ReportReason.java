@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.report.domain;
 
+import boogi.apiserver.domain.report.exception.InvalidReportReasonException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum ReportReason {
@@ -19,6 +20,10 @@ public enum ReportReason {
 
     @JsonCreator
     public static ReportReason from(String s) {
-        return ReportReason.valueOf(s.toUpperCase());
+        try {
+            return ReportReason.valueOf(s.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidReportReasonException();
+        }
     }
 }

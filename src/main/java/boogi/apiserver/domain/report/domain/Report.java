@@ -5,7 +5,6 @@ import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.model.TimeBaseEntity;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.report.exception.InvalidReportTargetException;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -64,23 +63,33 @@ public class Report extends TimeBaseEntity {
         this.reason = reason;
     }
 
-    private Report(Post post, Community community, Comment comment, Message message, User user, String content,
-                   ReportReason reason) {
-        this(null, post, community, comment, message, user, content, reason);
+    private Report(Post post, User user, String content, ReportReason reason) {
+        this(null, post, null, null, null, user, content, reason);
+    }
+
+    private Report(Community community, User user, String content, ReportReason reason) {
+        this(null, null, community, null, null, user, content, reason);
+    }
+
+    private Report(Comment comment, User user, String content, ReportReason reason) {
+        this(null, null, null, comment, null, user, content, reason);
+    }
+
+    private Report(Message message, User user, String content, ReportReason reason) {
+        this(null, null, null, null, message, user, content, reason);
     }
 
     public static Report of(Object targetObject, User user, String content, ReportReason reason) {
         if (targetObject instanceof Community) {
-            return new Report(null, (Community) targetObject, null, null, user, content, reason);
+            return new Report((Community) targetObject, user, content, reason);
         } else if (targetObject instanceof Post) {
-            return new Report((Post) targetObject, null, null, null, user, content, reason);
+            return new Report((Post) targetObject, user, content, reason);
         } else if (targetObject instanceof Comment) {
-            return new Report(null, null, (Comment) targetObject, null, user, content, reason);
+            return new Report((Comment) targetObject, user, content, reason);
         } else if (targetObject instanceof Message) {
-            return new Report(null, null, null, (Message) targetObject, user, content, reason);
-        } else {
-            throw new InvalidReportTargetException();
+            return new Report((Message) targetObject, user, content, reason);
         }
+        throw new IllegalArgumentException();
     }
 
     public Long getId() {

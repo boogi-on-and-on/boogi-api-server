@@ -15,7 +15,6 @@ import boogi.apiserver.domain.report.dao.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
-import boogi.apiserver.domain.report.exception.InvalidReportTargetException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -60,19 +59,16 @@ public class ReportCommandService {
                 return getReportedComment(userId, id);
             case MESSAGE:
                 return getReportedMessage(userId, id);
-            default:
-                throw new InvalidReportTargetException();
         }
+        throw new IllegalArgumentException();
     }
 
     private Post getReportedPost(Long userId, final Long id) {
         Post findPost = postRepository.findByPostId(id);
 
-        Long communityId = findPost.getCommunityId();
-        final Community community = communityRepository.findByCommunityId(communityId);
-
+        Community community = findPost.getCommunity();
         if (community.isPrivate()) {
-            memberQueryService.getMember(userId, communityId);
+            memberQueryService.getMember(userId, community.getId());
         }
         return findPost;
     }
@@ -80,11 +76,9 @@ public class ReportCommandService {
     private Comment getReportedComment(Long userId, final Long id) {
         Comment findComment = commentRepository.findByCommentId(id);
 
-        Long communityId = findComment.getPost().getCommunityId();
-        final Community community = communityRepository.findByCommunityId(communityId);
-
+        Community community = findComment.getPost().getCommunity();
         if (community.isPrivate()) {
-            memberQueryService.getMember(userId, communityId);
+            memberQueryService.getMember(userId, community.getId());
         }
         return findComment;
     }
@@ -95,7 +89,6 @@ public class ReportCommandService {
         if (!findMessage.isMyMessage(userId)) {
             throw new NotParticipatedUserException();
         }
-
         return findMessage;
     }
 }
