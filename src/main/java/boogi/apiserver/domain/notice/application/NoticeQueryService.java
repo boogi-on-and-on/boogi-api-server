@@ -1,5 +1,6 @@
 package boogi.apiserver.domain.notice.application;
 
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
@@ -18,6 +19,7 @@ import java.util.List;
 public class NoticeQueryService {
 
     private final NoticeRepository noticeRepository;
+    private final CommunityRepository communityRepository;
 
     private final MemberQueryService memberQueryService;
 
@@ -32,13 +34,14 @@ public class NoticeQueryService {
     }
 
     public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
+        communityRepository.findByCommunityId(communityId);
         List<Notice> latestNotices = noticeRepository.getLatestNotice(communityId);
         return NoticeDto.listFrom(latestNotices);
     }
 
     public NoticeDetailResponse getCommunityNotice(Long userId, Long communityId) {
+        communityRepository.findByCommunityId(communityId);
         Member member = memberQueryService.getMember(userId, communityId);
-        member.isManager();
 
         List<Notice> allNotices = noticeRepository.getAllNotices(communityId);
         return NoticeDetailResponse.communityNoticeOf(allNotices, member.isManager());

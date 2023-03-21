@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Getter
@@ -23,11 +22,8 @@ public class NoticeDetailResponse {
         this.manager = manager;
     }
 
-    public static NoticeDetailResponse communityNoticeOf(List<Notice> notices,
-                                                         Boolean manager) {
-        final List<CommunityNoticeDetailDto> dtos = notices.stream()
-                .map(n -> CommunityNoticeDetailDto.of(n, n.getMember().getUser()))
-                .collect(Collectors.toList());
+    public static NoticeDetailResponse communityNoticeOf(List<Notice> notices, Boolean manager) {
+        final List<CommunityNoticeDetailDto> dtos = CommunityNoticeDetailDto.listOf(notices);
         return new NoticeDetailResponse(dtos, manager);
     }
 

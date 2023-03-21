@@ -3,6 +3,7 @@ package boogi.apiserver.domain.notice.application;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestNotice;
 import boogi.apiserver.builder.TestUser;
+import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -26,19 +27,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
 class NoticeQueryServiceTest {
+    @InjectMocks
+    NoticeQueryService noticeQueryService;
 
     @Mock
     NoticeRepository noticeRepository;
 
     @Mock
-    MemberQueryService memberQueryService;
+    CommunityRepository communityRepository;
 
-    @InjectMocks
-    NoticeQueryService noticeQueryService;
+    @Mock
+    MemberQueryService memberQueryService;
 
 
     @Test
@@ -106,6 +111,8 @@ class NoticeQueryServiceTest {
 
         final List<NoticeDto> dtos = noticeQueryService.getCommunityLatestNotice(1L);
 
+        verify(communityRepository, times(1)).findByCommunityId(anyLong());
+
         assertThat(dtos.size()).isEqualTo(1);
 
         final NoticeDto dto = dtos.get(0);
@@ -136,6 +143,8 @@ class NoticeQueryServiceTest {
                 .willReturn(List.of(notice));
 
         final NoticeDetailResponse response = noticeQueryService.getCommunityNotice(1L, 1L);
+
+        verify(communityRepository, times(1)).findByCommunityId(anyLong());
 
         final List<? extends NoticeDetailDto> dtos = response.getNotices();
         assertThat(response.getManager()).isTrue();

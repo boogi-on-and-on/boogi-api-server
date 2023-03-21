@@ -1,7 +1,10 @@
 package boogi.apiserver.domain.notice.api;
 
 
+import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
+import boogi.apiserver.domain.member.exception.NotOperatorException;
 import boogi.apiserver.domain.notice.application.NoticeCommandService;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
@@ -11,6 +14,7 @@ import boogi.apiserver.domain.notice.dto.response.NoticeDetailResponse;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +30,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -48,8 +53,8 @@ class NoticeApiControllerTest extends TestControllerSetUp {
     NoticeCommandService noticeCommandService;
 
     @Test
-    @DisplayName("전체 앱공지 조회")
-    void allAppNotice() throws Exception {
+    @DisplayName("공지 목록을 전체 조회한다.")
+    void getAllNoticeSuccess() throws Exception {
         NoticeDetailDto noticeDto =
                 new NoticeDetailDto(1L, "공지사항의 제목입니다.", LocalDateTime.now(), "공지사항의 내용입니다.");
         NoticeDetailResponse response = new NoticeDetailResponse(List.of(noticeDto), true);
@@ -89,40 +94,106 @@ class NoticeApiControllerTest extends TestControllerSetUp {
                 ));
     }
 
-
-    @Test
+    @Nested
     @DisplayName("공지사항 생성")
-    void createNewAppNotice() throws Exception {
-        final long NEW_NOTICE_ID = 2L;
-        NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
+    class CreateNotice {
+        @Test
+        @DisplayName("공지사항 생성에 성공한다.")
+        void createNoticeSuccess() throws Exception {
+            final long NEW_NOTICE_ID = 2L;
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
-        given(noticeCommandService.createNotice(any(), anyLong()))
-                .willReturn(NEW_NOTICE_ID);
+            given(noticeCommandService.createNotice(any(), anyLong()))
+                    .willReturn(NEW_NOTICE_ID);
 
-        final ResultActions result = mvc.perform(
-                post("/api/notices")
-                        .session(dummySession)
-                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request))
-        );
+            final ResultActions result = mvc.perform(
+                    post("/api/notices")
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+            );
 
-        result
-                .andExpect(status().isOk())
-                .andDo(document("notices/post",
-                        requestFields(
-                                fieldWithPath("communityId").type(JsonFieldType.NUMBER)
-                                        .description("커뮤니티 ID"),
-                                fieldWithPath("title").type(JsonFieldType.STRING)
-                                        .description("공지사항 제목"),
-                                fieldWithPath("content").type(JsonFieldType.STRING)
-                                        .description("공지사항 내용")
-                        ),
-                        responseFields(
-                                fieldWithPath("id").type(JsonFieldType.NUMBER)
-                                        .description("생성된 공지사항의 ID")
-                        )
-                ));
+            result
+                    .andExpect(status().isOk())
+                    .andDo(document("notices/post",
+                            requestFields(
+                                    fieldWithPath("communityId").type(JsonFieldType.NUMBER)
+                                            .description("커뮤니티 ID"),
+                                    fieldWithPath("title").type(JsonFieldType.STRING)
+                                            .description("공지사항 제목"),
+                                    fieldWithPath("content").type(JsonFieldType.STRING)
+                                            .description("공지사항 내용")
+                            ),
+                            responseFields(
+                                    fieldWithPath("id").type(JsonFieldType.NUMBER)
+                                            .description("생성된 공지사항의 ID")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
+        void notExistCommunityFail() throws Exception {
+            NoticeCreateRequest request = new NoticeCreateRequest(9999L, "내용", "제목");
+
+            doThrow(new CommunityNotFoundException())
+                    .when(noticeCommandService).createNotice(any(NoticeCreateRequest.class), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/notices")
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("notices/post-CommunityNotFoundException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
+        void notMemberFail() throws Exception {
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
+
+            doThrow(new NotJoinedMemberException())
+                    .when(noticeCommandService).createNotice(any(NoticeCreateRequest.class), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/notices")
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("notices/post-NotJoinedMemberException"));
+        }
+
+        @Test
+        @DisplayName("해당 커뮤니티의 관리자가 아닌 경우 NotOperatorException 발생")
+        void notOperatorFail() throws Exception {
+            NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
+
+            doThrow(new NotOperatorException())
+                    .when(noticeCommandService).createNotice(any(NoticeCreateRequest.class), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/notices")
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("notices/post-NotOperatorException"));
+        }
     }
 
     @DisplayName("최근 앱 공지사항 목록 조회")
