@@ -8,10 +8,13 @@ import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
+import boogi.apiserver.domain.message.block.exception.MessageBlockNotFoundException;
+import boogi.apiserver.domain.message.block.exception.NotBlockedUserException;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.request.BlockedUserIdRequest;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
+import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
@@ -28,9 +31,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -95,53 +98,76 @@ class UserApiControllerTest extends TestControllerSetUp {
         }
     }
 
-    @Test
+    @Nested
     @DisplayName("유저 프로필 상세 조회")
-    void userBasicInfo() throws Exception {
-        // given
-        UserDetailInfoDto userDto = new UserDetailInfoDto(4L, null, "김선도", "#0001",
-                "반갑습니다", "컴퓨터공학부");
+    class GetUserProfileInfo {
+        @Test
+        @DisplayName("유저 프로필 상세 조회에 성공한다.")
+        void userProfileInfoSuccess() throws Exception {
+            // given
+            UserDetailInfoDto userDto = new UserDetailInfoDto(4L, null, "김선도", "#0001",
+                    "반갑습니다", "컴퓨터공학부");
 
-        given(userQueryService.getUserDetailInfo(anyLong())).willReturn(userDto);
+            given(userQueryService.getUserDetailInfo(anyLong())).willReturn(userDto);
 
-        final ResultActions result = mvc.perform(
-                get("/api/users")
-                        .queryParam("userId", "4")
-                        .session(dummySession)
-                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-        );
+            final ResultActions result = mvc.perform(
+                    get("/api/users")
+                            .queryParam("userId", "4")
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+            );
 
-        result
-                .andExpect(status().isOk())
-                .andDo(document("users/get",
-                        requestParameters(
-                                parameterWithName("userId").description("유저의 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("user").type(JsonFieldType.OBJECT)
-                                        .description("유저 정보"),
-                                fieldWithPath("user.id").type(JsonFieldType.NUMBER)
-                                        .description("유저의 ID"),
-                                fieldWithPath("user.profileImageUrl").type(JsonFieldType.STRING)
-                                        .description("프로필이미지 경로").optional(),
-                                fieldWithPath("user.name").type(JsonFieldType.STRING)
-                                        .description("유저의 이름"),
-                                fieldWithPath("user.tagNum").type(JsonFieldType.STRING)
-                                        .description("태그번호"),
-                                fieldWithPath("user.introduce").type(JsonFieldType.STRING)
-                                        .description("유저의 자기소개"),
-                                fieldWithPath("user.department").type(JsonFieldType.STRING)
-                                        .description("유저의 학과"),
-                                fieldWithPath("me").type(JsonFieldType.BOOLEAN)
-                                        .description("자신의 프로필을 조회하면 true")
-                        )
-                ));
+            result
+                    .andExpect(status().isOk())
+                    .andDo(document("users/get",
+                            requestParameters(
+                                    parameterWithName("userId").description("유저의 ID")
+                            ),
+                            responseFields(
+                                    fieldWithPath("user").type(JsonFieldType.OBJECT)
+                                            .description("유저 정보"),
+                                    fieldWithPath("user.id").type(JsonFieldType.NUMBER)
+                                            .description("유저의 ID"),
+                                    fieldWithPath("user.profileImageUrl").type(JsonFieldType.STRING)
+                                            .description("프로필이미지 경로").optional(),
+                                    fieldWithPath("user.name").type(JsonFieldType.STRING)
+                                            .description("유저의 이름"),
+                                    fieldWithPath("user.tagNum").type(JsonFieldType.STRING)
+                                            .description("태그번호"),
+                                    fieldWithPath("user.introduce").type(JsonFieldType.STRING)
+                                            .description("유저의 자기소개"),
+                                    fieldWithPath("user.department").type(JsonFieldType.STRING)
+                                            .description("유저의 학과"),
+                                    fieldWithPath("me").type(JsonFieldType.BOOLEAN)
+                                            .description("자신의 프로필을 조회하면 true")
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저 ID로 요청할 경우 UserNotFoundException 발생")
+        void notExistUserFail() throws Exception {
+            doThrow(new UserNotFoundException())
+                    .when(userQueryService).getUserDetailInfo(anyLong());
+
+            final ResultActions result = mvc.perform(
+                    get("/api/users")
+                            .queryParam("userId", "9999")
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .contentType(MediaType.APPLICATION_JSON)
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("users/get-UserNotFoundException"));
+        }
     }
 
     @Test
     @DisplayName("유저가 가입한 커뮤니티 목록 조회")
-    void userJoinedCommunities() throws Exception {
+    void getUserJoinedCommunitiesSuccess() throws Exception {
         final JoinedCommunitiesDto.PostInfo postInfo = new JoinedCommunitiesDto.PostInfo(1L, LocalDateTime.now(),
                 List.of("해시태그"), "글의 내용", "url", 1, 1);
         final JoinedCommunitiesDto.CommunityInfo communityInfo = new JoinedCommunitiesDto.CommunityInfo(1L,
@@ -151,13 +177,13 @@ class UserApiControllerTest extends TestControllerSetUp {
         given(communityQueryService.getJoinedCommunitiesWithLatestPost(any()))
                 .willReturn(communityDto);
 
-        final ResultActions response = mvc.perform(
+        final ResultActions result = mvc.perform(
                 get("/api/users/communities/joined")
                         .session(dummySession)
                         .header(HeaderConst.AUTH_TOKEN, TOKEN)
         );
 
-        response
+        result
                 .andExpect(status().isOk())
                 .andDo(document("users/get-communities-joined",
                         responseFields(
@@ -187,44 +213,44 @@ class UserApiControllerTest extends TestControllerSetUp {
                 ));
     }
 
+    @Test
+    @DisplayName("차단한 유저 목록 조회")
+    void getBlockedUsersSuccess() throws Exception {
+        MessageBlockedUserDto blockedUserDto = new MessageBlockedUserDto(1L, "가나다#0001");
+
+        given(messageBlockQueryService.getBlockedMembers(anyLong()))
+                .willReturn(List.of(blockedUserDto));
+
+        final ResultActions result = mvc.perform(
+                get("/api/users/messages/blocked")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andDo(document("users/get-messages-blocked",
+                        responseFields(
+                                fieldWithPath("blocked").type(JsonFieldType.ARRAY)
+                                        .description("차단된 유저 목록"),
+                                fieldWithPath("blocked[].userId").type(JsonFieldType.NUMBER)
+                                        .description("유저의 ID"),
+                                fieldWithPath("blocked[].nameTag").type(JsonFieldType.STRING)
+                                        .description("유저의 태그번호")
+                        )
+                ));
+    }
+
     @Nested
-    @DisplayName("유저 차단 테스트")
-    class UserBlockTest {
+    @DisplayName("유저 쪽지 차단 해제")
+    class UnblockUserTest {
         @Test
-        @DisplayName("차단한 유저 목록 조회")
-        void blockedUsers() throws Exception {
-            MessageBlockedUserDto blockedUserDto = new MessageBlockedUserDto(1L, "가나다#0001");
-
-            given(messageBlockQueryService.getBlockedMembers(anyLong()))
-                    .willReturn(List.of(blockedUserDto));
-
-            final ResultActions result = mvc.perform(
-                    get("/api/users/messages/blocked")
-                            .session(dummySession)
-                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
-            );
-
-            result
-                    .andExpect(status().isOk())
-                    .andDo(document("users/get-messages-blocked",
-                            responseFields(
-                                    fieldWithPath("blocked").type(JsonFieldType.ARRAY)
-                                            .description("차단된 유저 목록"),
-                                    fieldWithPath("blocked[].userId").type(JsonFieldType.NUMBER)
-                                            .description("유저의 ID"),
-                                    fieldWithPath("blocked[].nameTag").type(JsonFieldType.STRING)
-                                            .description("유저의 태그번호")
-                            )
-                    ));
-        }
-
-        @Test
-        @DisplayName("유저 차단 해제")
-        void unblockUser() throws Exception {
+        @DisplayName("유저 차단 해제에 성공한다.")
+        void unblockUserSuccess() throws Exception {
             final long UNBLOCK_USER_ID = 2L;
             BlockedUserIdRequest request = new BlockedUserIdRequest(UNBLOCK_USER_ID);
 
-            final ResultActions response = mvc.perform(
+            final ResultActions result = mvc.perform(
                     post("/api/users/messages/unblock")
                             .contentType(MediaType.APPLICATION_JSON)
                             .session(dummySession)
@@ -232,7 +258,7 @@ class UserApiControllerTest extends TestControllerSetUp {
                             .content(mapper.writeValueAsString(request))
             );
 
-            response
+            result
                     .andExpect(status().isOk())
                     .andDo(document("users/post-messages-unblock",
                             requestFields(
@@ -243,20 +269,76 @@ class UserApiControllerTest extends TestControllerSetUp {
         }
 
         @Test
-        @DisplayName("차단할 유저를 입력하지 않아서 실패")
-        void failBlockingUser() throws Exception {
-            BlockMessageUsersRequest request = new BlockMessageUsersRequest(List.of());
+        @DisplayName("해당 유저에 대한 쪽지 차단 정보가 존재하지 않는 경우 MessageBlockNotFoundException 발생")
+        void notExistMessageBlockFail() throws Exception {
+            BlockedUserIdRequest request = new BlockedUserIdRequest(999L);
 
-            mvc.perform(post("/api/users/messages/block")
+            doThrow(new MessageBlockNotFoundException())
+                    .when(messageBlockCommandService).unblockUser(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/users/messages/unblock")
                             .contentType(MediaType.APPLICATION_JSON)
                             .session(dummySession)
                             .header(HeaderConst.AUTH_TOKEN, TOKEN)
                             .content(mapper.writeValueAsString(request))
-                    ).andExpect(status().is4xxClientError())
-                    .andExpect(jsonPath("$.message").value("메시지 차단할 유저를 1명이상 선택해주세요"));
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("users/post-messages-unblock-MessageBlockNotFoundException"));
+        }
+
+        @Test
+        @DisplayName("해당 유저에 대해 쪽지 차단되어 있지 않는 경우 NotBlockedUserException 발생")
+        void notBlockedUserFail() throws Exception {
+            BlockedUserIdRequest request = new BlockedUserIdRequest(1L);
+
+            doThrow(new NotBlockedUserException())
+                    .when(messageBlockCommandService).unblockUser(anyLong(), anyLong());
+
+            final ResultActions result = mvc.perform(
+                    post("/api/users/messages/unblock")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .content(mapper.writeValueAsString(request))
+            );
+
+            result
+                    .andExpect(status().is4xxClientError())
+                    .andDo(document("users/post-messages-unblock-NotBlockedUserException"));
         }
     }
 
+    @Nested
+    @DisplayName("유저 메시지 차단")
+    class BlockUsers {
+        @Test
+        @DisplayName("유저 메시지 차단에 성공한다.")
+        void blockUsersSuccess() throws Exception {
+            BlockMessageUsersRequest request = new BlockMessageUsersRequest(List.of(1L));
+
+            ResultActions result = mvc.perform(
+                    post("/api/users/messages/block")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .session(dummySession)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .content(mapper.writeValueAsString(request))
+            );
+
+            verify(messageBlockCommandService, times(1)).blockUsers(anyLong(), anyList());
+
+            result
+                    .andExpect(status().isOk())
+                    .andDo(document("users/post-messages-block",
+                            requestFields(
+                                    fieldWithPath("blockUserIds").type(JsonFieldType.ARRAY)
+                                            .description("메시지 차단할 유저 ID들")
+                            )
+                    ));
+        }
+    }
 
     @Nested
     @DisplayName("유저 알림 테스트")
