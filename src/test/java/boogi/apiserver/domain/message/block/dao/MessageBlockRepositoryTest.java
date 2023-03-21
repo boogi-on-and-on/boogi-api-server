@@ -83,7 +83,7 @@ class MessageBlockRepositoryTest {
         messageBlockRepository.save(block);
 
         //when
-        MessageBlock findBlock = messageBlockRepository.getMessageBlockByUserId(user.getId(), blockedUser.getId());
+        MessageBlock findBlock = messageBlockRepository.getMessageBlockByUserId(user.getId(), blockedUser.getId()).get();
 
         //then
         assertThat(findBlock).isEqualTo(block);

@@ -19,10 +19,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -48,7 +50,7 @@ class MessageBlockCommandServiceTest {
             //given
             final MessageBlock block = TestMessageBlock.builder().blocked(false).build();
             given(messageBlockRepository.getMessageBlockByUserId(anyLong(), anyLong()))
-                    .willReturn(block);
+                    .willReturn(Optional.of(block));
 
             //expected
             assertThatThrownBy(() -> messageBlockCommandService.unblockUser(1L, 1L))
@@ -61,7 +63,7 @@ class MessageBlockCommandServiceTest {
             //given
             final MessageBlock block = TestMessageBlock.builder().blocked(true).build();
             given(messageBlockRepository.getMessageBlockByUserId(anyLong(), anyLong()))
-                    .willReturn(block);
+                    .willReturn(Optional.of(block));
 
             //when
             messageBlockCommandService.unblockUser(1L, 1L);

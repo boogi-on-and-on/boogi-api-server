@@ -2,6 +2,7 @@ package boogi.apiserver.domain.message.block.application;
 
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
+import boogi.apiserver.domain.message.block.exception.MessageBlockNotFoundException;
 import boogi.apiserver.domain.message.block.exception.NotBlockedUserException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
@@ -21,7 +22,8 @@ public class MessageBlockCommandService {
     private final UserRepository userRepository;
 
     public void unblockUser(Long userId, Long blockedUserId) {
-        MessageBlock messageBlock = messageBlockRepository.getMessageBlockByUserId(userId, blockedUserId);
+        MessageBlock messageBlock = messageBlockRepository.getMessageBlockByUserId(userId, blockedUserId)
+                .orElseThrow(MessageBlockNotFoundException::new);
 
         if (!messageBlock.isBlocked()) {
             throw new NotBlockedUserException();

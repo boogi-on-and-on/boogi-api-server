@@ -4,11 +4,12 @@ import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MessageBlockRepositoryCustom {
     List<MessageBlockedUserDto> getBlockedUsers(Long userId);
 
-    MessageBlock getMessageBlockByUserId(Long userId, Long blockedUserId);
+    Optional<MessageBlock> getMessageBlockByUserId(Long userId, Long blockedUserId);
 
     List<MessageBlock> getMessageBlocksByUserIds(Long userId, List<Long> blockedUserIds);
 
