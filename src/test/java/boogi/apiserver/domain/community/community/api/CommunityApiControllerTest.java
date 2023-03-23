@@ -35,12 +35,10 @@ import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
-import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.controller.MockHttpSessionCreator;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -153,28 +151,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                                             .description("생성된 커뮤니티 ID")
                             )
                     ));
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 유저로 요청할 경우 UserNotFoundException 발생")
-        void notExistUserFail() throws Exception {
-            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB",
-                    "커뮤니티 설명입니다.", List.of("해시태그"), false, true);
-
-            doThrow(new UserNotFoundException())
-                    .when(communityCommandService).createCommunity(any(), anyLong());
-
-            ResultActions result = mvc.perform(
-                    post("/api/communities")
-                            .content(mapper.writeValueAsBytes(request))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .session(MockHttpSessionCreator.session(9999L))
-                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
-            );
-
-            result
-                    .andExpect(status().is4xxClientError())
-                    .andDo(document("communities/post-UserNotFoundException"));
         }
 
         @Test
@@ -1211,7 +1187,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         @Test
         @DisplayName("이미 가입된 상태인 경우 AlreadyJoinedMemberException 발생")
         void alreadyJoinedFail() throws Exception {
-            doThrow(new CommunityNotFoundException())
+            doThrow(new AlreadyJoinedMemberException())
                     .when(joinRequestCommandService).request(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(

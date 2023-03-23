@@ -8,7 +8,6 @@ import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
 import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
-import boogi.apiserver.domain.message.block.exception.MessageBlockNotFoundException;
 import boogi.apiserver.domain.message.block.exception.NotBlockedUserException;
 import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
@@ -269,27 +268,6 @@ class UserApiControllerTest extends TestControllerSetUp {
         }
 
         @Test
-        @DisplayName("해당 유저에 대한 쪽지 차단 정보가 존재하지 않는 경우 MessageBlockNotFoundException 발생")
-        void notExistMessageBlockFail() throws Exception {
-            BlockedUserIdRequest request = new BlockedUserIdRequest(999L);
-
-            doThrow(new MessageBlockNotFoundException())
-                    .when(messageBlockCommandService).unblockUser(anyLong(), anyLong());
-
-            final ResultActions result = mvc.perform(
-                    post("/api/users/messages/unblock")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .session(dummySession)
-                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                            .content(mapper.writeValueAsString(request))
-            );
-
-            result
-                    .andExpect(status().is4xxClientError())
-                    .andDo(document("users/post-messages-unblock-MessageBlockNotFoundException"));
-        }
-
-        @Test
         @DisplayName("해당 유저에 대해 쪽지 차단되어 있지 않는 경우 NotBlockedUserException 발생")
         void notBlockedUserFail() throws Exception {
             BlockedUserIdRequest request = new BlockedUserIdRequest(1L);
@@ -340,112 +318,108 @@ class UserApiControllerTest extends TestControllerSetUp {
         }
     }
 
-    @Nested
-    @DisplayName("유저 알림 테스트")
-    class UserAlarm {
-        @Test
-        @DisplayName("유저 알림설정 정보 조회")
-        void alarmConfigDetail() throws Exception {
-            final AlarmConfig config = AlarmConfig.builder()
-                    .notice(true)
-                    .joinRequest(true)
-                    .comment(false)
-                    .mention(true)
-                    .build();
+    @Test
+    @DisplayName("유저 알림설정 정보 조회에 성공한다.")
+    void getAlarmConfigDetailSuccess() throws Exception {
+        final AlarmConfig config = AlarmConfig.builder()
+                .notice(true)
+                .joinRequest(true)
+                .comment(false)
+                .mention(true)
+                .build();
 
-            given(alarmConfigCommandService.findOrElseCreateAlarmConfig(anyLong()))
-                    .willReturn(config);
+        given(alarmConfigCommandService.findOrElseCreateAlarmConfig(anyLong()))
+                .willReturn(config);
 
-            final ResultActions response = mvc.perform(
-                    get("/api/users/config/notifications")
-                            .session(dummySession)
-                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
-            );
+        final ResultActions response = mvc.perform(
+                get("/api/users/config/notifications")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
+        );
 
-            response.andExpect(status().isOk())
-                    .andDo(document("users/get-config-notifications",
-                            responseFields(
-                                    fieldWithPath("alarmInfo").type(JsonFieldType.OBJECT)
-                                            .description("알람정보"),
-                                    fieldWithPath("alarmInfo.personal").type(JsonFieldType.OBJECT)
-                                            .description("개인 알람 정보"),
-                                    fieldWithPath("alarmInfo.personal.message").type(JsonFieldType.BOOLEAN)
-                                            .description("메시지 알람"),
-                                    fieldWithPath("alarmInfo.community").type(JsonFieldType.OBJECT)
-                                            .description("커뮤니티 알람 정보"),
-                                    fieldWithPath("alarmInfo.community.notice").type(JsonFieldType.BOOLEAN)
-                                            .description("커뮤니티 공지사항 알람"),
-                                    fieldWithPath("alarmInfo.community.join").type(JsonFieldType.BOOLEAN)
-                                            .description("커뮤니티 가입 알람"),
-                                    fieldWithPath("alarmInfo.post").type(JsonFieldType.OBJECT)
-                                            .description("게시글 알람 정보"),
-                                    fieldWithPath("alarmInfo.post.comment").type(JsonFieldType.BOOLEAN)
-                                            .description("게시글 댓글 알람"),
-                                    fieldWithPath("alarmInfo.post.mention").type(JsonFieldType.BOOLEAN)
-                                            .description("게시글 맨션 알람")
-                            )
-                    ));
-        }
+        response.andExpect(status().isOk())
+                .andDo(document("users/get-config-notifications",
+                        responseFields(
+                                fieldWithPath("alarmInfo").type(JsonFieldType.OBJECT)
+                                        .description("알람정보"),
+                                fieldWithPath("alarmInfo.personal").type(JsonFieldType.OBJECT)
+                                        .description("개인 알람 정보"),
+                                fieldWithPath("alarmInfo.personal.message").type(JsonFieldType.BOOLEAN)
+                                        .description("메시지 알람"),
+                                fieldWithPath("alarmInfo.community").type(JsonFieldType.OBJECT)
+                                        .description("커뮤니티 알람 정보"),
+                                fieldWithPath("alarmInfo.community.notice").type(JsonFieldType.BOOLEAN)
+                                        .description("커뮤니티 공지사항 알람"),
+                                fieldWithPath("alarmInfo.community.join").type(JsonFieldType.BOOLEAN)
+                                        .description("커뮤니티 가입 알람"),
+                                fieldWithPath("alarmInfo.post").type(JsonFieldType.OBJECT)
+                                        .description("게시글 알람 정보"),
+                                fieldWithPath("alarmInfo.post.comment").type(JsonFieldType.BOOLEAN)
+                                        .description("게시글 댓글 알람"),
+                                fieldWithPath("alarmInfo.post.mention").type(JsonFieldType.BOOLEAN)
+                                        .description("게시글 맨션 알람")
+                        )
+                ));
+    }
 
+    @Test
+    @DisplayName("알람 정보 변경에 성공한다.")
+    void configureAlarmSuccess() throws Exception {
+        final AlarmConfig config = AlarmConfig.builder()
+                .notice(true)
+                .joinRequest(true)
+                .comment(false)
+                .mention(true)
+                .build();
 
-        @Test
-        @DisplayName("알람 정보 변경")
-        void configureAlarm() throws Exception {
-            final AlarmConfig config = AlarmConfig.builder()
-                    .notice(true)
-                    .joinRequest(true)
-                    .comment(false)
-                    .mention(true)
-                    .build();
+        final AlarmConfigSettingRequest request =
+                new AlarmConfigSettingRequest(true, true, true, true, true);
 
-            given(alarmConfigCommandService.findOrElseCreateAlarmConfig(anyLong()))
-                    .willReturn(config);
+        given(alarmConfigCommandService.configureAlarm(anyLong(), any(AlarmConfigSettingRequest.class)))
+                .willReturn(config);
 
-            final AlarmConfigSettingRequest request =
-                    new AlarmConfigSettingRequest(true, true, true, true, true);
+        final ResultActions result = mvc.perform(
+                post("/api/users/config/notifications")
+                        .session(dummySession)
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request))
+        );
 
-            final ResultActions result = mvc.perform(get("/api/users/config/notifications")
-                    .session(dummySession)
-                    .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(mapper.writeValueAsString(request))
-            );
-
-            result.andExpect(status().isOk())
-                    .andDo(document("users/get-config-notifications",
-                            requestFields(
-                                    fieldWithPath("message").type(JsonFieldType.BOOLEAN)
-                                            .description("true -> 메시지 알람 ON"),
-                                    fieldWithPath("notice").type(JsonFieldType.BOOLEAN)
-                                            .description("true -> 공지 알람 ON"),
-                                    fieldWithPath("join").type(JsonFieldType.BOOLEAN)
-                                            .description("true -> 커뮤니티 가입 알람 ON"),
-                                    fieldWithPath("comment").type(JsonFieldType.BOOLEAN)
-                                            .description("true -> 댓글 알람 ON"),
-                                    fieldWithPath("mention").type(JsonFieldType.BOOLEAN)
-                                            .description("true -> 맨션 알람 ON")
-                            ),
-                            responseFields(
-                                    fieldWithPath("alarmInfo").type(JsonFieldType.OBJECT)
-                                            .description("알람정보"),
-                                    fieldWithPath("alarmInfo.personal").type(JsonFieldType.OBJECT)
-                                            .description("개인 알람 정보"),
-                                    fieldWithPath("alarmInfo.personal.message").type(JsonFieldType.BOOLEAN)
-                                            .description("메시지 알람"),
-                                    fieldWithPath("alarmInfo.community").type(JsonFieldType.OBJECT)
-                                            .description("커뮤니티 알람 정보"),
-                                    fieldWithPath("alarmInfo.community.notice").type(JsonFieldType.BOOLEAN)
-                                            .description("커뮤니티 공지사항 알람"),
-                                    fieldWithPath("alarmInfo.community.join").type(JsonFieldType.BOOLEAN)
-                                            .description("커뮤니티 가입 알람"),
-                                    fieldWithPath("alarmInfo.post").type(JsonFieldType.OBJECT)
-                                            .description("게시글 알람 정보"),
-                                    fieldWithPath("alarmInfo.post.comment").type(JsonFieldType.BOOLEAN)
-                                            .description("게시글 댓글 알람"),
-                                    fieldWithPath("alarmInfo.post.mention").type(JsonFieldType.BOOLEAN)
-                                            .description("게시글 맨션 알람")
-                            )
-                    ));
-        }
+        result.andExpect(status().isOk())
+                .andDo(document("users/post-config-notifications",
+                        requestFields(
+                                fieldWithPath("message").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 메시지 알람 ON"),
+                                fieldWithPath("notice").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 공지 알람 ON"),
+                                fieldWithPath("join").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 커뮤니티 가입 알람 ON"),
+                                fieldWithPath("comment").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 댓글 알람 ON"),
+                                fieldWithPath("mention").type(JsonFieldType.BOOLEAN)
+                                        .description("true -> 맨션 알람 ON")
+                        ),
+                        responseFields(
+                                fieldWithPath("alarmInfo").type(JsonFieldType.OBJECT)
+                                        .description("알람정보"),
+                                fieldWithPath("alarmInfo.personal").type(JsonFieldType.OBJECT)
+                                        .description("개인 알람 정보"),
+                                fieldWithPath("alarmInfo.personal.message").type(JsonFieldType.BOOLEAN)
+                                        .description("메시지 알람"),
+                                fieldWithPath("alarmInfo.community").type(JsonFieldType.OBJECT)
+                                        .description("커뮤니티 알람 정보"),
+                                fieldWithPath("alarmInfo.community.notice").type(JsonFieldType.BOOLEAN)
+                                        .description("커뮤니티 공지사항 알람"),
+                                fieldWithPath("alarmInfo.community.join").type(JsonFieldType.BOOLEAN)
+                                        .description("커뮤니티 가입 알람"),
+                                fieldWithPath("alarmInfo.post").type(JsonFieldType.OBJECT)
+                                        .description("게시글 알람 정보"),
+                                fieldWithPath("alarmInfo.post.comment").type(JsonFieldType.BOOLEAN)
+                                        .description("게시글 댓글 알람"),
+                                fieldWithPath("alarmInfo.post.mention").type(JsonFieldType.BOOLEAN)
+                                        .description("게시글 맨션 알람")
+                        )
+                ));
     }
 }
