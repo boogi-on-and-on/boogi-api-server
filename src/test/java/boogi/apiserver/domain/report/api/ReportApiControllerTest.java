@@ -59,7 +59,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("report/post",
+                    .andDo(document("reports/post",
                             requestFields(
                                     fieldWithPath("id").type(JsonFieldType.NUMBER)
                                             .description("신고할 대상의 ID"),
@@ -92,7 +92,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-CommunityNotFoundException"));
+                    .andDo(document("reports/post-CommunityNotFoundException"));
         }
 
         @Test
@@ -114,7 +114,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-PostNotFoundException"));
+                    .andDo(document("reports/post-PostNotFoundException"));
         }
 
         @Test
@@ -136,7 +136,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-NotJoinedMemberException"));
+                    .andDo(document("reports/post-NotJoinedMemberException"));
         }
 
         @Test
@@ -158,7 +158,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-CommentNotFoundException"));
+                    .andDo(document("reports/post-CommentNotFoundException"));
         }
 
         @Test
@@ -180,7 +180,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-NotJoinedMemberException"));
+                    .andDo(document("reports/post-NotJoinedMemberException"));
         }
 
         @Test
@@ -202,7 +202,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-MessageNotFoundException"));
+                    .andDo(document("reports/post-MessageNotFoundException"));
         }
 
         @Test
@@ -224,7 +224,7 @@ class ReportApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("report/post-NotParticipatedUserException"));
+                    .andDo(document("reports/post-NotParticipatedUserException"));
         }
     }
 }

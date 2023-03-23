@@ -6,6 +6,7 @@ import boogi.apiserver.domain.community.community.exception.CommunityNotFoundExc
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
+import boogi.apiserver.domain.like.exception.AlreadyDoPostLikeException;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
@@ -104,7 +105,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isCreated())
-                    .andDo(document("post/post",
+                    .andDo(document("posts/post",
                             requestFields(
                                     fieldWithPath("communityId").type(JsonFieldType.NUMBER)
                                             .description("커뮤니티 ID"),
@@ -142,7 +143,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/post-CommunityNotFoundException"));
+                    .andDo(document("posts/post-CommunityNotFoundException"));
         }
 
         @Test
@@ -163,7 +164,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/post-NotJoinedMemberException"));
+                    .andDo(document("posts/post-NotJoinedMemberException"));
         }
 
         @Test
@@ -184,7 +185,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/post-UnmappedPostMediaExcecption"));
+                    .andDo(document("posts/post-UnmappedPostMediaExcecption"));
         }
     }
 
@@ -209,7 +210,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("post/patch-postId",
+                    .andDo(document("posts/patch-postId",
                             pathParameters(
                                     parameterWithName("postId").description("게시글 ID")
                             ),
@@ -245,7 +246,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/patch-postId-PostNotFoundException"));
+                    .andDo(document("posts/patch-postId-PostNotFoundException"));
         }
 
         @Test
@@ -265,7 +266,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/patch-postId-CanNotUpdatePostException"));
+                    .andDo(document("posts/patch-postId-CanNotUpdatePostException"));
         }
     }
 
@@ -295,7 +296,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("post/get-postId",
+                    .andDo(document("posts/get-postId",
                             pathParameters(
                                     parameterWithName("postId").description("게시글 ID")
                             ),
@@ -362,7 +363,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/get-postId-PostNotFoundException"));
+                    .andDo(document("posts/get-postId-PostNotFoundException"));
         }
 
         @Test
@@ -379,7 +380,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/get-postId-NotViewableMemberException"));
+                    .andDo(document("posts/get-postId-NotViewableMemberException"));
         }
     }
 
@@ -397,7 +398,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("post/delete-postId",
+                    .andDo(document("posts/delete-postId",
                             pathParameters(
                                     parameterWithName("postId").description("게시글 ID")
                             )
@@ -418,7 +419,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/delete-postId-PostNotFoundException"));
+                    .andDo(document("posts/delete-postId-PostNotFoundException"));
         }
 
         @Test
@@ -435,7 +436,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/delete-postId-CanNotDeletePostException"));
+                    .andDo(document("posts/delete-postId-CanNotDeletePostException"));
         }
     }
 
@@ -462,7 +463,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
         result
                 .andExpect(status().isOk())
-                .andDo(document("post/get-users",
+                .andDo(document("posts/get-users",
                         requestParameters(
                                 parameterWithName("userId").description("조회할 유저 ID").optional(),
                                 parameterWithName("page").description("페이지 번호"),
@@ -519,7 +520,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
         result
                 .andExpect(status().isOk())
-                .andDo(document("post/get-hot",
+                .andDo(document("posts/get-hot",
                         responseFields(
                                 fieldWithPath("hots").type(JsonFieldType.ARRAY)
                                         .description("핫한 게시글 목록"),
@@ -557,7 +558,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("post/post-postId-likes",
+                    .andDo(document("posts/post-postId-likes",
                             pathParameters(
                                     parameterWithName("postId").description("게시글 ID")
                             ),
@@ -581,7 +582,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/post-postId-likes-PostNotFoundException"));
+                    .andDo(document("posts/post-postId-likes-PostNotFoundException"));
         }
 
         @Test
@@ -598,13 +599,13 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/post-postId-likes-NotJoinedMemberException"));
+                    .andDo(document("posts/post-postId-likes-NotJoinedMemberException"));
         }
 
         @Test
         @DisplayName("이미 해당 게시글에 좋아요를 한 경우 AlreadyDoPostLikeException 발생")
         void alreadyDoPostLikeFail() throws Exception {
-            doThrow(new NotJoinedMemberException())
+            doThrow(new AlreadyDoPostLikeException())
                     .when(likeCommandService).doPostLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
@@ -615,7 +616,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/post-postId-likes-AlreadyDoPostLikeException"));
+                    .andDo(document("posts/post-postId-likes-AlreadyDoPostLikeException"));
         }
     }
 
@@ -642,7 +643,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("post/get-postId-likes",
+                    .andDo(document("posts/get-postId-likes",
                             pathParameters(
                                     parameterWithName("postId").description("게시글 ID")
                             ),
@@ -687,7 +688,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/get-postId-likes-PostNotFoundException"));
+                    .andDo(document("posts/get-postId-likes-PostNotFoundException"));
         }
 
         @Test
@@ -706,7 +707,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/get-postId-likes-NotViewableMemberException"));
+                    .andDo(document("posts/get-postId-likes-NotViewableMemberException"));
         }
     }
 
@@ -743,7 +744,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("post/get-postId-comments",
+                    .andDo(document("posts/get-postId-comments",
                             pathParameters(
                                     parameterWithName("postId").description("게시글 ID")
                             ),
@@ -840,7 +841,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/get-postId-comments-PostNotFoundException"));
+                    .andDo(document("posts/get-postId-comments-PostNotFoundException"));
         }
 
         @Test
@@ -859,7 +860,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("post/get-postId-comments-NotViewableMemberException"));
+                    .andDo(document("posts/get-postId-comments-NotViewableMemberException"));
         }
     }
 
@@ -889,7 +890,7 @@ class PostApiControllerTest extends TestControllerSetUp {
 
         result
                 .andExpect(status().isOk())
-                .andDo(document("post/get-search",
+                .andDo(document("posts/get-search",
                         requestParameters(
                                 parameterWithName("keyword").description("검색 키워드"),
                                 parameterWithName("page").description("페이지 번호"),

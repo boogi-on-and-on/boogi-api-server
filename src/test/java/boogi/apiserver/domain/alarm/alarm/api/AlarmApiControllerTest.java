@@ -17,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -52,10 +52,10 @@ class AlarmApiControllerTest extends TestControllerSetUp {
         given(alarmQueryService.getAlarms(any()))
                 .willReturn(responseDto);
 
-        final ResultActions response = mvc.perform(MockMvcRequestBuilders
-                .get("/api/alarms")
-                .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                .session(dummySession)
+        final ResultActions response = mvc.perform(
+                get("/api/alarms")
+                        .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                        .session(dummySession)
         );
 
         response
@@ -103,9 +103,10 @@ class AlarmApiControllerTest extends TestControllerSetUp {
             doThrow(new CanNotDeleteAlarmException())
                     .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
 
-            final ResultActions result = mvc.perform(post("/api/alarms/{alarmId}/delete", 1L)
-                    .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                    .session(dummySession)
+            final ResultActions result = mvc.perform(
+                    post("/api/alarms/{alarmId}/delete", 1L)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .session(dummySession)
             );
 
             result
@@ -119,9 +120,10 @@ class AlarmApiControllerTest extends TestControllerSetUp {
             doThrow(new AlarmNotFoundException())
                     .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
 
-            final ResultActions result = mvc.perform(post("/api/alarms/{alarmId}/delete", 999L)
-                    .header(HeaderConst.AUTH_TOKEN, TOKEN)
-                    .session(dummySession)
+            final ResultActions result = mvc.perform(
+                    post("/api/alarms/{alarmId}/delete", 999L)
+                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
+                            .session(dummySession)
             );
 
             result

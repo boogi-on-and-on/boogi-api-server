@@ -93,7 +93,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("comment/get-user-comments",
+                    .andDo(document("comments/get-users",
                             responseFields(
                                     fieldWithPath("comments").type(JsonFieldType.ARRAY)
                                             .description("댓글 목록"),
@@ -131,7 +131,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/get-users-UserNotFoundException"));
+                    .andDo(document("comments/get-users-UserNotFoundException"));
         }
     }
 
@@ -158,7 +158,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isCreated())
-                    .andDo(document("comment/post",
+                    .andDo(document("comments/post",
                             requestFields(
                                     fieldWithPath("postId").type(JsonFieldType.NUMBER)
                                             .description("게시글 ID"),
@@ -194,7 +194,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-PostNotFoundException"));
+                    .andDo(document("comments/post-PostNotFoundException"));
         }
 
         @Test
@@ -216,7 +216,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-NotJoinedMemberException"));
+                    .andDo(document("comments/post-NotJoinedMemberException"));
         }
 
         @Test
@@ -238,7 +238,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-ParentCommentNotFoundException"));
+                    .andDo(document("comments/post-ParentCommentNotFoundException"));
         }
 
         @Test
@@ -260,7 +260,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-CommentMaxDepthOverException"));
+                    .andDo(document("comments/post-CommentMaxDepthOverException"));
         }
     }
 
@@ -284,7 +284,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("comment/post-commentId-likes",
+                    .andDo(document("comments/post-commentId-likes",
                             pathParameters(
                                     parameterWithName("commentId").description("좋아요할 댓글 ID")
                             ),
@@ -310,7 +310,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-commentId-likes-CommentNotFoundException"));
+                    .andDo(document("comments/post-commentId-likes-CommentNotFoundException"));
         }
 
         @Test
@@ -328,7 +328,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-commentId-likes-NotJoinedMemberException"));
+                    .andDo(document("comments/post-commentId-likes-NotJoinedMemberException"));
         }
 
         @Test
@@ -346,7 +346,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/post-commentId-likes-AlreadyDoCommentLikeException"));
+                    .andDo(document("comments/post-commentId-likes-AlreadyDoCommentLikeException"));
         }
     }
 
@@ -367,7 +367,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("comment/delete-commentId",
+                    .andDo(document("comments/delete-commentId",
                             pathParameters(parameterWithName("commentId").description("삭제할 댓글 ID"))
                     ));
         }
@@ -387,7 +387,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/delete-commentId-CommentNotFoundException"));
+                    .andDo(document("comments/delete-commentId-CommentNotFoundException"));
         }
 
         @Test
@@ -405,7 +405,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/delete-commentId-NotJoinedMemberException"));
+                    .andDo(document("comments/delete-commentId-NotJoinedMemberException"));
         }
 
         @Test
@@ -423,7 +423,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/delete-commentId-CanNotDeleteCommentException"));
+                    .andDo(document("comments/delete-commentId-CanNotDeleteCommentException"));
         }
     }
 
@@ -457,7 +457,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("comment/get-commentId-likes",
+                    .andDo(document("comments/get-commentId-likes",
                             pathParameters(
                                     parameterWithName("commentId").description("댓글 ID")
                             ),
@@ -503,7 +503,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/get-commentId-likes-CommentNotFoundException"));
+                    .andDo(document("comments/get-commentId-likes-CommentNotFoundException"));
         }
 
         @Test
@@ -523,7 +523,7 @@ class CommentApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("comment/get-commentId-likes-NotViewableMemberException"));
+                    .andDo(document("comments/get-commentId-likes-NotViewableMemberException"));
         }
     }
 }
