@@ -36,7 +36,7 @@ class EmailTest {
 
     @DisplayName("이메일 형식에 올바르지 않는 경우 실패")
     @ParameterizedTest(name = "{0}로 이메일 생성시 예외가 발생한다.")
-    @CsvSource({"@abc.abc", "aaa@abc.d", "aaa@hansung", "hansung.ac.kr", "aaa@aaa..abc"})
+    @CsvSource({"@abc.abc", "aaa@abc.d", "aaa@naver", "naver.co.kr", "aaa@aaa..abc"})
     void createWrongFormatFail(String email) {
         assertThatThrownBy(() -> new Email(email))
                 .isInstanceOf(InvalidEmailException.class);
@@ -45,7 +45,7 @@ class EmailTest {
     @Test
     @DisplayName("입력값의 앞뒤 공백 문자를 제거")
     void trimSuccess() {
-        String BEFORE_TRIM = "      abcd@hansung.ac.kr    ";
+        String BEFORE_TRIM = "      abcd@gmail.com    ";
         Email email = new Email(BEFORE_TRIM);
         assertThat(email.getValue()).isEqualTo(BEFORE_TRIM.trim());
     }
@@ -53,7 +53,7 @@ class EmailTest {
     @Test
     @DisplayName("5 ~ 80자의 이메일 형식에 맞는 문자열일 경우 성공")
     void createSuccess() {
-        Email email = new Email("abcde@hansung.ac.kr");
-        assertThat(email.getValue()).isEqualTo("abcde@hansung.ac.kr");
+        Email email = new Email("abcde@gmail.com");
+        assertThat(email.getValue()).isEqualTo("abcde@gmail.com");
     }
 }

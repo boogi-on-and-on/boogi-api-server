@@ -36,7 +36,7 @@ class UsernameTest {
 
     @DisplayName("자음이나 모음으로만 이루어지지 않는 한글 문자열이 아닌 경우 실패")
     @ParameterizedTest(name = "{0}로 유저 이름 생성시 예외가 발생한다.")
-    @CsvSource({"abcd", "한성12", "hansung한성", "123", "ㄱㄴㄷ"})
+    @CsvSource({"abcd", "헤헤12", "han한", "123", "ㄱㄴㄷ"})
     void createWrongFormatFail(String username) {
         assertThatThrownBy(() -> new Username(username))
                 .isInstanceOf(InvalidUsernameException.class);
