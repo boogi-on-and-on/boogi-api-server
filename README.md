@@ -1,5 +1,5 @@
 #  boogi-on-and-on
-> 한성대 학생들을 위한 커뮤니티 IOS APP
+> 대학생들을 위한 커뮤니티 IOS APP
 
 ## 팀원
 ### 벡엔드
