@@ -62,6 +62,12 @@ public class UserPostDto {
                 .build();
     }
 
+    public static List<UserPostDto> listFrom(List<Post> posts) {
+        return posts.stream()
+                .map(UserPostDto::from)
+                .collect(Collectors.toList());
+    }
+
     @Getter
     public static class CommunityDto {
         private Long id;

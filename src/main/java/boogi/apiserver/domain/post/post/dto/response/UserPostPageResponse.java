@@ -7,7 +7,6 @@ import lombok.Getter;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class UserPostPageResponse {
@@ -20,9 +19,7 @@ public class UserPostPageResponse {
     }
 
     public static UserPostPageResponse from(Slice<Post> page) {
-        List<UserPostDto> posts = page.getContent().stream()
-                .map(UserPostDto::from)
-                .collect(Collectors.toList());
+        List<UserPostDto> posts = UserPostDto.listFrom(page.getContent());
         PaginationDto pageInfo = PaginationDto.of(page);
 
         return new UserPostPageResponse(posts, pageInfo);

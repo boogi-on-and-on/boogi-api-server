@@ -70,11 +70,13 @@ public class CommentCommandService {
     private void validateCommentDeletable(Long userId, Comment comment) {
         Long commentedUserId = comment.getMember().getUser().getId();
 
-        if (!commentedUserId.equals(userId)) {
-            Member sessionMember = memberQueryService.getMember(userId, comment.getPost().getCommunityId());
-            if (!sessionMember.isOperator()) {
-                throw new CanNotDeleteCommentException();
-            }
+        if (commentedUserId.equals(userId)) {
+            return;
+        }
+
+        Member sessionMember = memberQueryService.getMember(userId, comment.getPost().getCommunityId());
+        if (!sessionMember.isOperator()) {
+            throw new CanNotDeleteCommentException();
         }
     }
 }
