@@ -5,6 +5,7 @@ import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.exception.CanNotDeleteCommentException;
+import boogi.apiserver.domain.comment.exception.CommentMaxDepthOverException;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
@@ -118,10 +119,10 @@ class CommentCommandServiceTest {
             given(commentRepository.findById(anyLong()))
                     .willReturn(Optional.of(parentComment));
 
-            CreateCommentRequest createCommentRequest =
+            CreateCommentRequest request =
                     new CreateCommentRequest(2L, 4L, "자식댓글", List.of());
 
-            commentCommandService.createComment(createCommentRequest, 5L);
+            commentCommandService.createComment(request, 5L);
 
             verify(commentRepository, times(1)).save(commentCaptor.capture());
 
@@ -131,6 +132,50 @@ class CommentCommandServiceTest {
             assertThat(newComment.getParent().getId()).isEqualTo(4L);
             assertThat(newComment.getChild()).isTrue();
             assertThat(post.getCommentCount()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("대대댓글 이상인 경우 CommentMaxDepthOverException 발생")
+        void commentDepthOverFail() {
+            final Community community = TestCommunity.builder().id(1L).build();
+
+            final Post post = TestPost.builder()
+                    .id(2L)
+                    .community(community)
+                    .commentCount(2)
+                    .build();
+
+            final Member member = TestMember.builder()
+                    .id(3L)
+                    .community(community)
+                    .build();
+
+            final Comment firstDepthComment = TestComment.builder()
+                    .id(4L)
+                    .member(member)
+                    .post(post)
+                    .parent(null)
+                    .content("댓글")
+                    .build();
+
+            final Comment secondDepthComment = TestComment.builder()
+                    .id(5L)
+                    .member(member)
+                    .post(post)
+                    .parent(firstDepthComment)
+                    .content("대댓글")
+                    .build();
+
+            given(postRepository.findByPostId(anyLong())).willReturn(post);
+            given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(member);
+
+            given(commentRepository.findById(anyLong())).willReturn(Optional.of(secondDepthComment));
+
+            CreateCommentRequest request =
+                    new CreateCommentRequest(2L, 5L, "대대댓글", List.of());
+
+            assertThatThrownBy(() -> commentCommandService.createComment(request, 1L))
+                    .isInstanceOf(CommentMaxDepthOverException.class);
         }
     }
 
@@ -256,7 +301,5 @@ class CommentCommandServiceTest {
             assertThatThrownBy(() -> commentCommandService.deleteComment(comment.getId(), 2L))
                     .isInstanceOf(CanNotDeleteCommentException.class);
         }
-
-        // todo: depthover 테스트 추가
     }
 }
