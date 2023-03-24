@@ -24,7 +24,7 @@ public class Alarm extends TimeBaseEntity {
     private String body;
 
     @Builder
-    private Alarm(final Long id, final User user, final String head, final String body) {
+    private Alarm(Long id, User user, String head, String body) {
         this.id = id;
         this.user = user;
         this.head = head;

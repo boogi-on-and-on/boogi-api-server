@@ -43,8 +43,8 @@ public class Comment extends TimeBaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    private Comment(final Long id, final Post post, final Member member, final Comment parent, final String content,
-                    final boolean child, final LocalDateTime deletedAt) {
+    private Comment(Long id, Post post, Member member, Comment parent, String content,
+                    boolean child, LocalDateTime deletedAt) {
         this.id = id;
         this.post = post;
         this.member = member;

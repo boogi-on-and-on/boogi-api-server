@@ -24,7 +24,7 @@ public class CreateCommentRequest {
 
     private List<Long> mentionedUserIds = new ArrayList<>();
 
-    public CreateCommentRequest(final Long postId, final Long parentCommentId, final String content, final List<Long> mentionedUserIds) {
+    public CreateCommentRequest(Long postId, Long parentCommentId, String content, List<Long> mentionedUserIds) {
         this.postId = postId;
         this.parentCommentId = parentCommentId;
         this.content = content;
