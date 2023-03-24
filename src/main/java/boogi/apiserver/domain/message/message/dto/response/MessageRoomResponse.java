@@ -18,32 +18,32 @@ import java.util.stream.Collectors;
 @Getter
 public class MessageRoomResponse {
 
-    private List<MessageRoom> messageRooms;
+    private List<MessageRoomDto> messageRooms;
 
-    public MessageRoomResponse(List<MessageRoom> messageRooms) {
+    public MessageRoomResponse(List<MessageRoomDto> messageRooms) {
         this.messageRooms = messageRooms;
     }
 
     public static MessageRoomResponse of(List<Long> opponentIds,
                                          Map<Long, User> opponentUserMap,
                                          LinkedHashMap<Long, Message> dedupMessages) {
-        List<MessageRoom> rooms = opponentIds.stream()
-                .map(oid -> MessageRoom.of(opponentUserMap.get(oid), dedupMessages.get(oid)))
+        List<MessageRoomDto> rooms = opponentIds.stream()
+                .map(oid -> MessageRoomDto.of(opponentUserMap.get(oid), dedupMessages.get(oid)))
                 .collect(Collectors.toList());
 
         return new MessageRoomResponse(rooms);
     }
 
     @Getter
-    public static class MessageRoom {
+    public static class MessageRoomDto {
         private Long id;
         private String name;
         private String tagNum;
         private String profileImageUrl;
-        private RecentMessage recentMessage;
+        private RecentMessageDto recentMessage;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public MessageRoom(Long id, String name, String tagNum, String profileImageUrl, RecentMessage recentMessage) {
+        public MessageRoomDto(Long id, String name, String tagNum, String profileImageUrl, RecentMessageDto recentMessage) {
             this.id = id;
             this.name = name;
             this.tagNum = tagNum;
@@ -51,31 +51,31 @@ public class MessageRoomResponse {
             this.recentMessage = recentMessage;
         }
 
-        public static MessageRoom of(User user, Message message) {
-            return MessageRoom.builder()
+        public static MessageRoomDto of(User user, Message message) {
+            return MessageRoomDto.builder()
                     .id(user.getId())
                     .name(user.getUsername())
                     .tagNum(user.getTagNumber())
                     .profileImageUrl(user.getProfileImageUrl())
-                    .recentMessage(RecentMessage.from(message))
+                    .recentMessage(RecentMessageDto.from(message))
                     .build();
         }
     }
 
     @Getter
-    static class RecentMessage {
+    public static class RecentMessageDto {
         private String content;
 
         @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
         private LocalDateTime receivedAt;
 
-        public RecentMessage(String content, LocalDateTime receivedAt) {
+        public RecentMessageDto(String content, LocalDateTime receivedAt) {
             this.content = content;
             this.receivedAt = receivedAt;
         }
 
-        private static RecentMessage from(Message message) {
-            return new RecentMessage(message.getContent(), message.getCreatedAt());
+        private static RecentMessageDto from(Message message) {
+            return new RecentMessageDto(message.getContent(), message.getCreatedAt());
         }
     }
 }

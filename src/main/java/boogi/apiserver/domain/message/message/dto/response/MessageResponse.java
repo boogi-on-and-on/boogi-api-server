@@ -20,18 +20,18 @@ import java.util.stream.Collectors;
 public class MessageResponse {
 
     private UserBasicProfileDto user;
-    private List<MessageInfo> messages;
+    private List<MessageDto> messages;
     private PaginationDto pageInfo;
 
-    public MessageResponse(UserBasicProfileDto user, List<MessageInfo> messages, PaginationDto pageInfo) {
+    public MessageResponse(UserBasicProfileDto user, List<MessageDto> messages, PaginationDto pageInfo) {
         this.user = user;
         this.messages = messages;
         this.pageInfo = pageInfo;
     }
 
     public static MessageResponse of(User user, Slice<Message> messagePage, Long userId) {
-        List<MessageInfo> messages = messagePage.getContent().stream()
-                .map(m -> MessageInfo.of(m, userId))
+        List<MessageDto> messages = messagePage.getContent().stream()
+                .map(m -> MessageDto.of(m, userId))
                 .collect(Collectors.toList());
         Collections.reverse(messages);
 
@@ -39,26 +39,26 @@ public class MessageResponse {
     }
 
     @Getter
-    static class MessageInfo {
+    public static class MessageDto {
         private Long id;
         private String content;
 
         @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
         private LocalDateTime receivedAt;
-        private Boolean me;
+        private boolean me;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public MessageInfo(Long id, String content, LocalDateTime receivedAt, Boolean me) {
+        public MessageDto(Long id, String content, LocalDateTime receivedAt, boolean me) {
             this.id = id;
             this.content = content;
             this.receivedAt = receivedAt;
             this.me = me;
         }
 
-        public static MessageInfo of(Message message, Long userId) {
-            Boolean me = Boolean.valueOf(userId.equals(message.getSender().getId()));
+        public static MessageDto of(Message message, Long userId) {
+            Boolean me = userId.equals(message.getSender().getId());
 
-            return MessageInfo.builder()
+            return MessageDto.builder()
                     .id(message.getId())
                     .content(message.getContent())
                     .receivedAt(message.getCreatedAt())
