@@ -17,9 +17,9 @@ public interface MessageRepository extends JpaRepository<Message, Long>, Message
             "FROM message AS m " +
             "WHERE (m.sender_id = :userId AND m.receiver_id NOT IN (:blockedUserIds)) " +
             "OR (m.receiver_id = :userId AND m.sender_id NOT IN (:blockedUserIds))) AS rankrow " +
-            "WHERE rankrow.a <= 1 ORDER BY created_at DESC",
-            nativeQuery = true)
-    List<Message> findMessageByUserIdWithoutBlockedUser(@Param("userId") Long userId, @Param("blockedUserIds") List<Long> blockedUserIds);
+            "WHERE rankrow.a <= 1 ORDER BY created_at DESC", nativeQuery = true)
+    List<Message> findMessageWithoutBlockedUser(@Param("userId") Long userId,
+                                                @Param("blockedUserIds") List<Long> blockedUserIds);
 
     default Message findByMessageId(Long messageId) {
         return this.findById(messageId).orElseThrow(MessageNotFoundException::new);
