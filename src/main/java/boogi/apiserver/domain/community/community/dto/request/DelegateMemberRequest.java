@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class DelegateMemberRequest {
 
-    @NotNull
+    @NotNull(message = "멤버 권한을 입력해주세요")
     private MemberType type;
 
     public DelegateMemberRequest(MemberType type) {

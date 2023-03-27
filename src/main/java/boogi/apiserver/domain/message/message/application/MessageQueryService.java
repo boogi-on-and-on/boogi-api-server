@@ -26,7 +26,7 @@ public class MessageQueryService {
 
     public MessageRoomResponse getMessageRooms(Long userId) {
         List<Long> blockedUserIds = getBlockedUserIds(userId);
-        List<Message> messages = messageRepository.findMessageByUserIdWithoutBlockedUser(userId, blockedUserIds);
+        List<Message> messages = messageRepository.findMessageWithoutBlockedUser(userId, blockedUserIds);
 
         // 나와 상대방의 대화 중 가장 최근 대화 1개씩 추출 -> 순서유지를 위해 LinkedHashMap 사용
         LinkedHashMap<Long, Message> deduplicatedMessages = messages.stream()
@@ -56,9 +56,9 @@ public class MessageQueryService {
         return MessageResponse.of(opponentUser, messages, userId);
     }
 
-    private Long getOpponentId(Long userId, Message m1) {
-        Long senderId = m1.getSender().getId();
-        Long receiverId = m1.getReceiver().getId();
+    private Long getOpponentId(Long userId, Message message) {
+        Long senderId = message.getSender().getId();
+        Long receiverId = message.getReceiver().getId();
         return (senderId.equals(userId) ? receiverId : senderId);
     }
 
@@ -68,8 +68,8 @@ public class MessageQueryService {
                 .collect(Collectors.toList());
 
         // native SQL의 not in에 null 입력으로 인한 에러 처리
-        if (blockedUserIds.size() <= 0) {
-            blockedUserIds.add(Long.valueOf(0l));
+        if (blockedUserIds.isEmpty()) {
+            blockedUserIds.add(0L);
         }
         return blockedUserIds;
     }

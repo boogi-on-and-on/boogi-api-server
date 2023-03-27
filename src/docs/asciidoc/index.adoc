@@ -1,0 +1,419 @@
+ifndef::snippets[]
+:snippets: ../../../build/generated-snippets
+endif::[]
+= 부기온앤온 API 명세서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 3
+:sectnums:
+:sectlinks:
+
+
+== 알림
+
+=== 알림 목록 조회
+operation::alarms/get[snippets='http-request,http-response,response-fields']
+
+=== 알림 삭제
+operation::alarms/post-alarmId-delete[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _삭제할 알람이 존재하지 않은 경우_
+include::{snippets}/alarms/post-alarmId-delete-AlarmNotFoundException/http-response.adoc[]
+===== _본인의 알람이 아닌 경우_
+include::{snippets}/alarms/post-alarmId-delete-CanNotDeleteAlarmException/http-response.adoc[]
+
+
+== 멤버
+
+=== 멤버 차단
+operation::members/post-memberId-ban[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _차단할 멤버가 존재하지 않을 경우_
+include::{snippets}/members/post-memberId-ban-MemberNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/members/post-memberId-ban-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/members/post-memberId-ban-NotOperatorException/http-response.adoc[]
+
+=== 멤버 차단 해제
+operation::members/post-memberId-release[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _차단 해제할 멤버가 존재하지 않을 경우_
+include::{snippets}/members/post-memberId-release-MemberNotFoundException/http-response.adoc[]
+===== _차단 해제할 멤버가 차단되어있지 않은 경우_
+include::{snippets}/members/post-memberId-release-NotBannedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/members/post-memberId-release-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/members/post-memberId-release-NotManagerException/http-response.adoc[]
+
+=== 멤버 권한 변경
+operation::members/post-memberId-delegate[snippets='path-parameters,http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _권한 변경할 멤버가 존재하지 않을 경우_
+include::{snippets}/members/post-memberId-delegate-MemberNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/members/post-memberId-delegate-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/members/post-memberId-delegate-NotManagerException/http-response.adoc[]
+
+=== 멘션할 멤버 목록 조회
+operation::members/get-search-mention[snippets='http-request,request-parameters,http-response,response-fields']
+
+
+== 유저
+
+=== 유저 프로필 정보 조회
+operation::users/get[snippets='http-request,request-parameters,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 유저가 존재하지 않은 경우_
+include::{snippets}/users/get-UserNotFoundException/http-response.adoc[]
+
+=== 쪽지 차단 목록 조회
+operation::users/get-messages-blocked[snippets='http-request,http-response,response-fields']
+
+=== 쪽지 차단
+operation::users/post-messages-block[snippets='http-request,request-fields,http-response']
+
+=== 쪽지 차단해제
+operation::users/post-messages-unblock[snippets='http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _요청한 유저에 대해 쪽지 차단이 되어있지 않은 경우_
+include::{snippets}/users/post-messages-unblock-NotBlockedUserException/http-response.adoc[]
+
+=== 알림 설정 정보 변경하기
+operation::users/post-config-notifications[snippets='http-request,request-fields,http-response,response-fields']
+
+=== 알림 설정 정보 조회
+operation::users/get-config-notifications[snippets='http-request,http-response,response-fields']
+
+=== 유저가 가입한 커뮤니티 목록
+operation::users/get-communities-joined[snippets='http-request,http-response,response-fields']
+
+=== 토큰 유효성 검사
+operation::users/post-token-validation[snippets='http-request,http-response,response-fields']
+
+
+== 게시글
+
+=== 게시글 생성
+operation::posts/post[snippets='http-request,request-fields,http-response,response-fields']
+==== 예외 HTTP response
+===== _게시글을 생성할 커뮤니티가 존재하지 않은 경우_
+include::{snippets}/posts/post-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/posts/post-NotJoinedMemberException/http-response.adoc[]
+===== _요청한 게시글 미디어의 UUID의 일부가 이미 다른 게시글에 매핑되어있는 경우_
+include::{snippets}/posts/post-UnmappedPostMediaExcecption/http-response.adoc[]
+
+=== 게시글 수정
+operation::posts/patch-postId[snippets='path-parameters,http-request,request-fields,http-response,response-fields']
+==== 예외 HTTP response
+===== _수정할 게시글이 존재하지 않은 경우_
+include::{snippets}/posts/patch-postId-PostNotFoundException/http-response.adoc[]
+===== _요청자가 게시글의 작성자가 아닌 경우_
+include::{snippets}/posts/patch-postId-CanNotUpdatePostException/http-response.adoc[]
+
+=== 게시글 삭제
+operation::posts/delete-postId[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _삭제할 게시글이 존재하지 않은 경우_
+include::{snippets}/posts/delete-postId-PostNotFoundException/http-response.adoc[]
+===== _요청자가 게시글의 작성자나 게시글이 달린 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/posts/delete-postId-CanNotDeletePostException/http-response.adoc[]
+
+=== 게시글 상세 조회
+operation::posts/get-postId[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 게시글이 존재하지 않은 경우_
+include::{snippets}/posts/get-postId-PostNotFoundException/http-response.adoc[]
+===== _비공개 커뮤니티에 비가입으로 조회한 경우_
+include::{snippets}/posts/get-postId-NotViewableMemberException/http-response.adoc[]
+
+=== 특정 유저가 작성한 게시글 조회
+operation::posts/get-users[snippets='http-request,request-parameters,http-response,response-fields']
+
+=== 게시글에 달린 댓글 목록 조회
+operation::posts/get-postId-comments[snippets='path-parameters,http-request,request-parameters,http-response,response-fields']
+==== 예외 HTTP response
+===== _댓글 목록을 조회할 게시글이 존재하지 않은 경우_
+include::{snippets}/posts/get-postId-comments-PostNotFoundException/http-response.adoc[]
+===== _비공개 커뮤니티에 비가입으로 조회한 경우_
+include::{snippets}/posts/get-postId-comments-NotViewableMemberException/http-response.adoc[]
+
+=== 게시글에 좋아요하기
+operation::posts/post-postId-likes[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _좋아요할 게시글이 존재하지 않은 경우_
+include::{snippets}/posts/post-postId-likes-PostNotFoundException/http-response.adoc[]
+===== _요청자가 게시글이 작성된 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/posts/post-postId-likes-NotJoinedMemberException/http-response.adoc[]
+===== _해당 게시글에 이미 좋아요를 한 경우_
+include::{snippets}/posts/post-postId-likes-AlreadyDoPostLikeException/http-response.adoc[]
+
+=== 게시글에 한 좋아요 목록 조회
+operation::posts/get-postId-likes[snippets='path-parameters,http-request,request-parameters,http-response,response-fields']
+==== 예외 HTTP response
+===== _좋아요 목록을 조회할 게시글이 존재하지 않은 경우_
+include::{snippets}/posts/get-postId-likes-PostNotFoundException/http-response.adoc[]
+===== _비공개 커뮤니티에 비가입으로 조회한 경우_
+include::{snippets}/posts/get-postId-likes-NotViewableMemberException/http-response.adoc[]
+
+=== 핫한 게시물 목록 조회
+operation::posts/get-hot[snippets='http-request,http-response,response-fields']
+
+=== 게시글 검색
+operation::posts/get-search[snippets='http-request,request-parameters,http-response,response-fields']
+
+
+== 댓글
+
+=== 댓글 생성
+operation::comments/post[snippets='http-request,request-fields,http-response,response-fields']
+==== 예외 HTTP response
+===== _댓글을 생성할 게시글이 존재하지 않는 경우_
+include::{snippets}/comments/post-PostNotFoundException/http-response.adoc[]
+===== _요청한 부모 댓글이 존재하지 않는 경우_
+include::{snippets}/comments/post-ParentCommentNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/comments/post-NotJoinedMemberException/http-response.adoc[]
+===== _댓글의 깊이 제한인 1을 넘어선 경우 (대댓글까지 가능)_
+include::{snippets}/comments/post-CommentMaxDepthOverException/http-response.adoc[]
+
+=== 댓글 삭제
+operation::comments/delete-commentId[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _삭제할 댓글이 존재하지 않는 경우_
+include::{snippets}/comments/delete-commentId-CommentNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/comments/delete-commentId-NotJoinedMemberException/http-response.adoc[]
+===== _댓글의 작성자나 해당 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/comments/delete-commentId-CanNotDeleteCommentException/http-response.adoc[]
+
+=== 유저가 단 댓글 목록 조회
+operation::comments/get-users[snippets='http-request,http-response,response-fields']
+
+=== 댓글에 좋아요하기
+operation::comments/post-commentId-likes[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _좋아요할 댓글이 존재하지 않는 경우_
+include::{snippets}/comments/post-commentId-likes-CommentNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/comments/post-commentId-likes-NotJoinedMemberException/http-response.adoc[]
+===== _이미 좋아요를 했을 경우_
+include::{snippets}/comments/post-commentId-likes-AlreadyDoCommentLikeException/http-response.adoc[]
+
+=== 댓글에 한 좋아요 목록 조회
+operation::comments/get-commentId-likes[snippets='path-parameters,http-request,request-parameters,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 댓글이 존재하지 않는 경우_
+include::{snippets}/comments/get-commentId-likes-CommentNotFoundException/http-response.adoc[]
+===== _비공개 커뮤니티에 비가입으로 조회하는 경우_
+include::{snippets}/comments/get-commentId-likes-NotViewableMemberException/http-response.adoc[]
+
+
+== 좋아요
+
+=== 좋아요 취소
+operation::likes/delete-likeId[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _삭제할 좋아요가 존재하지 않는 경우_
+include::{snippets}/likes/delete-likeId-LikeNotFoundException/http-response.adoc[]
+===== _본인이 한 좋아요가 아닌 경우_
+include::{snippets}/likes/delete-likeId-UnmatchedLikeUserException/http-response.adoc[]
+
+
+== 커뮤니티
+
+=== 커뮤니티 생성
+operation::communities/post[snippets='http-request,request-fields,http-response,response-fields']
+==== 예외 HTTP response
+===== _요청한 커뮤니티 이름이 이미 존재하는 경우_
+include::{snippets}/communities/post-AlreadyExistsCommunityNameException/http-response.adoc[]
+
+=== 커뮤니티 정보 수정
+operation::communities/patch-communityId[snippets='path-parameters,http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _수정할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/patch-communityId-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/patch-communityId-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/communities/patch-communityId-NotManagerException/http-response.adoc[]
+
+=== 커뮤니티 상세 조회
+operation::communities/get-communityId[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-CommunityNotFoundException/http-response.adoc[]
+
+=== 커뮤니티 폐쇄
+operation::communities/delete-communityId[snippets='path-parameters,http-request,http-response']
+==== 예외 HTTP response
+===== _폐쇄할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/delete-communityId-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/delete-communityId-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/communities/delete-communityId-NotManagerException/http-response.adoc[]
+===== _해당 커뮤니티에 매니저만 남아있지 않은 경우_
+include::{snippets}/communities/delete-communityId-CanNotDeleteCommunityException/http-response.adoc[]
+
+=== 커뮤니티 메타데이터 조회
+operation::communities/get-communityId-metadata[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-metadata-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/get-communityId-metadata-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/communities/get-communityId-metadata-NotManagerException/http-response.adoc[]
+
+=== 커뮤니티 설정 정보 조회
+operation::communities/get-communityId-settings[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-settings-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/get-communityId-settings-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/communities/get-communityId-settings-NotManagerException/http-response.adoc[]
+
+=== 커뮤니티 설정 정보 수정
+operation::communities/post-communityId-settings[snippets='path-parameters,http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/post-communityId-settings-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/post-communityId-settings-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 매니저가 아닌 경우_
+include::{snippets}/communities/post-communityId-settings-NotManagerException/http-response.adoc[]
+
+=== 커뮤니티에 달린 게시글 목록 조회
+operation::communities/get-communityId-posts[snippets='path-parameters,http-request,request-parameters,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-posts-CommunityNotFoundException/http-response.adoc[]
+===== _비공개 커뮤니티에 비가입으로 조회하는 경우_
+include::{snippets}/communities/get-communityId-posts-NotViewableMemberException/http-response.adoc[]
+
+=== 멤버 목록 조회
+operation::communities/get-communityId-members[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-members-CommunityNotFoundException/http-response.adoc[]
+
+=== 전체 멤버 목록 조회
+operation::communities/get-communityId-members-all[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-members-all-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/get-communityId-members-all-NotJoinedMemberException/http-response.adoc[]
+
+=== 커뮤니티에 차단된 유저 목록 조회
+operation::communities/get-communityId-members-banned[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _조회할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/get-communityId-members-banned-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/get-communityId-members-banned-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/communities/get-communityId-members-banned-NotOperatorException/http-response.adoc[]
+
+=== 커뮤니티에 가입 요청하기
+operation::communities/post-communityId-requests[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _가입 요청할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/post-communityId-requests-CommunityNotFoundException/http-response.adoc[]
+===== _가입 승인할 유저가 해당 커뮤니티에 이미 가입된 경우_
+include::{snippets}/communities/post-communityId-requests-AlreadyJoinedMemberException/http-response.adoc[]
+===== _해당 커뮤니티에 이미 가입 요청을 했고, 현재 가입 요청의 상태가 대기인 경우_
+include::{snippets}/communities/post-communityId-requests-AlreadyRequestedException/http-response.adoc[]
+
+=== 가입 승인하기
+operation::communities/post-communityId-requests-confirm[snippets='path-parameters,http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _가입 승인할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/post-communityId-requests-confirm-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/post-communityId-requests-confirm-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/communities/post-communityId-requests-confirm-NotOperatorException/http-response.adoc[]
+===== _해당 커뮤니티에 이미 가입된 경우_
+include::{snippets}/communities/post-communityId-requests-confirm-AlreadyJoinedMemberException/http-response.adoc[]
+===== _승인할 가입 요청이 해당 커뮤니티의 가입 요청이 아닌 경우_
+include::{snippets}/communities/post-communityId-requests-confirm-UnmatchedJoinRequestCommunityException/http-response.adoc[]
+
+=== 가입 거절하기
+operation::communities/post-communityId-requests-reject[snippets='path-parameters,http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _가입 거절할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/communities/post-communityId-requests-reject-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/communities/post-communityId-requests-reject-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/communities/post-communityId-requests-reject-NotOperatorException/http-response.adoc[]
+===== _거절할 가입 요청이 해당 커뮤니티의 가입 요청이 아닌 경우_
+include::{snippets}/communities/post-communityId-requests-reject-UnmatchedJoinRequestCommunityException/http-response.adoc[]
+
+=== 커뮤니티 검색
+operation::communities/get-search[snippets='http-request,request-parameters,http-response,response-fields']
+
+
+== 공지사항
+
+=== 공지사항 생성
+operation::notices/post[snippets='http-request,request-fields,http-response,response-fields']
+==== 예외 HTTP response
+===== _공지사항 생성할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/notices/post-CommunityNotFoundException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티에 가입되지 않은 경우_
+include::{snippets}/notices/post-NotJoinedMemberException/http-response.adoc[]
+===== _요청자가 해당 커뮤니티의 관리자가 아닌 경우_
+include::{snippets}/notices/post-NotOperatorException/http-response.adoc[]
+
+=== 공지사항 목록 조회
+operation::notices/get[snippets='http-request,request-parameters,http-response,response-fields']
+
+=== 최근 앱 공지사항 목록 조회
+operation::notices/get-recent[snippets='http-request,http-response,response-fields']
+
+
+== 신고
+
+=== 신고 생성
+operation::reports/post[snippets='http-request,request-fields,http-response']
+==== 예외 HTTP response
+===== _신고할 커뮤니티가 존재하지 않는 경우_
+include::{snippets}/reports/post-CommunityNotFoundException/http-response.adoc[]
+===== _신고할 게시글이 존재하지 않는 경우_
+include::{snippets}/reports/post-PostNotFoundException/http-response.adoc[]
+===== _신고할 댓글이 존재하지 않는 경우_
+include::{snippets}/reports/post-CommentNotFoundException/http-response.adoc[]
+===== _게시글이나 댓글 신고시 요청자가 해당 커뮤니티에 가입되지 않는 경우_
+include::{snippets}/reports/post-NotJoinedMemberException/http-response.adoc[]
+===== _신고할 쪽지가 존재하지 않는 경우_
+include::{snippets}/reports/post-MessageNotFoundException/http-response.adoc[]
+===== _본인이 참여하지 않은 대화의 쪽지를 신고할 경우_
+include::{snippets}/reports/post-NotParticipatedUserException/http-response.adoc[]
+
+
+== 쪽지
+
+=== 쪽지 보내기
+operation::messages/post[snippets='http-request,request-fields,http-response,response-fields']
+==== 예외 HTTP response
+===== _수신할 유저가 존재하지 않는 경우_
+include::{snippets}/messages/post-UserNotFoundException/http-response.adoc[]
+
+=== 대화방 목록 조회
+operation::messages/get[snippets='http-request,http-response,response-fields']
+
+=== 대화방 상세 조회
+operation::messages/get-opponentId[snippets='path-parameters,http-request,http-response,response-fields']
+==== 예외 HTTP response
+===== _대화를 조회할 유저가 존재하지 않는 경우_
+include::{snippets}/messages/get-opponentId-UserNotFoundException/http-response.adoc[]

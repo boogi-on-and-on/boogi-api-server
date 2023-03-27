@@ -83,7 +83,6 @@ class ReportCommandServiceTest {
 
             given(userRepository.findByUserId(anyLong())).willReturn(user);
             given(commentRepository.findByCommentId(anyLong())).willReturn(comment);
-            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
             CreateReportRequest request =
                     new CreateReportRequest(4L, ReportTarget.COMMENT, ReportReason.SWEAR, REPORT_CONTENT);
@@ -115,7 +114,6 @@ class ReportCommandServiceTest {
 
             given(userRepository.findByUserId(anyLong())).willReturn(user);
             given(commentRepository.findByCommentId(anyLong())).willReturn(comment);
-            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
             CreateReportRequest request =
                     new CreateReportRequest(4L, ReportTarget.COMMENT, ReportReason.SWEAR, REPORT_CONTENT);
@@ -146,7 +144,6 @@ class ReportCommandServiceTest {
 
             given(userRepository.findByUserId(anyLong())).willReturn(user);
             given(postRepository.findByPostId(anyLong())).willReturn(post);
-            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
 
             CreateReportRequest request =
                     new CreateReportRequest(3L, ReportTarget.POST, ReportReason.SWEAR, REPORT_CONTENT);
@@ -174,12 +171,8 @@ class ReportCommandServiceTest {
 
             final Post post = TestPost.builder().id(3L).community(community).build();
 
-            given(userRepository.findByUserId(anyLong()))
-                    .willReturn(user);
-            given(postRepository.findByPostId(anyLong()))
-                    .willReturn(post);
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
+            given(userRepository.findByUserId(anyLong())).willReturn(user);
+            given(postRepository.findByPostId(anyLong())).willReturn(post);
 
             CreateReportRequest request =
                     new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, REPORT_CONTENT);

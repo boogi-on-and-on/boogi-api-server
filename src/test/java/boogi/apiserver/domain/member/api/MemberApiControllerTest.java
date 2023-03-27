@@ -34,6 +34,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -74,7 +75,6 @@ class MemberApiControllerTest extends TestControllerSetUp {
                                 parameterWithName("page").description("페이지 번호"),
                                 parameterWithName("size").description("페이지 사이즈")
                         ),
-
                         responseFields(
                                 //todo: UserBasicProfile 공통화하기
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER)
@@ -292,6 +292,7 @@ class MemberApiControllerTest extends TestControllerSetUp {
                             requestFields(
                                     fieldWithPath("type").type(JsonFieldType.STRING)
                                             .description("멤버 타입")
+                                            .attributes(key("constraint").value("NORMAL, SUB_MANAGER, MANAGER 중 하나"))
                             )
                     ));
         }

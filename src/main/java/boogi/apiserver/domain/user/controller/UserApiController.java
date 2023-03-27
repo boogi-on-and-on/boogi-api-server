@@ -59,7 +59,7 @@ public class UserApiController {
     public ValidStatusResponse validateToken(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
-        Boolean isValid = Objects.nonNull(session);
+        boolean isValid = Objects.nonNull(session);
 
         return ValidStatusResponse.from(isValid);
     }
@@ -86,7 +86,7 @@ public class UserApiController {
     }
 
     @PostMapping("/messages/unblock")
-    public void releaseUser(@Session Long userId, @RequestBody BlockedUserIdRequest request) {
+    public void unblockUser(@Session Long userId, @RequestBody BlockedUserIdRequest request) {
         messageBlockCommandService.unblockUser(userId, request.getBlockedUserId());
     }
 

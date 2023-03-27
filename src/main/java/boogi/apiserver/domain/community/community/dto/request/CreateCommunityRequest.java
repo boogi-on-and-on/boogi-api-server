@@ -11,21 +11,21 @@ import java.util.List;
 @Getter
 public class CreateCommunityRequest {
 
-    @NotEmpty
+    @NotEmpty(message = "커뮤니티의 이름을 입력해주세요")
     private String name;
 
-    @NotEmpty
+    @NotEmpty(message = "커뮤니티의 카테고리를 선택해주세요")
     private String category;
 
-    @NotEmpty
+    @NotEmpty(message = "커뮤니티의 설명을 입력해주세요")
     private String description;
 
     private List<String> hashtags;
 
-    @NotNull
+    @NotNull(message = "커뮤니티 공개 여부를 선택해주세요")
     private Boolean isPrivate;
 
-    @NotNull
+    @NotNull(message = "커뮤니티 자동 가입 여부를 선택해주세요")
     private Boolean autoApproval;
 
     public CreateCommunityRequest(final String name, final String category, final String description,

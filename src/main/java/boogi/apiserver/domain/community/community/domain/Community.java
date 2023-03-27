@@ -48,9 +48,9 @@ public class Community extends TimeBaseEntity {
     private CommunityHashtags hashtags = new CommunityHashtags();
 
     @Builder
-    private Community(final Long id, final String communityName, final String description, final boolean isPrivate,
-                      final CommunityCategory category, final int memberCount, final LocalDateTime deletedAt,
-                      final boolean autoApproval, final List<CommunityHashtag> hashtags) {
+    private Community(Long id, String communityName, String description, boolean isPrivate,
+                      CommunityCategory category, int memberCount, LocalDateTime deletedAt,
+                      boolean autoApproval, List<CommunityHashtag> hashtags) {
         this.id = id;
         this.communityName = new CommunityName(communityName);
         this.description = new Description(description);
@@ -107,7 +107,7 @@ public class Community extends TimeBaseEntity {
     }
 
     private void validateManagerAuth(MemberType sessionMemberType) {
-        if(!sessionMemberType.hasManagerAuth()) {
+        if (!sessionMemberType.hasManagerAuth()) {
             throw new NotManagerException();
         }
     }

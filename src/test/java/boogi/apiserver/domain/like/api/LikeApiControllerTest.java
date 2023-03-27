@@ -45,7 +45,7 @@ class LikeApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().isOk())
-                    .andDo(document("like/delete",
+                    .andDo(document("likes/delete-likeId",
                             pathParameters(
                                     parameterWithName("likeId").description("좋아요 ID")
                             )
@@ -67,7 +67,7 @@ class LikeApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("like/delete-LikeNotFoundException"));
+                    .andDo(document("likes/delete-likeId-LikeNotFoundException"));
         }
 
         @Test
@@ -85,7 +85,7 @@ class LikeApiControllerTest extends TestControllerSetUp {
 
             result
                     .andExpect(status().is4xxClientError())
-                    .andDo(document("like/delete-UnmatchedLikeUserException"));
+                    .andDo(document("likes/delete-likeId-UnmatchedLikeUserException"));
         }
     }
 }

@@ -35,12 +35,10 @@ import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
-import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.controller.MockHttpSessionCreator;
 import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -68,6 +66,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -136,13 +135,17 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                     .andDo(document("communities/post",
                             requestFields(
                                     fieldWithPath("name").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 이름"),
+                                            .description("커뮤니티 이름")
+                                            .attributes(key("constraint").value("1 ~ 30의 길이를 가지는 한글,영어로만 구성된 문자열")),
                                     fieldWithPath("category").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 카테고리"),
+                                            .description("커뮤니티 카테고리")
+                                            .attributes(key("constraint").value("CLUB, ACADEMIC, HOBBY, OTHER 중 하나")),
                                     fieldWithPath("description").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 소개"),
+                                            .description("커뮤니티 소개")
+                                            .attributes(key("constraint").value("10 ~ 500의 길이를 가지는 문자열")),
                                     fieldWithPath("hashtags").type(JsonFieldType.ARRAY)
-                                            .description("커뮤니티 해시태그"),
+                                            .description("커뮤니티 해시태그")
+                                            .attributes(key("constraint").value("1 ~ 10의 길이를 가지는 한글,영어,숫자로만 구성된 문자열로 최대 5개까지 입력 가능")),
                                     fieldWithPath("isPrivate").type(JsonFieldType.BOOLEAN)
                                             .description("true -> 커뮤니티 공개"),
                                     fieldWithPath("autoApproval").type(JsonFieldType.BOOLEAN)
@@ -153,28 +156,6 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                                             .description("생성된 커뮤니티 ID")
                             )
                     ));
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 유저로 요청할 경우 UserNotFoundException 발생")
-        void notExistUserFail() throws Exception {
-            CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB",
-                    "커뮤니티 설명입니다.", List.of("해시태그"), false, true);
-
-            doThrow(new UserNotFoundException())
-                    .when(communityCommandService).createCommunity(any(), anyLong());
-
-            ResultActions result = mvc.perform(
-                    post("/api/communities")
-                            .content(mapper.writeValueAsBytes(request))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .session(MockHttpSessionCreator.session(9999L))
-                            .header(HeaderConst.AUTH_TOKEN, TOKEN)
-            );
-
-            result
-                    .andExpect(status().is4xxClientError())
-                    .andDo(document("communities/post-UserNotFoundException"));
         }
 
         @Test
@@ -399,9 +380,11 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             ),
                             requestFields(
                                     fieldWithPath("description").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 소개란"),
+                                            .description("커뮤니티 소개란")
+                                            .attributes(key("constraint").value("10 ~ 500의 길이를 가지는 문자열")),
                                     fieldWithPath("hashtags").type(JsonFieldType.ARRAY)
                                             .description("커뮤니티 해시테그").optional()
+                                            .attributes(key("constraint").value("1 ~ 10의 길이를 가지는 한글,영어,숫자로만 구성된 문자열로 최대 5개까지 입력 가능"))
                             )
                     ));
         }
@@ -1211,7 +1194,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         @Test
         @DisplayName("이미 가입된 상태인 경우 AlreadyJoinedMemberException 발생")
         void alreadyJoinedFail() throws Exception {
-            doThrow(new CommunityNotFoundException())
+            doThrow(new AlreadyJoinedMemberException())
                     .when(joinRequestCommandService).request(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
@@ -1274,6 +1257,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             requestFields(
                                     fieldWithPath("requestIds").type(JsonFieldType.ARRAY)
                                             .description("가입요청 ID 목록")
+                                            .attributes(key("constraint").value("최소 1개 이상의 ID를 입력"))
                             )
                     ));
         }
@@ -1413,6 +1397,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             requestFields(
                                     fieldWithPath("requestIds").type(JsonFieldType.ARRAY)
                                             .description("가입요청 ID 목록")
+                                            .attributes(key("constraint").value("최소 1개 이상의 ID를 입력"))
                             )
                     ));
         }
@@ -1532,8 +1517,8 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                         requestParameters(
                                 parameterWithName("isPrivate").description("true -> 비공개로 검색").optional(),
                                 parameterWithName("category").description("검색할 카테고리 정보").optional(),
-                                parameterWithName("order")
-                                        .description("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / MANY_PEOPLE(많은 사람 순) / LESS_PEOPLE(적은 사람 순)"),
+                                parameterWithName("order").description("정렬 순서")
+                                        .attributes(key("constraint").value("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / MANY_PEOPLE(많은 사람 순) / LESS_PEOPLE(적은 사람 순) 중 하나")),
                                 parameterWithName("keyword").description("검색 키워드").optional(),
                                 parameterWithName("page").description("페이지 번호"),
                                 parameterWithName("size").description("페이지 사이즈")

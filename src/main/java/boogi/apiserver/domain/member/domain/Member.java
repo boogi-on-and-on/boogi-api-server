@@ -40,8 +40,8 @@ public class Member extends TimeBaseEntity {
     private LocalDateTime bannedAt;
 
     @Builder
-    private Member(final Long id, final Community community, final User user, final MemberType memberType,
-                   final LocalDateTime bannedAt) {
+    private Member(Long id, Community community, User user, MemberType memberType,
+                   LocalDateTime bannedAt) {
         this.id = id;
         this.community = community;
         this.user = user;

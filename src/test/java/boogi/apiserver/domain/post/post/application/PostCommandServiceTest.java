@@ -3,7 +3,6 @@ package boogi.apiserver.domain.post.post.application;
 import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.exception.CanNotDeleteCommentException;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
@@ -11,6 +10,7 @@ import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -127,22 +127,17 @@ class PostCommandServiceTest {
                     .user(user)
                     .build();
 
-            final Community community = TestCommunity.builder().id(3L).build();
-
             final Post post = TestPost.builder()
-                    .id(4L)
-                    .community(community)
+                    .id(3L)
                     .member(member)
                     .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
 
             UpdatePostRequest updatePostRequest = new UpdatePostRequest(UPDATE_POST_CONTENT, List.of(), List.of());
 
-            assertThatThrownBy(() -> postCommandService.updatePost(updatePostRequest, 4L, 2L))
+            assertThatThrownBy(() -> postCommandService.updatePost(updatePostRequest, 3L, 2L))
                     .isInstanceOf(CanNotUpdatePostException.class);
         }
 
@@ -156,40 +151,36 @@ class PostCommandServiceTest {
                     .user(user)
                     .build();
 
-            final Community community = TestCommunity.builder().id(3L).build();
-
             final Post post = TestPost.builder()
-                    .id(4L)
-                    .community(community)
+                    .id(3L)
                     .member(member)
                     .content(BEFORE_POST_CONTENT)
                     .build();
 
             final PostMedia postMedia = TestPostMedia.builder()
-                    .id(5L)
+                    .id(4L)
                     .uuid(POSTMEDIA_UUID)
                     .build();
 
             given(postRepository.findByPostId(anyLong()))
                     .willReturn(post);
-            given(communityRepository.findByCommunityId(anyLong()))
-                    .willReturn(community);
             given(postMediaRepository.findByUuidIn(anyList()))
                     .willReturn(List.of(postMedia));
 
             UpdatePostRequest request =
                     new UpdatePostRequest(UPDATE_POST_CONTENT, List.of(POSTHASHTAG_TAG), List.of(POSTMEDIA_UUID));
 
-            postCommandService.updatePost(request, 4L, 1L);
+            postCommandService.updatePost(request, 3L, 1L);
+
+            assertThat(post.getContent()).isEqualTo(UPDATE_POST_CONTENT);
 
             final List<PostMedia> medias = post.getPostMedias().getValues();
             final List<PostHashtag> hashtags = post.getHashtags().getValues();
             assertThat(hashtags.size()).isEqualTo(1);
             assertThat(hashtags.get(0).getTag()).isEqualTo(POSTHASHTAG_TAG);
             assertThat(medias.size()).isEqualTo(1);
-            assertThat(medias.get(0).getId()).isEqualTo(5L);
+            assertThat(medias.get(0).getId()).isEqualTo(4L);
             assertThat(medias.get(0).getUuid()).isEqualTo(POSTMEDIA_UUID);
-            assertThat(post.getContent()).isEqualTo(UPDATE_POST_CONTENT);
         }
     }
 
@@ -234,7 +225,7 @@ class PostCommandServiceTest {
         }
 
         @Test
-        @DisplayName("글 작성자가 본인이 아니거나, 해당 커뮤니티 (부)매니저가 아닐 경우 CanNotDeleteCommentException 발생한다.")
+        @DisplayName("글 작성자가 본인이 아니거나, 해당 커뮤니티 (부)매니저가 아닐 경우 CanNotDeletePostException 발생한다.")
         void notAuthorizedMemberFail() {
             final User user = TestUser.builder().id(1L).build();
 
@@ -263,7 +254,7 @@ class PostCommandServiceTest {
                     .willReturn(notAuthorNormalMember);
 
             assertThatThrownBy(() -> postCommandService.deletePost(post.getId(), 2L))
-                    .isInstanceOf(CanNotDeleteCommentException.class);
+                    .isInstanceOf(CanNotDeletePostException.class);
         }
     }
 }

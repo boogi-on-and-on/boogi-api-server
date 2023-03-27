@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static boogi.apiserver.domain.message.block.domain.QMessageBlock.messageBlock;
 
@@ -32,13 +33,15 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
     }
 
     @Override
-    public MessageBlock getMessageBlockByUserId(Long userId, Long blockedUserId) {
-        return queryFactory.selectFrom(messageBlock)
+    public Optional<MessageBlock> getMessageBlockByUserId(Long userId, Long blockedUserId) {
+        MessageBlock findMessageBlock = queryFactory.selectFrom(messageBlock)
                 .where(
                         messageBlock.user.id.eq(userId),
                         messageBlock.blockedUser.id.eq(blockedUserId)
                 )
                 .fetchOne();
+
+        return Optional.ofNullable(findMessageBlock);
     }
 
     @Override

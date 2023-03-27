@@ -21,7 +21,8 @@ public class MessageBlockCommandService {
     private final UserRepository userRepository;
 
     public void unblockUser(Long userId, Long blockedUserId) {
-        MessageBlock messageBlock = messageBlockRepository.getMessageBlockByUserId(userId, blockedUserId);
+        MessageBlock messageBlock = messageBlockRepository.getMessageBlockByUserId(userId, blockedUserId)
+                .orElseThrow(NotBlockedUserException::new);
 
         if (!messageBlock.isBlocked()) {
             throw new NotBlockedUserException();

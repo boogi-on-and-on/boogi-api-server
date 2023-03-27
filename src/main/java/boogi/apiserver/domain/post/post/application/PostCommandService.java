@@ -3,12 +3,12 @@ package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.comment.exception.CanNotDeleteCommentException;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -57,7 +57,6 @@ public class PostCommandService {
 
     public Long updatePost(UpdatePostRequest request, Long postId, Long userId) {
         Post post = postRepository.findByPostId(postId);
-        communityRepository.findByCommunityId(post.getCommunityId());
 
         validatePostUpdatable(userId, post);
 
@@ -90,11 +89,13 @@ public class PostCommandService {
     }
 
     private void validatePostDeletable(Long userId, Post post) {
-        if (!post.isAuthor(userId)) {
-            Member sessionMember = memberQueryService.getMember(userId, post.getCommunityId());
-            if (!sessionMember.isOperator()) {
-                throw new CanNotDeleteCommentException();
-            }
+        if (post.isAuthor(userId)) {
+            return;
+        }
+
+        Member sessionMember = memberQueryService.getMember(userId, post.getCommunityId());
+        if (!sessionMember.isOperator()) {
+            throw new CanNotDeletePostException();
         }
     }
 }

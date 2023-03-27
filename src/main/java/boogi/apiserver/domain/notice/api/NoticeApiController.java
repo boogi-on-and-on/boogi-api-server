@@ -35,7 +35,8 @@ public class NoticeApiController {
     }
 
     @PostMapping
-    public SimpleIdResponse createNotice(@RequestBody @Validated NoticeCreateRequest request, @Session Long userId) {
+    public SimpleIdResponse createNotice(@RequestBody @Validated NoticeCreateRequest request,
+                                         @Session Long userId) {
         Long newNoticeId = noticeCommandService.createNotice(request, userId);
 
         return SimpleIdResponse.from(newNoticeId);
