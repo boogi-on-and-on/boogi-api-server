@@ -4,8 +4,8 @@ package boogi.apiserver.domain.comment.dto.request;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class CreateCommentRequest {
 
     private Long parentCommentId;
 
-    @Size(max = 255, message = "255자 이내로 입력해주세요")
+    @NotBlank(message = "댓글의 내용을 입력해주세요")
     private String content;
 
     private List<Long> mentionedUserIds = new ArrayList<>();

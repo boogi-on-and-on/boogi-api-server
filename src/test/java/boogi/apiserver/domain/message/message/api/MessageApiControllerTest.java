@@ -34,6 +34,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,6 +74,7 @@ class MessageApiControllerTest extends TestControllerSetUp {
                                             .description("수신할 유저 ID"),
                                     fieldWithPath("content").type(JsonFieldType.STRING)
                                             .description("쪽지 내용")
+                                            .attributes(key("constraint").value("1 ~ 255 길이의 문자열"))
                             ),
                             responseFields(
                                     fieldWithPath("id").type(JsonFieldType.NUMBER)

@@ -35,6 +35,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -121,9 +122,11 @@ class NoticeApiControllerTest extends TestControllerSetUp {
                                     fieldWithPath("communityId").type(JsonFieldType.NUMBER)
                                             .description("커뮤니티 ID"),
                                     fieldWithPath("title").type(JsonFieldType.STRING)
-                                            .description("공지사항 제목"),
+                                            .description("공지사항 제목")
+                                            .attributes(key("constraint").value("5 ~ 30 길이의 문자열")),
                                     fieldWithPath("content").type(JsonFieldType.STRING)
                                             .description("공지사항 내용")
+                                            .attributes(key("constraint").value("10 ~ 1000 길이의 문자열"))
                             ),
                             responseFields(
                                     fieldWithPath("id").type(JsonFieldType.NUMBER)

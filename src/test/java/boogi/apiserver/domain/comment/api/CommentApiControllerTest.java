@@ -46,6 +46,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -165,7 +166,8 @@ class CommentApiControllerTest extends TestControllerSetUp {
                                     fieldWithPath("parentCommentId").type(JsonFieldType.VARIES)
                                             .description("부모 댓글 ID -> 생성할 댓글이 부모 댓글일 경우 null"),
                                     fieldWithPath("content").type(JsonFieldType.STRING)
-                                            .description("댓글 내용"),
+                                            .description("댓글 내용")
+                                            .attributes(key("constraint").value("1 ~ 255의 길이를 가지는 문자열")),
                                     fieldWithPath("mentionedUserIds").type(JsonFieldType.ARRAY)
                                             .description("맨션할 유저의 ID들")
                             ),

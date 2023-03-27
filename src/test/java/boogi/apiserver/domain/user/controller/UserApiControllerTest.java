@@ -39,6 +39,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -313,6 +314,7 @@ class UserApiControllerTest extends TestControllerSetUp {
                             requestFields(
                                     fieldWithPath("blockUserIds").type(JsonFieldType.ARRAY)
                                             .description("메시지 차단할 유저 ID들")
+                                            .attributes(key("constraint").value("최소 1개 이상의 ID 입력"))
                             )
                     ));
         }

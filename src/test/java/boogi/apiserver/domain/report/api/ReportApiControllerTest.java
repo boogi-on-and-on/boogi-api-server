@@ -30,6 +30,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -64,11 +65,14 @@ class ReportApiControllerTest extends TestControllerSetUp {
                                     fieldWithPath("id").type(JsonFieldType.NUMBER)
                                             .description("신고할 대상의 ID"),
                                     fieldWithPath("target").type(JsonFieldType.STRING)
-                                            .description("신고 대상으로 COMMENT(댓글), MESSAGE(쪽지), POST(게시글), COMMUNITY(커뮤니티) 중 하나 선택"),
+                                            .description("신고 대상")
+                                            .attributes(key("constraint").value("COMMENT(댓글), MESSAGE(쪽지), POST(게시글), COMMUNITY(커뮤니티) 중 하나")),
                                     fieldWithPath("reason").type(JsonFieldType.STRING)
-                                            .description("신고 사유로 SEXUAL(음란물), SWEAR(욕설), DEFAMATION(명예훼손), POLITICS(정치인 비하 및 선거운동), COMMERCIAL_AD(상업적 광고), ILLEGAL_FILMING(불법 촬영물), ETC(기타)중 하나 선택"),
+                                            .description("신고 사유")
+                                            .attributes(key("constraint").value("SEXUAL(음란물), SWEAR(욕설), DEFAMATION(명예훼손), POLITICS(정치인 비하 및 선거운동), COMMERCIAL_AD(상업적 광고), ILLEGAL_FILMING(불법 촬영물), ETC(기타)중 하나")),
                                     fieldWithPath("content").type(JsonFieldType.STRING)
                                             .description("신고 내용")
+                                            .attributes(key("constraint").value("10 ~ 255 길이의 문자열"))
                             )
                     ));
         }

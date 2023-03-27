@@ -12,7 +12,6 @@ import java.util.List;
 public class UpdatePostRequest {
 
     @NotEmpty(message = "내용을 입력해주세요")
-    @Size(min = 1, max = 1000, message = "1000자 이내로 입력해주세요")
     private String content;
 
     private List<String> hashtags;

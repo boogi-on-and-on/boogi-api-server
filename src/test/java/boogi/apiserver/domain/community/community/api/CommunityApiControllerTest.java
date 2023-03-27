@@ -66,6 +66,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -134,13 +135,17 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                     .andDo(document("communities/post",
                             requestFields(
                                     fieldWithPath("name").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 이름"),
+                                            .description("커뮤니티 이름")
+                                            .attributes(key("constraint").value("1 ~ 30의 길이를 가지는 한글,영어로만 구성된 문자열")),
                                     fieldWithPath("category").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 카테고리"),
+                                            .description("커뮤니티 카테고리")
+                                            .attributes(key("constraint").value("CLUB, ACADEMIC, HOBBY, OTHER 중 하나")),
                                     fieldWithPath("description").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 소개"),
+                                            .description("커뮤니티 소개")
+                                            .attributes(key("constraint").value("10 ~ 500의 길이를 가지는 문자열")),
                                     fieldWithPath("hashtags").type(JsonFieldType.ARRAY)
-                                            .description("커뮤니티 해시태그"),
+                                            .description("커뮤니티 해시태그")
+                                            .attributes(key("constraint").value("1 ~ 10의 길이를 가지는 한글,영어,숫자로만 구성된 문자열로 최대 5개까지 입력 가능")),
                                     fieldWithPath("isPrivate").type(JsonFieldType.BOOLEAN)
                                             .description("true -> 커뮤니티 공개"),
                                     fieldWithPath("autoApproval").type(JsonFieldType.BOOLEAN)
@@ -375,9 +380,11 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             ),
                             requestFields(
                                     fieldWithPath("description").type(JsonFieldType.STRING)
-                                            .description("커뮤니티 소개란"),
+                                            .description("커뮤니티 소개란")
+                                            .attributes(key("constraint").value("10 ~ 500의 길이를 가지는 문자열")),
                                     fieldWithPath("hashtags").type(JsonFieldType.ARRAY)
                                             .description("커뮤니티 해시테그").optional()
+                                            .attributes(key("constraint").value("1 ~ 10의 길이를 가지는 한글,영어,숫자로만 구성된 문자열로 최대 5개까지 입력 가능"))
                             )
                     ));
         }
@@ -1250,6 +1257,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             requestFields(
                                     fieldWithPath("requestIds").type(JsonFieldType.ARRAY)
                                             .description("가입요청 ID 목록")
+                                            .attributes(key("constraint").value("최소 1개 이상의 ID를 입력"))
                             )
                     ));
         }
@@ -1389,6 +1397,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                             requestFields(
                                     fieldWithPath("requestIds").type(JsonFieldType.ARRAY)
                                             .description("가입요청 ID 목록")
+                                            .attributes(key("constraint").value("최소 1개 이상의 ID를 입력"))
                             )
                     ));
         }
@@ -1508,8 +1517,8 @@ class CommunityApiControllerTest extends TestControllerSetUp {
                         requestParameters(
                                 parameterWithName("isPrivate").description("true -> 비공개로 검색").optional(),
                                 parameterWithName("category").description("검색할 카테고리 정보").optional(),
-                                parameterWithName("order")
-                                        .description("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / MANY_PEOPLE(많은 사람 순) / LESS_PEOPLE(적은 사람 순)"),
+                                parameterWithName("order").description("정렬 순서")
+                                        .attributes(key("constraint").value("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / MANY_PEOPLE(많은 사람 순) / LESS_PEOPLE(적은 사람 순) 중 하나")),
                                 parameterWithName("keyword").description("검색 키워드").optional(),
                                 parameterWithName("page").description("페이지 번호"),
                                 parameterWithName("size").description("페이지 사이즈")

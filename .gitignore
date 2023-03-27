@@ -7,7 +7,7 @@ build/
 
 src/main/resources/application-env.yml
 src/main/resources-local/*
-src/test/resources/*
+#src/test/resources/*
 .DS_Store
 
 ### STS ###

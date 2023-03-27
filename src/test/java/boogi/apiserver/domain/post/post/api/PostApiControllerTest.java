@@ -59,6 +59,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,9 +111,11 @@ class PostApiControllerTest extends TestControllerSetUp {
                                     fieldWithPath("communityId").type(JsonFieldType.NUMBER)
                                             .description("커뮤니티 ID"),
                                     fieldWithPath("content").type(JsonFieldType.STRING)
-                                            .description("게시글 내용"),
+                                            .description("게시글 내용")
+                                            .attributes(key("constraint").value("10 ~ 1000 길이의 문자열")),
                                     fieldWithPath("hashtags").type(JsonFieldType.ARRAY)
-                                            .description("해시태그 목록"),
+                                            .description("해시태그 목록")
+                                            .attributes(key("constraint").value("1 ~ 10의 길이를 가지는 한글,영어,숫자로만 구성된 문자열로 최대 5개까지 입력 가능")),
                                     fieldWithPath("postMediaIds").type(JsonFieldType.ARRAY)
                                             .description("게시글 미디어 UUID 목록"),
                                     fieldWithPath("mentionedUserIds").type(JsonFieldType.ARRAY)
@@ -216,9 +219,11 @@ class PostApiControllerTest extends TestControllerSetUp {
                             ),
                             requestFields(
                                     fieldWithPath("content").type(JsonFieldType.STRING)
-                                            .description("글 내용"),
+                                            .description("글 내용")
+                                            .attributes(key("constraint").value("10 ~ 1000 길이의 문자열")),
                                     fieldWithPath("hashtags").type(JsonFieldType.ARRAY)
-                                            .description("해시태그 목록"),
+                                            .description("해시태그 목록")
+                                            .attributes(key("constraint").value("1 ~ 10의 길이를 가지는 한글,영어,숫자로만 구성된 문자열로 최대 5개까지 입력 가능")),
                                     fieldWithPath("postMediaIds").type(JsonFieldType.ARRAY)
                                             .description("게시글 미디어 UUID 목록")
                             ),
@@ -895,8 +900,8 @@ class PostApiControllerTest extends TestControllerSetUp {
                                 parameterWithName("keyword").description("검색 키워드"),
                                 parameterWithName("page").description("페이지 번호"),
                                 parameterWithName("size").description("페이지 사이즈"),
-                                parameterWithName("order")
-                                        .description("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / LIKE_UPPER(좋아요 많은순)")
+                                parameterWithName("order").description("정렬 순서")
+                                        .attributes(key("constraint").value("기본값 NEWER(생성 최신순) / ORDER(생성 과거순) / LIKE_UPPER(좋아요 많은순) 중 하나"))
                         ),
                         responseFields(
                                 fieldWithPath("posts").type(JsonFieldType.ARRAY)

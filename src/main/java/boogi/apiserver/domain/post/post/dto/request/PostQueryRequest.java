@@ -15,7 +15,6 @@ public class PostQueryRequest {
 
     private PostListingOrder order = PostListingOrder.NEWER;
 
-
     public PostQueryRequest(String keyword, PostListingOrder order) {
         this.keyword = keyword;
         this.order = order;
