@@ -17,7 +17,7 @@ public class BannedMemberDto {
         this.user = UserBasicProfileDto.from(user);
     }
 
-    public BannedMemberDto(final Long memberId, final UserBasicProfileDto user) {
+    public BannedMemberDto(Long memberId, UserBasicProfileDto user) {
         this.memberId = memberId;
         this.user = user;
     }

@@ -18,7 +18,7 @@ public class LikeMembersAtCommentResponse {
     private PaginationDto pageInfo;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public LikeMembersAtCommentResponse(final List<UserBasicProfileDto> users, final PaginationDto pageInfo) {
+    public LikeMembersAtCommentResponse(List<UserBasicProfileDto> users, PaginationDto pageInfo) {
         this.members = users;
         this.pageInfo = pageInfo;
     }

@@ -9,7 +9,7 @@ public class CommunitySettingRequest {
     private Boolean isSecret;
     private Boolean isAutoApproval;
 
-    public CommunitySettingRequest(final Boolean isSecret, final Boolean isAutoApproval) {
+    public CommunitySettingRequest(Boolean isSecret, Boolean isAutoApproval) {
         this.isSecret = isSecret;
         this.isAutoApproval = isAutoApproval;
     }

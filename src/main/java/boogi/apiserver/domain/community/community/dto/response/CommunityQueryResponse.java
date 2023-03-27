@@ -12,12 +12,12 @@ public class CommunityQueryResponse {
     private final PaginationDto pageInfo;
     private final List<SearchCommunityDto> communities;
 
-    public CommunityQueryResponse(final PaginationDto pageInfo, final List<SearchCommunityDto> communities) {
+    public CommunityQueryResponse(PaginationDto pageInfo, List<SearchCommunityDto> communities) {
         this.pageInfo = pageInfo;
         this.communities = communities;
     }
 
-    public static CommunityQueryResponse from(final Slice<SearchCommunityDto> slice) {
+    public static CommunityQueryResponse from(Slice<SearchCommunityDto> slice) {
         return new CommunityQueryResponse(PaginationDto.of(slice), slice.getContent());
     }
 }

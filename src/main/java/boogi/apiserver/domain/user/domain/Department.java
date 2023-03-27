@@ -23,7 +23,7 @@ public class Department {
     @Column(name = "department")
     private String value;
 
-    public Department(final String value) {
+    public Department(String value) {
         String trimedValue = StringUtils.trimWhitespace(value);
         validate(trimedValue);
         this.value = trimedValue;

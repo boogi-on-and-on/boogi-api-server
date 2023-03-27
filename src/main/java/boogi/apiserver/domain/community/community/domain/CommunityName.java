@@ -23,7 +23,7 @@ public class CommunityName {
     @Column(name = "community_name")
     private String value;
 
-    public CommunityName(final String value) {
+    public CommunityName(String value) {
         String trimedValue = StringUtils.trimWhitespace(value);
         validate(trimedValue);
         this.value = trimedValue;

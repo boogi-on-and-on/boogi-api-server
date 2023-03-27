@@ -21,7 +21,7 @@ public class JoinedCommunitiesDto {
 
     private List<CommunityInfo> communities;
 
-    public JoinedCommunitiesDto(final List<CommunityInfo> communities) {
+    public JoinedCommunitiesDto(List<CommunityInfo> communities) {
         this.communities = communities;
     }
 
@@ -89,7 +89,7 @@ public class JoinedCommunitiesDto {
         private PostInfo post;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public CommunityInfo(final Long id, final String name, final PostInfo post) {
+        public CommunityInfo(Long id, String name, PostInfo post) {
             this.id = id;
             this.name = name;
             this.post = post;
@@ -123,9 +123,9 @@ public class JoinedCommunitiesDto {
         private Integer commentCount;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public PostInfo(final Long id, final LocalDateTime createdAt, final List<String> hashtags,
-                        final String content, final String postMediaUrl, final Integer likeCount,
-                        final Integer commentCount) {
+        public PostInfo(Long id, LocalDateTime createdAt, List<String> hashtags,
+                        String content, String postMediaUrl, Integer likeCount,
+                        Integer commentCount) {
             this.id = id;
             this.createdAt = createdAt;
             this.hashtags = hashtags;

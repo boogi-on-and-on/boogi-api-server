@@ -15,7 +15,7 @@ public class UpdateCommunityRequest {
 
     private List<String> hashtags;
 
-    public UpdateCommunityRequest(final String description, final List<String> hashtags) {
+    public UpdateCommunityRequest(String description, List<String> hashtags) {
         this.description = description;
         this.hashtags = hashtags;
     }

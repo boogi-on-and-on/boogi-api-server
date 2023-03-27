@@ -34,7 +34,7 @@ public class Like extends TimeBaseEntity {
     private Comment comment;
 
     @Builder
-    private Like(final Long id, final Post post, final Member member, final Comment comment) {
+    private Like(Long id, Post post, Member member, Comment comment) {
         this.id = id;
         this.post = post;
         this.member = member;
@@ -58,7 +58,7 @@ public class Like extends TimeBaseEntity {
 
     public void validateLikedUser(Long userId) {
         Long likedUserId = this.member.getUser().getId();
-        if(!likedUserId.equals(userId)) {
+        if (!likedUserId.equals(userId)) {
             throw new UnmatchedLikeUserException();
         }
     }

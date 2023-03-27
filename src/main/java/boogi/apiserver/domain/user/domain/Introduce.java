@@ -20,7 +20,7 @@ public class Introduce {
     @Column(name = "introduce")
     private String value;
 
-    public Introduce(final String value) {
+    public Introduce(String value) {
         String trimedValue = StringUtils.trimWhitespace(value);
         validate(trimedValue);
         this.value = trimedValue;

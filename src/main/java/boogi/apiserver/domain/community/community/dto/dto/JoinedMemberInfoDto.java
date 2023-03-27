@@ -13,7 +13,7 @@ public class JoinedMemberInfoDto {
     private String createdAt;
     private UserDetailInfoDto user;
 
-    public JoinedMemberInfoDto(final Long id, final String memberType, final String createdAt, final UserDetailInfoDto user) {
+    public JoinedMemberInfoDto(Long id, String memberType, String createdAt, UserDetailInfoDto user) {
         this.id = id;
         this.memberType = memberType;
         this.createdAt = createdAt;

@@ -33,9 +33,9 @@ public class SearchCommunityDto {
     private boolean privated;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public SearchCommunityDto(final Long id, final String name, final String description,
-                              final LocalDateTime createdAt, final List<String> hashtags,
-                              final int memberCount, final String category, final boolean isPrivate) {
+    public SearchCommunityDto(Long id, String name, String description,
+                              LocalDateTime createdAt, List<String> hashtags,
+                              int memberCount, String category, boolean isPrivate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -47,7 +47,7 @@ public class SearchCommunityDto {
     }
 
     public static SearchCommunityDto of(Community community) {
-        final SearchCommunityDtoBuilder builder = SearchCommunityDto.builder()
+        SearchCommunityDtoBuilder builder = SearchCommunityDto.builder()
                 .id(community.getId())
                 .name(community.getCommunityName())
                 .description(community.getDescription())

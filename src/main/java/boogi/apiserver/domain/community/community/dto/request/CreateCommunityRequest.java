@@ -28,8 +28,8 @@ public class CreateCommunityRequest {
     @NotNull(message = "커뮤니티 자동 가입 여부를 선택해주세요")
     private Boolean autoApproval;
 
-    public CreateCommunityRequest(final String name, final String category, final String description,
-                                  final List<String> hashtags, final Boolean isPrivate, final Boolean autoApproval) {
+    public CreateCommunityRequest(String name, String category, String description,
+                                  List<String> hashtags, Boolean isPrivate, Boolean autoApproval) {
         this.name = name;
         this.category = category;
         this.description = description;

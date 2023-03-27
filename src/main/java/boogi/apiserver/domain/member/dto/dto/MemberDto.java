@@ -14,7 +14,7 @@ public class MemberDto {
     private MemberType type;
     private UserBasicProfileDto user;
 
-    public MemberDto(final Long id, final MemberType type, final UserBasicProfileDto user) {
+    public MemberDto(Long id, MemberType type, UserBasicProfileDto user) {
         this.id = id;
         this.type = type;
         this.user = user;

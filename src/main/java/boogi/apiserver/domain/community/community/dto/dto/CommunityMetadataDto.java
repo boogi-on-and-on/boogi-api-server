@@ -18,7 +18,7 @@ public class CommunityMetadataDto {
     private List<String> hashtags;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public CommunityMetadataDto(final String name, final String introduce, final List<String> hashtags) {
+    public CommunityMetadataDto(String name, String introduce, List<String> hashtags) {
         this.name = name;
         this.introduce = introduce;
         this.hashtags = hashtags;

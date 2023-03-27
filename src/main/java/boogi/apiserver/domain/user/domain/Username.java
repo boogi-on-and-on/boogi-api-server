@@ -22,7 +22,7 @@ public class Username {
     @Column(name = "username")
     private String value;
 
-    public Username(final String value) {
+    public Username(String value) {
         String trimedValue = StringUtils.trimWhitespace(value);
         validate(trimedValue);
         this.value = trimedValue;
