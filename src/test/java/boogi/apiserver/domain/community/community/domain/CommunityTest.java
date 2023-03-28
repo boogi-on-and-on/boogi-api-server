@@ -3,7 +3,6 @@ package boogi.apiserver.domain.community.community.domain;
 
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
-import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.NotManagerException;
@@ -17,7 +16,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,10 +30,7 @@ class CommunityTest {
 
         community.addTags(List.of("태그1", "태그2"));
 
-        final List<CommunityHashtag> hashtags = community.getHashtags();
-        final List<String> tags = toPureTags(hashtags);
-
-        assertThat(tags).containsExactly("태그1", "태그2");
+        assertThat(community.getHashtags()).extracting("tag").containsExactly("태그1", "태그2");
     }
 
     @Test
@@ -45,17 +40,8 @@ class CommunityTest {
 
         community.updateCommunity("커뮤니티 소개란 입니다.", List.of("태그1", "태그2"));
 
-        final List<CommunityHashtag> hashtags = community.getHashtags();
-        final List<String> tags = toPureTags(hashtags);
-        assertThat(tags).containsExactly("태그1", "태그2");
-
+        assertThat(community.getHashtags()).extracting("tag").containsExactly("태그1", "태그2");
         assertThat(community.getDescription()).isEqualTo("커뮤니티 소개란 입니다.");
-    }
-
-    private List<String> toPureTags(List<CommunityHashtag> hashtags) {
-        return hashtags.stream()
-                .map(CommunityHashtag::getTag)
-                .collect(Collectors.toList());
     }
 
     @DisplayName("비공개 커뮤니티로 전환하기")

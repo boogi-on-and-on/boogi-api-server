@@ -41,7 +41,6 @@ class MemberQueryServiceTest {
     @InjectMocks
     MemberQueryService memberQueryService;
 
-
     @Test
     @DisplayName("가입하지 않은 멤버 조회시 NotJoinedMemberException")
     void getMemberWithException() {
