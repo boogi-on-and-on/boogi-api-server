@@ -155,12 +155,12 @@ public class Post extends TimeBaseEntity {
         return commentCount;
     }
 
-    public PostHashtags getHashtags() {
-        return hashtags;
+    public List<PostHashtag> getHashtags() {
+        return hashtags.getValues();
     }
 
-    public PostMedias getPostMedias() {
-        return postMedias;
+    public List<PostMedia> getPostMedias() {
+        return postMedias.getValues();
     }
 
     public List<Like> getLikes() {

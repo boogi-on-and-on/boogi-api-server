@@ -71,7 +71,7 @@ public class PostDetailResponse {
     public static PostDetailResponse of(Post post, List<PostMedia> postMedias, Long sessionUserId, Long likeId) {
         List<PostMediaInfo> postMediaInfos = postMedias.isEmpty() ? null : PostMediaInfo.listFrom(postMedias);
 
-        List<PostHashtag> postHashtags = post.getHashtags().getValues();
+        List<PostHashtag> postHashtags = post.getHashtags();
         List<String> hashtags = postHashtags.isEmpty() ? null : toTagList(postHashtags);
 
         return PostDetailResponse.builder()

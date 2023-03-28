@@ -103,8 +103,8 @@ class PostCommandServiceTest {
             Post newPost = postCaptor.getValue();
             assertThat(newPost.getContent()).isEqualTo(NEW_POST_CONTENT);
             assertThat(newPost.getCommunityId()).isEqualTo(1L);
-            assertThat(newPost.getPostMedias().getValues().isEmpty()).isTrue();
-            assertThat(newPost.getHashtags().getValues().isEmpty()).isTrue();
+            assertThat(newPost.getPostMedias().isEmpty()).isTrue();
+            assertThat(newPost.getHashtags().isEmpty()).isTrue();
         }
     }
 
@@ -174,8 +174,8 @@ class PostCommandServiceTest {
 
             assertThat(post.getContent()).isEqualTo(UPDATE_POST_CONTENT);
 
-            final List<PostMedia> medias = post.getPostMedias().getValues();
-            final List<PostHashtag> hashtags = post.getHashtags().getValues();
+            final List<PostMedia> medias = post.getPostMedias();
+            final List<PostHashtag> hashtags = post.getHashtags();
             assertThat(hashtags.size()).isEqualTo(1);
             assertThat(hashtags.get(0).getTag()).isEqualTo(POSTHASHTAG_TAG);
             assertThat(medias.size()).isEqualTo(1);

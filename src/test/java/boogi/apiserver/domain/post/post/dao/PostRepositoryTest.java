@@ -6,7 +6,6 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.dao.PostHashtagRepository;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
-import boogi.apiserver.domain.hashtag.post.domain.PostHashtags;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.domain.Post;
@@ -304,10 +303,10 @@ class PostRepositoryTest {
         assertThat(second.getId()).isEqualTo(post2.getId());
         assertThat(third.getId()).isEqualTo(post3.getId());
 
-        assertThat(first.getPostMedias().getValues().get(0).getId()).isEqualTo(postMedia1.getId());
+        assertThat(first.getPostMedias().get(0).getId()).isEqualTo(postMedia1.getId());
 
-        assertThat(second.getHashtags().getValues().size()).isEqualTo(2);
-        assertThat(persistenceUtil.isLoaded(second.getHashtags().getValues().get(0))).isTrue();
+        assertThat(second.getHashtags().size()).isEqualTo(2);
+        assertThat(persistenceUtil.isLoaded(second.getHashtags().get(0))).isTrue();
     }
 
     @Test
@@ -593,8 +592,7 @@ class PostRepositoryTest {
         persistenceUtil.cleanPersistenceContext();
 
         final Post findPost = postRepository.findByPostId(post.getId());
-        final PostHashtags tags = findPost.getHashtags();
-        tags.getValues().forEach(i-> System.out.println("i = " + i));
+        final List<PostHashtag> tags = findPost.getHashtags();
 
 
 //        assertThat(findPost.getHashtags())

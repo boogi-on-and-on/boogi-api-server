@@ -42,13 +42,13 @@ public class UserPostDto {
     }
 
     public static UserPostDto from(Post post) {
-        List<PostHashtag> postHashtags = post.getHashtags().getValues();
+        List<PostHashtag> postHashtags = post.getHashtags();
         List<String> hashtags = (postHashtags == null || postHashtags.size() == 0) ? null :
                 postHashtags.stream()
                         .map(PostHashtag::getTag)
                         .collect(Collectors.toList());
 
-        List<PostMedia> postMedias = post.getPostMedias().getValues();
+        List<PostMedia> postMedias = post.getPostMedias();
         List<PostMediaMetadataDto> postMediaMetadataDtos =
                 (postMedias == null || postMedias.size() == 0) ? null : PostMediaMetadataDto.listFrom(postMedias);
 

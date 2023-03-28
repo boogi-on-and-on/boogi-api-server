@@ -58,10 +58,10 @@ public class CommunityPostDto {
     }
 
     public static CommunityPostDto of(Post post, Long userId, Member sessionMember) {
-        List<PostHashtag> postHashtags = post.getHashtags().getValues();
+        List<PostHashtag> postHashtags = post.getHashtags();
         List<String> hashtags = (postHashtags == null || postHashtags.size() == 0) ? null : toTagList(postHashtags);
 
-        List<PostMedia> postMedias = post.getPostMedias().getValues();
+        List<PostMedia> postMedias = post.getPostMedias();
         List<PostMediaMetadataDto> postMediaMetadataDtos = (postMedias == null || postMedias.size() == 0)
                 ? null : PostMediaMetadataDto.listFrom(postMedias);
 

@@ -85,10 +85,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
 
         // LAZY INIT PostHashtag
-        posts.stream().anyMatch(p -> p.getHashtags() != null && p.getHashtags().getValues().size() > 0);
+        posts.stream().anyMatch(p -> p.getHashtags() != null && p.getHashtags().size() > 0);
 
         // LAZY INIT PostMedia
-        posts.stream().anyMatch(p -> p.getPostMedias().getValues().size() > 0);
+        posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
         //LAZY INIT Like
         //todo: MemberId 기반으로 쿼리하기
@@ -128,10 +128,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
 
         //PostHashTag LAZY INIT
-        posts.stream().anyMatch(p -> p.getHashtags().getValues().size() > 0);
+        posts.stream().anyMatch(p -> p.getHashtags().size() > 0);
 
         //PostMedia LAZY INIT
-        posts.stream().anyMatch(p -> p.getPostMedias().getValues().size() > 0);
+        posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
         List<SearchPostDto> postDtos = posts.stream()
                 .map(SearchPostDto::from)

@@ -33,7 +33,7 @@ public class HotPostDto {
     }
 
     public static HotPostDto from(Post post) {
-        List<PostHashtag> postHashtags = post.getHashtags().getValues();
+        List<PostHashtag> postHashtags = post.getHashtags();
         List<String> hashtags = (postHashtags == null || postHashtags.size() == 0) ? null : postHashtags
                 .stream()
                 .map(PostHashtag::getTag)
