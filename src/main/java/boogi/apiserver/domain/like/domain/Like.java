@@ -47,7 +47,7 @@ public class Like extends TimeBaseEntity {
         this.comment = comment;
     }
 
-    public static Like postOf(Post post, Member member) {
+    public static Like ofPost(Post post, Member member) {
         post.addLikeCount();
         return new Like(post, null, member);
     }

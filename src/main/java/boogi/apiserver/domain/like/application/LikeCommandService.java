@@ -31,7 +31,7 @@ public class LikeCommandService {
 
         validateAlreadyPostLike(postId, joinedMember);
 
-        Like newLike = Like.postOf(findPost, joinedMember);
+        Like newLike = Like.ofPost(findPost, joinedMember);
         likeRepository.save(newLike);
         return newLike.getId();
     }
