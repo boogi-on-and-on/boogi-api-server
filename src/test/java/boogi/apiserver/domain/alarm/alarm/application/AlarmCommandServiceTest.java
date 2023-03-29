@@ -40,7 +40,7 @@ class AlarmCommandServiceTest {
 
             final Alarm alarm = TestAlarm.builder().user(user).build();
 
-            given(alarmRepository.findByAlarmId(anyLong()))
+            given(alarmRepository.findAlarmById(anyLong()))
                     .willReturn(alarm);
 
             //then
@@ -57,7 +57,7 @@ class AlarmCommandServiceTest {
             final User user = TestUser.builder().id(1L).build();
             final Alarm alarm = TestAlarm.builder().user(user).build();
 
-            given(alarmRepository.findByAlarmId(anyLong()))
+            given(alarmRepository.findAlarmById(anyLong()))
                     .willReturn(alarm);
             //when
             alarmCommandService.deleteAlarm(user.getId(), 1L);

@@ -82,7 +82,7 @@ class ReportCommandServiceTest {
             final Comment comment = TestComment.builder().id(4L).post(post).build();
 
             given(userRepository.findByUserId(anyLong())).willReturn(user);
-            given(commentRepository.findByCommentId(anyLong())).willReturn(comment);
+            given(commentRepository.findCommentById(anyLong())).willReturn(comment);
 
             CreateReportRequest request =
                     new CreateReportRequest(4L, ReportTarget.COMMENT, ReportReason.SWEAR, REPORT_CONTENT);
@@ -113,7 +113,7 @@ class ReportCommandServiceTest {
             final Comment comment = TestComment.builder().id(4L).post(post).build();
 
             given(userRepository.findByUserId(anyLong())).willReturn(user);
-            given(commentRepository.findByCommentId(anyLong())).willReturn(comment);
+            given(commentRepository.findCommentById(anyLong())).willReturn(comment);
 
             CreateReportRequest request =
                     new CreateReportRequest(4L, ReportTarget.COMMENT, ReportReason.SWEAR, REPORT_CONTENT);

@@ -126,7 +126,7 @@ class LikeCommandServiceTest {
 
             final Comment comment = TestComment.builder().id(4L).post(post).member(member).build();
 
-            given(commentRepository.findByCommentId(anyLong()))
+            given(commentRepository.findCommentById(anyLong()))
                     .willReturn(comment);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);
@@ -153,7 +153,7 @@ class LikeCommandServiceTest {
 
             final Comment comment = TestComment.builder().id(4L).post(post).member(member).build();
 
-            given(commentRepository.findByCommentId(anyLong()))
+            given(commentRepository.findCommentById(anyLong()))
                     .willReturn(comment);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);

@@ -74,7 +74,7 @@ public class ReportCommandService {
     }
 
     private Comment getReportedComment(Long userId, final Long id) {
-        Comment findComment = commentRepository.findByCommentId(id);
+        Comment findComment = commentRepository.findCommentById(id);
 
         Community community = findComment.getPost().getCommunity();
         if (community.isPrivate()) {

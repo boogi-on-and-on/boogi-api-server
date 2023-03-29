@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,48 +43,9 @@ class AlarmRepositoryTest {
         persistenceUtil = new PersistenceUtil(em);
     }
 
-    @Test
-    void 알람목록() {
-        //given
-
-        final User user = TestUser.builder().build();
-        userRepository.save(user);
-
-        final Alarm alarm1 = TestAlarm.builder()
-                .head("해드1")
-                .body("바디1")
-                .user(user)
-                .build();
-        TestTimeReflection.setCreatedAt(alarm1, LocalDateTime.now());
-
-        final Alarm alarm2 = TestAlarm.builder()
-                .head("해드2")
-                .body("바디2")
-                .user(user)
-                .build();
-        TestTimeReflection.setCreatedAt(alarm2, LocalDateTime.now().minusDays(1));
-
-        final Alarm alarm3 = TestAlarm.builder()
-                .head("해드3")
-                .body("바디3")
-                .user(user)
-                .build();
-        TestTimeReflection.setCreatedAt(alarm3, LocalDateTime.now().minusDays(2));
-
-        alarmRepository.saveAll(List.of(alarm1, alarm2, alarm3));
-
-        persistenceUtil.cleanPersistenceContext();
-
-        //when
-        List<Alarm> alarms = alarmRepository.getAlarms(user.getId());
-
-        assertThat(alarms.stream().map(Alarm::getId))
-                .containsExactly(alarm1.getId(), alarm2.getId(), alarm3.getId());
-    }
-
     @Nested
-    @DisplayName("findByAlarmId 디폴트 메서드 테스트")
-    class findByAlarmId {
+    @DisplayName("알람 ID로 알람 조회")
+    class findAlarmById {
 
         @DisplayName("성공")
         @Test
@@ -92,7 +55,7 @@ class AlarmRepositoryTest {
 
             persistenceUtil.cleanPersistenceContext();
 
-            final Alarm findAlarm = alarmRepository.findByAlarmId(alarm.getId());
+            final Alarm findAlarm = alarmRepository.findAlarmById(alarm.getId());
             assertThat(findAlarm.getId()).isEqualTo(alarm.getId());
         }
 
@@ -100,8 +63,41 @@ class AlarmRepositoryTest {
         @Test
         void throwException() {
             assertThatThrownBy(() -> {
-                alarmRepository.findByAlarmId(1L);
+                alarmRepository.findAlarmById(1L);
             }).isInstanceOf(AlarmNotFoundException.class);
         }
+    }
+
+    @Test
+    @DisplayName("유저 ID로 알람을 최신순으로 조회한다.")
+    void getAlarms() {
+        final String ALARM_HEAD = "헤드";
+        final String ALARM_BODY = "바디";
+
+        //given
+        final User user = TestUser.builder().build();
+        userRepository.save(user);
+
+        List<Alarm> alarms = IntStream.range(0, 3)
+                .mapToObj(i -> {
+                    Alarm alarm = TestAlarm.builder()
+                            .head(ALARM_HEAD + i)
+                            .body(ALARM_BODY + i)
+                            .user(user)
+                            .build();
+                    TestTimeReflection.setCreatedAt(alarm, LocalDateTime.now().minusDays(i));
+                    return alarm;
+                }).collect(Collectors.toList());
+        alarmRepository.saveAll(alarms);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        //when
+        List<Alarm> findAlarms = alarmRepository.getAlarms(user.getId());
+
+        List<Long> expectedAlarmIds = alarms.stream().map(Alarm::getId).collect(Collectors.toList());
+        assertThat(findAlarms).extracting("id").isEqualTo(expectedAlarmIds);
+        assertThat(findAlarms).extracting("head").containsExactly("헤드0", "헤드1", "헤드2");
+        assertThat(findAlarms).extracting("body").containsExactly("바디0", "바디1", "바디2");
     }
 }

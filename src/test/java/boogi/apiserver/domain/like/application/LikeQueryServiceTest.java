@@ -163,7 +163,7 @@ class LikeQueryServiceTest {
                 .comment(comment)
                 .member(member)
                 .build();
-        given(commentRepository.findByCommentId(anyLong()))
+        given(commentRepository.findCommentById(anyLong()))
                 .willReturn(comment);
 
         Pageable pageable = PageRequest.of(0, 1);

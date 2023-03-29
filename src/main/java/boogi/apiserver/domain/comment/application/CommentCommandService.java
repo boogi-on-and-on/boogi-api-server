@@ -42,7 +42,7 @@ public class CommentCommandService {
     }
 
     public void deleteComment(Long commentId, Long userId) {
-        Comment findComment = commentRepository.findByCommentId(commentId);
+        Comment findComment = commentRepository.findCommentById(commentId);
 
         validateCommentDeletable(userId, findComment);
 

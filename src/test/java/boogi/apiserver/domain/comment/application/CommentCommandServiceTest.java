@@ -207,7 +207,7 @@ class CommentCommandServiceTest {
                     .post(post)
                     .content("댓글")
                     .build();
-            given(commentRepository.findByCommentId(anyLong()))
+            given(commentRepository.findCommentById(anyLong()))
                     .willReturn(comment);
 
             commentCommandService.deleteComment(comment.getId(), user.getId());
@@ -249,7 +249,7 @@ class CommentCommandServiceTest {
                     .post(post)
                     .content("댓글")
                     .build();
-            given(commentRepository.findByCommentId(anyLong()))
+            given(commentRepository.findCommentById(anyLong()))
                     .willReturn(comment);
 
             given(memberQueryService.getMember(anyLong(), anyLong()))
@@ -292,7 +292,7 @@ class CommentCommandServiceTest {
                     .post(post)
                     .content("댓글")
                     .build();
-            given(commentRepository.findByCommentId(anyLong()))
+            given(commentRepository.findCommentById(anyLong()))
                     .willReturn(comment);
 
             given(memberQueryService.getMember(anyLong(), anyLong()))

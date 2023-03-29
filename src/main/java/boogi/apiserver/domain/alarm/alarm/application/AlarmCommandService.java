@@ -15,7 +15,7 @@ public class AlarmCommandService {
     private final AlarmRepository alarmRepository;
 
     public void deleteAlarm(Long userId, Long alarmId) {
-        Alarm alarm = alarmRepository.findByAlarmId(alarmId);
+        Alarm alarm = alarmRepository.findAlarmById(alarmId);
         if (!alarm.isSameUser(userId)) {
             throw new CanNotDeleteAlarmException();
         }

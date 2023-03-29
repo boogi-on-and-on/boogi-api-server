@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AlarmRepository extends JpaRepository<Alarm, Long>, AlarmRepositoryCustom {
 
-    default Alarm findByAlarmId(Long userId) {
-        return this.findById(userId).orElseThrow(AlarmNotFoundException::new);
+    default Alarm findAlarmById(Long alarmId) {
+        return this.findById(alarmId).orElseThrow(AlarmNotFoundException::new);
     }
 }

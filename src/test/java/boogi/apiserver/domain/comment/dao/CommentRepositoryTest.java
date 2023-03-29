@@ -4,19 +4,16 @@ import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestComment;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestPost;
-import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.comment.domain.Comment;
+import boogi.apiserver.domain.comment.exception.CommentNotFoundException;
 import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
-import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,361 +21,209 @@ import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @CustomDataJpaTest
 class CommentRepositoryTest {
 
     @Autowired
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @Autowired
-    private MemberRepository memberRepository;
+    MemberRepository memberRepository;
 
     @Autowired
     PostRepository postRepository;
 
     @Autowired
-    private EntityManager em;
+    EntityManager em;
 
-    private PersistenceUtil persistenceUtil;
+    PersistenceUtil persistenceUtil;
 
     @BeforeEach
     void init() {
         persistenceUtil = new PersistenceUtil(em);
     }
 
+    @Nested
+    @DisplayName("ID로 댓글 조회시")
+    class FindCommentById {
+        @Test
+        @DisplayName("댓글 조회에 성공한다.")
+        void findCommentByIdSuccess() {
+            Comment comment = TestComment.builder().build();
+            commentRepository.save(comment);
+
+            persistenceUtil.cleanPersistenceContext();
+
+            Comment findComment = commentRepository.findCommentById(comment.getId());
+
+            assertThat(findComment).isNotNull();
+        }
+
+        @Test
+        @DisplayName("댓글이 존재하지 않을시 CommentNotFoundException 발생")
+        void notExistCommentFail() {
+            assertThatThrownBy(() -> commentRepository.findCommentById(1l))
+                    .isInstanceOf(CommentNotFoundException.class);
+        }
+    }
+
     @Test
-    void getUserCommentPage() {
-        User user = TestUser.builder().build();
-        userRepository.save(user);
+    @DisplayName("해당 게시글에 달린 부모 댓글만 페이지네이션해서 조회한다.")
+    void findParentCommentsWithMemberByPostId() {
+        final String COMMENT_CONTENT = "댓글 내용";
 
-        final Member member = TestMember.builder().user(user).build();
-
-        memberRepository.save(member);
-
-        final Post post = TestPost.builder().member(member).build();
+        Post post = TestPost.builder().build();
         postRepository.save(post);
 
-        final Comment comment1 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(3));
-
-        final Comment comment2 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(2));
-
-        final Comment comment3 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now().minusHours(1));
-
-        commentRepository.saveAll(List.of(comment1, comment2, comment3));
-
-        persistenceUtil.cleanPersistenceContext();
-
-//        Slice<Comment> commentPage1 = commentRepository.getUserCommentPage(PageRequest.of(0, 2), user.getId());
-//        Slice<Comment> commentPage2 = commentRepository.getUserCommentPage(PageRequest.of(1, 2), user.getId());
-
-//        List<Comment> comments1 = commentPage1.getContent(); //first page
-//        List<Comment> comments2 = commentPage2.getContent(); //second page
-//
-//        Comment first = comments1.get(0);
-//        Comment second = comments1.get(1);
-//
-//        assertThat(first.getId()).isEqualTo(comment3.getId());
-//        assertThat(second.getId()).isEqualTo(comment2.getId());
-//
-//        assertThat(first.getCreatedAt()).isAfter(second.getCreatedAt());
-//
-//        assertThat(comments1.size()).isEqualTo(2);
-//        assertThat(commentPage1.hasNext()).isTrue();
-
-//        assertThat(comments2.size()).isEqualTo(1);
-//        assertThat(commentPage2.hasNext()).isFalse();
-    }
-
-    @Test
-    void getUserCommentPage_멤버아이디_없을때() {
-//        Slice<Comment> commentPage = commentRepository.getUserCommentPage(PageRequest.of(0, 3), 2L);
-//
-//        assertThat(commentPage.getContent().size()).isEqualTo(0);
-//        assertThat(commentPage.hasNext()).isFalse();
-    }
-
-    @Test
-    @DisplayName("fetch join으로 댓글에 member도 같이 가져온다.")
-    void testFindCommentWithMemberByCommentId() {
-        final Member member = TestMember.builder().build();
+        Member member = TestMember.builder().build();
         memberRepository.save(member);
 
-        final Post post = TestPost.builder().build();
-        postRepository.save(post);
-
-        final Comment comment1 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .build();
-        commentRepository.save(comment1);
-
-        final Comment comment2 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .parent(comment1)
-                .build();
-        commentRepository.save(comment2);
+        List<Comment> comments = IntStream.range(0, 30)
+                .mapToObj(i -> TestComment.builder()
+                        .content(COMMENT_CONTENT + i)
+                        .post(post)
+                        .member(member)
+                        .parent(null)
+                        .child(false)
+                        .build()
+                ).collect(Collectors.toList());
+        comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
+        commentRepository.saveAll(comments);
 
         persistenceUtil.cleanPersistenceContext();
 
-//        Comment findComment2 = commentRepository.findCommentWithMemberByCommentId(comment2.getId())
-//                .orElseGet(Assertions::fail);
-//        assertThat(persistenceUtil.isLoaded(findComment2.getMember())).isTrue();
-//        assertThat(persistenceUtil.isLoaded(findComment2.getPost())).isFalse();
-//        assertThat(persistenceUtil.isLoaded(findComment2.getParent())).isFalse();
-//
-//        Comment findComment1 = commentRepository.findCommentWithMemberByCommentId(comment1.getId())
-//                .orElseGet(Assertions::fail);
-//        assertThat(persistenceUtil.isLoaded(findComment1.getMember())).isTrue();
-//        assertThat(persistenceUtil.isLoaded(findComment1.getPost())).isFalse();
-//        assertThat(findComment1.getParent()).isNull();
+        Pageable pageable = PageRequest.of(0, 20);
+
+        Slice<Comment> parentCommentPage =
+                commentRepository.findParentCommentsWithMemberByPostId(pageable, post.getId());
+
+        String[] expectedCommentContents = IntStream.range(0, 20)
+                .mapToObj(i -> COMMENT_CONTENT + i)
+                .toArray(String[]::new);
+
+        List<Comment> parentComments = parentCommentPage.getContent();
+        assertThat(parentComments).hasSize(20);
+
+        assertThat(parentComments).extracting("content").containsExactly(expectedCommentContents);
+        assertThat(parentComments).extracting("parent").containsOnlyNulls();
+        assertThat(parentComments).extracting("child").containsOnly(false);
+        assertThat(persistenceUtil.isLoaded(parentComments.get(0))).isTrue();
+
+        assertThat(parentCommentPage.hasNext()).isTrue();
     }
 
     @Test
-    @DisplayName("한 post에 달린 부모 댓글만 페이지네이션하고 오래된 순으로 member와 같이 가져온다.")
-    void testFindParentCommentsWithMemberByPostId() {
-        final Member member = TestMember.builder().build();
+    @DisplayName("부모 댓글 ID들로 해당 자식 댓글들을 모두 조회한다.")
+    void findChildCommentsWithMemberByParentCommentIds() {
+        final String COMMENT_CONTENT = "댓글 내용";
+
+        Member member = TestMember.builder().build();
         memberRepository.save(member);
 
-        final Post post = TestPost.builder().build();
-        postRepository.save(post);
+        List<Comment> parentComments = IntStream.range(0, 2)
+                .mapToObj(i -> TestComment.builder()
+                        .content(COMMENT_CONTENT + i)
+                        .parent(null)
+                        .child(false)
+                        .build()
+                ).collect(Collectors.toList());
+        commentRepository.saveAll(parentComments);
 
-        final Comment comment1 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .child(false)
-                .build();
-        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(2));
-        commentRepository.save(comment1);
-
-        final Comment comment2 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .parent(comment1)
-                .child(true)
-                .build();
-        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(1));
-        commentRepository.save(comment2);
-
-        final Comment comment3 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .child(false)
-                .build();
-        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now());
-        commentRepository.save(comment3);
-
-        persistenceUtil.cleanPersistenceContext();
-
-        Pageable pageable = PageRequest.of(0, 2);
-        Slice<Comment> parentCommentsPage = commentRepository
-                .findParentCommentsWithMemberByPostId(pageable, post.getId());
-        List<Comment> parentComments = parentCommentsPage.getContent();
-
-        assertThat(parentComments.size()).isEqualTo(2);
-
-        Comment firstComment = parentComments.get(0);
-        Comment secondComment = parentComments.get(1);
-
-        assertThat(firstComment.getId()).isEqualTo(comment1.getId());
-        assertThat(firstComment.getParent()).isNull();
-        assertThat(persistenceUtil.isLoaded(firstComment.getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(firstComment.getPost())).isFalse();
-
-        assertThat(secondComment.getId()).isEqualTo(comment3.getId());
-        assertThat(secondComment.getParent()).isNull();
-        assertThat(persistenceUtil.isLoaded(secondComment.getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(secondComment.getPost())).isFalse();
-    }
-
-    @Test
-    @DisplayName("부모 댓글들에 달린 자식 댓글들을 오래된 순으로 member와 같이 가져온다.")
-    void testFindChildCommentsWithMemberByParentCommentIds() {
-        final Member member = TestMember.builder().build();
-        memberRepository.save(member);
-
-        final Post post = TestPost.builder().build();
-        postRepository.save(post);
-
-        final Comment comment1 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .child(false)
-                .build();
-        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(2));
-        commentRepository.save(comment1);
-
-        final Comment comment2 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .child(true)
-                .parent(comment1)
-                .build();
-        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(1));
-        commentRepository.save(comment2);
-
-        final Comment comment3 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .child(false)
-                .build();
-        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now());
-        commentRepository.save(comment3);
-
-        final Comment comment4 = TestComment.builder()
-                .member(member)
-                .post(post)
-                .child(true)
-                .parent(comment1)
-                .build();
-        TestTimeReflection.setCreatedAt(comment4, LocalDateTime.now());
-        commentRepository.save(comment4);
+        Stream<Comment> childCommentStream1 = IntStream.range(2, 8)
+                .mapToObj(i -> TestComment.builder()
+                        .content(COMMENT_CONTENT + i)
+                        .member(member)
+                        .parent(parentComments.get(0))
+                        .build()
+                );
+        Stream<Comment> childCommentStream2 = IntStream.range(8, 15)
+                .mapToObj(i -> TestComment.builder()
+                        .content(COMMENT_CONTENT + i)
+                        .member(member)
+                        .parent(parentComments.get(1))
+                        .build()
+                );
+        List<Comment> childComments = Stream.concat(childCommentStream1, childCommentStream2)
+                .collect(Collectors.toList());
+        commentRepository.saveAll(childComments);
 
         persistenceUtil.cleanPersistenceContext();
 
-        List<Long> parentCommentIds = List.of(comment1.getId(), comment3.getId());
-        List<Comment> childComments = commentRepository
-                .findChildCommentsWithMemberByParentCommentIds(parentCommentIds);
+        List<Long> parentCommentIds = parentComments.stream()
+                .map(Comment::getId)
+                .collect(Collectors.toList());
 
-        assertThat(childComments.size()).isEqualTo(2);
+        List<Comment> findChildComments =
+                commentRepository.findChildCommentsWithMemberByParentCommentIds(parentCommentIds);
 
-        Comment firstComment = childComments.get(0);
-        Comment secondComment = childComments.get(1);
+        String[] expectedChildContents = IntStream.range(2, 15)
+                .mapToObj(i -> COMMENT_CONTENT + i)
+                .toArray(String[]::new);
 
-        assertThat(firstComment.getId()).isEqualTo(comment2.getId());
-        assertThat(firstComment.getParent().getId()).isEqualTo(comment1.getId());
-        assertThat(persistenceUtil.isLoaded(firstComment.getParent())).isFalse();
-        assertThat(persistenceUtil.isLoaded(firstComment.getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(firstComment.getPost())).isFalse();
-
-        assertThat(secondComment.getId()).isEqualTo(comment4.getId());
-        assertThat(secondComment.getParent().getId()).isEqualTo(comment1.getId());
-        assertThat(persistenceUtil.isLoaded(secondComment.getParent())).isFalse();
-        assertThat(persistenceUtil.isLoaded(secondComment.getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(secondComment.getPost())).isFalse();
+        assertThat(findChildComments).hasSize(13);
+        assertThat(findChildComments).extracting("content").containsExactly(expectedChildContents);
+        assertThat(findChildComments).extracting("parent").extracting("id")
+                .containsOnly(parentCommentIds.get(0), parentCommentIds.get(1));
+        assertThat(persistenceUtil.isLoaded(findChildComments.get(0).getMember())).isTrue();
     }
 
     @Test
-    @DisplayName("삭제되지 않은 댓글의 경우만 가져온다.")
-    void testFindCommentById() {
-        final Comment comment1 = TestComment.builder().build();
-        final Comment comment2 = TestComment.builder().build();
+    @DisplayName("멤버의 ID들로 작성한 댓글들을 페이지네이션해서 조회한다.")
+    void getUserCommentPageByMemberIds() {
+        final String COMMENT_CONTENT = "댓글 내용";
 
-        comment2.deleteComment();
-        commentRepository.saveAll(List.of(comment1, comment2));
-
-        persistenceUtil.cleanPersistenceContext();
-
-        List<Comment> comments = commentRepository.findAll();
-
-        assertThat(comments.size()).isEqualTo(1);
-        assertThat(comments.get(0).getId()).isEqualTo(comment1.getId());
-    }
-
-    @Test
-    @DisplayName("멤버가 작성한 삭제되지 않은 댓글들을 최근순으로 페이지네이션해서 가져온다.")
-    void testGetUserCommentPageByMemberIds() {
         final Member member1 = TestMember.builder().build();
-        memberRepository.save(member1);
-
         final Member member2 = TestMember.builder().build();
-        memberRepository.save(member2);
+        memberRepository.saveAll(List.of(member1, member2));
 
-        final Post post = TestPost.builder().commentCount(5).build();
-        postRepository.save(post);
+        List<Comment> member1Comments = IntStream.range(0, 10)
+                .mapToObj(i -> TestComment.builder()
+                        .content(COMMENT_CONTENT + i)
+                        .member(member1)
+                        .build()
+                ).collect(Collectors.toList());
+        member1Comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
 
-        final Comment comment1 = TestComment.builder()
-                .post(post)
-                .child(false)
-                .member(member1)
-                .build();
-        TestTimeReflection.setCreatedAt(comment1, LocalDateTime.now().minusHours(3));
-        commentRepository.save(comment1);
+        List<Comment> member2Comments = IntStream.range(10, 20)
+                .mapToObj(i -> TestComment.builder()
+                        .content(COMMENT_CONTENT + i)
+                        .member(member2)
+                        .build()
+                ).collect(Collectors.toList());
+        member2Comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
 
-        final Comment comment2 = TestComment.builder()
-                .post(post)
-                .member(member2)
-                .parent(comment1)
-                .child(true)
-                .build();
-        TestTimeReflection.setCreatedAt(comment2, LocalDateTime.now().minusHours(2));
-        commentRepository.save(comment2);
-
-        final Comment comment3 = TestComment.builder()
-                .post(post)
-                .member(member2)
-                .child(false)
-                .build();
-        TestTimeReflection.setCreatedAt(comment3, LocalDateTime.now().minusHours(1));
-        commentRepository.save(comment3);
-
-        final Comment comment4 = TestComment.builder()
-                .post(post)
-                .member(member1)
-                .parent(comment1)
-                .child(true)
-                .build();
-        TestTimeReflection.setCreatedAt(comment4, LocalDateTime.now());
-        commentRepository.save(comment4);
-
-        final Comment comment5 = TestComment.builder()
-                .post(post)
-                .member(member1)
-                .child(false)
-                .build();
-        TestTimeReflection.setCreatedAt(comment5, LocalDateTime.now());
-
-        comment5.deleteComment();
-        commentRepository.save(comment5);
+        commentRepository.saveAll(member1Comments);
+        commentRepository.saveAll(member2Comments);
 
         persistenceUtil.cleanPersistenceContext();
 
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
-        Pageable pageable = PageRequest.of(0, 4);
-        Slice<Comment> commentPage = commentRepository.getUserCommentPageByMemberIds(memberIds, pageable);
-        List<Comment> comments = commentPage.getContent();
+        Pageable pageable = PageRequest.of(0, 15);
+        Slice<Comment> userCommentPage = commentRepository.getUserCommentPageByMemberIds(memberIds, pageable);
 
-        assertThat(comments.size()).isEqualTo(4);
-        assertThat(post.getCommentCount()).isEqualTo(4);
+        List<Comment> userComments = userCommentPage.getContent();
+        List<String> commentContents = IntStream.range(5, 20)
+                .mapToObj(i -> COMMENT_CONTENT + i)
+                .collect(Collectors.toList());
+        Collections.reverse(commentContents);
 
-        Comment findComment1 = comments.get(0);
-        Comment findComment2 = comments.get(1);
-        Comment findComment3 = comments.get(2);
-        Comment findComment4 = comments.get(3);
+        assertThat(userComments).hasSize(15);
+        assertThat(userComments).extracting("content").isEqualTo(commentContents);
+        assertThat(userComments).extracting("member").extracting("id")
+                .containsOnly(member1.getId(), member2.getId());
 
-        assertThat(findComment1.getId()).isEqualTo(comment4.getId());
-        assertThat(findComment1.getMember().getId()).isEqualTo(member1.getId());
-        assertThat(findComment1.getDeletedAt()).isNull();
-
-        assertThat(findComment2.getId()).isEqualTo(comment3.getId());
-        assertThat(findComment2.getMember().getId()).isEqualTo(member2.getId());
-        assertThat(findComment2.getDeletedAt()).isNull();
-
-        assertThat(findComment3.getId()).isEqualTo(comment2.getId());
-        assertThat(findComment3.getMember().getId()).isEqualTo(member2.getId());
-        assertThat(findComment3.getDeletedAt()).isNull();
-
-        assertThat(findComment4.getId()).isEqualTo(comment1.getId());
-        assertThat(findComment4.getMember().getId()).isEqualTo(member1.getId());
-        assertThat(findComment4.getDeletedAt()).isNull();
+        assertThat(userCommentPage.hasNext()).isTrue();
     }
 }

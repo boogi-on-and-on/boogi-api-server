@@ -37,7 +37,7 @@ public class LikeCommandService {
     }
 
     public Long doCommentLike(Long commentId, Long userId) {
-        Comment findComment = commentRepository.findByCommentId(commentId);
+        Comment findComment = commentRepository.findCommentById(commentId);
         Long communityId = findComment.getPost().getCommunityId();
         Member joinedMember = memberQueryService.getMember(userId, communityId);
 
