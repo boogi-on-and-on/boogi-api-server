@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JoinRequestRepository extends JpaRepository<JoinRequest, Long>, JoinRequestRepositoryCustom {
 
-    default JoinRequest findByJoinRequestId(Long joinRequestId) {
+    default JoinRequest findJoinRequestById(Long joinRequestId) {
         return this.findById(joinRequestId).orElseThrow(JoinRequestNotFoundException::new);
     }
 }

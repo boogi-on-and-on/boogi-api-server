@@ -79,7 +79,7 @@ class CommunityQueryServiceTest {
                 .build();
         community.addTags(List.of("태그1"));
         TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
-        given(communityRepository.findByCommunityId(anyLong()))
+        given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
         final Member member = TestMember.builder()
@@ -128,7 +128,7 @@ class CommunityQueryServiceTest {
                 .build();
         community.addTags(List.of("태그1"));
 
-        given(communityRepository.findByCommunityId(anyLong()))
+        given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
         final CommunityMetadataDto dto = communityQueryService.getCommunityMetadata(1L, 1L);
@@ -148,7 +148,7 @@ class CommunityQueryServiceTest {
                 .isPrivate(false)
                 .build();
 
-        given(communityRepository.findByCommunityId(anyLong()))
+        given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
         CommunitySettingInfoDto dto = communityQueryService.getSetting(1L, 1L);

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +20,11 @@ public class JoinRequestQueryService {
     private final MemberQueryService memberQueryService;
     private final CommunityRepository communityRepository;
 
-    public List<UserJoinRequestInfoDto> getAllRequests(Long userId, Long communityId) {
-        communityRepository.findByCommunityId(communityId);
+    public List<UserJoinRequestInfoDto> getAllPendingRequests(Long userId, Long communityId) {
+        communityRepository.findCommunityById(communityId);
         memberQueryService.getOperator(userId, communityId);
 
-        List<JoinRequest> joinRequests = joinRequestRepository.getAllRequests(communityId);
+        List<JoinRequest> joinRequests = joinRequestRepository.getAllPendingRequests(communityId);
         return UserJoinRequestInfoDto.listOf(joinRequests);
     }
 }

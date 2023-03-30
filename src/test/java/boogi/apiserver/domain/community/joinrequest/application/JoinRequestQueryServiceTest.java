@@ -53,12 +53,12 @@ class JoinRequestQueryServiceTest {
                 .user(user)
                 .build();
 
-        given(joinRequestRepository.getAllRequests(anyLong()))
+        given(joinRequestRepository.getAllPendingRequests(anyLong()))
                 .willReturn(List.of(joinRequest));
 
-        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllRequests(user.getId(), 3L);
+        List<UserJoinRequestInfoDto> allRequests = joinRequestQueryService.getAllPendingRequests(user.getId(), 3L);
 
-        verify(communityRepository, times(1)).findByCommunityId(anyLong());
+        verify(communityRepository, times(1)).findCommunityById(anyLong());
         verify(memberQueryService, times(1)).getOperator(anyLong(), anyLong());
 
         UserJoinRequestInfoDto request = allRequests.get(0);

@@ -185,7 +185,7 @@ class LikeCommandServiceTest {
                     .comment(comment)
                     .member(member)
                     .build();
-            given(likeRepository.findByLikeId(anyLong()))
+            given(likeRepository.findLikeById(anyLong()))
                     .willReturn(like);
 
             likeCommandService.doUnlike(like.getId(), 1L);
@@ -214,7 +214,7 @@ class LikeCommandServiceTest {
                     .post(post)
                     .member(member)
                     .build();
-            given(likeRepository.findByLikeId(anyLong()))
+            given(likeRepository.findLikeById(anyLong()))
                     .willReturn(like);
 
             likeCommandService.doUnlike(like.getId(), 1L);
@@ -240,7 +240,7 @@ class LikeCommandServiceTest {
                     .comment(comment)
                     .member(member)
                     .build();
-            given(likeRepository.findByLikeId(anyLong()))
+            given(likeRepository.findLikeById(anyLong()))
                     .willReturn(like);
 
             assertThatThrownBy(() -> likeCommandService.doUnlike(like.getId(), 2L))

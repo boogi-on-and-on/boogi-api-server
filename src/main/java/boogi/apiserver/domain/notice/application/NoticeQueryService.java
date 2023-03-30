@@ -34,13 +34,13 @@ public class NoticeQueryService {
     }
 
     public List<NoticeDto> getCommunityLatestNotice(Long communityId) {
-        communityRepository.findByCommunityId(communityId);
+        communityRepository.findCommunityById(communityId);
         List<Notice> latestNotices = noticeRepository.getLatestNotice(communityId);
         return NoticeDto.listFrom(latestNotices);
     }
 
     public NoticeDetailResponse getCommunityNotice(Long userId, Long communityId) {
-        communityRepository.findByCommunityId(communityId);
+        communityRepository.findCommunityById(communityId);
         Member member = memberQueryService.getMember(userId, communityId);
 
         List<Notice> allNotices = noticeRepository.getAllNotices(communityId);

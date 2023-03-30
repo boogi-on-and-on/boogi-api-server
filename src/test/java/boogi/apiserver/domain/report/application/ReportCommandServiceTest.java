@@ -200,7 +200,7 @@ class ReportCommandServiceTest {
             final Community community = TestCommunity.builder().id(2L).build();
 
             given(userRepository.findByUserId(anyLong())).willReturn(user);
-            given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
+            given(communityRepository.findCommunityById(anyLong())).willReturn(community);
 
             CreateReportRequest request =
                     new CreateReportRequest(2L, ReportTarget.COMMUNITY, ReportReason.SWEAR, REPORT_CONTENT);

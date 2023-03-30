@@ -111,7 +111,7 @@ class NoticeQueryServiceTest {
 
         final List<NoticeDto> dtos = noticeQueryService.getCommunityLatestNotice(1L);
 
-        verify(communityRepository, times(1)).findByCommunityId(anyLong());
+        verify(communityRepository, times(1)).findCommunityById(anyLong());
 
         assertThat(dtos.size()).isEqualTo(1);
 
@@ -144,7 +144,7 @@ class NoticeQueryServiceTest {
 
         final NoticeDetailResponse response = noticeQueryService.getCommunityNotice(1L, 1L);
 
-        verify(communityRepository, times(1)).findByCommunityId(anyLong());
+        verify(communityRepository, times(1)).findCommunityById(anyLong());
 
         final List<? extends NoticeDetailDto> dtos = response.getNotices();
         assertThat(response.getManager()).isTrue();

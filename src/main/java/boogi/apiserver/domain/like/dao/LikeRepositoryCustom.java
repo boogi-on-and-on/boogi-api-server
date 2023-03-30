@@ -6,7 +6,6 @@ import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface LikeRepositoryCustom {
 
@@ -17,8 +16,6 @@ public interface LikeRepositoryCustom {
     boolean existsLikeByPostIdAndMemberId(Long postId, Long memberId);
 
     boolean existsLikeByCommentIdAndMemberId(Long commentId, Long memberId);
-
-    Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId);
 
     List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentId, Long memberId);
 

@@ -49,7 +49,7 @@ public class LikeCommandService {
     }
 
     public void doUnlike(Long likeId, Long userId) {
-        Like findLike = likeRepository.findByLikeId(likeId);
+        Like findLike = likeRepository.findLikeById(likeId);
         findLike.validateLikedUser(userId);
 
         findLike.removeLikeCount();

@@ -4,7 +4,6 @@ import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.exception.NotOperatorException;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
@@ -23,7 +22,7 @@ public class NoticeCommandService {
 
     public Long createNotice(NoticeCreateRequest request, Long userId) {
         Long communityId = request.getCommunityId();
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
 
         Member member = memberQueryService.getOperator(userId, communityId);
 

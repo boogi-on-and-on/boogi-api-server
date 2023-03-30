@@ -86,7 +86,7 @@ class CommunityCommandServiceTest {
     @DisplayName("커뮤니티 업데이트 테스트 성공")
     void updateCommunity() {
         final Community community = mock(Community.class);
-        given(communityRepository.findByCommunityId(anyLong())).willReturn(community);
+        given(communityRepository.findCommunityById(anyLong())).willReturn(community);
 
         communityCommandService.updateCommunity(1L, 1L, "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
 
@@ -112,7 +112,7 @@ class CommunityCommandServiceTest {
         @DisplayName("성공")
         void success() {
             final Community community = mock(Community.class);
-            given(communityRepository.findByCommunityId(any()))
+            given(communityRepository.findCommunityById(any()))
                     .willReturn(community);
 
             given(memberRepository.findAnyMemberExceptManager(any()))
@@ -133,7 +133,7 @@ class CommunityCommandServiceTest {
                 .willReturn(member);
 
         final Community community = mock(Community.class);
-        given(communityRepository.findByCommunityId(anyLong()))
+        given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
         final CommunitySettingRequest request = new CommunitySettingRequest(true, false);

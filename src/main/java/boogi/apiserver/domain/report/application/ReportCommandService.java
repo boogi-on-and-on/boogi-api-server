@@ -52,7 +52,7 @@ public class ReportCommandService {
     private Object getReportTarget(final Long userId, final ReportTarget target, final Long id) {
         switch (target) {
             case COMMUNITY:
-                return communityRepository.findByCommunityId(id);
+                return communityRepository.findCommunityById(id);
             case POST:
                 return getReportedPost(userId, id);
             case COMMENT:

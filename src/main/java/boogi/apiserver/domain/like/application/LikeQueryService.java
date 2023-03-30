@@ -7,6 +7,7 @@ import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
@@ -32,8 +33,8 @@ public class LikeQueryService {
 
     private final MemberQueryService memberQueryService;
 
-    public Long getPostLikeId(Long postId, Long memberId) {
-        return likeRepository.findPostLikeByPostIdAndMemberId(postId, memberId)
+    public Long getPostLikeId(Post post, Member member) {
+        return likeRepository.findPostLikeByPostAndMember(post, member)
                 .map(Like::getId)
                 .orElse(null);
     }

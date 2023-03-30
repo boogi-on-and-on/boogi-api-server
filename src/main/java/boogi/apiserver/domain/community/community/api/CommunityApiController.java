@@ -113,7 +113,7 @@ public class CommunityApiController {
 
     @GetMapping("/{communityId}/requests")
     public UserJoinRequestsResponse getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
-        List<UserJoinRequestInfoDto> requests = joinRequestQueryService.getAllRequests(userId, communityId);
+        List<UserJoinRequestInfoDto> requests = joinRequestQueryService.getAllPendingRequests(userId, communityId);
 
         return UserJoinRequestsResponse.from(requests);
     }

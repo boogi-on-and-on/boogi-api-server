@@ -40,7 +40,7 @@ public class PostCommandService {
 
     public Long createPost(CreatePostRequest request, Long userId) {
         Long communityId = request.getCommunityId();
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         Member member = memberQueryService.getMember(userId, communityId);
 
         final Post newPost = Post.of(community, member, request.getContent());

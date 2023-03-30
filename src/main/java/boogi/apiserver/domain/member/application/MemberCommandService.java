@@ -27,7 +27,7 @@ public class MemberCommandService {
 
     public Member joinMember(Long userId, Long communityId, MemberType type) {
         User user = userRepository.findByUserId(userId);
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
 
         validateAlreadyJoinedMember(userId, communityId);
 
@@ -38,7 +38,7 @@ public class MemberCommandService {
 
     public List<Member> joinMembers(List<Long> userIds, Long communityId, MemberType type) {
         List<User> users = userRepository.findUsersByIds(userIds);
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
 
         validateAlreadyJoinedMember(userIds, communityId);
 

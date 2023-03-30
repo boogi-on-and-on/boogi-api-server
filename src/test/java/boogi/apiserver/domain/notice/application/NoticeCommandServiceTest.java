@@ -2,18 +2,13 @@ package boogi.apiserver.domain.notice.application;
 
 
 import boogi.apiserver.builder.TestCommunity;
-import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.notice.dao.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
-import boogi.apiserver.global.error.exception.InvalidValueException;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,7 +43,7 @@ class NoticeCommandServiceTest {
     @DisplayName("생성 성공")
     void success() {
         final Community community = TestCommunity.builder().id(1L).build();
-        given(communityRepository.findByCommunityId(anyLong()))
+        given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
         NoticeCreateRequest request = new NoticeCreateRequest(1L, "A".repeat(10), "B".repeat(10));

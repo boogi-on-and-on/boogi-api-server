@@ -12,7 +12,7 @@ public interface CommunityRepository extends JpaRepository<Community, Long>, Com
 
     Optional<Community> findByCommunityNameEquals(String name);
 
-    default Community findByCommunityId(Long communityId) {
+    default Community findCommunityById(Long communityId) {
         return this.findById(communityId).orElseThrow(CommunityNotFoundException::new);
     }
 }

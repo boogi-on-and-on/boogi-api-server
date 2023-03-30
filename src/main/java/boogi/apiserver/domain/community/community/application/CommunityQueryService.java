@@ -48,7 +48,7 @@ public class CommunityQueryService {
     private final PostQueryService postQueryService;
 
     public CommunityDetailResponse getCommunityDetail(Long userId, Long communityId) {
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         Member member = memberQueryService.getMemberOrNullMember(userId, community);
 
         List<NoticeDto> communityNotices = noticeQueryService.getCommunityLatestNotice(communityId);
@@ -58,7 +58,7 @@ public class CommunityQueryService {
     }
 
     public CommunityMetadataDto getCommunityMetadata(Long userId, Long communityId) {
-        final Community community = communityRepository.findByCommunityId(communityId);
+        final Community community = communityRepository.findCommunityById(communityId);
         memberQueryService.getManager(userId, communityId);
 
         return CommunityMetadataDto.of(community);
@@ -69,7 +69,7 @@ public class CommunityQueryService {
     }
 
     public CommunitySettingInfoDto getSetting(Long userId, Long communityId) {
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         memberQueryService.getManager(userId, communityId);
 
         return CommunitySettingInfoDto.of(community);

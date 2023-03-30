@@ -17,7 +17,7 @@ public class JoinRequestRepositoryImpl implements JoinRequestRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<JoinRequest> getAllRequests(Long communityId) {
+    public List<JoinRequest> getAllPendingRequests(Long communityId) {
         return queryFactory.selectFrom(joinRequest)
                 .where(
                         joinRequest.community.id.eq(communityId),

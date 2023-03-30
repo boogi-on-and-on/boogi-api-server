@@ -72,7 +72,7 @@ class JoinRequestCommandServiceTest {
             given(memberQueryService.getMemberOrNullMember(anyLong(), any(Community.class)))
                     .willReturn(TestMember.builder().build());
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(TestCommunity.builder().id(1L).build());
 
             assertThatThrownBy(() -> {
@@ -106,7 +106,7 @@ class JoinRequestCommandServiceTest {
                     .autoApproval(true)
                     .build();
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
 
             given(memberQueryService.getMemberOrNullMember(anyLong(), any()))
@@ -135,7 +135,7 @@ class JoinRequestCommandServiceTest {
             given(memberQueryService.getMemberOrNullMember(anyLong(), any()))
                     .willReturn(new NullMember());
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
 
             joinRequestCommandService.request(1L, community.getId());

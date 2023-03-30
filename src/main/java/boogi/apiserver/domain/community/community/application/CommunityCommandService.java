@@ -48,14 +48,14 @@ public class CommunityCommandService {
     }
 
     public void updateCommunity(Long userId, Long communityId, String description, List<String> newTags) {
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         memberQueryService.getManager(userId, communityId);
 
         community.updateCommunity(description, newTags);
     }
 
     public void shutdown(Long userId, Long communityId) {
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         memberQueryService.getManager(userId, communityId);
 
         validateManagerOnlyIncluded(communityId);
@@ -64,7 +64,7 @@ public class CommunityCommandService {
     }
 
     public void changeSetting(Long userId, Long communityId, CommunitySettingRequest request) {
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         Member member = memberQueryService.getMember(userId, communityId);
 
         Boolean isAuto = request.getIsAutoApproval();

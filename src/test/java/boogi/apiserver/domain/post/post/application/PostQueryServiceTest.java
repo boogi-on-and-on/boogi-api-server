@@ -171,7 +171,7 @@ class PostQueryServiceTest {
                     .willReturn(member);
             given(postMediaRepository.findByPost(any(Post.class)))
                     .willReturn(List.of(postMedia));
-            given(likeQueryService.getPostLikeId(anyLong(), anyLong()))
+            given(likeQueryService.getPostLikeId(any(Post.class), any(Member.class)))
                     .willReturn(POST_LIKE_ID);
 
             PostDetailResponse response = postQueryService.getPostDetail(post.getId(), 1L);
@@ -288,7 +288,7 @@ class PostQueryServiceTest {
                     .community(community)
                     .build();
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(new NullMember());
@@ -335,7 +335,7 @@ class PostQueryServiceTest {
                     .community(community)
                     .build();
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(member);

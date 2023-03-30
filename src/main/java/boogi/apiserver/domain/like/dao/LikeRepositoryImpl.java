@@ -60,17 +60,6 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
     }
 
     @Override
-    public Optional<Like> findPostLikeByPostIdAndMemberId(Long postId, Long memberId) {
-        List<Like> findLike = queryFactory.selectFrom(like)
-                .where(
-                        like.post.id.eq(postId),
-                        like.member.id.eq(memberId)
-                ).fetch();
-
-        return Optional.ofNullable(findLike.isEmpty() ? null : findLike.get(0));
-    }
-
-    @Override
     public List<Like> findCommentLikesByCommentIdsAndMemberId(List<Long> commentIds, Long memberId) {
         if (memberId == null) {
             return new ArrayList<>();

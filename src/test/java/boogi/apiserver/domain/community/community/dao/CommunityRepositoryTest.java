@@ -52,12 +52,36 @@ class CommunityRepositoryTest {
     }
 
     @Nested
+    @DisplayName("ID로 커뮤니티 조회")
+    class findCommunityById {
+        @DisplayName("성공")
+        @Test
+        void success() {
+            final Community community = TestCommunity.builder().build();
+            communityRepository.save(community);
+
+            persistenceUtil.cleanPersistenceContext();
+
+            final Community findCommunity = communityRepository.findCommunityById(community.getId());
+            assertThat(findCommunity.getId()).isEqualTo(community.getId());
+        }
+
+        @DisplayName("throw CommunityNotFoundException")
+        @Test
+        void throwException() {
+            assertThatThrownBy(() -> {
+                communityRepository.findCommunityById(1L);
+            }).isInstanceOf(CommunityNotFoundException.class);
+        }
+    }
+
+    @Nested
     @DisplayName("커뮤니티 검색 테스트")
     class CommunitySearchTest {
+
         @Test
         @DisplayName("커뮤니티 검색 키워드가 있을 경우")
         void ThereIsSearchKeyword() {
-
             //given
             final Community c1 = TestCommunity.builder()
                     .communityName("커뮤니티A")
@@ -84,22 +108,23 @@ class CommunityRepositoryTest {
             final CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
             communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
-
-            final CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, "안녕");
+            final CommunityQueryRequest request =
+                    new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, "안녕");
 
             persistenceUtil.cleanPersistenceContext();
 
             //when
-            final Slice<SearchCommunityDto> page = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            final Slice<SearchCommunityDto> page =
+                    communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
             final List<SearchCommunityDto> dtos = page.getContent();
-            assertThat(dtos.size()).isEqualTo(1);
+            assertThat(dtos).hasSize(1);
 
             final SearchCommunityDto first = dtos.get(0);
             assertThat(first.getId()).isEqualTo(c1.getId());
 
-            assertThat(first.getHashtags()).containsExactlyInAnyOrderElementsOf(List.of("안녕", "ㅎㅎ"));
+            assertThat(first.getHashtags()).containsExactlyInAnyOrder("안녕", "ㅎㅎ");
             assertThat(first.getCategory()).isEqualTo(CommunityCategory.ACADEMIC.toString());
             assertThat(first.getDescription()).isEqualTo("커뮤니티A의 소개란 입니다.");
             assertThat(first.getMemberCount()).isEqualTo(12);
@@ -135,16 +160,18 @@ class CommunityRepositoryTest {
             final CommunityHashtag c2_t1 = CommunityHashtag.of("zz", c2);
             communityHashtagRepository.saveAll(List.of(c1_t1, c1_t2, c2_t1));
 
-            CommunityQueryRequest request = new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, null);
+            CommunityQueryRequest request =
+                    new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, null);
 
             persistenceUtil.cleanPersistenceContext();
 
             //when
-            final Slice<SearchCommunityDto> slice = communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
+            final Slice<SearchCommunityDto> slice =
+                    communityRepository.getSearchedCommunities(PageRequest.of(0, 2), request);
 
             //then
             final List<SearchCommunityDto> dtos = slice.getContent();
-            assertThat(dtos.size()).isEqualTo(2);
+            assertThat(dtos).hasSize(2);
 
             final SearchCommunityDto first = dtos.get(0);
             assertThat(first.getId()).isEqualTo(c1.getId());
@@ -154,29 +181,7 @@ class CommunityRepositoryTest {
             assertThat(first.getMemberCount()).isEqualTo(12);
             assertThat(first.getName()).isEqualTo("커뮤니티A");
         }
-    }
 
-    @Nested
-    @DisplayName("findByCommunityId 디폴트 메서드 테스트")
-    class findByCommunityId {
-        @DisplayName("성공")
-        @Test
-        void success() {
-            final Community community = TestCommunity.builder().build();
-            communityRepository.save(community);
-
-            persistenceUtil.cleanPersistenceContext();
-
-            final Community findCommunity = communityRepository.findByCommunityId(community.getId());
-            assertThat(findCommunity.getId()).isEqualTo(community.getId());
-        }
-
-        @DisplayName("throw CommunityNotFoundException")
-        @Test
-        void throwException() {
-            assertThatThrownBy(() -> {
-                communityRepository.findByCommunityId(1L);
-            }).isInstanceOf(CommunityNotFoundException.class);
-        }
+        //todo: 검색 테스트 케이스 추가
     }
 }

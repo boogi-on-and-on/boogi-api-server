@@ -63,22 +63,28 @@ class LikeQueryServiceTest {
         @DisplayName("좋아요가 있을시 해당 좋아요의 Id를 추출해서 가져온다.")
         @Test
         void existsPostLike() {
-            Like like = TestLike.builder().id(1L).build();
-            given(likeRepository.findPostLikeByPostIdAndMemberId(anyLong(), anyLong()))
+            Post post = TestPost.builder().id(1L).build();
+            Member member = TestMember.builder().id(2L).build();
+
+            Like like = TestLike.builder().id(3L).post(post).member(member).build();
+            given(likeRepository.findPostLikeByPostAndMember(any(Post.class), any(Member.class)))
                     .willReturn(Optional.of(like));
 
-            Long postLikeId = likeQueryService.getPostLikeId(2L, 3L);
+            Long postLikeId = likeQueryService.getPostLikeId(post, member);
 
-            assertThat(postLikeId).isEqualTo(1L);
+            assertThat(postLikeId).isEqualTo(3L);
         }
 
         @DisplayName("좋아요가 없을시 null을 가져온다.")
         @Test
         void notExistsPostLike() {
-            given(likeRepository.findPostLikeByPostIdAndMemberId(anyLong(), anyLong()))
+            Post post = TestPost.builder().id(1L).build();
+            Member member = TestMember.builder().id(2L).build();
+
+            given(likeRepository.findPostLikeByPostAndMember(any(Post.class), any(Member.class)))
                     .willReturn(Optional.empty());
 
-            Long postLikeId = likeQueryService.getPostLikeId(2L, 3L);
+            Long postLikeId = likeQueryService.getPostLikeId(post, member);
 
             assertThat(postLikeId).isNull();
         }

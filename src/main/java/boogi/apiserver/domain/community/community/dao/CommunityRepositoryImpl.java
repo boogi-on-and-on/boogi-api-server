@@ -94,7 +94,6 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 order = community.memberCount.asc();
             default:
                 order = community.createdAt.desc();
-
         }
         return order;
     }

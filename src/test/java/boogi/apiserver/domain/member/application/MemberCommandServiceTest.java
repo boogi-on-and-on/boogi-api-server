@@ -78,7 +78,7 @@ class MemberCommandServiceTest {
                     .willReturn(user);
 
             final Community community = TestCommunity.builder().build();
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
 
             final Member member = memberCommandService.joinMember(1L, 1L, MemberType.NORMAL);
@@ -114,7 +114,7 @@ class MemberCommandServiceTest {
         @Test
         void success() {
             final Community community = TestCommunity.builder().build();
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
 
             memberCommandService.joinMembers(List.of(1L, 2L), 3L, MemberType.NORMAL);

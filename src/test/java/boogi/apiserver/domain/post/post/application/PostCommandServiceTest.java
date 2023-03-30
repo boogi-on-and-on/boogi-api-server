@@ -86,7 +86,7 @@ class PostCommandServiceTest {
                     .community(community)
                     .build();
 
-            given(communityRepository.findByCommunityId(anyLong()))
+            given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);

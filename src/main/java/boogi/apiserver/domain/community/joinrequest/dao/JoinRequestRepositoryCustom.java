@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface JoinRequestRepositoryCustom {
 
-    List<JoinRequest> getAllRequests(Long communityId);
+    List<JoinRequest> getAllPendingRequests(Long communityId);
 
     Optional<JoinRequest> getLatestJoinRequest(Long userId, Long communityId);
 

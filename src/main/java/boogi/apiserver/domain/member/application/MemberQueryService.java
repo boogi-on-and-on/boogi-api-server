@@ -66,13 +66,13 @@ public class MemberQueryService {
     }
 
     public JoinedMembersPageResponse getCommunityJoinedMembers(Pageable pageable, Long communityId) {
-        communityRepository.findByCommunityId(communityId);
+        communityRepository.findCommunityById(communityId);
         final Slice<Member> members = memberRepository.findJoinedMembers(pageable, communityId);
         return JoinedMembersPageResponse.from(members);
     }
 
     public List<BannedMemberDto> getBannedMembers(Long userId, Long communityId) {
-        communityRepository.findByCommunityId(communityId);
+        communityRepository.findCommunityById(communityId);
         this.getOperator(userId, communityId);
         return memberRepository.findBannedMembers(communityId);
     }
@@ -82,7 +82,7 @@ public class MemberQueryService {
     }
 
     public List<MemberDto> getJoinedMembersAll(Long communityId, Long userId) {
-        communityRepository.findByCommunityId(communityId);
+        communityRepository.findCommunityById(communityId);
         Member sessionMember = getMember(userId, communityId);
 
         List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);

@@ -53,7 +53,7 @@ public class PostQueryService {
                 findPost,
                 findPostMedias,
                 userId,
-                getPostLikeIdForView(postId, member)
+                getPostLikeIdForView(findPost, member)
         );
     }
 
@@ -72,7 +72,7 @@ public class PostQueryService {
     }
 
     public CommunityPostsResponse getPostsOfCommunity(Pageable pageable, Long communityId, Long userId) {
-        Community community = communityRepository.findByCommunityId(communityId);
+        Community community = communityRepository.findCommunityById(communityId);
         Member member = memberQueryService.getViewableMember(userId, community);
 
         Slice<Post> postPage = postRepository.getPostsOfCommunity(pageable, communityId);
@@ -97,7 +97,7 @@ public class PostQueryService {
         return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
     }
 
-    private Long getPostLikeIdForView(Long postId, Member member) {
-        return member.isNullMember() ? null : likeQueryService.getPostLikeId(postId, member.getId());
+    private Long getPostLikeIdForView(Post post, Member member) {
+        return member.isNullMember() ? null : likeQueryService.getPostLikeId(post, member);
     }
 }

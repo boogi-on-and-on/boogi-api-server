@@ -1053,7 +1053,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
             UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#0001", "유저");
             UserJoinRequestInfoDto joinRequestDto = new UserJoinRequestInfoDto(userDto, 1L);
 
-            given(joinRequestQueryService.getAllRequests(anyLong(), anyLong()))
+            given(joinRequestQueryService.getAllPendingRequests(anyLong(), anyLong()))
                     .willReturn(List.of(joinRequestDto));
 
             final ResultActions result = mvc.perform(
@@ -1092,7 +1092,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(joinRequestQueryService).getAllRequests(anyLong(), anyLong());
+                    .when(joinRequestQueryService).getAllPendingRequests(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/requests", 9999L)
@@ -1110,7 +1110,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(joinRequestQueryService).getAllRequests(anyLong(), anyLong());
+                    .when(joinRequestQueryService).getAllPendingRequests(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/requests", 1L)
@@ -1128,7 +1128,7 @@ class CommunityApiControllerTest extends TestControllerSetUp {
         @DisplayName("해당 커뮤니티의 관리자가 아닌 경우 NotOperatorException 발생")
         void notOperatorFail() throws Exception {
             doThrow(new NotOperatorException())
-                    .when(joinRequestQueryService).getAllRequests(anyLong(), anyLong());
+                    .when(joinRequestQueryService).getAllPendingRequests(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/requests", 1L)
