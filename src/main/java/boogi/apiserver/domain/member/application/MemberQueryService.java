@@ -85,9 +85,9 @@ public class MemberQueryService {
         communityRepository.findCommunityById(communityId);
         Member sessionMember = getMember(userId, communityId);
 
-        List<Member> findJoinedMembersAll = memberRepository.findJoinedMembersAllWithUser(communityId);
-        findJoinedMembersAll.remove(sessionMember);
+        List<Member> findAllJoinedMembers = memberRepository.findAllJoinedMembersWithUser(communityId);
+        findAllJoinedMembers.remove(sessionMember);
 
-        return MemberDto.listOf(findJoinedMembersAll);
+        return MemberDto.listOf(findAllJoinedMembers);
     }
 }

@@ -169,7 +169,7 @@ class CommunityQueryServiceTest {
                 .community(community)
                 .build();
 
-        given(memberRepository.findWhatIJoined(anyLong()))
+        given(memberRepository.findMembersWithCommunity(anyLong()))
                 .willReturn(List.of(member));
 
         final Post post = TestPost.builder()

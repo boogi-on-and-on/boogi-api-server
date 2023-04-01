@@ -13,19 +13,19 @@ public interface MemberRepositoryCustom {
 
     List<Member> findByUserId(Long userId);
 
-    List<Member> findWhatIJoined(Long userId);
+    List<Member> findMembersWithCommunity(Long userId);
 
     Optional<Member> findByUserIdAndCommunityId(Long userId, Long communityId);
 
     Slice<Member> findJoinedMembers(Pageable pageable, Long communityId);
 
-    List<Member> findJoinedMembersAllWithUser(Long communityId);
+    List<Member> findAllJoinedMembersWithUser(Long communityId);
 
     Optional<Member> findAnyMemberExceptManager(Long communityId);
 
     List<BannedMemberDto> findBannedMembers(Long communityId);
 
-    List<Member> findAlreadyJoinedMemberByUserId(List<Long> userIds, Long communityId);
+    List<Member> findAlreadyJoinedMember(List<Long> userIds, Long communityId);
 
     List<Long> findMemberIdsForQueryUserPost(Long userId, Long sessionUserId);
 

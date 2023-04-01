@@ -50,21 +50,21 @@ public class MemberCommandService {
     }
 
     public void banMember(Long sessionUserId, Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId);
+        Member member = memberRepository.findMemberById(memberId);
         memberQueryService.getOperator(sessionUserId, member.getCommunity().getId());
 
         member.ban();
     }
 
     public void releaseMember(Long sessionUserId, Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId);
+        Member member = memberRepository.findMemberById(memberId);
         memberQueryService.getManager(sessionUserId, member.getCommunity().getId());
 
         member.release();
     }
 
     public void delegateMember(Long userId, Long memberId, MemberType type) {
-        Member member = memberRepository.findByMemberId(memberId);
+        Member member = memberRepository.findMemberById(memberId);
 
         Member manager = memberQueryService.getManager(userId, member.getCommunity().getId());
         if (MemberType.MANAGER.equals(type)) {
@@ -78,7 +78,7 @@ public class MemberCommandService {
     }
 
     private void validateAlreadyJoinedMember(List<Long> userIds, Long communityId) {
-        List<Member> joinedMembers = memberRepository.findAlreadyJoinedMemberByUserId(userIds, communityId);
+        List<Member> joinedMembers = memberRepository.findAlreadyJoinedMember(userIds, communityId);
 
         boolean hasJoinedMember = joinedMembers.stream()
                 .anyMatch(m -> userIds.contains(m.getUser().getId()));

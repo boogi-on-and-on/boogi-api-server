@@ -62,7 +62,7 @@ class MemberCommandServiceTest {
                                     .build()
                     ).build();
 
-            given(memberRepository.findAlreadyJoinedMemberByUserId(anyList(), anyLong()))
+            given(memberRepository.findAlreadyJoinedMember(anyList(), anyLong()))
                     .willReturn(List.of(member));
 
             assertThatThrownBy(() -> {
@@ -102,7 +102,7 @@ class MemberCommandServiceTest {
                                     .build()
                     ).build();
 
-            given(memberRepository.findAlreadyJoinedMemberByUserId(anyList(), anyLong()))
+            given(memberRepository.findAlreadyJoinedMember(anyList(), anyLong()))
                     .willReturn(List.of(member));
 
             assertThatThrownBy(() -> {
@@ -131,7 +131,7 @@ class MemberCommandServiceTest {
         final Community community = TestCommunity.builder().id(1L).build();
         given(member.getCommunity()).willReturn(community);
 
-        given(memberRepository.findByMemberId(anyLong()))
+        given(memberRepository.findMemberById(anyLong()))
                 .willReturn(member);
 
         memberCommandService.banMember(2L, 1L);
@@ -147,7 +147,7 @@ class MemberCommandServiceTest {
         final Community community = TestCommunity.builder().id(1L).build();
         given(member.getCommunity()).willReturn(community);
 
-        given(memberRepository.findByMemberId(anyLong()))
+        given(memberRepository.findMemberById(anyLong()))
                 .willReturn(member);
 
         memberCommandService.releaseMember(2L, 1L);
@@ -167,7 +167,7 @@ class MemberCommandServiceTest {
             final Community community = TestCommunity.builder().id(1L).build();
             given(member.getCommunity()).willReturn(community);
 
-            given(memberRepository.findByMemberId(anyLong()))
+            given(memberRepository.findMemberById(anyLong()))
                     .willReturn(member);
 
             final Member manager = mock(Member.class);
@@ -189,7 +189,7 @@ class MemberCommandServiceTest {
             final Community community = TestCommunity.builder().id(1L).build();
             given(member.getCommunity()).willReturn(community);
 
-            given(memberRepository.findByMemberId(anyLong()))
+            given(memberRepository.findMemberById(anyLong()))
                     .willReturn(member);
 
             final Member manager = mock(Member.class);

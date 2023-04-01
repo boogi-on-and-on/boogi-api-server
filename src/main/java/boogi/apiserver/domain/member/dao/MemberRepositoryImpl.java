@@ -42,7 +42,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Member> findWhatIJoined(Long userId) {
+    public List<Member> findMembersWithCommunity(Long userId) {
         return queryFactory.selectFrom(member)
                 .where(member.user.id.eq(userId),
                         member.bannedAt.isNull()
@@ -93,7 +93,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Member> findJoinedMembersAllWithUser(Long communityId) {
+    public List<Member> findAllJoinedMembersWithUser(Long communityId) {
         return queryFactory.selectFrom(member)
                 .where(
                         member.community.id.eq(communityId),
@@ -131,7 +131,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<Member> findAlreadyJoinedMemberByUserId(List<Long> userIds, Long communityId) {
+    public List<Member> findAlreadyJoinedMember(List<Long> userIds, Long communityId) {
         return queryFactory
                 .selectFrom(member)
                 .where(member.community.id.eq(communityId),
@@ -143,7 +143,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<Long> findMemberIdsForQueryUserPost(Long userId, Long sessionUserId) {
         QMember memberSub = new QMember("memberSub");
 
-        JPQLQuery<Long> sameJoinedCommunityIds = JPAExpressions
+        JPQLQuery<Long> sameJoinedCommunityIdsQuery = JPAExpressions
                 .select(memberSub.community.id)
                 .from(memberSub)
                 .where(
@@ -153,14 +153,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .groupBy(memberSub.community.id)
                 .having(memberSub.community.id.count().lt(2));
 
-        JPQLQuery<Long> privateCommunityFromSameJoinedCommunity = JPAExpressions
+        JPQLQuery<Long> privateCommunityFromSameJoinedCommunityQuery = JPAExpressions
                 .select(community.id)
                 .from(community)
                 .where(
                         community.isPrivate.isTrue(),
-                        community.deletedAt.isNull(),
                         community.id.in(
-                                sameJoinedCommunityIds
+                                sameJoinedCommunityIdsQuery
                         )
                 );
 
@@ -170,7 +169,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.user.id.eq(userId),
                         member.bannedAt.isNull(),
                         member.community.id.notIn(
-                                privateCommunityFromSameJoinedCommunity
+                                privateCommunityFromSameJoinedCommunityQuery
                         )
                 ).fetch();
     }
@@ -193,23 +192,23 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         member.memberType.eq(MemberType.MANAGER),
                         member.bannedAt.isNull()
                 )
-                .join(member.user)
                 .fetchFirst();
     }
 
     @Override
     public Slice<UserBasicProfileDto> findMentionMember(Pageable pageable, Long communityId, String name) {
-        List<UserBasicProfileDto> members = queryFactory.select(new QUserBasicProfileDto(member.user))
-                .from(member)
-                .where(
-                        member.community.id.eq(communityId),
-                        member.bannedAt.isNull(),
-                        nameContains(name) //todo: username index 추가
-                ).join(member.user)
-                .orderBy(member.user.username.value.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
-                .fetch();
+        List<UserBasicProfileDto> members =
+                queryFactory.select(new QUserBasicProfileDto(member.user))
+                        .from(member)
+                        .where(
+                                member.community.id.eq(communityId),
+                                member.bannedAt.isNull(),
+                                nameContains(name) //todo: username index 추가
+                        ).join(member.user)
+                        .orderBy(member.user.username.value.asc())
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize() + 1)
+                        .fetch();
 
         return PageableUtil.getSlice(members, pageable);
     }

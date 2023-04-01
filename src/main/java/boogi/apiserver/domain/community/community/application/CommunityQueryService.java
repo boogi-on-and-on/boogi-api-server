@@ -91,7 +91,7 @@ public class CommunityQueryService {
     }
 
     private LinkedHashMap<Long, Community> getJoinedCommunityMap(Long userId) {
-        List<Member> findMembers = memberRepository.findWhatIJoined(userId);
+        List<Member> findMembers = memberRepository.findMembersWithCommunity(userId);
         return findMembers.stream()
                 .map(Member::getCommunity)
                 .collect(Collectors.toMap(
