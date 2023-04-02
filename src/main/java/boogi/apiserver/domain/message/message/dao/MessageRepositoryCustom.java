@@ -7,5 +7,5 @@ import org.springframework.data.domain.Slice;
 
 public interface MessageRepositoryCustom {
 
-    Slice<Message> findMessages(Long opponentId, Long myId, Pageable pageable);
+    Slice<Message> findMessages(Long opponentId, Long sessionUserId, Pageable pageable);
 }

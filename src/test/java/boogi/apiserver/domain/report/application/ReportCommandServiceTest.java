@@ -233,7 +233,7 @@ class ReportCommandServiceTest {
 
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
-            given(messageRepository.findByMessageId(anyLong()))
+            given(messageRepository.findMessageById(anyLong()))
                     .willReturn(message);
 
             CreateReportRequest request =
@@ -267,7 +267,7 @@ class ReportCommandServiceTest {
 
             given(userRepository.findByUserId(anyLong()))
                     .willReturn(user1);
-            given(messageRepository.findByMessageId(anyLong()))
+            given(messageRepository.findMessageById(anyLong()))
                     .willReturn(message);
 
             CreateReportRequest request =

@@ -56,7 +56,7 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
 
     @Override
     public void updateBulkBlockedStatus(Long userId, List<Long> blockUserIds) {
-        if (blockUserIds.size() == 0) {
+        if (blockUserIds.isEmpty()) {
             return;
         }
 
@@ -79,6 +79,7 @@ public class MessageBlockRepositoryImpl implements MessageBlockRepositoryCustom 
         return findMessageBlock != null;
     }
 
+    // todo: getBlockedUsers와 중복
     @Override
     public List<MessageBlock> findMessageBlocksByUserId(Long userId) {
         return queryFactory.selectFrom(messageBlock)

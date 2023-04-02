@@ -80,7 +80,7 @@ public class UserApiController {
 
     @GetMapping("/messages/blocked")
     public MessageBlockedUsesResponse getBlockedUsers(@Session Long userId) {
-        List<MessageBlockedUserDto> blockedUserDtos = messageBlockQueryService.getBlockedMembers(userId);
+        List<MessageBlockedUserDto> blockedUserDtos = messageBlockQueryService.getBlockedUsers(userId);
 
         return MessageBlockedUsesResponse.from(blockedUserDtos);
     }

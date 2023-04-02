@@ -218,7 +218,7 @@ class UserApiControllerTest extends TestControllerSetUp {
     void getBlockedUsersSuccess() throws Exception {
         MessageBlockedUserDto blockedUserDto = new MessageBlockedUserDto(1L, "가나다#0001");
 
-        given(messageBlockQueryService.getBlockedMembers(anyLong()))
+        given(messageBlockQueryService.getBlockedUsers(anyLong()))
                 .willReturn(List.of(blockedUserDto));
 
         final ResultActions result = mvc.perform(

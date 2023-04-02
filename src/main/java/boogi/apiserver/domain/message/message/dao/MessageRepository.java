@@ -15,13 +15,14 @@ public interface MessageRepository extends JpaRepository<Message, Long>, Message
     @Query(value = "SELECT message_id, sender_id, receiver_id, content, created_at, updated_at, blocked_message " +
             "FROM (SELECT *, RANK() OVER (PARTITION BY m.sender_id, m.receiver_id ORDER BY m.created_at DESC) AS a " +
             "FROM message AS m " +
-            "WHERE (m.sender_id = :userId AND m.receiver_id NOT IN (:blockedUserIds)) " +
-            "OR (m.receiver_id = :userId AND m.sender_id NOT IN (:blockedUserIds))) AS rankrow " +
+            "WHERE m.blocked_message is false " +
+            "AND ((m.sender_id = :userId AND m.receiver_id NOT IN (:blockedUserIds)) " +
+            "OR (m.receiver_id = :userId AND m.sender_id NOT IN (:blockedUserIds)))) AS rankrow " +
             "WHERE rankrow.a <= 1 ORDER BY created_at DESC", nativeQuery = true)
     List<Message> findMessageWithoutBlockedUser(@Param("userId") Long userId,
                                                 @Param("blockedUserIds") List<Long> blockedUserIds);
 
-    default Message findByMessageId(Long messageId) {
+    default Message findMessageById(Long messageId) {
         return this.findById(messageId).orElseThrow(MessageNotFoundException::new);
     }
 }

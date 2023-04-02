@@ -84,7 +84,7 @@ public class ReportCommandService {
     }
 
     private Message getReportedMessage(Long userId, Long id) {
-        Message findMessage = messageRepository.findByMessageId(id);
+        Message findMessage = messageRepository.findMessageById(id);
 
         if (!findMessage.isMyMessage(userId)) {
             throw new NotParticipatedUserException();
