@@ -92,14 +92,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         List<Long> memberJoinedCommunityIds = queryFactory.select(member.community.id)
                 .from(member)
                 .where(member.user.id.eq(userId),
-                        member.bannedAt.isNull(),
-                        member.createdAt.isNull()
+                        member.bannedAt.isNull()
                 ).fetch();
 
         Predicate[] where = {
                 post.community.isPrivate.ne(true).or(post.community.id.in(memberJoinedCommunityIds)),
-                post.community.deletedAt.isNull(),
-                post.deletedAt.isNull(),
                 post.id.in(
                         JPAExpressions.select(postHashtag.post.id)
                                 .from(postHashtag)
@@ -122,7 +119,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .collect(Collectors.toList());
 
         return PageableUtil.getSlice(postDtos, pageable);
-
     }
 
     private OrderSpecifier getPostSearchOrder(PostQueryRequest request) {
