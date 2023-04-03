@@ -29,7 +29,7 @@ public class NoticeQueryService {
     }
 
     public NoticeDetailResponse getAppNotice() {
-        List<Notice> notices = noticeRepository.getAllNotices();
+        List<Notice> notices = noticeRepository.getAllAppNotices();
         return NoticeDetailResponse.from(notices);
     }
 

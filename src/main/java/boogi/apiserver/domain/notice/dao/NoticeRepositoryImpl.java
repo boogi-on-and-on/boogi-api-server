@@ -1,7 +1,6 @@
 package boogi.apiserver.domain.notice.dao;
 
 import boogi.apiserver.domain.notice.domain.Notice;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -17,19 +16,18 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Notice> getLatestNotice(Long communityId) {
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(notice.community.id.eq(communityId));
-
-        return queryNotice(builder, 3);
+    public List<Notice> getLatestAppNotice() {
+        return getAppNotice(3);
     }
 
     @Override
-    public List<Notice> getLatestAppNotice() {
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(notice.community.isNull());
+    public List<Notice> getLatestNotice(Long communityId) {
+        return getNotice(communityId, 3);
+    }
 
-        return queryNotice(builder, 3);
+    @Override
+    public List<Notice> getAllAppNotices() {
+        return getAppNotice(null);
     }
 
     @Override
@@ -44,19 +42,32 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
                 .fetch();
     }
 
-    @Override
-    public List<Notice> getAllNotices() {
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(notice.community.isNull());
-
-        return queryNotice(builder, null);
+    private List<Notice> getNotice(Long communityId, Integer limit) {
+        return queryFactory.selectFrom(notice)
+                .where(
+                        notice.community.id.eq(communityId)
+                )
+                .orderBy(notice.createdAt.desc())
+                .limit(resolveInvalidLimit(limit))
+                .fetch();
     }
 
-    private List<Notice> queryNotice(BooleanBuilder builder, Integer limit) {
+    private List<Notice> getAppNotice(Integer limit) {
         return queryFactory.selectFrom(notice)
-                .where(builder)
+                .where(
+                        notice.community.isNull()
+                )
                 .orderBy(notice.createdAt.desc())
-                .limit(limit != null ? 3 : Integer.MAX_VALUE)
+                .limit(resolveInvalidLimit(limit))
                 .fetch();
+    }
+
+    private Integer resolveInvalidLimit(Integer limit) {
+        if (limit == null) {
+            return Integer.MAX_VALUE;
+        } else if (limit < 0) {
+            throw new IllegalArgumentException("limit는 0 보다 작을 수 없습니다.");
+        }
+        return limit;
     }
 }

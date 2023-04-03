@@ -14,14 +14,18 @@ import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.TestTimeReflection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,9 +47,6 @@ class NoticeRepositoryTest {
     @Autowired
     private EntityManager em;
 
-    @Autowired
-    private EntityManagerFactory emf;
-
     private PersistenceUtil persistenceUtil;
 
     @BeforeEach
@@ -54,24 +55,20 @@ class NoticeRepositoryTest {
     }
 
 
-
     @Test
-    @DisplayName("최근 공지사항 5개 조회")
-    void getLatestNotice() {
+    @DisplayName("최근 앱 공지사항 3개를 최신순으로 조회한다.")
+    void getLatestAppNotice() {
         //given
         final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final Notice notice1 = TestNotice.builder().build();
-        final Notice notice2 = TestNotice.builder().build();
-        final Notice notice3 = TestNotice.builder().build();
-        final Notice notice4 = TestNotice.builder().build();
-
-        final Notice notice5 = TestNotice.builder()
-                .community(community)
-                .build();
-
-        noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
+        List<Notice> appNotices = IntStream.range(0, 4)
+                .mapToObj(i -> TestNotice.builder().build())
+                .collect(Collectors.toList());
+        appNotices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
+        Notice communityNotice = TestNotice.builder().community(community).build();
+        noticeRepository.saveAll(appNotices);
+        noticeRepository.save(communityNotice);
 
         persistenceUtil.cleanPersistenceContext();
 
@@ -79,48 +76,75 @@ class NoticeRepositoryTest {
         List<Notice> latestNotices = noticeRepository.getLatestAppNotice();
 
         //then
-        assertThat(latestNotices.size()).isEqualTo(3);
-        assertThat(latestNotices.stream().anyMatch(n -> n.getCommunity() == community)).isFalse();
+        assertThat(latestNotices).hasSize(3);
+        List<Long> expectedAppNoticeIds = appNotices.subList(1, 4).stream().map(Notice::getId).collect(Collectors.toList());
+        Collections.reverse(expectedAppNoticeIds);
+        assertThat(latestNotices).extracting("id").containsExactlyElementsOf(expectedAppNoticeIds);
+        assertThat(latestNotices).extracting("community").containsOnlyNulls();
     }
 
     @Test
-    @DisplayName("전체 공지사항 조회")
-    void getAllNotices() {
+    @DisplayName("앱 공지사항 전체를 최신순으로 조회한다.")
+    void getAllAppNotices() {
         //given
         final Community community = TestCommunity.builder().build();
         communityRepository.save(community);
 
-        final Notice notice1 = TestNotice.builder().build();
-        final Notice notice2 = TestNotice.builder().build();
-        final Notice notice3 = TestNotice.builder().build();
-        final Notice notice4 = TestNotice.builder().build();
-
-        final Notice notice5 = TestNotice.builder()
-                .community(community)
-                .build();
-
-        noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
+        List<Notice> appNotices = IntStream.range(0, 4)
+                .mapToObj(i -> TestNotice.builder().build())
+                .collect(Collectors.toList());
+        appNotices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
+        Notice communityNotice = TestNotice.builder().community(community).build();
+        noticeRepository.saveAll(appNotices);
+        noticeRepository.save(communityNotice);
 
         persistenceUtil.cleanPersistenceContext();
 
         //when
-        List<Notice> latestNotices = noticeRepository.getAllNotices();
+        List<Notice> latestNotices = noticeRepository.getAllAppNotices();
 
         //then
-        assertThat(latestNotices.size()).isEqualTo(4);
-        assertThat(latestNotices.stream().anyMatch(n -> n.getCommunity() == community)).isFalse();
+        assertThat(latestNotices).hasSize(4);
+        List<Long> expectedAppNoticeIds = appNotices.stream().map(Notice::getId).collect(Collectors.toList());
+        Collections.reverse(expectedAppNoticeIds);
+        assertThat(latestNotices).extracting("id").containsExactlyElementsOf(expectedAppNoticeIds);
+        assertThat(latestNotices).extracting("community").containsOnlyNulls();
     }
 
     @Test
-    @DisplayName("커뮤니티의 전체 공지사항 조회")
-    void getAllNotices_community() {
+    @DisplayName("커뮤니티의 최근 공지사항을 최신순으로 3개 조회한다.")
+    void getLatestCommunityNotice() {
+        Community community = TestCommunity.builder().build();
+        communityRepository.save(community);
+
+        List<Notice> notices = IntStream.range(0, 4)
+                .mapToObj(i -> TestNotice.builder()
+                        .community(community)
+                        .build())
+                .collect(Collectors.toList());
+        notices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
+        noticeRepository.saveAll(notices);
+
+        persistenceUtil.cleanPersistenceContext();
+
+        List<Notice> communityNotices = noticeRepository.getLatestNotice(community.getId());
+
+        assertThat(communityNotices).hasSize(3);
+        List<Long> expectedNoticeIds = notices.subList(1, 4).stream().map(Notice::getId).collect(Collectors.toList());
+        Collections.reverse(expectedNoticeIds);
+        assertThat(communityNotices).extracting("id").containsExactlyElementsOf(expectedNoticeIds);
+        assertThat(communityNotices).extracting("community").extracting("id")
+                .containsOnly(community.getId());
+    }
+
+    @Test
+    @DisplayName("커뮤니티의 공지사항 전체를 최신순으로 조회한다.")
+    void getAllCommunityNotices() {
         //given
         final User user = TestUser.builder().build();
         userRepository.save(user);
 
-        final Member member = TestMember.builder()
-                .user(user)
-                .build();
+        final Member member = TestMember.builder().user(user).build();
         memberRepository.save(member);
 
         final Community community = TestCommunity.builder().build();
@@ -130,12 +154,10 @@ class NoticeRepositoryTest {
         final Notice notice2 = TestNotice.builder().build();
         final Notice notice3 = TestNotice.builder().build();
         final Notice notice4 = TestNotice.builder().build();
-
         final Notice notice5 = TestNotice.builder()
                 .community(community)
                 .member(member)
                 .build();
-
         noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
 
         persistenceUtil.cleanPersistenceContext();
@@ -143,10 +165,9 @@ class NoticeRepositoryTest {
         //when
         List<Notice> notices = noticeRepository.getAllNotices(community.getId());
 
-        assertThat(notices.size()).isEqualTo(1);
-
-        Notice first = notices.get(0);
-        assertThat(first.getId()).isEqualTo(notice5.getId());
-        assertThat(emf.getPersistenceUnitUtil().isLoaded(first.getMember().getUser())).isTrue();
+        assertThat(notices).hasSize(1);
+        assertThat(notices).extracting("id").containsExactly(notice5.getId());
+        assertThat(persistenceUtil.isLoaded(notices.get(0).getMember())).isTrue();
+        assertThat(persistenceUtil.isLoaded(notices.get(0).getMember().getUser())).isTrue();
     }
 }

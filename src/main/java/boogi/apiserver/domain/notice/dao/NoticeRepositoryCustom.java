@@ -11,5 +11,5 @@ public interface NoticeRepositoryCustom {
 
     List<Notice> getAllNotices(Long communityId);
 
-    List<Notice> getAllNotices();
+    List<Notice> getAllAppNotices();
 }
