@@ -46,9 +46,6 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                     .limit(pageable.getPageSize() + 1)
                     .fetch();
 
-            // CommunityHashtag LAZY INIT
-            communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
-
             List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 
             return PageableUtil.getSlice(dtos, pageable);
@@ -71,8 +68,6 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
-        //LAZY INIT
-        communities.stream().anyMatch(c -> c.getHashtags().size() != 0);
 
         List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 
@@ -90,8 +85,10 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
                 break;
             case MANY_PEOPLE:
                 order = community.memberCount.desc();
+                break;
             case LESS_PEOPLE:
                 order = community.memberCount.asc();
+                break;
             default:
                 order = community.createdAt.desc();
         }

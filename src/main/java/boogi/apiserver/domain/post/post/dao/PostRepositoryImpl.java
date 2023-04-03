@@ -84,16 +84,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        // LAZY INIT PostHashtag
-        posts.stream().anyMatch(p -> p.getHashtags() != null && p.getHashtags().size() > 0);
-
-        // LAZY INIT PostMedia
-        posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
-
-        //LAZY INIT Like
-        //todo: MemberId 기반으로 쿼리하기
-        posts.stream().anyMatch(p -> p.getLikes().size() > 0);
-
         return PageableUtil.getSlice(posts, pageable);
     }
 
@@ -126,12 +116,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
-
-        //PostHashTag LAZY INIT
-        posts.stream().anyMatch(p -> p.getHashtags().size() > 0);
-
-        //PostMedia LAZY INIT
-        posts.stream().anyMatch(p -> p.getPostMedias().size() > 0);
 
         List<SearchPostDto> postDtos = posts.stream()
                 .map(SearchPostDto::from)
