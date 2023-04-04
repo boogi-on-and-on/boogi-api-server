@@ -64,7 +64,7 @@ class CommunityCommandServiceTest {
         @DisplayName("AlreadyExistsCommunityNameException 리턴")
         void AlreadyExistsCommunityName() {
             final Community community = TestCommunity.builder().build();
-            given(communityRepository.findByCommunityNameEquals(any()))
+            given(communityRepository.findByCommunityNameValueEquals(any()))
                     .willReturn(Optional.of(community));
 
             assertThatThrownBy(() -> {
