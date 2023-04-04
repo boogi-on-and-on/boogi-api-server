@@ -85,7 +85,7 @@ public class CommunityCommandService {
     }
 
     private void validateAlreadyExistName(String name) {
-        communityRepository.findByCommunityNameEquals(name).ifPresent(c -> {
+        communityRepository.findByCommunityNameValueEquals(name).ifPresent(c -> {
             throw new AlreadyExistsCommunityNameException();
         });
     }
