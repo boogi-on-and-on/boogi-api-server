@@ -34,7 +34,8 @@ public class ApiConfig implements WebMvcConfigurer {
         registry.addInterceptor(new SessionValidationInterceptor())
                 .order(1)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/api/users/token/**");
+                .excludePathPatterns("/api/users/token/**")
+                .excludePathPatterns("/actuator/**");
     }
 
     @Override
