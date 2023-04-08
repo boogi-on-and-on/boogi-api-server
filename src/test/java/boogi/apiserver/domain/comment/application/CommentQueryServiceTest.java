@@ -119,7 +119,7 @@ class CommentQueryServiceTest {
                     .comment(cComment1)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(member);
@@ -214,7 +214,7 @@ class CommentQueryServiceTest {
                     .parent(pComment2)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(new NullMember());
@@ -276,7 +276,7 @@ class CommentQueryServiceTest {
                     .parent(pComment1)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(member);

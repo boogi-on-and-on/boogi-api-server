@@ -25,7 +25,7 @@ public class LikeCommandService {
     private final MemberQueryService memberQueryService;
 
     public Long doPostLike(Long postId, Long userId) {
-        Post findPost = postRepository.findByPostId(postId);
+        Post findPost = postRepository.findPostById(postId);
         Long communityId = findPost.getCommunity().getId();
         Member joinedMember = memberQueryService.getMember(userId, communityId);
 

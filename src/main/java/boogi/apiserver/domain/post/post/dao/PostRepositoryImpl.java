@@ -34,7 +34,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return queryFactory.selectFrom(post)
                 .where(
                         post.createdAt.after(LocalDateTime.now().minusDays(4)),
-                        post.deletedAt.isNull(),
                         post.community.isPrivate.isFalse()
                 )
                 .join(post.community)
@@ -46,10 +45,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public List<Post> getLatestPostOfCommunity(Long communityId) {
         return queryFactory.selectFrom(post)
-                .where(
-                        post.community.id.eq(communityId),
-                        post.deletedAt.isNull()
-                )
+                .where(post.community.id.eq(communityId))
                 .orderBy(post.createdAt.desc())
                 .limit(5)
                 .fetch();
@@ -61,11 +57,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .join(post.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()
                 .join(post.community, community).fetchJoin()
-                .where(
-                        post.id.eq(postId),
-                        post.deletedAt.isNull(),
-                        post.community.deletedAt.isNull()
-                ).fetchOne();
+                .where(post.id.eq(postId))
+                .fetchOne();
 
         return Optional.ofNullable(findPost);
     }
@@ -73,10 +66,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public Slice<Post> getPostsOfCommunity(Pageable pageable, Long communityId) {
         List<Post> posts = queryFactory.selectFrom(post)
-                .where(
-                        post.community.id.eq(communityId),
-                        post.deletedAt.isNull()
-                )
+                .where(post.community.id.eq(communityId))
                 .join(post.member, member).fetchJoin()
                 .join(member.user, user).fetchJoin()
                 .orderBy(post.createdAt.desc())
@@ -88,10 +78,23 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
+    public Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
+        List<Post> findPosts = queryFactory.selectFrom(post)
+                .where(post.member.id.in(memberIds))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .orderBy(post.createdAt.desc())
+                .fetch();
+
+        return PageableUtil.getSlice(findPosts, pageable);
+    }
+
+    @Override
     public Slice<SearchPostDto> getSearchedPosts(Pageable pageable, PostQueryRequest request, Long userId) {
         List<Long> memberJoinedCommunityIds = queryFactory.select(member.community.id)
                 .from(member)
-                .where(member.user.id.eq(userId),
+                .where(
+                        member.user.id.eq(userId),
                         member.bannedAt.isNull()
                 ).fetch();
 
@@ -132,20 +135,5 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 return post.likeCount.desc();
         }
         return null;
-    }
-
-    @Override
-    public Slice<Post> getUserPostPageByMemberIds(List<Long> memberIds, Pageable pageable) {
-        List<Post> findPosts = queryFactory.selectFrom(post)
-                .where(
-                        post.member.id.in(memberIds),
-                        post.deletedAt.isNull()
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
-                .orderBy(post.createdAt.desc())
-                .fetch();
-
-        return PageableUtil.getSlice(findPosts, pageable);
     }
 }

@@ -132,7 +132,7 @@ class PostCommandServiceTest {
                     .member(member)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
 
             UpdatePostRequest updatePostRequest = new UpdatePostRequest(UPDATE_POST_CONTENT, List.of(), List.of());
@@ -162,7 +162,7 @@ class PostCommandServiceTest {
                     .uuid(POSTMEDIA_UUID)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(postMediaRepository.findByUuidIn(anyList()))
                     .willReturn(List.of(postMedia));
@@ -211,7 +211,7 @@ class PostCommandServiceTest {
                     .post(post)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(commentRepository.findByPostId(anyLong()))
                     .willReturn(List.of(comment));
@@ -248,7 +248,7 @@ class PostCommandServiceTest {
                     .member(authorMember)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(notAuthorNormalMember);

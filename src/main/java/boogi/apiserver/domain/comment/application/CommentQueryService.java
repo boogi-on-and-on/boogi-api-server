@@ -37,7 +37,7 @@ public class CommentQueryService {
     private final MemberQueryService memberQueryService;
 
     public CommentsAtPostResponse getCommentsAtPost(Long postId, Long userId, Pageable pageable) {
-        Post findPost = postRepository.findByPostId(postId);
+        Post findPost = postRepository.findPostById(postId);
 
         Member sessionMember = memberQueryService.getViewableMember(userId, findPost.getCommunity());
         Slice<Comment> commentPage = commentRepository.findParentCommentsWithMemberByPostId(pageable, postId);

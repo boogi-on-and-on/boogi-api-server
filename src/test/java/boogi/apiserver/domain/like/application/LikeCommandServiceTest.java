@@ -71,7 +71,7 @@ class LikeCommandServiceTest {
 
             final Member member = TestMember.builder().id(2L).build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);
@@ -100,7 +100,7 @@ class LikeCommandServiceTest {
 
             final Member member = TestMember.builder().id(1L).build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);

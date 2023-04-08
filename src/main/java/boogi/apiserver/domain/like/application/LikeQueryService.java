@@ -40,7 +40,7 @@ public class LikeQueryService {
     }
 
     public LikeMembersAtPostResponse getLikeMembersAtPost(Long postId, Long userId, Pageable pageable) {
-        Post findPost = postRepository.findByPostId(postId);
+        Post findPost = postRepository.findPostById(postId);
         memberQueryService.getViewableMember(userId, findPost.getCommunity());
 
         Slice<Like> likePage = likeRepository.findPostLikePageWithMemberByPostId(findPost.getId(), pageable);

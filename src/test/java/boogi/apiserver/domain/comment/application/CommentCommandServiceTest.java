@@ -69,7 +69,7 @@ class CommentCommandServiceTest {
                     .community(community)
                     .build();
 
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
             given(memberQueryService.getMember(anyLong(), anyLong()))
                     .willReturn(member);
@@ -99,7 +99,7 @@ class CommentCommandServiceTest {
                     .community(community)
                     .commentCount(1)
                     .build();
-            given(postRepository.findByPostId(anyLong()))
+            given(postRepository.findPostById(anyLong()))
                     .willReturn(post);
 
             final Member member = TestMember.builder()
@@ -166,7 +166,7 @@ class CommentCommandServiceTest {
                     .content("대댓글")
                     .build();
 
-            given(postRepository.findByPostId(anyLong())).willReturn(post);
+            given(postRepository.findPostById(anyLong())).willReturn(post);
             given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(member);
 
             given(commentRepository.findById(anyLong())).willReturn(Optional.of(secondDepthComment));

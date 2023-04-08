@@ -56,7 +56,7 @@ public class PostCommandService {
     }
 
     public Long updatePost(UpdatePostRequest request, Long postId, Long userId) {
-        Post post = postRepository.findByPostId(postId);
+        Post post = postRepository.findPostById(postId);
 
         validatePostUpdatable(userId, post);
 
@@ -67,7 +67,7 @@ public class PostCommandService {
     }
 
     public void deletePost(Long postId, Long userId) {
-        final Post findPost = postRepository.findByPostId(postId);
+        final Post findPost = postRepository.findPostById(postId);
 
         validatePostDeletable(userId, findPost);
 

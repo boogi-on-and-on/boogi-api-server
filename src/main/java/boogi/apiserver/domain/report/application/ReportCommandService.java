@@ -64,7 +64,7 @@ public class ReportCommandService {
     }
 
     private Post getReportedPost(Long userId, final Long id) {
-        Post findPost = postRepository.findByPostId(id);
+        Post findPost = postRepository.findPostById(id);
 
         Community community = findPost.getCommunity();
         if (community.isPrivate()) {

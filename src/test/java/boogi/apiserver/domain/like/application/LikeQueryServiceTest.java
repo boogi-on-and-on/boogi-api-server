@@ -114,7 +114,7 @@ class LikeQueryServiceTest {
                 .member(member)
                 .build();
 
-        given(postRepository.findByPostId(anyLong()))
+        given(postRepository.findPostById(anyLong()))
                 .willReturn(post);
 
         Pageable pageable = PageRequest.of(0, 1);

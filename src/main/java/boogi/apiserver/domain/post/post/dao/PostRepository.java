@@ -23,7 +23,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
             nativeQuery = true)
     List<Post> getLatestPostByCommunityIds(@Param("communityIds") Set<Long> communityIds);
 
-    default Post findByPostId(Long postId) {
+    default Post findPostById(Long postId) {
         return this.findById(postId).orElseThrow(PostNotFoundException::new);
     }
 }
