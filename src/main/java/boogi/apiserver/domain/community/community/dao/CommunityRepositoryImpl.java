@@ -30,37 +30,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
     @Override
     public Slice<SearchCommunityDto> getSearchedCommunities(Pageable pageable, CommunityQueryRequest condition) {
         OrderSpecifier order = getOrderSpecifier(condition.getOrder());
-
-        String keyword = condition.getKeyword();
-
-        if (keyword == null) {
-            Predicate[] where = {
-                    privateEq(condition.getIsPrivate()),
-                    categoryEq(condition.getCategory())
-            };
-
-            List<Community> communities = queryFactory.selectFrom(community)
-                    .where(where)
-                    .orderBy(order)
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize() + 1)
-                    .fetch();
-
-            List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
-
-            return PageableUtil.getSlice(dtos, pageable);
-        }
-
-        Predicate[] where = {
-                privateEq(condition.getIsPrivate()),
-                categoryEq(condition.getCategory()),
-
-                community.communityName.value.contains(keyword).or(
-                        community.id.in(JPAExpressions.select(communityHashtag.community.id)
-                                .from(communityHashtag)
-                                .where(communityHashtag.tag.value.eq(keyword)))
-                )
-        };
+        Predicate[] where = getWherePredicates(condition, condition.getKeyword());
 
         List<Community> communities = queryFactory.selectFrom(community)
                 .where(where)
@@ -72,6 +42,25 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
         List<SearchCommunityDto> dtos = SearchCommunityDto.listOf(communities);
 
         return PageableUtil.getSlice(dtos, pageable);
+    }
+
+    private Predicate[] getWherePredicates(CommunityQueryRequest condition, String keyword) {
+        if (keyword == null) {
+            return new Predicate[]{
+                    privateEq(condition.getIsPrivate()),
+                    categoryEq(condition.getCategory())
+            };
+        }
+        return new Predicate[]{
+                privateEq(condition.getIsPrivate()),
+                categoryEq(condition.getCategory()),
+
+                community.communityName.value.contains(keyword).or(
+                        community.id.in(JPAExpressions.select(communityHashtag.community.id)
+                                .from(communityHashtag)
+                                .where(communityHashtag.tag.value.eq(keyword)))
+                )
+        };
     }
 
     private OrderSpecifier getOrderSpecifier(CommunityListingOrder condition) {
