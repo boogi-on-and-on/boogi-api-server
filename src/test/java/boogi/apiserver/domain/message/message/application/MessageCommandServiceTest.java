@@ -53,8 +53,8 @@ class MessageCommandServiceTest {
 
         SendMessageRequest request = new SendMessageRequest(RECEIVER_ID, MESSAGE_CONTENT);
 
-        given(userRepository.findByUserId(eq(SENDER_ID))).willReturn(sender);
-        given(userRepository.findByUserId(eq(RECEIVER_ID))).willReturn(receiver);
+        given(userRepository.findUserById(eq(SENDER_ID))).willReturn(sender);
+        given(userRepository.findUserById(eq(RECEIVER_ID))).willReturn(receiver);
         given(messageBlockRepository.existsBlockedFromReceiver(anyLong(), anyLong()))
                 .willReturn(false);
 

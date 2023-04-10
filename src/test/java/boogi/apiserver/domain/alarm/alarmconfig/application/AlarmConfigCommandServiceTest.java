@@ -49,13 +49,13 @@ class AlarmConfigCommandServiceTest {
 
             final User user = TestUser.builder().id(1L).build();
 
-            given(userRepository.findByUserId(anyLong()))
+            given(userRepository.findUserById(anyLong()))
                     .willReturn(user);
             //when
             AlarmConfig config = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
 
             //then
-            then(userRepository).should(times(1)).findByUserId(anyLong());
+            then(userRepository).should(times(1)).findUserById(anyLong());
             then(alarmConfigRepository).should(times(1)).save(any());
         }
 
@@ -78,7 +78,7 @@ class AlarmConfigCommandServiceTest {
             final AlarmConfig config = alarmConfigCommandService.findOrElseCreateAlarmConfig(user.getId());
 
             //then
-            then(userRepository).should(times(0)).findByUserId(anyLong());
+            then(userRepository).should(times(0)).findUserById(anyLong());
             then(alarmConfigRepository).should(times(0)).save(any());
         }
     }

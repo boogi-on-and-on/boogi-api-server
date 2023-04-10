@@ -26,7 +26,7 @@ public class MemberCommandService {
     private final MemberQueryService memberQueryService;
 
     public Member joinMember(Long userId, Long communityId, MemberType type) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findUserById(userId);
         Community community = communityRepository.findCommunityById(communityId);
 
         validateAlreadyJoinedMember(userId, communityId);

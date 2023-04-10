@@ -395,7 +395,7 @@ class CommentQueryServiceTest {
                     .parent(pComment)
                     .build();
 
-            given(userRepository.findByUserId(anyLong()))
+            given(userRepository.findUserById(anyLong()))
                     .willReturn(user2);
 
             List<Long> findMemberIds = List.of(member2.getId());

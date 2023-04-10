@@ -73,7 +73,7 @@ public class CommentQueryService {
         if (userId.equals(sessionUserId)) {
             return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
         } else {
-            userRepository.findByUserId(userId);
+            userRepository.findUserById(userId);
             return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
         }
     }

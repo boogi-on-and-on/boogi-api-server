@@ -22,7 +22,7 @@ public class UserQueryService {
     }
 
     public UserDetailInfoDto getUserDetailInfo(Long userId) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findUserById(userId);
         return UserDetailInfoDto.of(user);
     }
 }

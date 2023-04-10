@@ -36,7 +36,7 @@ public class ReportCommandService {
     private final MemberQueryService memberQueryService;
 
     public void createReport(CreateReportRequest request, Long userId) {
-        User reportUser = userRepository.findByUserId(userId);
+        User reportUser = userRepository.findUserById(userId);
 
         Object targetObject = getReportTarget(userId, request.getTarget(), request.getId());
         Report newReport = Report.of(

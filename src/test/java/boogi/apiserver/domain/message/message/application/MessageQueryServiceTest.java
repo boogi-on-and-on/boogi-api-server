@@ -121,7 +121,7 @@ class MessageQueryServiceTest {
         PageRequest pageable = PageRequest.of(0, 1);
         Slice<Message> messages = PageableUtil.getSlice(List.of(message), pageable);
 
-        given(userRepository.findByUserId(anyLong())).willReturn(opponent);
+        given(userRepository.findUserById(anyLong())).willReturn(opponent);
         given(messageRepository.findMessages(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(messages);
 

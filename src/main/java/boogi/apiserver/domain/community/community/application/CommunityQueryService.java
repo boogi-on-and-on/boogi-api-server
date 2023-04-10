@@ -76,7 +76,7 @@ public class CommunityQueryService {
     }
 
     public JoinedCommunitiesDto getJoinedCommunitiesWithLatestPost(Long userId) {
-        userRepository.findByUserId(userId);
+        userRepository.findUserById(userId);
 
         Map<Long, Community> joinedCommunityMap = getJoinedCommunityMap(userId);
 

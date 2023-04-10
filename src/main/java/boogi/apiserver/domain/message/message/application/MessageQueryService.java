@@ -50,7 +50,7 @@ public class MessageQueryService {
     }
 
     public MessageResponse getMessagesByOpponentId(Long opponentId, Long userId, Pageable pageable) {
-        User opponentUser = userRepository.findByUserId(opponentId);
+        User opponentUser = userRepository.findUserById(opponentId);
         Slice<Message> messages = messageRepository.findMessages(opponentId, userId, pageable);
 
         return MessageResponse.of(opponentUser, messages, userId);

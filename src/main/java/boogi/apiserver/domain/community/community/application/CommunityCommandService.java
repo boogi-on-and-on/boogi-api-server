@@ -31,7 +31,7 @@ public class CommunityCommandService {
     private final MemberCommandService memberCommandService;
 
     public Long createCommunity(CreateCommunityRequest request, Long userId) {
-        userRepository.findByUserId(userId);
+        userRepository.findUserById(userId);
         validateAlreadyExistName(request.getName());
 
         Community community = Community.of(

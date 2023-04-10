@@ -39,7 +39,7 @@ public class JoinRequestCommandService {
 
     //todo: 거절했는데, 계속 요청하면 어떻게 할지? --> 커뮤니티에서 유저(멤버x)차단 기능 필요?
     public Long request(Long userId, Long communityId) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findUserById(userId);
         Community community = communityRepository.findCommunityById(communityId);
 
         validateAlreadyJoinedMember(userId, community);

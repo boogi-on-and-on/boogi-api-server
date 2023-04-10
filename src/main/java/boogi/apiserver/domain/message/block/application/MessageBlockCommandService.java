@@ -31,7 +31,7 @@ public class MessageBlockCommandService {
     }
 
     public void blockUsers(Long userId, List<Long> blockUserIds) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findUserById(userId);
         List<MessageBlock> blocks = messageBlockRepository.getMessageBlocksByUserIds(userId, blockUserIds);
 
         //차단당한 유저, 차단하는 유저 쌍 페어가 이미 있으면 업데이트

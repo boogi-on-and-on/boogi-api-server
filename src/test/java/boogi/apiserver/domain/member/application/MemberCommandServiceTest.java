@@ -74,7 +74,7 @@ class MemberCommandServiceTest {
         @Test
         void success() {
             final User user = TestUser.builder().build();
-            given(userRepository.findByUserId(anyLong()))
+            given(userRepository.findUserById(anyLong()))
                     .willReturn(user);
 
             final Community community = TestCommunity.builder().build();

@@ -448,7 +448,7 @@ class PostQueryServiceTest {
             UserPostPageResponse response =
                     postQueryService.getUserPosts(NOT_SESSION_USER_ID, SESSION_USER_ID, pageable);
 
-            verify(userRepository, times(1)).findByUserId(anyLong());
+            verify(userRepository, times(1)).findUserById(anyLong());
 
             List<UserPostDto> userPosts = response.getPosts();
             assertThat(userPosts).hasSize(2);

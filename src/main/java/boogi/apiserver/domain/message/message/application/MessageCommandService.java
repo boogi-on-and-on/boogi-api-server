@@ -19,8 +19,8 @@ public class MessageCommandService {
     private final UserRepository userRepository;
 
     public Long sendMessage(SendMessageRequest request, Long senderId) {
-        User sender = userRepository.findByUserId(senderId);
-        User receiver = userRepository.findByUserId(request.getReceiverId());
+        User sender = userRepository.findUserById(senderId);
+        User receiver = userRepository.findUserById(request.getReceiverId());
 
         boolean isBlockedMessage = messageBlockRepository.existsBlockedFromReceiver(senderId, receiver.getId());
 

@@ -85,7 +85,7 @@ class MessageBlockCommandServiceTest {
         void blockeUsersSuccess() {
             //given
             final User user = TestUser.builder().id(1L).build();
-            given(userRepository.findByUserId(anyLong()))
+            given(userRepository.findUserById(anyLong()))
                     .willReturn(user);
 
             final User blockedUser = TestUser.builder().id(2L).build();

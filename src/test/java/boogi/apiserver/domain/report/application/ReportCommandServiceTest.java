@@ -81,7 +81,7 @@ class ReportCommandServiceTest {
 
             final Comment comment = TestComment.builder().id(4L).post(post).build();
 
-            given(userRepository.findByUserId(anyLong())).willReturn(user);
+            given(userRepository.findUserById(anyLong())).willReturn(user);
             given(commentRepository.findCommentById(anyLong())).willReturn(comment);
 
             CreateReportRequest request =
@@ -112,7 +112,7 @@ class ReportCommandServiceTest {
 
             final Comment comment = TestComment.builder().id(4L).post(post).build();
 
-            given(userRepository.findByUserId(anyLong())).willReturn(user);
+            given(userRepository.findUserById(anyLong())).willReturn(user);
             given(commentRepository.findCommentById(anyLong())).willReturn(comment);
 
             CreateReportRequest request =
@@ -142,7 +142,7 @@ class ReportCommandServiceTest {
 
             final Post post = TestPost.builder().id(3L).community(community).build();
 
-            given(userRepository.findByUserId(anyLong())).willReturn(user);
+            given(userRepository.findUserById(anyLong())).willReturn(user);
             given(postRepository.findPostById(anyLong())).willReturn(post);
 
             CreateReportRequest request =
@@ -171,7 +171,7 @@ class ReportCommandServiceTest {
 
             final Post post = TestPost.builder().id(3L).community(community).build();
 
-            given(userRepository.findByUserId(anyLong())).willReturn(user);
+            given(userRepository.findUserById(anyLong())).willReturn(user);
             given(postRepository.findPostById(anyLong())).willReturn(post);
 
             CreateReportRequest request =
@@ -199,7 +199,7 @@ class ReportCommandServiceTest {
 
             final Community community = TestCommunity.builder().id(2L).build();
 
-            given(userRepository.findByUserId(anyLong())).willReturn(user);
+            given(userRepository.findUserById(anyLong())).willReturn(user);
             given(communityRepository.findCommunityById(anyLong())).willReturn(community);
 
             CreateReportRequest request =
@@ -231,7 +231,7 @@ class ReportCommandServiceTest {
                     .receiver(user2)
                     .build();
 
-            given(userRepository.findByUserId(anyLong()))
+            given(userRepository.findUserById(anyLong()))
                     .willReturn(user1);
             given(messageRepository.findMessageById(anyLong()))
                     .willReturn(message);
@@ -265,7 +265,7 @@ class ReportCommandServiceTest {
                     .receiver(user2)
                     .build();
 
-            given(userRepository.findByUserId(anyLong()))
+            given(userRepository.findUserById(anyLong()))
                     .willReturn(user1);
             given(messageRepository.findMessageById(anyLong()))
                     .willReturn(message);

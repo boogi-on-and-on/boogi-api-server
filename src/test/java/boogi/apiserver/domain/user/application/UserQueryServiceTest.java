@@ -37,7 +37,7 @@ class UserQueryServiceTest {
                 .build();
 
 
-        given(userRepository.findByUserId(anyLong())).willReturn(user);
+        given(userRepository.findUserById(anyLong())).willReturn(user);
         //when
 
         UserDetailInfoDto dto = userQueryService.getUserDetailInfo(user.getId());

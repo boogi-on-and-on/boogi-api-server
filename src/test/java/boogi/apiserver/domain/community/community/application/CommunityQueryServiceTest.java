@@ -193,7 +193,7 @@ class CommunityQueryServiceTest {
 
         final JoinedCommunitiesDto dto = communityQueryService.getJoinedCommunitiesWithLatestPost(1L);
 
-        then(userRepository).should(times(1)).findByUserId(anyLong());
+        then(userRepository).should(times(1)).findUserById(anyLong());
 
         final JoinedCommunitiesDto.CommunityInfo communityInfo = dto.getCommunities().get(0);
         assertThat(communityInfo.getId()).isEqualTo(1L);

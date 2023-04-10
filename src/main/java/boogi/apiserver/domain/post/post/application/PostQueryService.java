@@ -93,7 +93,7 @@ public class PostQueryService {
         if (sessionUserId.equals(userId)) {
             return memberRepository.findMemberIdsForQueryUserPost(sessionUserId);
         }
-        userRepository.findByUserId(userId);
+        userRepository.findUserById(userId);
         return memberRepository.findMemberIdsForQueryUserPost(userId, sessionUserId);
     }
 
