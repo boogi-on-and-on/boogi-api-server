@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.comment.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestComment;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestPost;
@@ -11,15 +10,16 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.user.dao.UserRepository;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +30,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class CommentRepositoryTest {
+class CommentRepositoryTest extends RepositoryTest {
 
     @Autowired
     CommentRepository commentRepository;
@@ -45,16 +44,6 @@ class CommentRepositoryTest {
     @Autowired
     PostRepository postRepository;
 
-    @Autowired
-    EntityManager em;
-
-    PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
-
     @Nested
     @DisplayName("ID로 댓글 조회시")
     class FindCommentById {
@@ -64,7 +53,7 @@ class CommentRepositoryTest {
             Comment comment = TestComment.builder().build();
             commentRepository.save(comment);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             Comment findComment = commentRepository.findCommentById(comment.getId());
 
@@ -102,7 +91,7 @@ class CommentRepositoryTest {
         comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
         commentRepository.saveAll(comments);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 20);
 
@@ -119,7 +108,7 @@ class CommentRepositoryTest {
         assertThat(parentComments).extracting("content").containsExactly(expectedCommentContents);
         assertThat(parentComments).extracting("parent").containsOnlyNulls();
         assertThat(parentComments).extracting("child").containsOnly(false);
-        assertThat(persistenceUtil.isLoaded(parentComments.get(0))).isTrue();
+        assertThat(isLoaded(parentComments.get(0))).isTrue();
 
         assertThat(parentCommentPage.hasNext()).isTrue();
     }
@@ -159,7 +148,7 @@ class CommentRepositoryTest {
                 .collect(Collectors.toList());
         commentRepository.saveAll(childComments);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> parentCommentIds = parentComments.stream()
                 .map(Comment::getId)
@@ -176,7 +165,7 @@ class CommentRepositoryTest {
         assertThat(findChildComments).extracting("content").containsExactly(expectedChildContents);
         assertThat(findChildComments).extracting("parent").extracting("id")
                 .containsOnly(parentCommentIds.get(0), parentCommentIds.get(1));
-        assertThat(persistenceUtil.isLoaded(findChildComments.get(0).getMember())).isTrue();
+        assertThat(isLoaded(findChildComments.get(0).getMember())).isTrue();
     }
 
     @Test
@@ -207,7 +196,7 @@ class CommentRepositoryTest {
         commentRepository.saveAll(member1Comments);
         commentRepository.saveAll(member2Comments);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
         Pageable pageable = PageRequest.of(0, 15);

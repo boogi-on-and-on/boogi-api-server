@@ -1,9 +1,7 @@
 package boogi.apiserver.domain.community.community.dao;
 
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestCommunity;
-import boogi.apiserver.domain.comment.dao.CommentRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
@@ -12,9 +10,8 @@ import boogi.apiserver.domain.community.community.dto.request.CommunityQueryRequ
 import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
 import boogi.apiserver.domain.hashtag.community.dao.CommunityHashtagRepository;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,34 +19,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class CommunityRepositoryTest {
+class CommunityRepositoryTest extends RepositoryTest {
 
     @Autowired
     CommunityRepository communityRepository;
 
     @Autowired
     CommunityHashtagRepository communityHashtagRepository;
-
-    @Autowired
-    EntityManager em;
-
-    @Autowired
-    CommentRepository commentRepository;
-
-    PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
 
     @Nested
     @DisplayName("ID로 커뮤니티 조회")
@@ -60,7 +42,7 @@ class CommunityRepositoryTest {
             final Community community = TestCommunity.builder().build();
             communityRepository.save(community);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             final Community findCommunity = communityRepository.findCommunityById(community.getId());
             assertThat(findCommunity.getId()).isEqualTo(community.getId());
@@ -111,7 +93,7 @@ class CommunityRepositoryTest {
             final CommunityQueryRequest request =
                     new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, "안녕");
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             //when
             final Slice<SearchCommunityDto> page =
@@ -163,7 +145,7 @@ class CommunityRepositoryTest {
             CommunityQueryRequest request =
                     new CommunityQueryRequest(CommunityCategory.ACADEMIC, true, CommunityListingOrder.NEWER, null);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             //when
             final Slice<SearchCommunityDto> slice =

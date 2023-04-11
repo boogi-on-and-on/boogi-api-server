@@ -1,44 +1,28 @@
 package boogi.apiserver.domain.post.postmedia.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestPost;
 import boogi.apiserver.builder.TestPostMedia;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-@CustomDataJpaTest
-class PostMediaRepositoryTest {
+class PostMediaRepositoryTest extends RepositoryTest {
 
     @Autowired
     PostMediaRepository postMediaRepository;
 
     @Autowired
     PostRepository postRepository;
-
-    @Autowired
-    EntityManager em;
-
-    private PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
-
 
     @Test
     @DisplayName("커뮤니티에서 가장 최근 글의 Id들을 입력받아 각 글의 가장 먼저 추가된 PostMedia 1개씩 조회한다.")
@@ -55,7 +39,7 @@ class PostMediaRepositoryTest {
 
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> postIds = List.of(post1.getId(), post2.getId());
         List<PostMedia> postMedias = postMediaRepository.getPostMediasByLatestPostIds(postIds);
@@ -77,7 +61,7 @@ class PostMediaRepositoryTest {
         final PostMedia postMedia3 = TestPostMedia.builder().uuid("3456").post(post).build();
         postMediaRepository.saveAll(List.of(postMedia1, postMedia2, postMedia3));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<String> postMediaUUIDs = List.of(postMedia1.getUuid(), postMedia2.getUuid(), postMedia3.getUuid());
         List<PostMedia> unmappedPostMedias = postMediaRepository.findUnmappedPostMedias(postMediaUUIDs);

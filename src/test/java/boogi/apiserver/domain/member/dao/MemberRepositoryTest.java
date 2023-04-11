@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.member.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestUser;
@@ -13,9 +12,8 @@ import boogi.apiserver.domain.member.exception.MemberNotFoundException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@CustomDataJpaTest
-class MemberRepositoryTest {
+class MemberRepositoryTest extends RepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
@@ -45,16 +41,6 @@ class MemberRepositoryTest {
     @Autowired
     private CommunityRepository communityRepository;
 
-    @Autowired
-    private EntityManager em;
-
-    private PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
-
     @Nested
     @DisplayName("ID로 멤버 조회시")
     class findMemberById {
@@ -64,7 +50,7 @@ class MemberRepositoryTest {
             final Member member = TestMember.builder().build();
             memberRepository.save(member);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             final Member findMember = memberRepository.findMemberById(member.getId());
             assertThat(findMember.getId()).isEqualTo(member.getId());
@@ -89,7 +75,7 @@ class MemberRepositoryTest {
                 .collect(Collectors.toList());
         memberRepository.saveAll(members);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Member> findMembers = memberRepository.findByUserId(user.getId());
 
@@ -122,13 +108,13 @@ class MemberRepositoryTest {
                 .build();
         memberRepository.saveAll(List.of(member1, member2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Member> members = memberRepository.findMembersWithCommunity(user.getId());
 
         assertThat(members).hasSize(1);
         assertThat(members).extracting("id").containsOnly(member2.getId());
-        assertThat(persistenceUtil.isLoaded(members.get(0).getCommunity())).isTrue();
+        assertThat(isLoaded(members.get(0).getCommunity())).isTrue();
     }
 
     @Test
@@ -152,7 +138,7 @@ class MemberRepositoryTest {
         members.forEach(m -> TestTimeReflection.setCreatedAt(m, LocalDateTime.now()));
         memberRepository.saveAll(members);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Member findMember = memberRepository.findByUserIdAndCommunityId(user.getId(), community.getId())
                 .orElseGet(() -> fail());
@@ -200,7 +186,7 @@ class MemberRepositoryTest {
 
         memberRepository.saveAll(List.of(normalMember, submanager1, submanager2, manager));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         PageRequest pageable = PageRequest.of(0, 4);
@@ -231,12 +217,12 @@ class MemberRepositoryTest {
         members.get(0).ban();
         memberRepository.saveAll(members);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Member> findMembers = memberRepository.findAllJoinedMembersWithUser(community.getId());
 
         assertThat(findMembers).hasSize(2);
-        assertThat(persistenceUtil.isLoaded(findMembers.get(0).getUser())).isTrue();
+        assertThat(isLoaded(findMembers.get(0).getUser())).isTrue();
         assertThat(findMembers).extracting("community").extracting("id")
                 .containsOnly(community.getId());
         assertThat(findMembers).extracting("user").extracting("id")
@@ -260,7 +246,7 @@ class MemberRepositoryTest {
                 .build();
         memberRepository.saveAll(List.of(manager, normalUser));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         Member member = memberRepository.findAnyMemberExceptManager(community.getId())
@@ -297,7 +283,7 @@ class MemberRepositoryTest {
                 .build();
         memberRepository.saveAll(List.of(m1, m2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<BannedMemberDto> bannedMemberDtos = memberRepository.findBannedMembers(community.getId());
 
@@ -323,7 +309,7 @@ class MemberRepositoryTest {
                 .build();
         memberRepository.save(m1);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Member> alreadyJoinedMember =
                 memberRepository.findAlreadyJoinedMember(List.of(u1.getId(), u2.getId()), community.getId());
@@ -355,7 +341,7 @@ class MemberRepositoryTest {
             members.get(0).ban();
             memberRepository.saveAll(members);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             List<Long> memberIds = memberRepository.findMemberIdsForQueryUserPost(sessionUser.getId());
 
@@ -384,7 +370,7 @@ class MemberRepositoryTest {
                     .build();
             memberRepository.saveAll(List.of(member1, member2));
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             List<Long> memberIds = memberRepository.findMemberIdsForQueryUserPost(user.getId(), sessionUser.getId());
 
@@ -408,7 +394,7 @@ class MemberRepositoryTest {
                 ).collect(Collectors.toList());
         memberRepository.saveAll(members);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Member manager = memberRepository.findManager(community.getId());
 
@@ -454,7 +440,7 @@ class MemberRepositoryTest {
                 .build();
         memberRepository.saveAll(List.of(member1, member2, member3));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         PageRequest pageable = PageRequest.of(0, 3);

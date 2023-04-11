@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.community.joinrequest.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestJoinRequest;
 import boogi.apiserver.builder.TestUser;
@@ -11,15 +10,13 @@ import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.community.joinrequest.exception.JoinRequestNotFoundException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +26,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class JoinRequestRepositoryTest {
+class JoinRequestRepositoryTest extends RepositoryTest {
 
     @Autowired
     private JoinRequestRepository joinRequestRepository;
@@ -40,16 +36,6 @@ class JoinRequestRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    EntityManager em;
-
-    PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
 
     @Nested
     @DisplayName("findJoinRequestById 디폴트 메서드 테스트")
@@ -61,7 +47,7 @@ class JoinRequestRepositoryTest {
             final JoinRequest joinRequest = TestJoinRequest.builder().build();
             joinRequestRepository.save(joinRequest);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             final JoinRequest findJoinRequest = joinRequestRepository.findJoinRequestById(joinRequest.getId());
             assertThat(findJoinRequest.getId()).isEqualTo(joinRequest.getId());
@@ -102,7 +88,7 @@ class JoinRequestRepositoryTest {
 
         joinRequestRepository.saveAll(List.of(r1, r2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<JoinRequest> requests = joinRequestRepository.getAllPendingRequests(community.getId());
@@ -130,7 +116,7 @@ class JoinRequestRepositoryTest {
         TestTimeReflection.setCreatedAt(joinRequest2, LocalDateTime.now());
         joinRequestRepository.saveAll(List.of(joinRequest1, joinRequest2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Optional<JoinRequest> latestJoinRequest =
                 joinRequestRepository.getLatestJoinRequest(user.getId(), community.getId());
@@ -147,7 +133,7 @@ class JoinRequestRepositoryTest {
                 .collect(Collectors.toList());
         joinRequestRepository.saveAll(joinRequests);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> joinRequestIds = joinRequests.stream()
                 .map(JoinRequest::getId)

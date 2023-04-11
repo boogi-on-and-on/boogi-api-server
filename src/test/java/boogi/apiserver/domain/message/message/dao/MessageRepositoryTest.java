@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.message.message.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestMessage;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
@@ -8,6 +7,7 @@ import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.message.message.exception.MessageNotFoundException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -28,9 +27,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-
-@CustomDataJpaTest
-class MessageRepositoryTest {
+class MessageRepositoryTest extends RepositoryTest {
 
     @Autowired
     MessageRepository messageRepository;
@@ -40,9 +37,6 @@ class MessageRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    EntityManager em;
 
     @Test
     @DisplayName("차단한 유저를 제외한 모든 유저와의 가장 최근 쪽지를 송신자와 수신자별 각각 1개씩 조회한다.")
@@ -183,10 +177,5 @@ class MessageRepositoryTest {
                 .containsOnly(user.getId(), opponent.getId());
         assertThat(findMessages).extracting("receiver").extracting("id")
                 .containsOnly(user.getId(), opponent.getId());
-    }
-
-    private void cleanPersistenceContext() {
-        em.flush();
-        em.clear();
     }
 }

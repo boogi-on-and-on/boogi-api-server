@@ -1,34 +1,29 @@
 package boogi.apiserver.domain.message.block.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestMessageBlock;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.RepositoryTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@CustomDataJpaTest
-class MessageBlockRepositoryTest {
+class MessageBlockRepositoryTest extends RepositoryTest {
 
     @Autowired
     MessageBlockRepository messageBlockRepository;
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    EntityManager em;
 
     @Test
     @DisplayName("해당 유저가 차단한 멤버 목록 조회하기")
@@ -258,10 +253,5 @@ class MessageBlockRepositoryTest {
         assertThat(first.getUser().getId()).isEqualTo(user.getId());
         assertThat(first.getBlockedUser().getId()).isEqualTo(u1.getId());
         assertThat(first.isBlocked()).isTrue();
-    }
-
-    private void cleanPersistenceContext() {
-        em.flush();
-        em.clear();
     }
 }

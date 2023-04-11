@@ -1,14 +1,14 @@
 package boogi.apiserver.domain.user.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.exception.UserNotFoundException;
-import boogi.apiserver.utils.PersistenceUtil;
-import org.junit.jupiter.api.*;
+import boogi.apiserver.utils.RepositoryTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.persistence.EntityManager;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,21 +17,10 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class UserRepositoryTest {
-
-    @Autowired
-    EntityManager em;
+class UserRepositoryTest extends RepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    private PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
 
     @Test
     @DisplayName("Email로 유저를 조회한다.")
@@ -41,7 +30,7 @@ class UserRepositoryTest {
         User user = TestUser.builder().email(EMAIL).build();
         userRepository.save(user);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         User findUser = userRepository.findByEmailValue(EMAIL)
                 .orElseGet(Assertions::fail);
@@ -59,7 +48,7 @@ class UserRepositoryTest {
             final User user = TestUser.builder().build();
             userRepository.save(user);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             final User findUser = userRepository.findUserById(user.getId());
             assertThat(findUser.getId()).isEqualTo(user.getId());
@@ -82,7 +71,7 @@ class UserRepositoryTest {
                 .collect(Collectors.toList());
         userRepository.saveAll(users);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> userIds = users.stream()
                 .map(User::getId)

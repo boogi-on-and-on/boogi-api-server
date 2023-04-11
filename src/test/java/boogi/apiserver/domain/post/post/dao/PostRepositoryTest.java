@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.post.post.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.*;
 import boogi.apiserver.domain.community.community.dao.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
@@ -18,15 +17,17 @@ import boogi.apiserver.domain.post.postmedia.domain.MediaType;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -36,8 +37,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class PostRepositoryTest {
+class PostRepositoryTest extends RepositoryTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -56,16 +56,6 @@ class PostRepositoryTest {
 
     @Autowired
     private PostMediaRepository postMediaRepository;
-
-    @Autowired
-    EntityManager em;
-
-    private PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
 
     @Test
     @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
@@ -92,7 +82,7 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Set<Long> communityIds = Set.of(community1.getId(), community2.getId(), community3.getId());
         List<Post> latestPosts = postRepository.getLatestPostByCommunityIds(communityIds);
@@ -113,7 +103,7 @@ class PostRepositoryTest {
             final Post post = TestPost.builder().build();
             postRepository.save(post);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             final Post findPost = postRepository.findPostById(post.getId());
             assertThat(findPost.getId()).isEqualTo(post.getId());
@@ -170,7 +160,7 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2, post3, post4));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<Post> posts = postRepository.getHotPosts();
@@ -208,7 +198,7 @@ class PostRepositoryTest {
                 }).collect(Collectors.toList());
         postRepository.saveAll(posts);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<Post> latestPosts = postRepository.getLatestPostOfCommunity(community.getId());
@@ -243,20 +233,20 @@ class PostRepositoryTest {
                 .build();
         postRepository.save(post);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Post findPost = postRepository.getPostWithAll(post.getId())
                 .orElseGet(Assertions::fail);
 
         assertThat(findPost.getId()).isEqualTo(post.getId());
 
-        assertThat(persistenceUtil.isLoaded(findPost.getMember())).isTrue();
+        assertThat(isLoaded(findPost.getMember())).isTrue();
         assertThat(findPost.getMember().getId()).isEqualTo(member.getId());
 
-        assertThat(persistenceUtil.isLoaded(findPost.getMember().getUser())).isTrue();
+        assertThat(isLoaded(findPost.getMember().getUser())).isTrue();
         assertThat(findPost.getMember().getUser().getId()).isEqualTo(user.getId());
 
-        assertThat(persistenceUtil.isLoaded(findPost.getCommunity())).isTrue();
+        assertThat(isLoaded(findPost.getCommunity())).isTrue();
         assertThat(findPost.getCommunity().getId()).isEqualTo(community.getId());
     }
 
@@ -317,7 +307,7 @@ class PostRepositoryTest {
                 .build();
         postHashtagRepository.saveAll(List.of(p1_t1, p1_t2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 10);
         Slice<Post> postPage = postRepository.getPostsOfCommunity(pageable, community.getId());
@@ -329,12 +319,12 @@ class PostRepositoryTest {
 
         Post first = posts.get(0);
         Post second = posts.get(1);
-        assertThat(persistenceUtil.isLoaded(first.getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(first.getMember().getUser())).isTrue();
+        assertThat(isLoaded(first.getMember())).isTrue();
+        assertThat(isLoaded(first.getMember().getUser())).isTrue();
 
         assertThat(first.getPostMedias()).extracting("id").containsExactly(postMedia1.getId());
         assertThat(second.getHashtags()).hasSize(2);
-        assertThat(persistenceUtil.isLoaded(second.getHashtags().get(0))).isTrue();
+        assertThat(isLoaded(second.getHashtags().get(0))).isTrue();
     }
 
     @Test
@@ -356,7 +346,7 @@ class PostRepositoryTest {
 
         postRepository.saveAll(List.of(post1, post2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
         List<Long> memberIds = List.of(member1.getId(), member2.getId());
@@ -441,7 +431,7 @@ class PostRepositoryTest {
         p2.addTags(List.of("호호"));
         p3.addTags(List.of("헤헤"));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         PostQueryRequest request = new PostQueryRequest("헤헤", PostListingOrder.NEWER);

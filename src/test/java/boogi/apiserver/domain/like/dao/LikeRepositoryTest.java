@@ -1,6 +1,5 @@
 package boogi.apiserver.domain.like.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestComment;
 import boogi.apiserver.builder.TestLike;
 import boogi.apiserver.builder.TestMember;
@@ -13,9 +12,8 @@ import boogi.apiserver.domain.member.dao.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.post.post.dao.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +31,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class LikeRepositoryTest {
+class LikeRepositoryTest extends RepositoryTest {
 
     @Autowired
     LikeRepository likeRepository;
@@ -49,16 +45,6 @@ class LikeRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
 
-    @Autowired
-    private EntityManager em;
-
-    private PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
-
     @Nested
     @DisplayName("ID로 좋아요 조회시")
     class FindLikeById {
@@ -68,7 +54,7 @@ class LikeRepositoryTest {
             Like like = TestLike.builder().build();
             likeRepository.save(like);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             Like findLike = likeRepository.findLikeById(like.getId());
 
@@ -97,7 +83,7 @@ class LikeRepositoryTest {
                 ).collect(Collectors.toList());
         likeRepository.saveAll(likes);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         likeRepository.deleteAllPostLikeByPostId(post.getId());
 
@@ -117,7 +103,7 @@ class LikeRepositoryTest {
                 ).collect(Collectors.toList());
         likeRepository.saveAll(likes);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         likeRepository.deleteAllCommentLikeByCommentId(comment.getId());
 
@@ -142,7 +128,7 @@ class LikeRepositoryTest {
                     .build();
             likeRepository.save(like);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             boolean isExist = likeRepository.existsLikeByPostIdAndMemberId(post.getId(), member.getId());
 
@@ -176,7 +162,7 @@ class LikeRepositoryTest {
                     .build();
             likeRepository.save(like);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             boolean isExist = likeRepository.existsLikeByCommentIdAndMemberId(comment.getId(), member.getId());
 
@@ -213,7 +199,7 @@ class LikeRepositoryTest {
                 .build();
         likeRepository.saveAll(List.of(like1, like2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> commentIds = comments.stream()
                 .map(Comment::getId)
@@ -251,7 +237,7 @@ class LikeRepositoryTest {
 
         likeRepository.saveAll(List.of(like1, like2, like3));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
         Slice<Like> postLikePage = likeRepository.findPostLikePageWithMemberByPostId(post.getId(), pageable);
@@ -262,8 +248,8 @@ class LikeRepositoryTest {
         assertThat(postLikes).extracting("id").containsExactly(like1.getId(), like2.getId());
         assertThat(postLikes).extracting("post").extracting("id").containsOnly(post.getId());
         assertThat(postLikes).extracting("member").extracting("id").containsOnly(member.getId());
-        assertThat(persistenceUtil.isLoaded(postLikes.get(0).getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(postLikes.get(1).getMember())).isTrue();
+        assertThat(isLoaded(postLikes.get(0).getMember())).isTrue();
+        assertThat(isLoaded(postLikes.get(1).getMember())).isTrue();
 
         assertThat(postLikePage.getNumber()).isZero();
         assertThat(postLikePage.hasNext()).isFalse();
@@ -295,7 +281,7 @@ class LikeRepositoryTest {
 
         likeRepository.saveAll(List.of(like1, like2, like3));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         Pageable pageable = PageRequest.of(0, 2);
 
@@ -308,8 +294,8 @@ class LikeRepositoryTest {
         assertThat(commentLikes).extracting("id").containsExactly(like1.getId(), like2.getId());
         assertThat(commentLikes).extracting("comment").extracting("id").containsOnly(comment.getId());
         assertThat(commentLikes).extracting("member").extracting("id").containsOnly(member.getId());
-        assertThat(persistenceUtil.isLoaded(commentLikes.get(0).getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(commentLikes.get(1).getMember())).isTrue();
+        assertThat(isLoaded(commentLikes.get(0).getMember())).isTrue();
+        assertThat(isLoaded(commentLikes.get(1).getMember())).isTrue();
 
         assertThat(commentLikePage.getNumber()).isZero();
         assertThat(commentLikePage.hasNext()).isFalse();
@@ -327,7 +313,7 @@ class LikeRepositoryTest {
         final Like like2 = TestLike.builder().comment(comment1).build();
         likeRepository.saveAll(List.of(like1, like2));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Long> commentIds = comments.stream()
                 .map(Comment::getId)

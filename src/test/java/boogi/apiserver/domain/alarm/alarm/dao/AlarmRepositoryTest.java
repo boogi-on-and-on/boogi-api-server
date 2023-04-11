@@ -1,21 +1,18 @@
 package boogi.apiserver.domain.alarm.alarm.dao;
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestAlarm;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.exception.AlarmNotFoundException;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,24 +21,13 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@CustomDataJpaTest
-class AlarmRepositoryTest {
+class AlarmRepositoryTest extends RepositoryTest {
 
     @Autowired
     private AlarmRepository alarmRepository;
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    EntityManager em;
-
-    PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
 
     @Nested
     @DisplayName("알람 ID로 알람 조회")
@@ -53,7 +39,7 @@ class AlarmRepositoryTest {
             final Alarm alarm = TestAlarm.builder().build();
             alarmRepository.save(alarm);
 
-            persistenceUtil.cleanPersistenceContext();
+            cleanPersistenceContext();
 
             final Alarm findAlarm = alarmRepository.findAlarmById(alarm.getId());
             assertThat(findAlarm.getId()).isEqualTo(alarm.getId());
@@ -90,7 +76,7 @@ class AlarmRepositoryTest {
                 }).collect(Collectors.toList());
         alarmRepository.saveAll(alarms);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<Alarm> findAlarms = alarmRepository.getAlarms(user.getId());

@@ -1,7 +1,6 @@
 package boogi.apiserver.domain.notice.dao;
 
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestNotice;
@@ -13,14 +12,12 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
-import boogi.apiserver.utils.PersistenceUtil;
+import boogi.apiserver.utils.RepositoryTest;
 import boogi.apiserver.utils.TestTimeReflection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +26,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@CustomDataJpaTest
-class NoticeRepositoryTest {
+class NoticeRepositoryTest extends RepositoryTest {
 
     @Autowired
     private NoticeRepository noticeRepository;
@@ -43,16 +39,6 @@ class NoticeRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private EntityManager em;
-
-    private PersistenceUtil persistenceUtil;
-
-    @BeforeEach
-    void init() {
-        persistenceUtil = new PersistenceUtil(em);
-    }
 
 
     @Test
@@ -70,7 +56,7 @@ class NoticeRepositoryTest {
         noticeRepository.saveAll(appNotices);
         noticeRepository.save(communityNotice);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<Notice> latestNotices = noticeRepository.getLatestAppNotice();
@@ -98,7 +84,7 @@ class NoticeRepositoryTest {
         noticeRepository.saveAll(appNotices);
         noticeRepository.save(communityNotice);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<Notice> latestNotices = noticeRepository.getAllAppNotices();
@@ -125,7 +111,7 @@ class NoticeRepositoryTest {
         notices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
         noticeRepository.saveAll(notices);
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         List<Notice> communityNotices = noticeRepository.getLatestNotice(community.getId());
 
@@ -160,14 +146,14 @@ class NoticeRepositoryTest {
                 .build();
         noticeRepository.saveAll(List.of(notice1, notice2, notice3, notice4, notice5));
 
-        persistenceUtil.cleanPersistenceContext();
+        cleanPersistenceContext();
 
         //when
         List<Notice> notices = noticeRepository.getAllNotices(community.getId());
 
         assertThat(notices).hasSize(1);
         assertThat(notices).extracting("id").containsExactly(notice5.getId());
-        assertThat(persistenceUtil.isLoaded(notices.get(0).getMember())).isTrue();
-        assertThat(persistenceUtil.isLoaded(notices.get(0).getMember().getUser())).isTrue();
+        assertThat(isLoaded(notices.get(0).getMember())).isTrue();
+        assertThat(isLoaded(notices.get(0).getMember().getUser())).isTrue();
     }
 }

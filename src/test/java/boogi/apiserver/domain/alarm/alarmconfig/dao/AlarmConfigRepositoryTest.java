@@ -1,12 +1,12 @@
 package boogi.apiserver.domain.alarm.alarmconfig.dao;
 
 
-import boogi.apiserver.annotations.CustomDataJpaTest;
 import boogi.apiserver.builder.TestAlarmConfig;
 import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.user.dao.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.RepositoryTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@CustomDataJpaTest
-class AlarmConfigRepositoryTest {
+class AlarmConfigRepositoryTest extends RepositoryTest {
 
     @Autowired
     AlarmConfigRepository alarmConfigRepository;
@@ -38,8 +37,9 @@ class AlarmConfigRepositoryTest {
             final AlarmConfig alarmConfig = TestAlarmConfig.builder()
                     .user(user)
                     .build();
-
             alarmConfigRepository.save(alarmConfig);
+
+            cleanPersistenceContext();
 
             //when
             final Optional<AlarmConfig> optionalConfig = alarmConfigRepository.getAlarmConfigByUserId(user.getId());
