@@ -18,6 +18,7 @@ spring:
   jpa:
     properties:
       hibernate:
+        show_sql: false
         default_batch_fetch_size: 100
     open-in-view: false
 

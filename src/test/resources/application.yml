@@ -1,0 +1,12 @@
+logging:
+  level:
+    org.zalando.logbook: TRACE
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+
+env:
+  LAPI_URL: "test lambda api url"
