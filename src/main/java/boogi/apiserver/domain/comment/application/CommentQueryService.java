@@ -1,17 +1,17 @@
 package boogi.apiserver.domain.comment.application;
 
-import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
-import boogi.apiserver.domain.like.dao.LikeRepository;
+import boogi.apiserver.domain.like.repository.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

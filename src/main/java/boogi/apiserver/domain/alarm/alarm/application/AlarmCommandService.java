@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.alarm.alarm.application;
 
-import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
+import boogi.apiserver.domain.alarm.alarm.repository.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import lombok.RequiredArgsConstructor;

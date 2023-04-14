@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.community.community.application;
 
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
@@ -8,10 +8,10 @@ import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommuni
 import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
 import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

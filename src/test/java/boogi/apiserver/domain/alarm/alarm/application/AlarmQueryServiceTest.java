@@ -2,7 +2,7 @@ package boogi.apiserver.domain.alarm.alarm.application;
 
 
 import boogi.apiserver.builder.TestAlarm;
-import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
+import boogi.apiserver.domain.alarm.alarm.repository.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.dto.dto.AlarmsDto;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;

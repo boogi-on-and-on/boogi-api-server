@@ -1,9 +1,9 @@
 package boogi.apiserver.domain.post.post.application;
 
 import boogi.apiserver.builder.*;
-import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.hashtag.post.domain.PostHashtag;
 import boogi.apiserver.domain.like.application.LikeCommandService;
@@ -12,12 +12,12 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
-import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
 import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
 import boogi.apiserver.domain.post.postmedia.application.PostMediaQueryService;
-import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.repository.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;

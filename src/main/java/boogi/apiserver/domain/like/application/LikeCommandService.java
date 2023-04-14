@@ -1,14 +1,14 @@
 package boogi.apiserver.domain.like.application;
 
-import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.like.dao.LikeRepository;
+import boogi.apiserver.domain.like.repository.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
 import boogi.apiserver.domain.like.exception.AlreadyDoCommentLikeException;
 import boogi.apiserver.domain.like.exception.AlreadyDoPostLikeException;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

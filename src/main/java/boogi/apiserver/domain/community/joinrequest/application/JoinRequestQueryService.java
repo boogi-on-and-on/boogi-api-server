@@ -1,8 +1,8 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
-import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
+import boogi.apiserver.domain.community.joinrequest.repository.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import lombok.RequiredArgsConstructor;

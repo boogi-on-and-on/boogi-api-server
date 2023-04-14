@@ -2,7 +2,7 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
@@ -11,10 +11,10 @@ import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommuni
 import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
 import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

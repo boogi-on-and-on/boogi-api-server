@@ -3,10 +3,10 @@ package boogi.apiserver.domain.message.block.application;
 
 import boogi.apiserver.builder.TestMessageBlock;
 import boogi.apiserver.builder.TestUser;
-import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
+import boogi.apiserver.domain.message.block.repository.MessageBlockRepository;
 import boogi.apiserver.domain.message.block.domain.MessageBlock;
 import boogi.apiserver.domain.message.block.exception.NotBlockedUserException;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

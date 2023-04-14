@@ -1,9 +1,9 @@
 package boogi.apiserver.domain.notice.application;
 
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.notice.dao.NoticeRepository;
+import boogi.apiserver.domain.notice.repository.NoticeRepository;
 import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.notice.dto.response.NoticeDetailResponse;

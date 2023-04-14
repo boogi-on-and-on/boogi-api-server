@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.alarm.alarm.application;
 
-import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
+import boogi.apiserver.domain.alarm.alarm.repository.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

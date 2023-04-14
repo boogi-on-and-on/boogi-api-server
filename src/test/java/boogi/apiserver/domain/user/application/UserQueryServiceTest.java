@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.user.application;
 
 import boogi.apiserver.builder.TestUser;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import org.junit.jupiter.api.DisplayName;

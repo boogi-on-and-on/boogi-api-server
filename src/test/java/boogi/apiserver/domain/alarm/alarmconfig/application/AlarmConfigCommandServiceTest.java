@@ -2,10 +2,10 @@ package boogi.apiserver.domain.alarm.alarmconfig.application;
 
 import boogi.apiserver.builder.TestAlarmConfig;
 import boogi.apiserver.builder.TestUser;
-import boogi.apiserver.domain.alarm.alarmconfig.dao.AlarmConfigRepository;
+import boogi.apiserver.domain.alarm.alarmconfig.repository.AlarmConfigRepository;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

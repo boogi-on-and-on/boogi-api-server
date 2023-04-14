@@ -1,18 +1,18 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.joinrequest.dao.JoinRequestRepository;
+import boogi.apiserver.domain.community.joinrequest.repository.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.community.joinrequest.exception.AlreadyRequestedException;
 import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

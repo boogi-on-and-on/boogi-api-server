@@ -1,21 +1,21 @@
 package boogi.apiserver.domain.report.application;
 
 
-import boogi.apiserver.domain.comment.dao.CommentRepository;
+import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.message.message.dao.MessageRepository;
+import boogi.apiserver.domain.message.message.repository.MessageRepository;
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.message.message.exception.NotParticipatedUserException;
-import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.report.dao.ReportRepository;
+import boogi.apiserver.domain.report.repository.ReportRepository;
 import boogi.apiserver.domain.report.domain.Report;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

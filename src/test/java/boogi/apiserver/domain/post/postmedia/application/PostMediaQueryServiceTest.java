@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.post.postmedia.application;
 
 import boogi.apiserver.builder.TestPostMedia;
-import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.repository.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
 import boogi.apiserver.domain.post.postmedia.exception.UnmappedPostMediaExcecption;
 import org.junit.jupiter.api.DisplayName;

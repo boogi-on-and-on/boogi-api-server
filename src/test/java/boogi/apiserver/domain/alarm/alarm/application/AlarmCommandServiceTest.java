@@ -2,7 +2,7 @@ package boogi.apiserver.domain.alarm.alarm.application;
 
 import boogi.apiserver.builder.TestAlarm;
 import boogi.apiserver.builder.TestUser;
-import boogi.apiserver.domain.alarm.alarm.dao.AlarmRepository;
+import boogi.apiserver.domain.alarm.alarm.repository.AlarmRepository;
 import boogi.apiserver.domain.alarm.alarm.domain.Alarm;
 import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import boogi.apiserver.domain.user.domain.User;

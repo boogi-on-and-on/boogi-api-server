@@ -1,13 +1,13 @@
 package boogi.apiserver.domain.post.post.application;
 
-import boogi.apiserver.domain.community.community.dao.CommunityRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.response.CommunityPostsResponse;
 import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.dao.MemberRepository;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.post.post.dao.PostRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
@@ -17,9 +17,9 @@ import boogi.apiserver.domain.post.post.dto.response.HotPostsResponse;
 import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
 import boogi.apiserver.domain.post.post.dto.response.UserPostPageResponse;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
-import boogi.apiserver.domain.post.postmedia.dao.PostMediaRepository;
+import boogi.apiserver.domain.post.postmedia.repository.PostMediaRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

@@ -1,11 +1,11 @@
 package boogi.apiserver.domain.message.message.application;
 
-import boogi.apiserver.domain.message.block.dao.MessageBlockRepository;
-import boogi.apiserver.domain.message.message.dao.MessageRepository;
+import boogi.apiserver.domain.message.block.repository.MessageBlockRepository;
+import boogi.apiserver.domain.message.message.repository.MessageRepository;
 import boogi.apiserver.domain.message.message.domain.Message;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
-import boogi.apiserver.domain.user.dao.UserRepository;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
