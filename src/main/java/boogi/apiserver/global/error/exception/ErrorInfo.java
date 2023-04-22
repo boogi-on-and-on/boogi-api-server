@@ -15,6 +15,9 @@ public enum ErrorInfo {
     COMMON_BAD_REQUEST("잘못된 요청입니다.", "COMMON_004", NOT_FOUND),
     COMMON_NOT_FOUND("해당 리소스가 존재하지 않습니다.", "COMMON_005", NOT_FOUND),
 
+    // LOGIN_ERROR
+    LOGIN_NOT_ALLOWED_EMAIL_SERVER("한성대학교 구글 이메일만 허용됩니다.", "LOGIN_001", UNAUTHORIZED),
+
     // SESSION_ERROR
     SESSION_NOT_FOUND_EXCEPTION("로그인 정보를 찾을 수 없습니다.", "COMMON_005", UNAUTHORIZED),
 

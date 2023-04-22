@@ -12,6 +12,8 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     Optional<User> findByEmailValue(String email);
 
+    int countByUsernameValue(String username);
+
     default User findUserById(Long userId) {
         return this.findById(userId).orElseThrow(UserNotFoundException::new);
     }
