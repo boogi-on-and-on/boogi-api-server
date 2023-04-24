@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -49,11 +50,12 @@ public class GoogleOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByEmailValue(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getName(), attributes.getDepartment()))
-                .orElse(createEntity(attributes));
-
-        return userRepository.save(user);
+        Optional<User> userOptional = userRepository.findByEmailValue(attributes.getEmail());
+        if (userOptional.isEmpty()) {
+            return userRepository.save(createEntity(attributes));
+        }
+        return userOptional
+                .map(entity -> entity.update(attributes.getName(), attributes.getDepartment())).get();
     }
 
     private User createEntity(OAuthAttributes attributes) {
