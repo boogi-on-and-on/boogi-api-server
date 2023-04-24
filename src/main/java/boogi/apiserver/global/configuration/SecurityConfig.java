@@ -1,7 +1,7 @@
 package boogi.apiserver.global.configuration;
 
 
-import boogi.apiserver.domain.auth.service.GoogleOAuth2UserService;
+import boogi.apiserver.domain.auth.service.CustomOAuth2UserService;
 import boogi.apiserver.domain.user.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final GoogleOAuth2UserService googleOAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -25,6 +25,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .oauth2Login()
                 .userInfoEndpoint()
-                .userService(googleOAuth2UserService);
+                .userService(customOAuth2UserService);
     }
 }
