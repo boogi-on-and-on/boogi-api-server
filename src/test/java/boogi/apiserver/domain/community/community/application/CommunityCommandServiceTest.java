@@ -2,18 +2,19 @@ package boogi.apiserver.domain.community.community.application;
 
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
-import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
 import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
+import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.domain.member.application.MemberCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,11 +27,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,12 +87,12 @@ class CommunityCommandServiceTest {
     @Test
     @DisplayName("커뮤니티 업데이트 테스트 성공")
     void updateCommunity() {
-        final Community community = mock(Community.class);
+        final Community community = TestCommunity.builder().build();
         given(communityRepository.findCommunityById(anyLong())).willReturn(community);
 
         communityCommandService.updateCommunity(1L, 1L, "커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
-
-        then(community).should(times(1)).updateCommunity("커뮤니티의 소개란입니다", List.of("태그1", "태그2"));
+        assertThat(community.getDescription()).isEqualTo("커뮤니티의 소개란입니다");
+        assertThat(community.getHashtags().stream().map(CommunityHashtag::getTag)).containsExactly("태그1", "태그2");
     }
 
     @Nested
@@ -111,7 +113,7 @@ class CommunityCommandServiceTest {
         @Test
         @DisplayName("성공")
         void success() {
-            final Community community = mock(Community.class);
+            final Community community = TestCommunity.builder().build();
             given(communityRepository.findCommunityById(any()))
                     .willReturn(community);
 
@@ -119,7 +121,7 @@ class CommunityCommandServiceTest {
                     .willReturn(Optional.empty());
 
             communityCommandService.shutdown(1L, 1L);
-            then(community).should(times(1)).shutdown();
+            assertThat(community.getDeletedAt()).isNotNull();
         }
     }
 
@@ -132,16 +134,14 @@ class CommunityCommandServiceTest {
         given(memberQueryService.getMember(any(), anyLong()))
                 .willReturn(member);
 
-        final Community community = mock(Community.class);
+        final Community community = TestCommunity.builder().build();
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
         final CommunitySettingRequest request = new CommunitySettingRequest(true, false);
         communityCommandService.changeSetting(1L, 1L, request);
 
-        then(community).should(times(1))
-                .switchPrivate(true, MemberType.MANAGER);
-        then(community).should(times(1))
-                .switchAutoApproval(false, MemberType.MANAGER);
+        assertThat(community.isPrivate()).isTrue();
+        assertThat(community.isAutoApproval()).isFalse();
     }
 }

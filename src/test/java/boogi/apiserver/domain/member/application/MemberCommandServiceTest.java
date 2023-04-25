@@ -3,14 +3,14 @@ package boogi.apiserver.domain.member.application;
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestUser;
-import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.member.repository.MemberRepository;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
-import boogi.apiserver.domain.user.repository.UserRepository;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 
@@ -82,6 +83,8 @@ class MemberCommandServiceTest {
                     .willReturn(community);
 
             final Member member = memberCommandService.joinMember(1L, 1L, MemberType.NORMAL);
+            assertThat(member.getMemberType()).isEqualTo(MemberType.NORMAL);
+            assertThat(member.getUser()).isEqualTo(user);
 
             then(memberRepository).should(times(1))
                     .save(any(Member.class));
@@ -126,33 +129,35 @@ class MemberCommandServiceTest {
     @DisplayName("멤버 차단 테스트")
     void ban() {
 
-        final Member member = mock(Member.class);
-
         final Community community = TestCommunity.builder().id(1L).build();
-        given(member.getCommunity()).willReturn(community);
+        final Member member = TestMember.builder()
+                .community(community)
+                .build();
 
         given(memberRepository.findMemberById(anyLong()))
                 .willReturn(member);
 
         memberCommandService.banMember(2L, 1L);
 
-        then(member).should(times(1)).ban();
+        assertThat(member.getBannedAt()).isNotNull();
+
     }
 
     @Test
     @DisplayName("멤버 차단해제 테스트")
     void release() {
-        final Member member = mock(Member.class);
-
         final Community community = TestCommunity.builder().id(1L).build();
-        given(member.getCommunity()).willReturn(community);
+        final Member member = TestMember.builder()
+                .community(community)
+                .bannedAt(LocalDateTime.now())
+                .build();
 
         given(memberRepository.findMemberById(anyLong()))
                 .willReturn(member);
 
         memberCommandService.releaseMember(2L, 1L);
 
-        then(member).should(times(1)).release();
+        assertThat(member.getBannedAt()).isNull();
     }
 
     @Nested
@@ -162,45 +167,47 @@ class MemberCommandServiceTest {
         @DisplayName("매니저의 권한을 위임할 경우 매니저와 멤버 둘 다 변한다")
         @Test
         void managerAndNormalMemberType() {
-            final Member member = mock(Member.class);
-
             final Community community = TestCommunity.builder().id(1L).build();
-            given(member.getCommunity()).willReturn(community);
+            final Member member = TestMember.builder()
+                    .community(community)
+                    .build();
 
             given(memberRepository.findMemberById(anyLong()))
                     .willReturn(member);
 
-            final Member manager = mock(Member.class);
+            final Member manager = TestMember.builder().build();
 
             given(memberQueryService.getManager(anyLong(), anyLong()))
                     .willReturn(manager);
 
             memberCommandService.delegateMember(2L, 1L, MemberType.MANAGER);
 
-            then(manager).should(times(1)).changeMemberType(MemberType.NORMAL);
-            then(member).should(times(1)).changeMemberType(MemberType.MANAGER);
+            assertThat(manager.getMemberType()).isEqualTo(MemberType.NORMAL);
+            assertThat(member.getMemberType()).isEqualTo(MemberType.MANAGER);
         }
 
         @DisplayName("일반 멤버의 권한을 바꿔주는 경우 일반멤버의 권한만 변한다.")
         @Test
         void normalMemberType() {
-            final Member member = mock(Member.class);
-
             final Community community = TestCommunity.builder().id(1L).build();
-            given(member.getCommunity()).willReturn(community);
+            final Member member = TestMember.builder()
+                    .community(community)
+                    .build();
 
             given(memberRepository.findMemberById(anyLong()))
                     .willReturn(member);
 
-            final Member manager = mock(Member.class);
+            final Member manager = TestMember.builder()
+                    .memberType(MemberType.MANAGER)
+                    .build();
 
             given(memberQueryService.getManager(anyLong(), anyLong()))
                     .willReturn(manager);
 
             memberCommandService.delegateMember(2L, 1L, MemberType.NORMAL);
 
-            then(manager).should(times(0)).changeMemberType(MemberType.NORMAL);
-            then(member).should(times(1)).changeMemberType(MemberType.NORMAL);
+            assertThat(manager.getMemberType()).isEqualTo(MemberType.MANAGER);
+            assertThat(member.getMemberType()).isEqualTo(MemberType.NORMAL);
         }
     }
 }
