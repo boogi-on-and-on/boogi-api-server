@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "ALARM_CONFIG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class AlarmConfig extends TimeBaseEntity {

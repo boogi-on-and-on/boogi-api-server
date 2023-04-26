@@ -22,7 +22,6 @@ import java.util.List;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
-@Table(name = "POST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_at is null")
 @SQLDelete(sql = "UPDATE post SET deleted_at = now(), like_count = 0 WHERE post_id = ?")

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "COMMUNITY_HASHTAG")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityHashtag extends TimeBaseEntity {
     @Id

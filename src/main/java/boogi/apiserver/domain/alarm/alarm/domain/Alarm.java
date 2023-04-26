@@ -7,7 +7,6 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "ALARM")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Alarm extends TimeBaseEntity {

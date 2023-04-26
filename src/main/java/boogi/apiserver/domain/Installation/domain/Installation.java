@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "INSTALLATION")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Installation extends TimeBaseEntity {

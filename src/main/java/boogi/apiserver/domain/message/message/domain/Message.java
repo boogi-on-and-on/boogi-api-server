@@ -9,7 +9,6 @@ import javax.persistence.*;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
-@Table(name = "MESSAGE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends TimeBaseEntity {
     @Id

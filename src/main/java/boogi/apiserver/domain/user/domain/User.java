@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "USER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends TimeBaseEntity {
 

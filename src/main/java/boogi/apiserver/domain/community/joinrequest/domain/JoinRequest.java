@@ -13,7 +13,6 @@ import javax.persistence.*;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
-@Table(name = "JOIN_REQUEST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class JoinRequest extends TimeBaseEntity {

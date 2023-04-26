@@ -15,7 +15,6 @@ import javax.persistence.*;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
-@Table(name = "REPORT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Report extends TimeBaseEntity {
     @Id
