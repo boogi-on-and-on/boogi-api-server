@@ -1,5 +1,7 @@
 package boogi.apiserver.utils;
 
+import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.user.domain.User;
 import com.google.common.base.CaseFormat;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,10 @@ import javax.persistence.metamodel.EntityType;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static boogi.apiserver.utils.fixture.CommunityFixture.*;
+import static boogi.apiserver.utils.fixture.MemberFixture.*;
+import static boogi.apiserver.utils.fixture.UserFixture.*;
 
 
 @Component
@@ -49,7 +55,19 @@ public class DataBaseInitializer implements InitializingBean {
 
     @Transactional
     public void setup() {
+        User sundo = SUNDO.toUser();
+        User yongjin = YONGJIN.toUser();
+        User deokhwan = DEOKHWAN.toUser();
+        List.of(sundo, yongjin, deokhwan).forEach(user -> em.persist(user));
+        em.flush();
 
+        Community pocs = POCS.toCommunity();
+        List.of(BASEBALL.toCommunity(), pocs, ENGLISH.toCommunity()).forEach(community -> em.persist(community));
+        em.flush();
+
+        List.of(SUNDO_POCS.toMember(sundo, pocs), YONGJIN_POCS.toMember(yongjin, pocs), DEOKHWAN_POCS.toMember(deokhwan, pocs))
+                .forEach(member -> em.persist(member));
+        em.flush();
     }
 
 
