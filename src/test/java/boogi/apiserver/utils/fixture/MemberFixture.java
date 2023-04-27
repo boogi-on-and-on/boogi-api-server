@@ -18,6 +18,10 @@ public enum MemberFixture {
     private final MemberType memberType;
     private final LocalDateTime bannedAt;
 
+    private static final Long SUNDO_POCS_ID = 1L;
+    private static final Long YONGJIN_POCS_ID = 2L;
+    private static final Long DEOKHWAN_POCS_ID = 3L;
+
     MemberFixture(MemberType memberType, LocalDateTime bannedAt) {
         this.memberType = memberType;
         this.bannedAt = bannedAt;
