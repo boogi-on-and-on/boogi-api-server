@@ -2,12 +2,11 @@ package boogi.apiserver.domain.community.community.acceptance;
 
 import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.dto.*;
-import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
-import boogi.apiserver.domain.community.community.dto.request.CreateCommunityRequest;
-import boogi.apiserver.domain.community.community.dto.request.JoinRequestIdsRequest;
-import boogi.apiserver.domain.community.community.dto.request.UpdateCommunityRequest;
+import boogi.apiserver.domain.community.community.dto.request.*;
 import boogi.apiserver.domain.community.community.dto.response.CommunityDetailResponse;
+import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
+import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.post.post.dto.dto.CommunityPostDto;
 import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
 import boogi.apiserver.utils.AcceptanceTest;
@@ -203,7 +202,7 @@ public class CommunityAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("커뮤니티 해시태그에 검색 글자가 포함되면 조회된다.")
+    @DisplayName("커뮤니티 해시태그와 검색 글자가 같으면 조회된다.")
     void searchByTag() {
         UpdateCommunityRequest request =
                 new UpdateCommunityRequest("안녕하세요! 반갑습니다~!", List.of("코딩하자"));
@@ -218,5 +217,22 @@ public class CommunityAcceptanceTest extends AcceptanceTest {
         assertThat(communities)
                 .extracting("id")
                 .contains(CommunityFixture.POCS_ID);
+    }
+
+    @Test
+    @DisplayName("멤버의 권한을 바꾸면 변경되어 조회된다.")
+    void changeMemberType() {
+        DelegateMemberRequest delegateRequest = new DelegateMemberRequest(MemberType.SUB_MANAGER);
+        httpPost(delegateRequest, "/members/" + MemberFixture.DEOKHWAN_POCS_ID + "/delegate", getSundoToken());
+
+        ExtractableResponse<Response> response = httpGet("/communities/" + CommunityFixture.POCS_ID + "/members/all", getSundoToken());
+
+        List<MemberDto> members = response.body().jsonPath().getList("members", MemberDto.class);
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(members)
+                .extracting("user")
+                .extracting("id")
+                .contains(MemberFixture.DEOKHWAN_POCS_ID);
     }
 }
