@@ -4,12 +4,15 @@ import boogi.apiserver.domain.notice.domain.Notice;
 import boogi.apiserver.domain.notice.dto.dto.CommunityNoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NoticeDetailResponse {
 
     List<? extends NoticeDetailDto> notices;
