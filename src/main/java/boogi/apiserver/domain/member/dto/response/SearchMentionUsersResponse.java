@@ -5,15 +5,17 @@ import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SearchMentionUsersResponse {
 
-    private final List<UserBasicProfileDto> users;
-    private final PaginationDto pageInfo;
+    private List<UserBasicProfileDto> users;
+    private PaginationDto pageInfo;
 
 
     @Builder(access = AccessLevel.PRIVATE)
