@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityPostDto {
 
     private Long id;

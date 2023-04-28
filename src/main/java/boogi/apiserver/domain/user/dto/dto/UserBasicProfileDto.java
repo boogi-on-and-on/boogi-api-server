@@ -4,12 +4,15 @@ import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserBasicProfileDto {
     private Long id;
 

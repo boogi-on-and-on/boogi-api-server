@@ -1,12 +1,15 @@
 package boogi.apiserver.domain.post.postmedia.dto.dto;
 
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostMediaMetadataDto {
 
     private String url;

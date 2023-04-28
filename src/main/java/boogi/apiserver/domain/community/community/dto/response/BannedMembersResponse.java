@@ -2,14 +2,17 @@ package boogi.apiserver.domain.community.community.dto.response;
 
 
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BannedMembersResponse {
 
-    private final List<BannedMemberDto> banned;
+    private List<BannedMemberDto> banned;
 
     public BannedMembersResponse(List<BannedMemberDto> banned) {
         this.banned = banned;

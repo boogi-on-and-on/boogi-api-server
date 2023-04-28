@@ -3,9 +3,12 @@ package boogi.apiserver.domain.community.community.dto.dto;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JoinedMemberInfoDto {
 
     private Long id;

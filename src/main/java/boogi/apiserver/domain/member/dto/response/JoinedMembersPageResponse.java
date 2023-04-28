@@ -3,13 +3,16 @@ package boogi.apiserver.domain.member.dto.response;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedMemberInfoDto;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.global.dto.PaginationDto;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JoinedMembersPageResponse {
 
     private List<JoinedMemberInfoDto> members;

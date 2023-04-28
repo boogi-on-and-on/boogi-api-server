@@ -11,21 +11,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Objects;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityDetailResponse {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final MemberType sessionMemberType;
+    private MemberType sessionMemberType;
 
-    private final CommunityDetailInfoDto community;
-    private final List<NoticeDto> notices;
+    private CommunityDetailInfoDto community;
+    private List<NoticeDto> notices;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final List<LatestCommunityPostDto> posts;
+    private List<LatestCommunityPostDto> posts;
 
     @Builder(access = AccessLevel.PRIVATE)
     public CommunityDetailResponse(MemberType sessionMemberType, CommunityDetailInfoDto community,

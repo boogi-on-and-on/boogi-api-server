@@ -1,11 +1,14 @@
 package boogi.apiserver.domain.community.community.dto.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunitySettingInfoDto {
     private Boolean isAuto;
     private Boolean isSecret;

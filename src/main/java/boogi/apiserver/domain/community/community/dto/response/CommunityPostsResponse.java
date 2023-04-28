@@ -9,20 +9,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityPostsResponse {
 
-    private final String communityName;
-    private final List<CommunityPostDto> posts;
-    private final PaginationDto pageInfo;
+    private String communityName;
+    private List<CommunityPostDto> posts;
+    private PaginationDto pageInfo;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final MemberType memberType;
+    private MemberType memberType;
 
     @Builder(access = AccessLevel.PRIVATE)
     public CommunityPostsResponse(String communityName, List<CommunityPostDto> posts, PaginationDto pageInfo, MemberType memberType) {
