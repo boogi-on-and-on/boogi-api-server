@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JoinedCommunitiesDto {
 
     private List<CommunityInfo> communities;
@@ -81,6 +83,7 @@ public class JoinedCommunitiesDto {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class CommunityInfo {
         private Long id;
         private String name;

@@ -2,9 +2,12 @@ package boogi.apiserver.domain.message.block.dto.dto;
 
 import boogi.apiserver.domain.user.domain.User;
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MessageBlockedUserDto {
     private Long userId;
     private String nameTag;

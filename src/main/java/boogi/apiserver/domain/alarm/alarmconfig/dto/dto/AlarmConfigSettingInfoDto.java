@@ -1,11 +1,14 @@
 package boogi.apiserver.domain.alarm.alarmconfig.dto.dto;
 
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AlarmConfigSettingInfoDto {
 
     private Personal personal;
@@ -27,6 +30,7 @@ public class AlarmConfigSettingInfoDto {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Personal {
         private Boolean message;
 
@@ -41,6 +45,7 @@ public class AlarmConfigSettingInfoDto {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Community {
         private Boolean notice;
         private Boolean join;
@@ -58,6 +63,7 @@ public class AlarmConfigSettingInfoDto {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Post {
         private Boolean comment;
         private Boolean mention;
