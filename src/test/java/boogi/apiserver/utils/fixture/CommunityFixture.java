@@ -25,9 +25,9 @@ public enum CommunityFixture {
     private final LocalDateTime deletedAt;
     private final boolean autoApproval;
     
-    private static final Long BASEBALL_ID = 1L;
-    private static final Long POCS_ID = 2L;
-    private static final Long ENGLISH_ID = 3L;
+    public static final Long BASEBALL_ID = 1L;
+    public static final Long POCS_ID = 2L;
+    public static final Long ENGLISH_ID = 3L;
 
     CommunityFixture(String communityName, String description, boolean isPrivate, CommunityCategory communityCategory, int memberCount, LocalDateTime deletedAt, boolean autoApproval) {
         this.communityName = communityName;

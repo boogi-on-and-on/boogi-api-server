@@ -22,9 +22,9 @@ public enum UserFixture {
     public final String introduce;
     public final boolean messageNotAllowed;
 
-    private static final Long SUNDO_ID = 1L;
-    private static final Long YONGJIN_ID = 2L;
-    private static final Long DEOKHWAN_ID = 3L;
+    public static final Long SUNDO_ID = 1L;
+    public static final Long YONGJIN_ID = 2L;
+    public static final Long DEOKHWAN_ID = 3L;
 
     UserFixture(String email, String username, String department, String tagNumber, String profileImage, String introduce, boolean messageNotAllowed) {
         this.email = email;
