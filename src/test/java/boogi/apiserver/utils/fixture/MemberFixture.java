@@ -12,7 +12,9 @@ import static boogi.apiserver.domain.member.domain.MemberType.*;
 public enum MemberFixture {
     SUNDO_POCS(MANAGER, null),
     YONGJIN_POCS(SUB_MANAGER, null),
-    DEOKHWAN_POCS(NORMAL, null);
+    DEOKHWAN_POCS(NORMAL, null),
+
+    YONGJIN_ENGLISH(MANAGER, null);
 
 
     private final MemberType memberType;
@@ -21,6 +23,8 @@ public enum MemberFixture {
     public static final Long SUNDO_POCS_ID = 1L;
     public static final Long YONGJIN_POCS_ID = 2L;
     public static final Long DEOKHWAN_POCS_ID = 3L;
+
+    public static final Long YONGJIN_ENGLISH_ID = 4L;
 
     MemberFixture(MemberType memberType, LocalDateTime bannedAt) {
         this.memberType = memberType;

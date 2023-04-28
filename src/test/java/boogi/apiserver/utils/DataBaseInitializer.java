@@ -61,12 +61,18 @@ public class DataBaseInitializer implements InitializingBean {
         List.of(sundo, yongjin, deokhwan).forEach(user -> em.persist(user));
         em.flush();
 
+        Community baseball = BASEBALL.toCommunity();
         Community pocs = POCS.toCommunity();
-        List.of(BASEBALL.toCommunity(), pocs, ENGLISH.toCommunity()).forEach(community -> em.persist(community));
+        Community english = ENGLISH.toCommunity();
+        List.of(baseball, pocs, english).forEach(community -> em.persist(community));
         em.flush();
 
-        List.of(SUNDO_POCS.toMember(sundo, pocs), YONGJIN_POCS.toMember(yongjin, pocs), DEOKHWAN_POCS.toMember(deokhwan, pocs))
-                .forEach(member -> em.persist(member));
+        List.of(
+                SUNDO_POCS.toMember(sundo, pocs),
+                YONGJIN_POCS.toMember(yongjin, pocs),
+                DEOKHWAN_POCS.toMember(deokhwan, pocs),
+                YONGJIN_ENGLISH.toMember(yongjin, english)
+        ).forEach(member -> em.persist(member));
         em.flush();
     }
 
