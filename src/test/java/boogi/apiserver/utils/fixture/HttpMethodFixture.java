@@ -47,6 +47,15 @@ public class HttpMethodFixture {
                 .extract();
     }
 
+    public static ExtractableResponse<Response> httpPost(String path, String token) {
+        return RestAssured
+                .given().log().all()
+                .header(AUTH_TOKEN, token)
+                .when().post(REQUEST_URI_PREFIX + path)
+                .then().log().all()
+                .extract();
+    }
+
     public static ExtractableResponse<Response> httpPost(Object requestBody, String path, String token) {
         return RestAssured
                 .given().log().all()
