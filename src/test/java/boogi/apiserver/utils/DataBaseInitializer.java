@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.*;
 import javax.persistence.metamodel.EntityType;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,21 +59,22 @@ public class DataBaseInitializer implements InitializingBean {
         User sundo = SUNDO.toUser();
         User yongjin = YONGJIN.toUser();
         User deokhwan = DEOKHWAN.toUser();
-        List.of(sundo, yongjin, deokhwan).forEach(user -> em.persist(user));
-        em.flush();
+        addEntity(sundo, yongjin, deokhwan);
 
         Community baseball = BASEBALL.toCommunity();
         Community pocs = POCS.toCommunity();
         Community english = ENGLISH.toCommunity();
-        List.of(baseball, pocs, english).forEach(community -> em.persist(community));
-        em.flush();
+        addEntity(baseball, pocs, english);
 
-        List.of(
+        addEntity(
                 SUNDO_POCS.toMember(sundo, pocs),
                 YONGJIN_POCS.toMember(yongjin, pocs),
                 DEOKHWAN_POCS.toMember(deokhwan, pocs),
-                YONGJIN_ENGLISH.toMember(yongjin, english)
-        ).forEach(member -> em.persist(member));
+                YONGJIN_ENGLISH.toMember(yongjin, english));
+    }
+
+    private <T> void addEntity(T... entities) {
+        Arrays.asList(entities).forEach(em::persist);
         em.flush();
     }
 
