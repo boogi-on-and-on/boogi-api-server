@@ -3,12 +3,15 @@ package boogi.apiserver.domain.post.post.dto.response;
 
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.global.dto.PaginationDto;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SearchPostsResponse {
 
     private List<SearchPostDto> posts;

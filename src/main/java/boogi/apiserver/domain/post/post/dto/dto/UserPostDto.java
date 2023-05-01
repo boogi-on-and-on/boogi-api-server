@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserPostDto {
     private Long id;
     private String content;
@@ -69,6 +70,7 @@ public class UserPostDto {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class CommunityDto {
         private Long id;
 

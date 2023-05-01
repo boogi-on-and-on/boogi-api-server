@@ -188,7 +188,7 @@ public class CommunityAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("커뮤니티 이름에 검색 글자가 포함되면 조회된다.")
+    @DisplayName("커뮤니티 이름에 검색 키워드가 포함되면 검색 결과에 커뮤니티가 조회된다.")
     void searchByName() {
         ExtractableResponse<Response> response = httpGet("/communities/search?keyword=컴퓨터", getSundoToken());
 
@@ -202,7 +202,7 @@ public class CommunityAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("커뮤니티 해시태그와 검색 글자가 같으면 조회된다.")
+    @DisplayName("커뮤니티 해시태그와 검색 키워드가 같으면 검색 결과에 커뮤니티가 조회된다.")
     void searchByTag() {
         UpdateCommunityRequest request =
                 new UpdateCommunityRequest("안녕하세요! 반갑습니다~!", List.of("코딩하자"));
