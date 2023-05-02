@@ -2,21 +2,15 @@ package boogi.apiserver.domain.member.controller;
 
 
 import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequest;
-import boogi.apiserver.domain.member.application.MemberCommandService;
-import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.exception.*;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.util.PageableUtil;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
@@ -38,15 +32,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = MemberApiController.class)
-class MemberApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    MemberQueryService memberQueryService;
-
-    @MockBean
-    MemberCommandService memberCommandService;
+class MemberApiControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("맨션할 멤버 검색 후 페이지네이션해서 조회한다.")

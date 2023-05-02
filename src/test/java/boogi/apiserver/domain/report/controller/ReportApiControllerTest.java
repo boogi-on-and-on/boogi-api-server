@@ -6,19 +6,14 @@ import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.message.message.exception.MessageNotFoundException;
 import boogi.apiserver.domain.message.message.exception.NotParticipatedUserException;
 import boogi.apiserver.domain.post.post.exception.PostNotFoundException;
-import boogi.apiserver.domain.report.application.ReportCommandService;
 import boogi.apiserver.domain.report.domain.ReportReason;
 import boogi.apiserver.domain.report.domain.ReportTarget;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -33,13 +28,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = ReportApiController.class)
-class ReportApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    private ReportCommandService reportCommandService;
+class ReportApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("신고 생성하기")

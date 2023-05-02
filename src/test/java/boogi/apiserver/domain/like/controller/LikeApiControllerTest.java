@@ -1,17 +1,12 @@
 package boogi.apiserver.domain.like.controller;
 
-import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.like.exception.LikeNotFoundException;
 import boogi.apiserver.domain.like.exception.UnmatchedLikeUserException;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -23,12 +18,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(LikeApiController.class)
-class LikeApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    LikeCommandService likeCommandService;
+class LikeApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("좋아요 취소")

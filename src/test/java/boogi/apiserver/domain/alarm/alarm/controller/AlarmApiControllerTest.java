@@ -1,20 +1,14 @@
 package boogi.apiserver.domain.alarm.alarm.controller;
 
-import boogi.apiserver.domain.alarm.alarm.application.AlarmCommandService;
-import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
 import boogi.apiserver.domain.alarm.alarm.dto.dto.AlarmsDto;
 import boogi.apiserver.domain.alarm.alarm.dto.response.AlarmsResponse;
 import boogi.apiserver.domain.alarm.alarm.exception.AlarmNotFoundException;
 import boogi.apiserver.domain.alarm.alarm.exception.CanNotDeleteAlarmException;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -34,15 +28,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = AlarmApiController.class)
-class AlarmApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    AlarmQueryService alarmQueryService;
-
-    @MockBean
-    AlarmCommandService alarmCommandService;
+class AlarmApiControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("알람 목록 조회")

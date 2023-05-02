@@ -1,7 +1,5 @@
 package boogi.apiserver.domain.message.message.controller;
 
-import boogi.apiserver.domain.message.message.application.MessageCommandService;
-import boogi.apiserver.domain.message.message.application.MessageQueryService;
 import boogi.apiserver.domain.message.message.dto.request.SendMessageRequest;
 import boogi.apiserver.domain.message.message.dto.response.MessageResponse;
 import boogi.apiserver.domain.message.message.dto.response.MessageRoomResponse;
@@ -9,14 +7,10 @@ import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -30,22 +24,15 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(MessageApiController.class)
-class MessageApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    MessageCommandService messageCommandService;
-
-    @MockBean
-    MessageQueryService messageQueryService;
+class MessageApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("쪽지 전송")

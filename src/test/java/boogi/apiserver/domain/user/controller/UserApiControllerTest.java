@@ -1,28 +1,19 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
-import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
-import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
 import boogi.apiserver.domain.message.block.exception.NotBlockedUserException;
-import boogi.apiserver.domain.user.application.UserQueryService;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.request.BlockedUserIdRequest;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,24 +34,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = UserApiController.class)
-class UserApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    private UserQueryService userQueryService;
-
-    @MockBean
-    MessageBlockQueryService messageBlockQueryService;
-
-    @MockBean
-    MessageBlockCommandService messageBlockCommandService;
-
-    @MockBean
-    AlarmConfigCommandService alarmConfigCommandService;
-
-    @MockBean
-    CommunityQueryService communityQueryService;
+class UserApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("토큰 유효성 테스트")

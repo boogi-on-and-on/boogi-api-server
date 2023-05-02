@@ -1,7 +1,5 @@
 package boogi.apiserver.domain.comment.controller;
 
-import boogi.apiserver.domain.comment.application.CommentCommandService;
-import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
@@ -9,8 +7,6 @@ import boogi.apiserver.domain.comment.exception.CanNotDeleteCommentException;
 import boogi.apiserver.domain.comment.exception.CommentMaxDepthOverException;
 import boogi.apiserver.domain.comment.exception.CommentNotFoundException;
 import boogi.apiserver.domain.comment.exception.ParentCommentNotFoundException;
-import boogi.apiserver.domain.like.application.LikeCommandService;
-import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtCommentResponse;
 import boogi.apiserver.domain.like.exception.AlreadyDoCommentLikeException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
@@ -20,16 +16,11 @@ import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
-import boogi.apiserver.global.webclient.push.SendPushNotification;
+import boogi.apiserver.utils.controller.ControllerTest;
 import boogi.apiserver.utils.controller.MockHttpSessionCreator;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -49,25 +40,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = CommentApiController.class)
-class CommentApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    CommentQueryService commentQueryService;
-
-    @MockBean
-    CommentCommandService commentCommandService;
-
-    @MockBean
-    LikeCommandService likeCommandService;
-
-    @MockBean
-    LikeQueryService likeQueryService;
-
-    @MockBean
-    SendPushNotification sendPushNotification;
-
+class CommentApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("유저가 작성한 댓글 조회")

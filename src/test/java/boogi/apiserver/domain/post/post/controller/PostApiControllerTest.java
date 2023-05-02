@@ -1,10 +1,7 @@
 package boogi.apiserver.domain.post.post.controller;
 
-import boogi.apiserver.domain.comment.application.CommentQueryService;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
-import boogi.apiserver.domain.like.application.LikeCommandService;
-import boogi.apiserver.domain.like.application.LikeQueryService;
 import boogi.apiserver.domain.like.dto.response.LikeMembersAtPostResponse;
 import boogi.apiserver.domain.like.exception.AlreadyDoPostLikeException;
 import boogi.apiserver.domain.member.domain.MemberType;
@@ -12,8 +9,6 @@ import boogi.apiserver.domain.member.exception.CanNotDeletePostException;
 import boogi.apiserver.domain.member.exception.CanNotUpdatePostException;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotViewableMemberException;
-import boogi.apiserver.domain.post.post.application.PostCommandService;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.dto.HotPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
@@ -31,15 +26,10 @@ import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
-import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -62,27 +52,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = PostApiController.class)
-class PostApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    PostQueryService postQueryService;
-
-    @MockBean
-    PostCommandService postCommandService;
-
-    @MockBean
-    LikeCommandService likeCommandService;
-
-    @MockBean
-    LikeQueryService likeQueryService;
-
-    @MockBean
-    CommentQueryService commentQueryService;
-
-    @MockBean
-    SendPushNotification sendPushNotification;
+class PostApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("게시글 생성")

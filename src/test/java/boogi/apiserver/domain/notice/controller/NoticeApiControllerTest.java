@@ -2,24 +2,17 @@ package boogi.apiserver.domain.notice.controller;
 
 
 import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
-import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.exception.NotJoinedMemberException;
 import boogi.apiserver.domain.member.exception.NotOperatorException;
-import boogi.apiserver.domain.notice.application.NoticeCommandService;
-import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDetailDto;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
 import boogi.apiserver.domain.notice.dto.response.NoticeDetailResponse;
 import boogi.apiserver.global.constant.HeaderConst;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -40,18 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = NoticeApiController.class)
-class NoticeApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    NoticeQueryService noticeQueryService;
-
-    @MockBean
-    MemberQueryService memberQueryService;
-
-    @MockBean
-    NoticeCommandService noticeCommandService;
+class NoticeApiControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("공지 목록을 전체 조회한다.")

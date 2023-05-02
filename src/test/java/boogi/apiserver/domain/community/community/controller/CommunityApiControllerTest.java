@@ -1,9 +1,6 @@
 package boogi.apiserver.domain.community.community.controller;
 
 import boogi.apiserver.builder.TestCommunity;
-import boogi.apiserver.domain.community.community.application.CommunityCommandService;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
-import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.dto.*;
 import boogi.apiserver.domain.community.community.dto.request.CommunitySettingRequest;
@@ -15,38 +12,26 @@ import boogi.apiserver.domain.community.community.dto.response.CommunityPostsRes
 import boogi.apiserver.domain.community.community.exception.AlreadyExistsCommunityNameException;
 import boogi.apiserver.domain.community.community.exception.CanNotDeleteCommunityException;
 import boogi.apiserver.domain.community.community.exception.CommunityNotFoundException;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
 import boogi.apiserver.domain.community.joinrequest.exception.AlreadyRequestedException;
 import boogi.apiserver.domain.community.joinrequest.exception.UnmatchedJoinRequestCommunityException;
-import boogi.apiserver.domain.member.application.MemberCommandService;
-import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.MemberType;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.member.exception.*;
-import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
 import boogi.apiserver.domain.post.post.dto.dto.CommunityPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
 import boogi.apiserver.domain.post.postmedia.dto.dto.PostMediaMetadataDto;
-import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.domain.user.dto.response.UserDetailInfoDto;
 import boogi.apiserver.global.constant.HeaderConst;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
-import boogi.apiserver.global.webclient.push.SendPushNotification;
-import boogi.apiserver.utils.controller.TestControllerSetUp;
+import boogi.apiserver.utils.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -69,43 +54,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(controllers = CommunityApiController.class)
-class CommunityApiControllerTest extends TestControllerSetUp {
-
-    @MockBean
-    JoinRequestCommandService joinRequestCommandService;
-
-    @MockBean
-    CommunityCommandService communityCommandService;
-
-    @MockBean
-    MemberCommandService memberCommandService;
-
-    @MockBean
-    CommunityQueryService communityQueryService;
-
-    @MockBean
-    NoticeQueryService noticeQueryService;
-
-    @MockBean
-    MemberQueryService memberQueryService;
-
-    @MockBean
-    PostQueryService postQueryService;
-
-    @MockBean
-    JoinRequestQueryService joinRequestQueryService;
-
-    @MockBean
-    CommunityRepository communityRepository;
-
-    @MockBean
-    UserRepository userRepository;
-
-    @MockBean
-    SendPushNotification sendPushNotification;
-
+class CommunityApiControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("커뮤니티 생성")
