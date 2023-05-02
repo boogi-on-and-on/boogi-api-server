@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentsAtPostResponse {
 
     private List<ParentCommentInfo> comments;
@@ -64,6 +66,7 @@ public class CommentsAtPostResponse {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class ParentCommentInfo extends BaseCommentInfo {
 
         private static final String DELETED_COMMENT_CONTENT = "삭제된 댓글입니다";
@@ -142,6 +145,7 @@ public class CommentsAtPostResponse {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public abstract static class BaseCommentInfo {
         private Long id;
 
@@ -184,6 +188,7 @@ public class CommentsAtPostResponse {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberInfo {
         private Long id;
 

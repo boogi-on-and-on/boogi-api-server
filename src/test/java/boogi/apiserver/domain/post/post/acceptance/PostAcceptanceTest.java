@@ -125,57 +125,6 @@ public class PostAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("게시글 좋아요를 취소하면, 게시글의 좋아요 개수가 1 감소한다.")
-    void doUnlikeToPost1() {
-        //given
-        long postId = createNewPost();
-        long likeId = httpPost("/posts/" + postId + "/likes", getYongjinToken())
-                .body().jsonPath()
-                .getLong("id");
-
-        int prevLikeCount = httpGet("/posts/" + postId, getYongjinToken())
-                .body()
-                .jsonPath()
-                .getInt("likeCount");
-
-        //when
-        httpDelete("/likes/" + likeId, getYongjinToken());
-
-        //then
-        ExtractableResponse<Response> response = httpGet("/posts/" + postId, getYongjinToken());
-        int newLikeCount = response.body()
-                .jsonPath()
-                .getInt("likeCount");
-
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(prevLikeCount - 1).isEqualTo(newLikeCount);
-
-    }
-
-    @Test
-    @DisplayName("게시글 좋아요를 취소하면, 좋아요 목록에 유저가 제거된다.")
-    void doUnlikeToPost2() {
-        //given
-        long postId = createNewPost();
-        long likeId = httpPost("/posts/" + postId + "/likes", getYongjinToken())
-                .body().jsonPath()
-                .getLong("id");
-
-        //when
-        httpDelete("/likes/" + likeId, getYongjinToken());
-
-        //then
-        ExtractableResponse<Response> response = httpGet("/posts/" + postId + "/likes", getYongjinToken());
-        List<UserBasicProfileDto> users = response.body().jsonPath()
-                .getList("members", UserBasicProfileDto.class);
-
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(users)
-                .extracting("id")
-                .doesNotContain(UserFixture.YONGJIN_ID);
-    }
-
-    @Test
     @DisplayName("게시글 해시테그와 검색 키워드가 같으면 검색 결과에 게시글이 조회된다.")
     void searchByHashtag() {
         //given

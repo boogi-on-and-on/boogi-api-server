@@ -6,11 +6,13 @@ import boogi.apiserver.global.dto.PaginationDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeMembersAtCommentResponse {
 
     private List<UserBasicProfileDto> members;
