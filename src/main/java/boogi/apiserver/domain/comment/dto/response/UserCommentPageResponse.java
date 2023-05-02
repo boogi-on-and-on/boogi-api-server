@@ -3,12 +3,15 @@ package boogi.apiserver.domain.comment.dto.response;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.global.dto.PaginationDto;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserCommentPageResponse {
 
     private List<UserCommentDto> comments;
