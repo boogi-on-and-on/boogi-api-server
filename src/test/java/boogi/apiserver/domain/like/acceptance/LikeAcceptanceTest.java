@@ -77,7 +77,7 @@ public class LikeAcceptanceTest extends AcceptanceTest {
     void doUnlikeToComment1() {
         //given
         long postId = createNewPost();
-        long commentId = createNewComment(postId);
+        long commentId = createNewComment(postId, null);
 
         int likeId = httpPost("/comments/" + commentId + "/likes", getSundoToken())
                 .body().jsonPath()
@@ -110,10 +110,9 @@ public class LikeAcceptanceTest extends AcceptanceTest {
     @Test
     @DisplayName("댓글 좋아요를 취소하면, 게시글 댓글의 목록에 유저가 제거된다.")
     void doUnlikeToComment2() {
-
         //given
         long postId = createNewPost();
-        long commentId = createNewComment(postId);
+        long commentId = createNewComment(postId, null);
 
         int likeId = httpPost("/comments/" + commentId + "/likes", getSundoToken())
                 .body().jsonPath()

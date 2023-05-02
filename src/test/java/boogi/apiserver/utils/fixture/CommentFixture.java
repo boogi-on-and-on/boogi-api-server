@@ -13,11 +13,11 @@ public enum CommentFixture {
 
     public static long createNewComment() {
         long postId = createNewPost();
-        return createNewComment(postId);
+        return createNewComment(postId, null);
     }
 
-    public static long createNewComment(Long postId) {
-        CreateCommentRequest request = new CreateCommentRequest(postId, null, "저도 모각코 참여합니다.", new ArrayList<>());
+    public static long createNewComment(Long postId, Long parentCommentId) {
+        CreateCommentRequest request = new CreateCommentRequest(postId, parentCommentId, "저도 모각코 참여합니다.", new ArrayList<>());
 
         return httpPost(request, "/comments/", getSundoToken())
                 .body().jsonPath().getLong("id");

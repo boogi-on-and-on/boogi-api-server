@@ -2,6 +2,7 @@ package boogi.apiserver.domain.post.post.acceptance;
 
 import boogi.apiserver.domain.post.post.dto.dto.SearchPostDto;
 import boogi.apiserver.domain.post.post.dto.dto.UserPostDto;
+import boogi.apiserver.domain.post.post.dto.request.CreatePostRequest;
 import boogi.apiserver.domain.post.post.dto.request.UpdatePostRequest;
 import boogi.apiserver.domain.post.post.dto.response.PostDetailResponse;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 import java.util.List;
 
+import static boogi.apiserver.utils.fixture.CommunityFixture.POCS_ID;
 import static boogi.apiserver.utils.fixture.HttpMethodFixture.*;
 import static boogi.apiserver.utils.fixture.PostFixture.createNewPost;
 import static boogi.apiserver.utils.fixture.TokenFixture.getSundoToken;
@@ -24,10 +26,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PostAcceptanceTest extends AcceptanceTest {
 
+    @Test
+    @DisplayName("게시글을 생성한다.")
+    void createPost() {
+        CreatePostRequest request = new CreatePostRequest(POCS_ID, "우리 모두 화이팅!",
+                List.of("코딩", "화이팅"), new ArrayList<>(), new ArrayList<>());
+
+        ExtractableResponse<Response> response = httpPost(request, "/posts/", getSundoToken());
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+    }
 
     @Test
     @DisplayName("게시글을 수정하면 변경된 상세 정보가 조회된다.")
-    void createPost() {
+    void updatePost() {
         //given
         long postId = createNewPost();
 
@@ -44,7 +56,6 @@ public class PostAcceptanceTest extends AcceptanceTest {
         assertThat(parsed.getId()).isEqualTo(postId);
         assertThat(parsed.getContent()).isEqualTo("변경된 게시글입니다!!");
         assertThat(parsed.getHashtags()).containsExactlyInAnyOrder("코딩", "컴공");
-
     }
 
     @Test
