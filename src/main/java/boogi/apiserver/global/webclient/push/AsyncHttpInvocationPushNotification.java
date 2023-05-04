@@ -86,7 +86,7 @@ public class AsyncHttpInvocationPushNotification implements SendPushNotification
     @Override
     public void mentionNotification(List<Long> receiverIds, Long entityId, MentionType type) {
         if (receiverIds.isEmpty()) {
-            log.info("receiverIds is empty. did not sended push.");
+            log.info("receiverIds is empty. did not send push.");
             return;
         }
 

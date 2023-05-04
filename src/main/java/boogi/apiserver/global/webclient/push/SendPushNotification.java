@@ -3,9 +3,9 @@ package boogi.apiserver.global.webclient.push;
 import java.util.List;
 
 public interface SendPushNotification {
-    void joinNotification(List<Long> joinRequestId);
+    void joinNotification(List<Long> joinRequestIds);
 
-    void rejectNotification(List<Long> joinRequestId);
+    void rejectNotification(List<Long> joinRequestIds);
 
     void noticeNotification(Long noticeId);
 
