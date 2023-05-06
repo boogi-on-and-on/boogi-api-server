@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 public class PushNotificationConfig {
 
     @Bean
-    @Profile({"dev", "local", "prod"})
+    @Profile({"dev", "local", "prod", "default"})
     public SendPushNotification asyncHttpInvocationPushNotification() {
         log.info("create bean AsyncHttpInvocationPushNotification");
         return new AsyncHttpInvocationPushNotification();
