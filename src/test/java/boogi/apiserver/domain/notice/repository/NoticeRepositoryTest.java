@@ -49,9 +49,12 @@ class NoticeRepositoryTest extends RepositoryTest {
         communityRepository.save(community);
 
         List<Notice> appNotices = IntStream.range(0, 4)
-                .mapToObj(i -> TestNotice.builder().build())
+                .mapToObj(i -> {
+                    Notice notice = TestNotice.builder().build();
+                    TestTimeReflection.setCreatedAt(notice, LocalDateTime.now().plusDays(i));
+                    return notice;
+                })
                 .collect(Collectors.toList());
-        appNotices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
         Notice communityNotice = TestNotice.builder().community(community).build();
         noticeRepository.saveAll(appNotices);
         noticeRepository.save(communityNotice);
@@ -77,9 +80,12 @@ class NoticeRepositoryTest extends RepositoryTest {
         communityRepository.save(community);
 
         List<Notice> appNotices = IntStream.range(0, 4)
-                .mapToObj(i -> TestNotice.builder().build())
+                .mapToObj(i -> {
+                    Notice notice = TestNotice.builder().build();
+                    TestTimeReflection.setCreatedAt(notice, LocalDateTime.now().plusDays(i));
+                    return notice;
+                })
                 .collect(Collectors.toList());
-        appNotices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
         Notice communityNotice = TestNotice.builder().community(community).build();
         noticeRepository.saveAll(appNotices);
         noticeRepository.save(communityNotice);
@@ -104,11 +110,14 @@ class NoticeRepositoryTest extends RepositoryTest {
         communityRepository.save(community);
 
         List<Notice> notices = IntStream.range(0, 4)
-                .mapToObj(i -> TestNotice.builder()
-                        .community(community)
-                        .build())
+                .mapToObj(i -> {
+                    Notice notice = TestNotice.builder()
+                            .community(community)
+                            .build();
+                    TestTimeReflection.setCreatedAt(notice, LocalDateTime.now().plusDays(i));
+                    return notice;
+                })
                 .collect(Collectors.toList());
-        notices.forEach(n -> TestTimeReflection.setCreatedAt(n, LocalDateTime.now()));
         noticeRepository.saveAll(notices);
 
         cleanPersistenceContext();

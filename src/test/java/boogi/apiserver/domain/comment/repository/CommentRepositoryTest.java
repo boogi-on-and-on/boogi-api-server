@@ -79,16 +79,18 @@ class CommentRepositoryTest extends RepositoryTest {
         Member member = TestMember.builder().build();
         memberRepository.save(member);
 
-        List<Comment> comments = IntStream.range(0, 30)
-                .mapToObj(i -> TestComment.builder()
-                        .content(COMMENT_CONTENT + i)
-                        .post(post)
-                        .member(member)
-                        .parent(null)
-                        .child(false)
-                        .build()
-                ).collect(Collectors.toList());
-        comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
+        List<Comment> comments = IntStream.range(0, 30).mapToObj(i -> {
+                    Comment comment = TestComment.builder()
+                            .content(COMMENT_CONTENT + i)
+                            .post(post)
+                            .member(member)
+                            .parent(null)
+                            .child(false)
+                            .build();
+                    TestTimeReflection.setCreatedAt(comment, LocalDateTime.now().plusDays(i));
+                    return comment;
+                }
+        ).collect(Collectors.toList());
         commentRepository.saveAll(comments);
 
         cleanPersistenceContext();
@@ -177,21 +179,25 @@ class CommentRepositoryTest extends RepositoryTest {
         final Member member2 = TestMember.builder().build();
         memberRepository.saveAll(List.of(member1, member2));
 
-        List<Comment> member1Comments = IntStream.range(0, 10)
-                .mapToObj(i -> TestComment.builder()
-                        .content(COMMENT_CONTENT + i)
-                        .member(member1)
-                        .build()
-                ).collect(Collectors.toList());
-        member1Comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
+        List<Comment> member1Comments = IntStream.range(0, 10).mapToObj(i -> {
+                    Comment comment = TestComment.builder()
+                            .content(COMMENT_CONTENT + i)
+                            .member(member1)
+                            .build();
+                    TestTimeReflection.setCreatedAt(comment, LocalDateTime.now().plusDays(i));
+                    return comment;
+                }
+        ).collect(Collectors.toList());
 
-        List<Comment> member2Comments = IntStream.range(10, 20)
-                .mapToObj(i -> TestComment.builder()
-                        .content(COMMENT_CONTENT + i)
-                        .member(member2)
-                        .build()
-                ).collect(Collectors.toList());
-        member2Comments.forEach(comment -> TestTimeReflection.setCreatedAt(comment, LocalDateTime.now()));
+        List<Comment> member2Comments = IntStream.range(10, 20).mapToObj(i -> {
+                    Comment comment = TestComment.builder()
+                            .content(COMMENT_CONTENT + i)
+                            .member(member2)
+                            .build();
+                    TestTimeReflection.setCreatedAt(comment, LocalDateTime.now().plusDays(i));
+                    return comment;
+                }
+        ).collect(Collectors.toList());
 
         commentRepository.saveAll(member1Comments);
         commentRepository.saveAll(member2Comments);

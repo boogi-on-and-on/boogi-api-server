@@ -146,7 +146,8 @@ class MessageRepositoryTest extends RepositoryTest {
         Stream<Message> nonBlockedMessageStream = Stream.concat(nonBlockedMessageStream1, nonBlockedMessageStream2);
         List<Message> messages = Stream.concat(nonBlockedMessageStream, blockedMessageStream)
                 .collect(Collectors.toList());
-        messages.forEach(m -> TestTimeReflection.setCreatedAt(m, LocalDateTime.now()));
+        IntStream.range(0, messages.size())
+                .forEach(i -> TestTimeReflection.setCreatedAt(messages.get(i), LocalDateTime.now().plusDays(i)));
         messageRepository.saveAll(messages);
 
         cleanPersistenceContext();

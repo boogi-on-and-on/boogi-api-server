@@ -128,14 +128,16 @@ class MemberRepositoryTest extends RepositoryTest {
 
         List<MemberType> memberTypes = List.of(MemberType.NORMAL, MemberType.SUB_MANAGER, MemberType.MANAGER);
 
-        List<Member> members = IntStream.range(0, 3)
-                .mapToObj(i -> TestMember.builder()
-                        .user(user)
-                        .community(community)
-                        .memberType(memberTypes.get(i))
-                        .build()
-                ).collect(Collectors.toList());
-        members.forEach(m -> TestTimeReflection.setCreatedAt(m, LocalDateTime.now()));
+        List<Member> members = IntStream.range(0, 3).mapToObj(i -> {
+                    Member member = TestMember.builder()
+                            .user(user)
+                            .community(community)
+                            .memberType(memberTypes.get(i))
+                            .build();
+                    TestTimeReflection.setCreatedAt(member, LocalDateTime.now().plusDays(i));
+                    return member;
+                }
+        ).collect(Collectors.toList());
         memberRepository.saveAll(members);
 
         cleanPersistenceContext();

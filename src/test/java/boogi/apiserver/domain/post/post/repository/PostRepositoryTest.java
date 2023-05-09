@@ -61,7 +61,11 @@ class PostRepositoryTest extends RepositoryTest {
     @DisplayName("커뮤니티별 가장 최근 글 1개씩 조회한다.")
     void getLatestPostByCommunityIds() {
         final Community community1 = TestCommunity.builder().build();
+        TestTimeReflection.setCreatedAt(community1, LocalDateTime.now());
+
         final Community community2 = TestCommunity.builder().build();
+        TestTimeReflection.setCreatedAt(community2, LocalDateTime.now().plusDays(1));
+
         final Community community3 = TestCommunity.builder().build();
         communityRepository.saveAll(List.of(community1, community2, community3));
 
@@ -73,12 +77,12 @@ class PostRepositoryTest extends RepositoryTest {
         final Post post2 = TestPost.builder()
                 .community(community1)
                 .build();
-        TestTimeReflection.setCreatedAt(post2, LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(post2, LocalDateTime.now().plusDays(1));
 
         final Post post3 = TestPost.builder()
                 .community(community2)
                 .build();
-        TestTimeReflection.setCreatedAt(post3, LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(post3, LocalDateTime.now().plusDays(2));
 
         postRepository.saveAll(List.of(post1, post2, post3));
 
@@ -156,7 +160,7 @@ class PostRepositoryTest extends RepositoryTest {
                 .likeCount(2)
                 .commentCount(10)
                 .build();
-        TestTimeReflection.setCreatedAt(post4, LocalDateTime.now());
+        TestTimeReflection.setCreatedAt(post4, LocalDateTime.now().plusDays(1));
 
         postRepository.saveAll(List.of(post1, post2, post3, post4));
 
