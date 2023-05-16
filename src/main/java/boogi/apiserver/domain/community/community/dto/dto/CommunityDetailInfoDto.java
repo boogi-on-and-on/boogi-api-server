@@ -1,6 +1,7 @@
 package boogi.apiserver.domain.community.community.dto.dto;
 
 import boogi.apiserver.domain.community.community.domain.Community;
+import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.hashtag.community.domain.CommunityHashtag;
 import boogi.apiserver.global.util.time.TimePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -18,20 +19,20 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class CommunityDetailInfoDto {
     private Boolean isPrivated;
-    private String category;
+    private CommunityCategory category;
     private String name;
     private String introduce;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> hashtags;
-    private String memberCount;
+    private int memberCount;
 
     @JsonFormat(pattern = TimePattern.BASIC_FORMAT_STRING)
     private LocalDateTime createdAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public CommunityDetailInfoDto(Boolean isPrivated, String category, String name, String introduce,
-                                  List<String> hashtags, String memberCount, LocalDateTime createdAt) {
+    public CommunityDetailInfoDto(Boolean isPrivated, CommunityCategory category, String name, String introduce,
+                                  List<String> hashtags, int memberCount, LocalDateTime createdAt) {
         this.isPrivated = isPrivated;
         this.category = category;
         this.name = name;
@@ -53,9 +54,9 @@ public class CommunityDetailInfoDto {
                 .name(community.getCommunityName())
                 .introduce(community.getDescription())
                 .hashtags(hashtags)
-                .memberCount(String.valueOf(community.getMemberCount()))
+                .memberCount(community.getMemberCount())
                 .createdAt(community.getCreatedAt())
-                .category(community.getCategory().toString())
+                .category(community.getCategory())
                 .build();
     }
 }

@@ -42,6 +42,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static boogi.apiserver.domain.community.community.domain.CommunityCategory.ACADEMIC;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -136,8 +137,8 @@ class CommunityApiControllerTest extends ControllerTest {
         @Test
         @DisplayName("커뮤니티 상세조회에 성공한다.")
         void getCommunityDetailSuccess() throws Exception {
-            final CommunityDetailInfoDto communityDto = new CommunityDetailInfoDto(true, "ACADEMIC",
-                    "커뮤니티 이름", "소개", List.of("해시태그"), "1", LocalDateTime.now());
+            final CommunityDetailInfoDto communityDto = new CommunityDetailInfoDto(true, ACADEMIC,
+                    "커뮤니티 이름", "소개", List.of("해시태그"), 1, LocalDateTime.now());
             final NoticeDto noticeDto = new NoticeDto(1L, "공지", LocalDateTime.now());
             final LatestCommunityPostDto postDto = new LatestCommunityPostDto(1L, "글 내용", LocalDateTime.now());
             final CommunityDetailResponse response =

@@ -3,28 +3,30 @@ package boogi.apiserver.domain.community.community.application;
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
 import boogi.apiserver.builder.TestPost;
-import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.community.community.domain.CommunityCategory;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
 import boogi.apiserver.domain.community.community.dto.response.CommunityDetailResponse;
+import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
 import boogi.apiserver.domain.member.domain.MemberType;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.notice.application.NoticeQueryService;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.post.post.application.PostQueryService;
-import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
 import boogi.apiserver.domain.post.post.dto.dto.LatestCommunityPostDto;
-import boogi.apiserver.domain.post.postmedia.repository.PostMediaRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.postmedia.domain.PostMedia;
+import boogi.apiserver.domain.post.postmedia.repository.PostMediaRepository;
+import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.repository.UserRepository;
-import boogi.apiserver.utils.TestTimeReflection;
+import boogi.apiserver.utils.fixture.MemberFixture;
+import boogi.apiserver.utils.fixture.NoticeFixture;
+import boogi.apiserver.utils.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,15 +34,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
+import static boogi.apiserver.utils.fixture.CommunityFixture.POCS;
+import static boogi.apiserver.utils.fixture.PostFixture.POST1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityQueryServiceTest {
@@ -70,33 +73,24 @@ class CommunityQueryServiceTest {
     @Test
     @DisplayName("커뮤니티 상세 조회")
     void communityDetail() {
-        final Community community = TestCommunity.builder()
-                .isPrivate(true)
-                .category(CommunityCategory.ACADEMIC)
-                .communityName("커뮤니티")
-                .description("커뮤니티 소개란입니다.")
-                .memberCount(1)
-                .build();
-        community.addTags(List.of("태그1"));
-        TestTimeReflection.setCreatedAt(community, LocalDateTime.now());
+        final String TAG = "태그1";
+
+        Community community = POCS.toCommunity(List.of(TAG));
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
-        final Member member = TestMember.builder()
-                .memberType(MemberType.NORMAL)
-                .build();
+        User user = UserFixture.DEOKHWAN.toUser();
+        Member member = MemberFixture.DEOKHWAN_POCS.toMember(user, community);
         given(memberQueryService.getMemberOrNullMember(anyLong(), any(Community.class)))
                 .willReturn(member);
 
-        final NoticeDto noticeDto = new NoticeDto(1L, "공지1", LocalDateTime.now());
+        NoticeDto noticeDto = NoticeDto.from(NoticeFixture.NOTICE1.toNotice(1L, community, member));
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
                 .willReturn(List.of(noticeDto));
 
-        final LatestCommunityPostDto postDto = LatestCommunityPostDto.builder()
-                .id(1L)
-                .content("글1")
-                .createdAt(LocalDateTime.now())
-                .build();
+        Post post1 = POST1.toPost(1L, member, community, null, null);
+        LatestCommunityPostDto postDto = LatestCommunityPostDto.of(post1);
+
         given(postQueryService.getLatestPostOfCommunity(any(Member.class), any(Community.class)))
                 .willReturn(List.of(postDto));
 
@@ -104,19 +98,18 @@ class CommunityQueryServiceTest {
 
         assertThat(response.getSessionMemberType()).isEqualTo(MemberType.NORMAL);
 
-        final CommunityDetailInfoDto detail = response.getCommunity();
-        assertThat(detail.getIsPrivated()).isEqualTo(true);
-        assertThat(detail.getCategory().toString()).isEqualTo("ACADEMIC");
-        assertThat(detail.getName()).isEqualTo("커뮤니티");
-        assertThat(detail.getIntroduce()).isEqualTo("커뮤니티 소개란입니다.");
-        assertThat(detail.getHashtags()).containsExactly("태그1");
-        assertThat(detail.getMemberCount()).isEqualTo("1");
-        assertThat(detail.getCreatedAt()).isEqualTo(community.getCreatedAt().toString());
+        final CommunityDetailInfoDto communityDto = response.getCommunity();
+        assertThat(communityDto.getIsPrivated()).isFalse();
+        assertThat(communityDto.getCategory()).isEqualTo(POCS.communityCategory);
+        assertThat(communityDto.getName()).isEqualTo(POCS.communityName);
+        assertThat(communityDto.getIntroduce()).isEqualTo(POCS.description);
+        assertThat(communityDto.getHashtags()).containsExactly(TAG);
+        assertThat(communityDto.getMemberCount()).isEqualTo(POCS.memberCount);
+        assertThat(communityDto.getCreatedAt()).isEqualTo(POCS.createdAt);
 
-        final LatestCommunityPostDto post = response.getPosts().get(0);
-        assertThat(post.getId()).isEqualTo(1L);
-        assertThat(post.getContent()).isEqualTo("글1");
-        assertThat(post.getCreatedAt()).isEqualTo(postDto.getCreatedAt());
+        assertThat(response.getPosts()).hasSize(1)
+                .extracting("id", "content", "createdAt")
+                .containsExactly(tuple(1L, POST1.content, POST1.createdAt));
     }
 
     @Test
