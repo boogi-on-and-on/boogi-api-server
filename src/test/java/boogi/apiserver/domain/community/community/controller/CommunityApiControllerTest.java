@@ -174,7 +174,7 @@ class CommunityApiControllerTest extends ControllerTest {
                                             .description("커뮤니티 소개"),
                                     fieldWithPath("community.hashtags").type(JsonFieldType.ARRAY)
                                             .description("커뮤니티 해시태그").optional(),
-                                    fieldWithPath("community.memberCount").type(JsonFieldType.STRING)
+                                    fieldWithPath("community.memberCount").type(JsonFieldType.NUMBER)
                                             .description("커뮤니티 멤버 수"),
                                     fieldWithPath("community.createdAt").type(JsonFieldType.STRING)
                                             .description("커뮤니티 생성시각"),
