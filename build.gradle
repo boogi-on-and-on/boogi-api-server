@@ -67,6 +67,8 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 
     testImplementation 'it.ozimov:embedded-redis:0.7.2'
+    testImplementation "org.testcontainers:junit-jupiter:1.18.1"
+    testImplementation "org.testcontainers:mysql:1.18.1"
 
     asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:${asciidocVersion}"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${asciidocVersion}"

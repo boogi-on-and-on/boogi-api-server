@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -15,6 +19,13 @@ public class AcceptanceTest {
 
     @LocalServerPort
     int port;
+
+    protected static final MySQLContainer mySQLContainer;
+
+    static {
+        mySQLContainer = new MySQLContainer("mysql:8");
+        mySQLContainer.start();
+    }
 
     @Autowired
     private DataBaseInitializer dataBaseInitializer;

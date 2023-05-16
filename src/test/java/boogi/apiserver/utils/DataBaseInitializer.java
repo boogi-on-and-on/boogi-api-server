@@ -40,18 +40,18 @@ public class DataBaseInitializer implements InitializingBean {
     @Transactional
     public void clear() {
         em.flush();
-        em.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
+        em.createNativeQuery("SET FOREIGN_KEY_CHECKS = FALSE").executeUpdate();
 
         for (EntityInfo entityInfo : entityInfos) {
             String tableName = entityInfo.getTableName();
             String idName = entityInfo.getIdName();
 
             em.createNativeQuery("TRUNCATE TABLE " + tableName).executeUpdate();
-            em.createNativeQuery("ALTER TABLE " + tableName + " ALTER COLUMN " + idName + " RESTART WITH 1")
+            em.createNativeQuery("ALTER TABLE " + tableName + " AUTO_INCREMENT = 1")
                     .executeUpdate();
         }
 
-        em.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+        em.createNativeQuery("SET FOREIGN_KEY_CHECKS = TRUE").executeUpdate();
     }
 
     @Transactional

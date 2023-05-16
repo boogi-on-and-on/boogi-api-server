@@ -3,7 +3,12 @@ logging:
     org.zalando.logbook: TRACE
 
 spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mysql:8.0.32:///test
   jpa:
+    hibernate:
+      ddl-auto: create-drop
     properties:
       hibernate:
         show_sql: false
