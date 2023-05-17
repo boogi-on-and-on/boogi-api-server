@@ -15,10 +15,10 @@ public enum CommunityFixture {
             CommunityCategory.HOBBY, 10, null, true, STANDARD),
 
     POCS("컴퓨터공학과 학술 소모임", "우리는 컴퓨터 기술을 공부하는 동아리입니다", false,
-            CommunityCategory.ACADEMIC, 20, null, false, STANDARD.plusDays(1)),
+            CommunityCategory.ACADEMIC, 20, null, false, STANDARD.minusDays(1)),
 
     ENGLISH("영어 공부 소모임", "우리는 영어를 공부합니다", true, CommunityCategory.ACADEMIC,
-            30, null, false, STANDARD.plusDays(2));
+            30, null, false, STANDARD.minusDays(2));
 
     public final String communityName;
     public final String description;

@@ -11,7 +11,7 @@ import static boogi.apiserver.utils.fixture.TimeFixture.STANDARD;
 
 public enum NoticeFixture {
     NOTICE1("이번주 공지사항입니다", "공학관으로 모두 모여시기 바랍니다.", STANDARD),
-    NOTICE2("신입생 환영회를 진행합니다.", "신입생 여러분은 필참하시기 바랍니다.", STANDARD.plusDays(1)),
+    NOTICE2("신입생 환영회를 진행합니다.", "신입생 여러분은 필참하시기 바랍니다.", STANDARD.minusDays(1)),
     ;
 
     public final String title;

@@ -16,9 +16,9 @@ import static boogi.apiserver.utils.fixture.TokenFixture.getSundoToken;
 
 public enum CommentFixture {
     COMMENT1("만나서 반갑습니다~!.", false, null, STANDARD),
-    COMMENT2("저도 이번 모임 참가예정입니다.", false, null, STANDARD.plusDays(1)),
-    COMMENT3("저도 가고싶습니다. 하지만 못가네요", true, null, STANDARD.plusDays(2)),
-    COMMENT4("저는 보러 못갑니다. 아쉽네요", false, STANDARD, STANDARD.plusDays(3));
+    COMMENT2("저도 이번 모임 참가예정입니다.", false, null, STANDARD.minusDays(1)),
+    COMMENT3("저도 가고싶습니다. 하지만 못가네요", true, null, STANDARD.minusDays(2)),
+    COMMENT4("저는 보러 못갑니다. 아쉽네요", false, STANDARD, STANDARD.minusDays(3));
 
     public final String content;
     public final boolean child;

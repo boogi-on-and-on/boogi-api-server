@@ -13,9 +13,9 @@ import static boogi.apiserver.utils.fixture.TimeFixture.STANDARD;
 
 public enum MemberFixture {
     SUNDO_POCS(MANAGER, null, STANDARD),
-    YONGJIN_POCS(SUB_MANAGER, null, STANDARD.plusDays(1)),
-    DEOKHWAN_POCS(NORMAL, null, STANDARD.plusDays(2)),
-    YONGJIN_ENGLISH(MANAGER, null, STANDARD.plusDays(3)),
+    YONGJIN_POCS(SUB_MANAGER, null, STANDARD.minusDays(1)),
+    DEOKHWAN_POCS(NORMAL, null, STANDARD.minusDays(2)),
+    YONGJIN_ENGLISH(MANAGER, null, STANDARD.minusDays(3)),
     ;
 
 

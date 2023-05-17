@@ -1,6 +1,7 @@
 package boogi.apiserver.utils.fixture;
 
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
+import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.utils.TestTimeReflection;
 
 import java.time.LocalDateTime;
@@ -9,7 +10,7 @@ import static boogi.apiserver.utils.fixture.TimeFixture.STANDARD;
 
 public enum AlarmConfigFixture {
     ALL_TRUE(true, true, true, true, true, STANDARD),
-    ALL_FALSE(false, false, false, false, false, STANDARD.plusDays(1)),
+    ALL_FALSE(false, false, false, false, false, STANDARD.minusDays(1)),
     ;
 
     public final boolean message;
@@ -28,9 +29,10 @@ public enum AlarmConfigFixture {
         this.createdAt = createdAt;
     }
 
-    public AlarmConfig toAlarmConfig(Long id) {
+    public AlarmConfig toAlarmConfig(Long id, User user) {
         AlarmConfig alarmConfig = AlarmConfig.builder()
                 .id(id)
+                .user(user)
                 .message(this.message)
                 .notice(this.notice)
                 .joinRequest(this.joinRequest)
@@ -41,7 +43,7 @@ public enum AlarmConfigFixture {
         return alarmConfig;
     }
 
-    public AlarmConfig toAlarmConfig() {
-        return toAlarmConfig(null);
+    public AlarmConfig toAlarmConfig(User user) {
+        return toAlarmConfig(null, user);
     }
 }

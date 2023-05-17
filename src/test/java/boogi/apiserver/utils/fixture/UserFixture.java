@@ -13,10 +13,10 @@ public enum UserFixture {
             "안녕하세요 저는 컴공과 김선도입니다", false, STANDARD),
 
     YONGJIN("yjlee0235@gmail.com", "이용진", "컴퓨터공학과", "#0001", "boogi.com/image/yj",
-            "안녕하세요 저는 컴공과 이용진입니다", false, STANDARD.plusDays(1)),
+            "안녕하세요 저는 컴공과 이용진입니다", false, STANDARD.minusDays(1)),
 
     DEOKHWAN("tiger@gmail.com", "김덕환", "컴퓨터공학과", "#0001", "boogi.com/imgage/dh",
-            "안녕하세요 저는 컴공과 김덕환입니다", false, STANDARD.plusDays(2)),
+            "안녕하세요 저는 컴공과 김덕환입니다", false, STANDARD.minusDays(2)),
     ;
 
     public final String email;

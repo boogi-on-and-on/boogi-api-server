@@ -10,7 +10,8 @@ import static boogi.apiserver.utils.fixture.TimeFixture.STANDARD;
 
 public enum AlarmFixture {
     ALARM1("이번주 모임 공지", "이번 모임은 공학관에서 진행합니다. 필참하시기 바랍니다.", STANDARD),
-    ALARM2("신입 환영회 진행 예정 공지", "신입환영회를 진행합니다. 반갑습니다.", STANDARD.plusDays(1)),
+    ALARM2("신입 환영회 진행 예정 공지", "신입환영회를 진행합니다. 반갑습니다.", STANDARD.minusDays(1)),
+    ALARM3("이번 중간고사에는 쉽니다.", "이번주는 중간고사로 인해 모임을 진행하지 않습니다.", STANDARD.minusDays(2)),
     ;
 
     public final String head;

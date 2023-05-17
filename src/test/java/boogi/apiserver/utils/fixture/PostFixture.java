@@ -19,9 +19,9 @@ import static boogi.apiserver.utils.fixture.TokenFixture.getSundoToken;
 
 public enum PostFixture {
     POST1("안녕하세요 가입인사드립니다.", null, 1, 1, STANDARD),
-    POST2("이번주 모임은 17시입니다.", null, 2, 2, STANDARD.plusDays(1)),
-    POST3("저는 이번주에 바뻐서 못할 것 같습니다.", null, 3, 3, STANDARD.plusDays(2)),
-    DELETED_POST4("다음주에 야구 보러 갈 사람?", STANDARD, 3, 3, STANDARD.plusDays(3));
+    POST2("이번주 모임은 17시입니다.", null, 2, 2, STANDARD.minusDays(1)),
+    POST3("저는 이번주에 바뻐서 못할 것 같습니다.", null, 3, 3, STANDARD.minusDays(2)),
+    DELETED_POST4("다음주에 야구 보러 갈 사람?", STANDARD, 3, 3, STANDARD.minusDays(3));
 
     public final String content;
     public final LocalDateTime deletedAt;
