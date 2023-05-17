@@ -5,7 +5,7 @@ logging:
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:mysql:8.0.32:///test
+    url: jdbc:tc:mysql:8:///test
   jpa:
     hibernate:
       ddl-auto: create-drop
