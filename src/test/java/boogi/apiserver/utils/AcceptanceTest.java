@@ -9,9 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -20,12 +17,7 @@ public class AcceptanceTest {
     @LocalServerPort
     int port;
 
-    protected static final MySQLContainer mySQLContainer;
-
-    static {
-        mySQLContainer = new MySQLContainer("mysql:8");
-        mySQLContainer.start();
-    }
+    protected static final MySQLContainer mySQLContainer = new MySQLContainer("mysql:8");
 
     @Autowired
     private DataBaseInitializer dataBaseInitializer;
