@@ -35,43 +35,58 @@ ext {
 }
 
 dependencies {
+    //Spring MVC, JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    //Spring redis, Spring session
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
+
+    //Spring rest docs
+    asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:${asciidocVersion}"
+    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${asciidocVersion}"
+
+    //Logging
+    implementation 'org.zalando:logbook-spring-boot-starter:2.14.0'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
+
+    //actuator, prometheus
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    //netty
     implementation 'io.netty:netty-all:4.1.77.Final'
     testImplementation 'io.projectreactor:reactor-test'
     implementation 'io.netty:netty-resolver-dns-native-macos:4.1.77.Final:osx-aarch_64'
 
+    //QueryDSL
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.session:spring-session-data-redis'
-
-    implementation 'org.zalando:logbook-spring-boot-starter:2.14.0'
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
-
+    //DB
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'mysql:mysql-connector-java'
 
+    //Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    //rest assured
     testImplementation 'io.rest-assured:rest-assured'
+
+    //google guava
     implementation 'com.google.guava:guava:31.1-jre'
 
+    //Embedded redis
     testImplementation 'it.ozimov:embedded-redis:0.7.2'
+
+    //Test container
     testImplementation "org.testcontainers:junit-jupiter:1.18.1"
     testImplementation "org.testcontainers:mysql:1.18.1"
-
-    asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:${asciidocVersion}"
-    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${asciidocVersion}"
 }
 
 tasks.named('test') {
