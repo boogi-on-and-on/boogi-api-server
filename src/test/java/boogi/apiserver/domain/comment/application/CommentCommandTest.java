@@ -92,12 +92,14 @@ class CommentCommandTest {
             assertThat(newComment.getContent()).isEqualTo("hello");
             assertThat(newComment.getParent()).isNull();
             assertThat(newComment.getChild()).isFalse();
-            assertThat(post.getCommentCount()).isEqualTo(2);
+            assertThat(post.getCommentCount()).isEqualTo(POST1.commentCount + 1);
         }
 
         @Test
         @DisplayName("ParentCommentId에 부모 댓글의 Id값을 주면 자식 댓글이 생성된다.")
         void createChildCommentSuccess() {
+            final String CHILD_COMMENT_CONTENT = "자식댓글";
+
             Comment parentComment = COMMENT1.toComment(4L, post, member, null);
 
             given(postRepository.findPostById(anyLong())).willReturn(post);
@@ -105,7 +107,7 @@ class CommentCommandTest {
             given(commentRepository.findById(anyLong())).willReturn(Optional.of(parentComment));
 
             CreateCommentRequest request =
-                    new CreateCommentRequest(2L, 4L, "자식댓글", List.of());
+                    new CreateCommentRequest(2L, 4L, CHILD_COMMENT_CONTENT, List.of());
 
             commentCommand.createComment(request, 5L);
 
@@ -113,10 +115,10 @@ class CommentCommandTest {
 
             Comment newComment = commentCaptor.getValue();
 
-            assertThat(newComment.getContent()).isEqualTo("자식댓글");
+            assertThat(newComment.getContent()).isEqualTo(CHILD_COMMENT_CONTENT);
             assertThat(newComment.getParent().getId()).isEqualTo(4L);
             assertThat(newComment.getChild()).isTrue();
-            assertThat(post.getCommentCount()).isEqualTo(2);
+            assertThat(post.getCommentCount()).isEqualTo(POST1.commentCount + 1);
         }
 
         @Test
@@ -153,7 +155,7 @@ class CommentCommandTest {
             verify(likeCommand, times(1)).removeAllCommentLikes(comment.getId());
 
             assertThat(comment.getDeletedAt()).isNotNull();
-            assertThat(comment.getPost().getCommentCount()).isZero();
+            assertThat(comment.getPost().getCommentCount()).isEqualTo(POST1.commentCount - 1);
         }
 
         @Test
@@ -176,7 +178,7 @@ class CommentCommandTest {
             verify(likeCommand, times(1)).removeAllCommentLikes(7L);
 
             assertThat(comment.getDeletedAt()).isNotNull();
-            assertThat(comment.getPost().getCommentCount()).isZero();
+            assertThat(comment.getPost().getCommentCount()).isEqualTo(POST1.commentCount - 1);
         }
 
         @Test

@@ -96,7 +96,7 @@ class LikeCommandTest {
             Like newLike = likeCaptor.getValue();
             assertThat(newLike.getPost().getId()).isEqualTo(4L);
             assertThat(newLike.getMember().getId()).isEqualTo(3L);
-            assertThat(newLike.getPost().getLikeCount()).isEqualTo(2);
+            assertThat(newLike.getPost().getLikeCount()).isEqualTo(POST1.likeCount + 1);
         }
 
         @Test
@@ -115,7 +115,6 @@ class LikeCommandTest {
     @Nested
     @DisplayName("댓글에 좋아요할 시")
     class DoLikeAtCommentTest {
-
         @Test
         @DisplayName("해당 댓글에 좋아요가 생성된다.")
         void doLikeAtCommentSuccess() {
@@ -173,7 +172,7 @@ class LikeCommandTest {
             likeCommand.doUnlike(like.getId(), 1L);
 
             verify(likeRepository, times(1)).delete(any(Like.class));
-            assertThat(post.getLikeCount()).isOne();
+            assertThat(post.getLikeCount()).isEqualTo(POST1.likeCount);
         }
 
         @Test
