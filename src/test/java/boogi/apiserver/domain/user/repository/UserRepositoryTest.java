@@ -4,6 +4,7 @@ import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.exception.UserNotFoundException;
 import boogi.apiserver.utils.RepositoryTest;
+import boogi.apiserver.utils.fixture.UserFixture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import static boogi.apiserver.utils.fixture.UserFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,18 +28,17 @@ class UserRepositoryTest extends RepositoryTest {
     @Test
     @DisplayName("Email로 유저를 조회한다.")
     void findByEmailValue() {
-        final String EMAIL = "abcdef123@gmail.com";
 
-        User user = TestUser.builder().email(EMAIL).build();
+        final User user = SUNDO.toUser();
         userRepository.save(user);
 
         cleanPersistenceContext();
 
-        User findUser = userRepository.findByEmailValue(EMAIL)
+        User findUser = userRepository.findByEmailValue(SUNDO.email)
                 .orElseGet(Assertions::fail);
 
         assertThat(findUser.getId()).isEqualTo(user.getId());
-        assertThat(findUser.getEmail()).isEqualTo(EMAIL);
+        assertThat(findUser.getEmail()).isEqualTo(SUNDO.email);
     }
 
     @Nested
@@ -45,7 +47,8 @@ class UserRepositoryTest extends RepositoryTest {
         @Test
         @DisplayName("성공")
         void success() {
-            final User user = TestUser.builder().build();
+            final User user = SUNDO.toUser();
+
             userRepository.save(user);
 
             cleanPersistenceContext();
@@ -66,8 +69,8 @@ class UserRepositoryTest extends RepositoryTest {
     @Test
     @DisplayName("유저 ID들로 유저들을 조회한다.")
     void findUsersByIds() {
-        List<User> users = IntStream.range(0, 10)
-                .mapToObj(i -> TestUser.builder().build())
+        final List<User> users = Stream.of(SUNDO, DEOKHWAN, YONGJIN)
+                .map(UserFixture::toUser)
                 .collect(Collectors.toList());
         userRepository.saveAll(users);
 
@@ -79,7 +82,8 @@ class UserRepositoryTest extends RepositoryTest {
 
         List<User> findUsers = userRepository.findUsersByIds(userIds);
 
-        assertThat(findUsers).hasSize(10);
-        assertThat(findUsers).extracting("id").containsExactlyElementsOf(userIds);
+        assertThat(findUsers).hasSize(3)
+                .extracting(User::getId)
+                .isEqualTo(userIds);
     }
 }
