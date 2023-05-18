@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.like.controller;
 
-import boogi.apiserver.domain.like.application.LikeCommandService;
+import boogi.apiserver.domain.like.application.LikeCommand;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/likes")
 public class LikeApiController {
 
-    private final LikeCommandService likeCommandService;
+    private final LikeCommand likeCommand;
 
     @DeleteMapping("/{likeId}")
     public void doUnlike(@PathVariable Long likeId, @Session Long userId) {
-        likeCommandService.doUnlike(likeId, userId);
+        likeCommand.doUnlike(likeId, userId);
     }
 }

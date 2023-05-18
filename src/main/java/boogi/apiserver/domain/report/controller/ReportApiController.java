@@ -1,6 +1,6 @@
 package boogi.apiserver.domain.report.controller;
 
-import boogi.apiserver.domain.report.application.ReportCommandService;
+import boogi.apiserver.domain.report.application.ReportCommand;
 import boogi.apiserver.domain.report.dto.request.CreateReportRequest;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/reports")
 public class ReportApiController {
 
-    private final ReportCommandService reportCommandService;
+    private final ReportCommand reportCommand;
 
     @PostMapping("/")
     public void createReport(@Validated @RequestBody CreateReportRequest request, @Session Long userId) {
-        reportCommandService.createReport(request, userId);
+        reportCommand.createReport(request, userId);
     }
 }

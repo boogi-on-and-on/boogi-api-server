@@ -73,7 +73,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(9999L, ReportTarget.COMMUNITY, ReportReason.SWEAR, "신고");
 
             doThrow(new CommunityNotFoundException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")
@@ -95,7 +95,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(9999L, ReportTarget.POST, ReportReason.SWEAR, "신고");
 
             doThrow(new PostNotFoundException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")
@@ -117,7 +117,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(1L, ReportTarget.POST, ReportReason.SWEAR, "신고");
 
             doThrow(new NotJoinedMemberException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")
@@ -139,7 +139,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(9999L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
 
             doThrow(new CommentNotFoundException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")
@@ -161,7 +161,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(1L, ReportTarget.COMMENT, ReportReason.SWEAR, "신고");
 
             doThrow(new NotJoinedMemberException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")
@@ -183,7 +183,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(9999L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
 
             doThrow(new MessageNotFoundException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")
@@ -205,7 +205,7 @@ class ReportApiControllerTest extends ControllerTest {
                     new CreateReportRequest(1L, ReportTarget.MESSAGE, ReportReason.SWEAR, "신고");
 
             doThrow(new NotParticipatedUserException())
-                    .when(reportCommandService).createReport(any(CreateReportRequest.class), anyLong());
+                    .when(reportCommand).createReport(any(CreateReportRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/reports/")

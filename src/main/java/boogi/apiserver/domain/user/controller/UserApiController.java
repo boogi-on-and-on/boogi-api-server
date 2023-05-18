@@ -1,14 +1,14 @@
 package boogi.apiserver.domain.user.controller;
 
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommand;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
 import boogi.apiserver.domain.alarm.alarmconfig.dto.request.AlarmConfigSettingRequest;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.application.CommunityQuery;
 import boogi.apiserver.domain.community.community.dto.dto.JoinedCommunitiesDto;
-import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
+import boogi.apiserver.domain.message.block.application.MessageBlockQuery;
+import boogi.apiserver.domain.message.block.application.MessageBlockCommand;
 import boogi.apiserver.domain.message.block.dto.dto.MessageBlockedUserDto;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.application.UserQuery;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.dto.request.BlockMessageUsersRequest;
 import boogi.apiserver.domain.user.dto.request.BlockedUserIdRequest;
@@ -34,16 +34,16 @@ import java.util.Objects;
 @Slf4j
 @RequestMapping("/api/users")
 public class UserApiController {
-    private final UserQueryService userQueryService;
-    private final MessageBlockQueryService messageBlockQueryService;
-    private final CommunityQueryService communityQueryService;
+    private final UserQuery userQuery;
+    private final MessageBlockQuery messageBlockQuery;
+    private final CommunityQuery communityQuery;
 
-    private final MessageBlockCommandService messageBlockCommandService;
-    private final AlarmConfigCommandService alarmConfigCommandService;
+    private final MessageBlockCommand messageBlockCommand;
+    private final AlarmConfigCommand alarmConfigCommand;
 
     @PostMapping("/token/{email}")
     public void issueToken(HttpServletRequest request, @PathVariable String email) {
-        User user = userQueryService.getUserByEmail(email);
+        User user = userQuery.getUserByEmail(email);
 
         HttpSession preSession = request.getSession(false);
         if (preSession != null) {
@@ -68,36 +68,36 @@ public class UserApiController {
     public UserProfileDetailResponse getUserProfileInfo(@RequestParam(required = false) Long userId,
                                                         @Session Long sessionUserId) {
         Long id = Objects.requireNonNullElse(userId, sessionUserId);
-        UserDetailInfoDto userDetailDto = userQueryService.getUserDetailInfo(id);
+        UserDetailInfoDto userDetailDto = userQuery.getUserDetailInfo(id);
 
         return UserProfileDetailResponse.of(userDetailDto, sessionUserId);
     }
 
     @GetMapping("/communities/joined")
     public JoinedCommunitiesDto getUserJoinedCommunitiesInfo(@Session Long userId) {
-        return communityQueryService.getJoinedCommunitiesWithLatestPost(userId);
+        return communityQuery.getJoinedCommunitiesWithLatestPost(userId);
     }
 
     @GetMapping("/messages/blocked")
     public MessageBlockedUsesResponse getBlockedUsers(@Session Long userId) {
-        List<MessageBlockedUserDto> blockedUserDtos = messageBlockQueryService.getBlockedUsers(userId);
+        List<MessageBlockedUserDto> blockedUserDtos = messageBlockQuery.getBlockedUsers(userId);
 
         return MessageBlockedUsesResponse.from(blockedUserDtos);
     }
 
     @PostMapping("/messages/unblock")
     public void unblockUser(@Session Long userId, @RequestBody BlockedUserIdRequest request) {
-        messageBlockCommandService.unblockUser(userId, request.getBlockedUserId());
+        messageBlockCommand.unblockUser(userId, request.getBlockedUserId());
     }
 
     @PostMapping("/messages/block")
     public void blockUsers(@Session Long userId, @Validated @RequestBody BlockMessageUsersRequest request) {
-        messageBlockCommandService.blockUsers(userId, request.getBlockUserIds());
+        messageBlockCommand.blockUsers(userId, request.getBlockUserIds());
     }
 
     @GetMapping("/config/notifications")
     public AlarmConfigSettingInfoResponse getAlarmConfig(@Session Long userId) {
-        AlarmConfig alarmConfig = alarmConfigCommandService.findOrElseCreateAlarmConfig(userId);
+        AlarmConfig alarmConfig = alarmConfigCommand.findOrElseCreateAlarmConfig(userId);
 
         return AlarmConfigSettingInfoResponse.from(alarmConfig);
     }
@@ -105,7 +105,7 @@ public class UserApiController {
     @PostMapping("/config/notifications")
     public AlarmConfigSettingInfoResponse configureAlarm(@Session Long userId,
                                                          @RequestBody @Validated AlarmConfigSettingRequest request) {
-        AlarmConfig alarmConfig = alarmConfigCommandService.configureAlarm(userId, request);
+        AlarmConfig alarmConfig = alarmConfigCommand.configureAlarm(userId, request);
 
         return AlarmConfigSettingInfoResponse.from(alarmConfig);
     }

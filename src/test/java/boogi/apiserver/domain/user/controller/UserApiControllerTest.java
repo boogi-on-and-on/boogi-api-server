@@ -82,7 +82,7 @@ class UserApiControllerTest extends ControllerTest {
             UserDetailInfoDto userDto = new UserDetailInfoDto(4L, null, "김선도", "#0001",
                     "반갑습니다", "컴퓨터공학부");
 
-            given(userQueryService.getUserDetailInfo(anyLong())).willReturn(userDto);
+            given(userQuery.getUserDetailInfo(anyLong())).willReturn(userDto);
 
             final ResultActions result = mvc.perform(
                     get("/api/users")
@@ -123,7 +123,7 @@ class UserApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 유저 ID로 요청할 경우 UserNotFoundException 발생")
         void notExistUserFail() throws Exception {
             doThrow(new UserNotFoundException())
-                    .when(userQueryService).getUserDetailInfo(anyLong());
+                    .when(userQuery).getUserDetailInfo(anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/users")
@@ -148,7 +148,7 @@ class UserApiControllerTest extends ControllerTest {
                 "커뮤니티 이름", postInfo);
         final JoinedCommunitiesDto communityDto = new JoinedCommunitiesDto(List.of(communityInfo));
 
-        given(communityQueryService.getJoinedCommunitiesWithLatestPost(any()))
+        given(communityQuery.getJoinedCommunitiesWithLatestPost(any()))
                 .willReturn(communityDto);
 
         final ResultActions result = mvc.perform(
@@ -192,7 +192,7 @@ class UserApiControllerTest extends ControllerTest {
     void getBlockedUsersSuccess() throws Exception {
         MessageBlockedUserDto blockedUserDto = new MessageBlockedUserDto(1L, "가나다#0001");
 
-        given(messageBlockQueryService.getBlockedUsers(anyLong()))
+        given(messageBlockQuery.getBlockedUsers(anyLong()))
                 .willReturn(List.of(blockedUserDto));
 
         final ResultActions result = mvc.perform(
@@ -248,7 +248,7 @@ class UserApiControllerTest extends ControllerTest {
             BlockedUserIdRequest request = new BlockedUserIdRequest(1L);
 
             doThrow(new NotBlockedUserException())
-                    .when(messageBlockCommandService).unblockUser(anyLong(), anyLong());
+                    .when(messageBlockCommand).unblockUser(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/users/messages/unblock")
@@ -280,7 +280,7 @@ class UserApiControllerTest extends ControllerTest {
                             .content(mapper.writeValueAsString(request))
             );
 
-            verify(messageBlockCommandService, times(1)).blockUsers(anyLong(), anyList());
+            verify(messageBlockCommand, times(1)).blockUsers(anyLong(), anyList());
 
             result
                     .andExpect(status().isOk())
@@ -304,7 +304,7 @@ class UserApiControllerTest extends ControllerTest {
                 .mention(true)
                 .build();
 
-        given(alarmConfigCommandService.findOrElseCreateAlarmConfig(anyLong()))
+        given(alarmConfigCommand.findOrElseCreateAlarmConfig(anyLong()))
                 .willReturn(config);
 
         final ResultActions response = mvc.perform(
@@ -351,7 +351,7 @@ class UserApiControllerTest extends ControllerTest {
         final AlarmConfigSettingRequest request =
                 new AlarmConfigSettingRequest(true, true, true, true, true);
 
-        given(alarmConfigCommandService.configureAlarm(anyLong(), any(AlarmConfigSettingRequest.class)))
+        given(alarmConfigCommand.configureAlarm(anyLong(), any(AlarmConfigSettingRequest.class)))
                 .willReturn(config);
 
         final ResultActions result = mvc.perform(

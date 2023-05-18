@@ -1,7 +1,7 @@
 package boogi.apiserver.domain.notice.controller;
 
-import boogi.apiserver.domain.notice.application.NoticeCommandService;
-import boogi.apiserver.domain.notice.application.NoticeQueryService;
+import boogi.apiserver.domain.notice.application.NoticeCommand;
+import boogi.apiserver.domain.notice.application.NoticeQuery;
 import boogi.apiserver.domain.notice.dto.dto.NoticeDto;
 import boogi.apiserver.domain.notice.dto.request.NoticeCreateRequest;
 import boogi.apiserver.domain.notice.dto.response.LatestAppNoticeResponse;
@@ -21,30 +21,30 @@ import java.util.List;
 @RequestMapping("/api/notices")
 public class NoticeApiController {
 
-    private final NoticeQueryService noticeQueryService;
+    private final NoticeQuery noticeQuery;
 
-    private final NoticeCommandService noticeCommandService;
+    private final NoticeCommand noticeCommand;
 
     @GetMapping
     public NoticeDetailResponse getAllNotice(@RequestParam(required = false) Long communityId,
                                              @Session Long userId) {
         if (communityId == null) {
-            return noticeQueryService.getAppNotice();
+            return noticeQuery.getAppNotice();
         }
-        return noticeQueryService.getCommunityNotice(userId, communityId);
+        return noticeQuery.getCommunityNotice(userId, communityId);
     }
 
     @PostMapping
     public SimpleIdResponse createNotice(@RequestBody @Validated NoticeCreateRequest request,
                                          @Session Long userId) {
-        Long newNoticeId = noticeCommandService.createNotice(request, userId);
+        Long newNoticeId = noticeCommand.createNotice(request, userId);
 
         return SimpleIdResponse.from(newNoticeId);
     }
 
     @GetMapping("/recent")
     public LatestAppNoticeResponse getLatestAppNotices() {
-        List<NoticeDto> latestAppNotices = noticeQueryService.getAppLatestNotice();
+        List<NoticeDto> latestAppNotices = noticeQuery.getAppLatestNotice();
 
         return LatestAppNoticeResponse.from(latestAppNotices);
     }

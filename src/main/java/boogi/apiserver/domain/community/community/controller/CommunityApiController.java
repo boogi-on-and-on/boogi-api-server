@@ -1,21 +1,21 @@
 package boogi.apiserver.domain.community.community.controller;
 
-import boogi.apiserver.domain.community.community.application.CommunityCommandService;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.application.CommunityCommand;
+import boogi.apiserver.domain.community.community.application.CommunityQuery;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
 import boogi.apiserver.domain.community.community.dto.dto.CommunitySettingInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.SearchCommunityDto;
 import boogi.apiserver.domain.community.community.dto.dto.UserJoinRequestInfoDto;
 import boogi.apiserver.domain.community.community.dto.request.*;
 import boogi.apiserver.domain.community.community.dto.response.*;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
-import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommand;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQuery;
+import boogi.apiserver.domain.member.application.MemberQuery;
 import boogi.apiserver.domain.member.dto.dto.BannedMemberDto;
 import boogi.apiserver.domain.member.dto.dto.MemberDto;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersPageResponse;
 import boogi.apiserver.domain.member.dto.response.JoinedMembersResponse;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.application.PostQuery;
 import boogi.apiserver.global.argument_resolver.session.Session;
 import boogi.apiserver.global.dto.SimpleIdResponse;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
@@ -34,32 +34,32 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/api/communities")
 public class CommunityApiController {
-    private final JoinRequestCommandService joinRequestCommandService;
-    private final CommunityCommandService communityCommandService;
+    private final JoinRequestCommand joinRequestCommand;
+    private final CommunityCommand communityCommand;
 
-    private final CommunityQueryService communityQueryService;
-    private final PostQueryService postQueryService;
-    private final MemberQueryService memberQueryService;
-    private final JoinRequestQueryService joinRequestQueryService;
+    private final CommunityQuery communityQuery;
+    private final PostQuery postQuery;
+    private final MemberQuery memberQuery;
+    private final JoinRequestQuery joinRequestQuery;
 
     private final SendPushNotification sendPushNotification;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SimpleIdResponse createCommunity(@RequestBody @Validated CreateCommunityRequest request, @Session Long userId) {
-        Long communityId = communityCommandService.createCommunity(request, userId);
+        Long communityId = communityCommand.createCommunity(request, userId);
 
         return SimpleIdResponse.from(communityId);
     }
 
     @GetMapping("/{communityId}")
     public CommunityDetailResponse getCommunityDetail(@Session Long userId, @PathVariable Long communityId) {
-        return communityQueryService.getCommunityDetail(userId, communityId);
+        return communityQuery.getCommunityDetail(userId, communityId);
     }
 
     @GetMapping("/{communityId}/metadata")
     public CommunityMetaInfoResponse getCommunityMetadata(@Session Long userId, @PathVariable Long communityId) {
-        CommunityMetadataDto metadata = communityQueryService.getCommunityMetadata(userId, communityId);
+        CommunityMetadataDto metadata = communityQuery.getCommunityMetadata(userId, communityId);
 
         return CommunityMetaInfoResponse.from(metadata);
     }
@@ -68,17 +68,17 @@ public class CommunityApiController {
     public void updateCommunity(@PathVariable Long communityId,
                                 @Session Long userId,
                                 @RequestBody @Validated UpdateCommunityRequest request) {
-        communityCommandService.updateCommunity(userId, communityId, request.getDescription(), request.getHashtags());
+        communityCommand.updateCommunity(userId, communityId, request.getDescription(), request.getHashtags());
     }
 
     @DeleteMapping("/{communityId}")
     public void shutdown(@PathVariable Long communityId, @Session Long userId) {
-        communityCommandService.shutdown(userId, communityId);
+        communityCommand.shutdown(userId, communityId);
     }
 
     @GetMapping("/{communityId}/settings")
     public UpdateCommunityResponse getSetting(@PathVariable Long communityId, @Session Long userId) {
-        CommunitySettingInfoDto settingInfo = communityQueryService.getSetting(userId, communityId);
+        CommunitySettingInfoDto settingInfo = communityQuery.getSetting(userId, communityId);
 
         return UpdateCommunityResponse.from(settingInfo);
     }
@@ -87,7 +87,7 @@ public class CommunityApiController {
     public void changeSetting(@PathVariable Long communityId,
                               @Session Long userId,
                               @RequestBody CommunitySettingRequest request) {
-        communityCommandService.changeSetting(userId, communityId, request);
+        communityCommand.changeSetting(userId, communityId, request);
     }
 
     @GetMapping("/{communityId}/posts")
@@ -95,32 +95,32 @@ public class CommunityApiController {
                                                       @Session Long userId,
                                                       Pageable pageable) {
 
-        return postQueryService.getPostsOfCommunity(pageable, communityId, userId);
+        return postQuery.getPostsOfCommunity(pageable, communityId, userId);
 
     }
 
     @GetMapping("/{communityId}/members")
     public JoinedMembersPageResponse getCommunityJoinedMembers(@PathVariable Long communityId, Pageable pageable) {
-        return memberQueryService.getCommunityJoinedMembers(pageable, communityId);
+        return memberQuery.getCommunityJoinedMembers(pageable, communityId);
     }
 
     @GetMapping("/{communityId}/members/banned")
     public BannedMembersResponse getBannedMembers(@Session Long userId, @PathVariable Long communityId) {
-        List<BannedMemberDto> bannedMembers = memberQueryService.getBannedMembers(userId, communityId);
+        List<BannedMemberDto> bannedMembers = memberQuery.getBannedMembers(userId, communityId);
 
         return BannedMembersResponse.from(bannedMembers);
     }
 
     @GetMapping("/{communityId}/requests")
     public UserJoinRequestsResponse getCommunityJoinRequest(@Session Long userId, @PathVariable Long communityId) {
-        List<UserJoinRequestInfoDto> requests = joinRequestQueryService.getAllPendingRequests(userId, communityId);
+        List<UserJoinRequestInfoDto> requests = joinRequestQuery.getAllPendingRequests(userId, communityId);
 
         return UserJoinRequestsResponse.from(requests);
     }
 
     @PostMapping("/{communityId}/requests")
     public SimpleIdResponse joinRequest(@Session Long userId, @PathVariable Long communityId) {
-        Long requestId = joinRequestCommandService.request(userId, communityId);
+        Long requestId = joinRequestCommand.request(userId, communityId);
 
         return SimpleIdResponse.from(requestId);
     }
@@ -131,7 +131,7 @@ public class CommunityApiController {
                                @Validated @RequestBody JoinRequestIdsRequest request
     ) {
         List<Long> requestIds = request.getRequestIds();
-        joinRequestCommandService.confirmUsers(managerUserId, requestIds, communityId);
+        joinRequestCommand.confirmUsers(managerUserId, requestIds, communityId);
 
         sendPushNotification.joinNotification(requestIds);
     }
@@ -142,7 +142,7 @@ public class CommunityApiController {
                               @Validated @RequestBody JoinRequestIdsRequest request
     ) {
         List<Long> requestIds = request.getRequestIds();
-        joinRequestCommandService.rejectUsers(managerUserId, requestIds, communityId);
+        joinRequestCommand.rejectUsers(managerUserId, requestIds, communityId);
 
         sendPushNotification.rejectNotification(requestIds);
     }
@@ -150,13 +150,13 @@ public class CommunityApiController {
     @GetMapping("/search")
     public CommunityQueryResponse searchCommunities(@ModelAttribute @Validated CommunityQueryRequest request,
                                                     Pageable pageable) {
-        Slice<SearchCommunityDto> communities = communityQueryService.getSearchedCommunities(pageable, request);
+        Slice<SearchCommunityDto> communities = communityQuery.getSearchedCommunities(pageable, request);
         return CommunityQueryResponse.from(communities);
     }
 
     @GetMapping("{communityId}/members/all")
     public JoinedMembersResponse getMembersAll(@PathVariable Long communityId, @Session Long userId) {
-        final List<MemberDto> joinedMembers = memberQueryService.getJoinedMembersAll(communityId, userId);
+        final List<MemberDto> joinedMembers = memberQuery.getJoinedMembersAll(communityId, userId);
         return JoinedMembersResponse.from(joinedMembers);
     }
 }

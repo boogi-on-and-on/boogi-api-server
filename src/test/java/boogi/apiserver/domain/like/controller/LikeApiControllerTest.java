@@ -46,7 +46,7 @@ class LikeApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 좋아요 ID로 요청한 경우 LikeNotFoundException 발생")
         void notExistLikeFail() throws Exception {
             doThrow(new LikeNotFoundException())
-                    .when(likeCommandService).doUnlike(anyLong(), anyLong());
+                    .when(likeCommand).doUnlike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/likes/{likeId}", 9999L)
@@ -64,7 +64,7 @@ class LikeApiControllerTest extends ControllerTest {
         @DisplayName("본인이 한 좋아요가 아닌 경우 UnmatchedLikeUserException 발생")
         void unmatchedLikeUserFail() throws Exception {
             doThrow(new UnmatchedLikeUserException())
-                    .when(likeCommandService).doUnlike(anyLong(), anyLong());
+                    .when(likeCommand).doUnlike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/likes/{likeId}", 1L)

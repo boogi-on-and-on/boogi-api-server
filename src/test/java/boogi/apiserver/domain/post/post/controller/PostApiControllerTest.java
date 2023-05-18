@@ -64,7 +64,7 @@ class PostApiControllerTest extends ControllerTest {
             final Long NEW_POST_ID = 2L;
             CreatePostRequest request = new CreatePostRequest(1L, "글", List.of(), List.of(), List.of());
 
-            given(postCommandService.createPost(any(CreatePostRequest.class), anyLong()))
+            given(postCommand.createPost(any(CreatePostRequest.class), anyLong()))
                     .willReturn(NEW_POST_ID);
 
             ResultActions result = mvc.perform(
@@ -105,7 +105,7 @@ class PostApiControllerTest extends ControllerTest {
                     new CreatePostRequest(9999L, "글", List.of(), List.of(), List.of());
 
             doThrow(new CommunityNotFoundException())
-                    .when(postCommandService).createPost(any(CreatePostRequest.class), anyLong());
+                    .when(postCommand).createPost(any(CreatePostRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/posts/")
@@ -126,7 +126,7 @@ class PostApiControllerTest extends ControllerTest {
                     new CreatePostRequest(1L, "글", List.of(), List.of(), List.of());
 
             doThrow(new NotJoinedMemberException())
-                    .when(postCommandService).createPost(any(CreatePostRequest.class), anyLong());
+                    .when(postCommand).createPost(any(CreatePostRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/posts/")
@@ -147,7 +147,7 @@ class PostApiControllerTest extends ControllerTest {
                     new CreatePostRequest(1L, "글", List.of(), List.of("uuid"), List.of());
 
             doThrow(new UnmappedPostMediaExcecption())
-                    .when(postCommandService).createPost(any(CreatePostRequest.class), anyLong());
+                    .when(postCommand).createPost(any(CreatePostRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/posts/")
@@ -171,7 +171,7 @@ class PostApiControllerTest extends ControllerTest {
             final Long UPDATE_POST_ID = 2L;
             UpdatePostRequest request = new UpdatePostRequest("글 수정", List.of(), List.of());
 
-            given(postCommandService.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
+            given(postCommand.updatePost(any(UpdatePostRequest.class), anyLong(), anyLong()))
                     .willReturn(UPDATE_POST_ID);
 
             ResultActions result = mvc.perform(
@@ -210,7 +210,7 @@ class PostApiControllerTest extends ControllerTest {
             UpdatePostRequest request = new UpdatePostRequest("글 수정", List.of(), List.of());
 
             doThrow(new PostNotFoundException())
-                    .when(postCommandService).updatePost(any(UpdatePostRequest.class), anyLong(), anyLong());
+                    .when(postCommand).updatePost(any(UpdatePostRequest.class), anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     patch("/api/posts/{postId}", 9999L)
@@ -230,7 +230,7 @@ class PostApiControllerTest extends ControllerTest {
             UpdatePostRequest request = new UpdatePostRequest("글 수정", List.of(), List.of());
 
             doThrow(new CanNotUpdatePostException())
-                    .when(postCommandService).updatePost(any(UpdatePostRequest.class), anyLong(), anyLong());
+                    .when(postCommand).updatePost(any(UpdatePostRequest.class), anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     patch("/api/posts/{postId}", 1L)
@@ -260,7 +260,7 @@ class PostApiControllerTest extends ControllerTest {
                     new PostDetailResponse(1L, userDto, memberDto, communityDto, List.of(postMediaDto), 1L,
                             LocalDateTime.now(), "내용", List.of("해시태그"), 1, 1, true);
 
-            given(postQueryService.getPostDetail(anyLong(), anyLong()))
+            given(postQuery.getPostDetail(anyLong(), anyLong()))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -328,7 +328,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않은 게시글 ID로 요청시 PostNotFoundException 발생")
         void notExistPostFail() throws Exception {
             doThrow(new PostNotFoundException())
-                    .when(postQueryService).getPostDetail(anyLong(), anyLong());
+                    .when(postQuery).getPostDetail(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     get("/api/posts/{postId}", 9999L)
@@ -345,7 +345,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("비공개 커뮤니티의 게시글을 비가입 유저로 요청시 NotViewableMemberException 발생")
         void notViewableMemberFail() throws Exception {
             doThrow(new NotViewableMemberException())
-                    .when(postQueryService).getPostDetail(anyLong(), anyLong());
+                    .when(postQuery).getPostDetail(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     get("/api/posts/{postId}", 1L)
@@ -384,7 +384,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않은 게시글 ID로 요청시 PostNotFoundException 발생")
         void notExistPostFail() throws Exception {
             doThrow(new PostNotFoundException())
-                    .when(postCommandService).deletePost(anyLong(), anyLong());
+                    .when(postCommand).deletePost(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/posts/{postId}", 9999L)
@@ -401,7 +401,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("해당 게시글의 게시자와 해당 커뮤니티의 관리자가 아닌 경우 CanNotDeletePostException 발생")
         void notAuthorAndOperatorFail() throws Exception {
             doThrow(new CanNotDeletePostException())
-                    .when(postCommandService).deletePost(anyLong(), anyLong());
+                    .when(postCommand).deletePost(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/posts/{postId}", 9999L)
@@ -425,7 +425,7 @@ class PostApiControllerTest extends ControllerTest {
         UserPostPageResponse pageInfo =
                 new UserPostPageResponse(List.of(postsDto), new PaginationDto(1, false));
 
-        given(postQueryService.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
+        given(postQuery.getUserPosts(anyLong(), anyLong(), any(Pageable.class)))
                 .willReturn(pageInfo);
 
         ResultActions result = mvc.perform(
@@ -485,7 +485,7 @@ class PostApiControllerTest extends ControllerTest {
 
         HotPostsResponse response = new HotPostsResponse(List.of(hotPostDto));
 
-        given(postQueryService.getHotPosts()).willReturn(response);
+        given(postQuery.getHotPosts()).willReturn(response);
 
         ResultActions result = mvc.perform(
                 get("/api/posts/hot")
@@ -522,7 +522,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("게시글에 좋아요 하기에 성공한다.")
         void doLikeAtPostSuccess() throws Exception {
             final Long NEW_LIKE_ID = 2L;
-            given(likeCommandService.doPostLike(anyLong(), anyLong()))
+            given(likeCommand.doPostLike(anyLong(), anyLong()))
                     .willReturn(NEW_LIKE_ID);
 
             ResultActions result = mvc.perform(
@@ -547,7 +547,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않은 게시글 ID로 요청시 PostNotFoundException 발생")
         void notExistPostFail() throws Exception {
             doThrow(new PostNotFoundException())
-                    .when(likeCommandService).doPostLike(anyLong(), anyLong());
+                    .when(likeCommand).doPostLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/posts/{postId}/likes", 9999L)
@@ -564,7 +564,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("해당 게시글이 작성된 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(likeCommandService).doPostLike(anyLong(), anyLong());
+                    .when(likeCommand).doPostLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/posts/{postId}/likes", 1L)
@@ -581,7 +581,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("이미 해당 게시글에 좋아요를 한 경우 AlreadyDoPostLikeException 발생")
         void alreadyDoPostLikeFail() throws Exception {
             doThrow(new AlreadyDoPostLikeException())
-                    .when(likeCommandService).doPostLike(anyLong(), anyLong());
+                    .when(likeCommand).doPostLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/posts/{postId}/likes", 1L)
@@ -605,7 +605,7 @@ class PostApiControllerTest extends ControllerTest {
             LikeMembersAtPostResponse response =
                     new LikeMembersAtPostResponse(List.of(userDto), new PaginationDto(1, false));
 
-            given(likeQueryService.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
+            given(likeQuery.getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class)))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -651,7 +651,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않은 게시글 ID로 요청시 PostNotFoundException 발생")
         void notExistPostFail() throws Exception {
             doThrow(new PostNotFoundException())
-                    .when(likeQueryService).getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class));
+                    .when(likeQuery).getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/posts/{postId}/likes", 9999L)
@@ -670,7 +670,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("비공개 커뮤니티의 게시글 좋아요 유저 목록을 비가입 유저로 요청시 NotViewableMemberException 발생")
         void notViewableMemberFail() throws Exception {
             doThrow(new NotViewableMemberException())
-                    .when(likeQueryService).getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class));
+                    .when(likeQuery).getLikeMembersAtPost(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/posts/{postId}/likes", 1L)
@@ -706,7 +706,7 @@ class PostApiControllerTest extends ControllerTest {
             CommentsAtPostResponse response =
                     new CommentsAtPostResponse(List.of(parentCommentInfo), new PaginationDto(1, false));
 
-            given(commentQueryService.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
+            given(commentQuery.getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class)))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -804,7 +804,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않은 게시글 ID로 요청시 PostNotFoundException 발생")
         void notExistPostFail() throws Exception {
             doThrow(new PostNotFoundException())
-                    .when(commentQueryService).getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class));
+                    .when(commentQuery).getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/posts/{postId}/comments", 9999L)
@@ -823,7 +823,7 @@ class PostApiControllerTest extends ControllerTest {
         @DisplayName("비공개 커뮤니티의 게시글에 달린 댓글들을 비가입 유저로 요청시 NotViewableMemberException 발생")
         void notViewableMemberFail() throws Exception {
             doThrow(new NotViewableMemberException())
-                    .when(commentQueryService).getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class));
+                    .when(commentQuery).getCommentsAtPost(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/posts/{postId}/comments", 1L)
@@ -850,7 +850,7 @@ class PostApiControllerTest extends ControllerTest {
 
         Slice<SearchPostDto> page = PageableUtil.getSlice(List.of(searchPostDto), PageRequest.of(0, 1));
 
-        given(postQueryService.getSearchedPosts(any(), any(), anyLong()))
+        given(postQuery.getSearchedPosts(any(), any(), anyLong()))
                 .willReturn(page);
 
         ResultActions result = mvc.perform(

@@ -42,7 +42,7 @@ class NoticeApiControllerTest extends ControllerTest {
                 new NoticeDetailDto(1L, "공지사항의 제목입니다.", LocalDateTime.now(), "공지사항의 내용입니다.");
         NoticeDetailResponse response = new NoticeDetailResponse(List.of(noticeDto), true);
 
-        given(noticeQueryService.getCommunityNotice(anyLong(), anyLong()))
+        given(noticeQuery.getCommunityNotice(anyLong(), anyLong()))
                 .willReturn(response);
 
         final ResultActions result = mvc.perform(
@@ -86,7 +86,7 @@ class NoticeApiControllerTest extends ControllerTest {
             final long NEW_NOTICE_ID = 2L;
             NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
-            given(noticeCommandService.createNotice(any(), anyLong()))
+            given(noticeCommand.createNotice(any(), anyLong()))
                     .willReturn(NEW_NOTICE_ID);
 
             final ResultActions result = mvc.perform(
@@ -123,7 +123,7 @@ class NoticeApiControllerTest extends ControllerTest {
             NoticeCreateRequest request = new NoticeCreateRequest(9999L, "내용", "제목");
 
             doThrow(new CommunityNotFoundException())
-                    .when(noticeCommandService).createNotice(any(NoticeCreateRequest.class), anyLong());
+                    .when(noticeCommand).createNotice(any(NoticeCreateRequest.class), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/notices")
@@ -144,7 +144,7 @@ class NoticeApiControllerTest extends ControllerTest {
             NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
             doThrow(new NotJoinedMemberException())
-                    .when(noticeCommandService).createNotice(any(NoticeCreateRequest.class), anyLong());
+                    .when(noticeCommand).createNotice(any(NoticeCreateRequest.class), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/notices")
@@ -165,7 +165,7 @@ class NoticeApiControllerTest extends ControllerTest {
             NoticeCreateRequest request = new NoticeCreateRequest(1L, "내용", "제목");
 
             doThrow(new NotOperatorException())
-                    .when(noticeCommandService).createNotice(any(NoticeCreateRequest.class), anyLong());
+                    .when(noticeCommand).createNotice(any(NoticeCreateRequest.class), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/notices")
@@ -186,7 +186,7 @@ class NoticeApiControllerTest extends ControllerTest {
     void latestAppNotice() throws Exception {
         final NoticeDto noticeDto = new NoticeDto(1L, "제목", LocalDateTime.now());
 
-        given(noticeQueryService.getAppLatestNotice())
+        given(noticeQuery.getAppLatestNotice())
                 .willReturn(List.of(noticeDto));
 
         final ResultActions result = mvc.perform(

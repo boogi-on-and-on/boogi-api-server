@@ -40,7 +40,7 @@ class MemberApiControllerTest extends ControllerTest {
         UserBasicProfileDto userDto = new UserBasicProfileDto(1L, null, "태그", "유저");
         Slice<UserBasicProfileDto> userPage = PageableUtil.getSlice(List.of(userDto), PageRequest.of(0, 1));
 
-        given(memberQueryService.getMentionSearchMembers(any(), anyLong(), any()))
+        given(memberQuery.getMentionSearchMembers(any(), anyLong(), any()))
                 .willReturn(userPage);
 
         final ResultActions result = mvc.perform(
@@ -95,7 +95,7 @@ class MemberApiControllerTest extends ControllerTest {
                             .header(HeaderConst.AUTH_TOKEN, TOKEN)
             );
 
-            verify(memberCommandService, times(1)).banMember(anyLong(), anyLong());
+            verify(memberCommand, times(1)).banMember(anyLong(), anyLong());
 
             result
                     .andExpect(status().isOk())
@@ -110,7 +110,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 멤버 ID로 요청한 경우 MemberNotFoundException 발생")
         void notExistMemberFail() throws Exception {
             doThrow(new MemberNotFoundException())
-                    .when(memberCommandService).banMember(anyLong(), anyLong());
+                    .when(memberCommand).banMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/ban", 9999L)
@@ -127,7 +127,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(memberCommandService).banMember(anyLong(), anyLong());
+                    .when(memberCommand).banMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/ban", 1L)
@@ -144,7 +144,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 관리자가 아닌 경우 NotOperatorException 발생")
         void notOperatorFail() throws Exception {
             doThrow(new NotOperatorException())
-                    .when(memberCommandService).banMember(anyLong(), anyLong());
+                    .when(memberCommand).banMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/ban", 1L)
@@ -170,7 +170,7 @@ class MemberApiControllerTest extends ControllerTest {
                             .header(HeaderConst.AUTH_TOKEN, TOKEN)
             );
 
-            verify(memberCommandService, times(1)).releaseMember(anyLong(), anyLong());
+            verify(memberCommand, times(1)).releaseMember(anyLong(), anyLong());
 
             result
                     .andExpect(status().isOk())
@@ -185,7 +185,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 멤버 ID로 요청한 경우 MemberNotFoundException 발생")
         void notExistMemberFail() throws Exception {
             doThrow(new MemberNotFoundException())
-                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+                    .when(memberCommand).releaseMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/release", 9999L)
@@ -202,7 +202,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+                    .when(memberCommand).releaseMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/release", 1L)
@@ -219,7 +219,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 매니저가 아닌 경우 NotManagerException 발생")
         void notManagerFail() throws Exception {
             doThrow(new NotManagerException())
-                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+                    .when(memberCommand).releaseMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/release", 1L)
@@ -236,7 +236,7 @@ class MemberApiControllerTest extends ControllerTest {
         @DisplayName("차단 해제할 멤버가 차단된 멤버가 아닌 경우 NotBannedMemberException 발생")
         void notBannedMemberFail() throws Exception {
             doThrow(new NotBannedMemberException())
-                    .when(memberCommandService).releaseMember(anyLong(), anyLong());
+                    .when(memberCommand).releaseMember(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/release", 1L)
@@ -266,7 +266,7 @@ class MemberApiControllerTest extends ControllerTest {
                             .header(HeaderConst.AUTH_TOKEN, TOKEN)
             );
 
-            verify(memberCommandService, times(1))
+            verify(memberCommand, times(1))
                     .delegateMember(anyLong(), anyLong(), any(MemberType.class));
 
             result
@@ -289,7 +289,7 @@ class MemberApiControllerTest extends ControllerTest {
             final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
 
             doThrow(new MemberNotFoundException())
-                    .when(memberCommandService).delegateMember(anyLong(), anyLong(), any(MemberType.class));
+                    .when(memberCommand).delegateMember(anyLong(), anyLong(), any(MemberType.class));
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/delegate", 9999L)
@@ -310,7 +310,7 @@ class MemberApiControllerTest extends ControllerTest {
             final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
 
             doThrow(new NotJoinedMemberException())
-                    .when(memberCommandService).delegateMember(anyLong(), anyLong(), any(MemberType.class));
+                    .when(memberCommand).delegateMember(anyLong(), anyLong(), any(MemberType.class));
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/delegate", 1L)
@@ -331,7 +331,7 @@ class MemberApiControllerTest extends ControllerTest {
             final DelegateMemberRequest request = new DelegateMemberRequest(MemberType.NORMAL);
 
             doThrow(new NotManagerException())
-                    .when(memberCommandService).delegateMember(anyLong(), anyLong(), any(MemberType.class));
+                    .when(memberCommand).delegateMember(anyLong(), anyLong(), any(MemberType.class));
 
             final ResultActions result = mvc.perform(
                     post("/api/members/{memberId}/delegate", 1L)

@@ -35,7 +35,7 @@ class AlarmApiControllerTest extends ControllerTest {
     void getAlarms() throws Exception {
         final AlarmsDto alarmDto = new AlarmsDto(1L, "제목", "내용", LocalDateTime.now());
         final AlarmsResponse responseDto = new AlarmsResponse(List.of(alarmDto));
-        given(alarmQueryService.getAlarms(any()))
+        given(alarmQuery.getAlarms(any()))
                 .willReturn(responseDto);
 
         final ResultActions response = mvc.perform(
@@ -87,7 +87,7 @@ class AlarmApiControllerTest extends ControllerTest {
         @DisplayName("자신의 알람이 아닌경우 throw CanNotDeleteAlarmException")
         void notSameUser() throws Exception {
             doThrow(new CanNotDeleteAlarmException())
-                    .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
+                    .when(alarmCommand).deleteAlarm(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/alarms/{alarmId}/delete", 1L)
@@ -104,7 +104,7 @@ class AlarmApiControllerTest extends ControllerTest {
         @DisplayName("없는 알람의 ID를 요청했을때 AlarmNotFoundException 발생")
         void notExistAlarm() throws Exception {
             doThrow(new AlarmNotFoundException())
-                    .when(alarmCommandService).deleteAlarm(anyLong(), anyLong());
+                    .when(alarmCommand).deleteAlarm(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/alarms/{alarmId}/delete", 999L)

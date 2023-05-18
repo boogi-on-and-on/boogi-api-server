@@ -43,7 +43,7 @@ class MessageApiControllerTest extends ControllerTest {
             final long NEW_MESSAGE_ID = 2L;
             SendMessageRequest request = new SendMessageRequest(1L, "쪽지");
 
-            given(messageCommandService.sendMessage(any(SendMessageRequest.class), anyLong()))
+            given(messageCommand.sendMessage(any(SendMessageRequest.class), anyLong()))
                     .willReturn(NEW_MESSAGE_ID);
 
             ResultActions result = mvc.perform(
@@ -76,7 +76,7 @@ class MessageApiControllerTest extends ControllerTest {
             SendMessageRequest request = new SendMessageRequest(1L, "쪽지");
 
             doThrow(new UserNotFoundException())
-                    .when(messageCommandService).sendMessage(any(SendMessageRequest.class), anyLong());
+                    .when(messageCommand).sendMessage(any(SendMessageRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/messages/")
@@ -103,7 +103,7 @@ class MessageApiControllerTest extends ControllerTest {
 
         MessageRoomResponse response = new MessageRoomResponse(List.of(messageRoom));
 
-        given(messageQueryService.getMessageRooms(anyLong()))
+        given(messageQuery.getMessageRooms(anyLong()))
                 .willReturn(response);
 
         ResultActions result = mvc.perform(
@@ -152,7 +152,7 @@ class MessageApiControllerTest extends ControllerTest {
 
             MessageResponse response = new MessageResponse(userDto, List.of(messageDto), paginationDto);
 
-            given(messageQueryService.getMessagesByOpponentId(anyLong(), anyLong(), any(Pageable.class)))
+            given(messageQuery.getMessagesByOpponentId(anyLong(), anyLong(), any(Pageable.class)))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -203,7 +203,7 @@ class MessageApiControllerTest extends ControllerTest {
         @DisplayName("메시지 수신 유저가 존재하지 않는 경우 UserNotFoundException 발생")
         void notExistUserFail() throws Exception {
             doThrow(new UserNotFoundException())
-                    .when(messageQueryService).getMessagesByOpponentId(anyLong(), anyLong(), any(Pageable.class));
+                    .when(messageQuery).getMessagesByOpponentId(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/messages/{opponentId}", 9999L)

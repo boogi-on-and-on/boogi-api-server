@@ -68,7 +68,7 @@ class CommunityApiControllerTest extends ControllerTest {
             CreateCommunityRequest request = new CreateCommunityRequest("커뮤니티", "CLUB",
                     "커뮤니티 설명입니다.", List.of("해시태그"), false, true);
 
-            given(communityCommandService.createCommunity(any(), anyLong())).willReturn(NEW_COMMUNITY_ID);
+            given(communityCommand.createCommunity(any(), anyLong())).willReturn(NEW_COMMUNITY_ID);
 
             //when
             ResultActions result = mvc.perform(
@@ -115,7 +115,7 @@ class CommunityApiControllerTest extends ControllerTest {
                     "커뮤니티 설명입니다.", List.of("해시태그"), false, true);
 
             doThrow(new AlreadyExistsCommunityNameException())
-                    .when(communityCommandService).createCommunity(any(), anyLong());
+                    .when(communityCommand).createCommunity(any(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/communities")
@@ -144,7 +144,7 @@ class CommunityApiControllerTest extends ControllerTest {
             final CommunityDetailResponse response =
                     new CommunityDetailResponse(MemberType.MANAGER, communityDto, List.of(noticeDto), List.of(postDto));
 
-            given(communityQueryService.getCommunityDetail(anyLong(), anyLong()))
+            given(communityQuery.getCommunityDetail(anyLong(), anyLong()))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -203,7 +203,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(communityQueryService).getCommunityDetail(anyLong(), anyLong());
+                    .when(communityQuery).getCommunityDetail(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}", 9999L)
@@ -225,7 +225,7 @@ class CommunityApiControllerTest extends ControllerTest {
         void getMetadataSuccess() throws Exception {
             CommunityMetadataDto response = new CommunityMetadataDto("이름", "소개", List.of("해시태그"));
 
-            given(communityQueryService.getCommunityMetadata(anyLong(), anyLong()))
+            given(communityQuery.getCommunityMetadata(anyLong(), anyLong()))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -257,7 +257,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(communityQueryService).getCommunityMetadata(anyLong(), anyLong());
+                    .when(communityQuery).getCommunityMetadata(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/metadata", 9999L)
@@ -274,7 +274,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(communityQueryService).getCommunityMetadata(anyLong(), anyLong());
+                    .when(communityQuery).getCommunityMetadata(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/metadata", 1L)
@@ -291,7 +291,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 매니저가 아닌 경우 NotManagerException 발생")
         void notManagerFail() throws Exception {
             doThrow(new NotManagerException())
-                    .when(communityQueryService).getCommunityMetadata(anyLong(), anyLong());
+                    .when(communityQuery).getCommunityMetadata(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/metadata", 1L)
@@ -346,7 +346,7 @@ class CommunityApiControllerTest extends ControllerTest {
                     new UpdateCommunityRequest("커뮤니티 설명 수정입니다.", List.of("해시태그"));
 
             doThrow(new CommunityNotFoundException())
-                    .when(communityCommandService).updateCommunity(anyLong(), anyLong(), anyString(), anyList());
+                    .when(communityCommand).updateCommunity(anyLong(), anyLong(), anyString(), anyList());
 
             final ResultActions result = mvc.perform(
                     patch("/api/communities/{communityId}", 9999L)
@@ -368,7 +368,7 @@ class CommunityApiControllerTest extends ControllerTest {
                     new UpdateCommunityRequest("커뮤니티 설명 수정입니다.", List.of("해시태그"));
 
             doThrow(new NotJoinedMemberException())
-                    .when(communityCommandService).updateCommunity(anyLong(), anyLong(), anyString(), anyList());
+                    .when(communityCommand).updateCommunity(anyLong(), anyLong(), anyString(), anyList());
 
             final ResultActions result = mvc.perform(
                     patch("/api/communities/{communityId}", 1L)
@@ -390,7 +390,7 @@ class CommunityApiControllerTest extends ControllerTest {
                     new UpdateCommunityRequest("커뮤니티 설명 수정입니다.", List.of("해시태그"));
 
             doThrow(new NotManagerException())
-                    .when(communityCommandService).updateCommunity(anyLong(), anyLong(), anyString(), anyList());
+                    .when(communityCommand).updateCommunity(anyLong(), anyLong(), anyString(), anyList());
 
             final ResultActions result = mvc.perform(
                     patch("/api/communities/{communityId}", 1L)
@@ -431,7 +431,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(communityCommandService).shutdown(anyLong(), anyLong());
+                    .when(communityCommand).shutdown(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     delete("/api/communities/{communityId}", 9999L)
@@ -448,7 +448,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(communityCommandService).shutdown(anyLong(), anyLong());
+                    .when(communityCommand).shutdown(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     delete("/api/communities/{communityId}", 1L)
@@ -465,7 +465,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 매니저가 아닌 경우 NotManagerException 발생")
         void notManagerFail() throws Exception {
             doThrow(new NotManagerException())
-                    .when(communityCommandService).shutdown(anyLong(), anyLong());
+                    .when(communityCommand).shutdown(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     delete("/api/communities/{communityId}", 1L)
@@ -482,7 +482,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 매니저 이외의 멤버가 존재하는 경우 CanNotDeleteCommunityException 발생")
         void notOnlyManagerIncludedFail() throws Exception {
             doThrow(new CanNotDeleteCommunityException())
-                    .when(communityCommandService).shutdown(anyLong(), anyLong());
+                    .when(communityCommand).shutdown(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     delete("/api/communities/{communityId}", 1L)
@@ -509,7 +509,7 @@ class CommunityApiControllerTest extends ControllerTest {
 
             CommunitySettingInfoDto settingInfo = CommunitySettingInfoDto.of(community);
 
-            given(communityQueryService.getSetting(anyLong(), anyLong())).willReturn(settingInfo);
+            given(communityQuery.getSetting(anyLong(), anyLong())).willReturn(settingInfo);
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/settings", 1L)
@@ -539,7 +539,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(communityQueryService).getSetting(anyLong(), anyLong());
+                    .when(communityQuery).getSetting(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/settings", 9999L)
@@ -557,7 +557,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(communityQueryService).getSetting(anyLong(), anyLong());
+                    .when(communityQuery).getSetting(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/settings", 1L)
@@ -575,7 +575,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 매니저가 아닌 경우 NotManagerException 발생")
         void notManagerFail() throws Exception {
             doThrow(new NotManagerException())
-                    .when(communityQueryService).getSetting(anyLong(), anyLong());
+                    .when(communityQuery).getSetting(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/settings", 1L)
@@ -627,7 +627,7 @@ class CommunityApiControllerTest extends ControllerTest {
             final CommunitySettingRequest request = new CommunitySettingRequest(true, true);
 
             doThrow(new CommunityNotFoundException())
-                    .when(communityCommandService).changeSetting(anyLong(), anyLong(), any(CommunitySettingRequest.class));
+                    .when(communityCommand).changeSetting(anyLong(), anyLong(), any(CommunitySettingRequest.class));
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/settings", 9999L)
@@ -648,7 +648,7 @@ class CommunityApiControllerTest extends ControllerTest {
             final CommunitySettingRequest request = new CommunitySettingRequest(true, true);
 
             doThrow(new NotJoinedMemberException())
-                    .when(communityCommandService).changeSetting(anyLong(), anyLong(), any(CommunitySettingRequest.class));
+                    .when(communityCommand).changeSetting(anyLong(), anyLong(), any(CommunitySettingRequest.class));
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/settings", 1L)
@@ -669,7 +669,7 @@ class CommunityApiControllerTest extends ControllerTest {
             final CommunitySettingRequest request = new CommunitySettingRequest(true, true);
 
             doThrow(new NotManagerException())
-                    .when(communityCommandService).changeSetting(anyLong(), anyLong(), any(CommunitySettingRequest.class));
+                    .when(communityCommand).changeSetting(anyLong(), anyLong(), any(CommunitySettingRequest.class));
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/settings", 1L)
@@ -703,7 +703,7 @@ class CommunityApiControllerTest extends ControllerTest {
             CommunityPostsResponse response = new CommunityPostsResponse("커뮤니티 이름", postDtos,
                     new PaginationDto(1, false), MemberType.NORMAL);
 
-            given(postQueryService.getPostsOfCommunity(any(), anyLong(), anyLong()))
+            given(postQuery.getPostsOfCommunity(any(), anyLong(), anyLong()))
                     .willReturn(response);
 
             final ResultActions result = mvc.perform(
@@ -780,7 +780,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(postQueryService).getPostsOfCommunity(any(Pageable.class), anyLong(), anyLong());
+                    .when(postQuery).getPostsOfCommunity(any(Pageable.class), anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/posts", 9999L)
@@ -800,7 +800,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 비가입으로 요청한 경우 NotViewableMemberException 발생")
         void notViewableMemberFail() throws Exception {
             doThrow(new NotViewableMemberException())
-                    .when(postQueryService).getPostsOfCommunity(any(Pageable.class), anyLong(), anyLong());
+                    .when(postQuery).getPostsOfCommunity(any(Pageable.class), anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/posts", 1L)
@@ -831,7 +831,7 @@ class CommunityApiControllerTest extends ControllerTest {
             final JoinedMembersPageResponse response = new JoinedMembersPageResponse(List.of(memberDto),
                     new PaginationDto(1, false));
 
-            given(memberQueryService.getCommunityJoinedMembers(any(), anyLong()))
+            given(memberQuery.getCommunityJoinedMembers(any(), anyLong()))
                     .willReturn(response);
 
             final ResultActions result = mvc.perform(
@@ -885,7 +885,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(memberQueryService).getCommunityJoinedMembers(any(Pageable.class), anyLong());
+                    .when(memberQuery).getCommunityJoinedMembers(any(Pageable.class), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/members", 9999L)
@@ -908,7 +908,7 @@ class CommunityApiControllerTest extends ControllerTest {
             UserBasicProfileDto userDto = new UserBasicProfileDto(2L, "url", "#0001", "홍길동");
             BannedMemberDto memberDto = new BannedMemberDto(1L, userDto);
 
-            given(memberQueryService.getBannedMembers(anyLong(), anyLong()))
+            given(memberQuery.getBannedMembers(anyLong(), anyLong()))
                     .willReturn(List.of(memberDto));
 
             final ResultActions result = mvc.perform(
@@ -946,7 +946,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(memberQueryService).getBannedMembers(anyLong(), anyLong());
+                    .when(memberQuery).getBannedMembers(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/members/banned", 9999L)
@@ -963,7 +963,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(memberQueryService).getBannedMembers(anyLong(), anyLong());
+                    .when(memberQuery).getBannedMembers(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/members/banned", 1L)
@@ -980,7 +980,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 관리자가 아닌 경우 NotOperatorException 발생")
         void notOperatorFail() throws Exception {
             doThrow(new NotOperatorException())
-                    .when(memberQueryService).getBannedMembers(anyLong(), anyLong());
+                    .when(memberQuery).getBannedMembers(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/members/banned", 1L)
@@ -1003,7 +1003,7 @@ class CommunityApiControllerTest extends ControllerTest {
             UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#0001", "유저");
             UserJoinRequestInfoDto joinRequestDto = new UserJoinRequestInfoDto(userDto, 1L);
 
-            given(joinRequestQueryService.getAllPendingRequests(anyLong(), anyLong()))
+            given(joinRequestQuery.getAllPendingRequests(anyLong(), anyLong()))
                     .willReturn(List.of(joinRequestDto));
 
             final ResultActions result = mvc.perform(
@@ -1042,7 +1042,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(joinRequestQueryService).getAllPendingRequests(anyLong(), anyLong());
+                    .when(joinRequestQuery).getAllPendingRequests(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/requests", 9999L)
@@ -1060,7 +1060,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(joinRequestQueryService).getAllPendingRequests(anyLong(), anyLong());
+                    .when(joinRequestQuery).getAllPendingRequests(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/requests", 1L)
@@ -1078,7 +1078,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 관리자가 아닌 경우 NotOperatorException 발생")
         void notOperatorFail() throws Exception {
             doThrow(new NotOperatorException())
-                    .when(joinRequestQueryService).getAllPendingRequests(anyLong(), anyLong());
+                    .when(joinRequestQuery).getAllPendingRequests(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/requests", 1L)
@@ -1100,7 +1100,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("가입 요청시 성공한다.")
         void joinRequestSuccess() throws Exception {
             final long APPLIED_JOIN_REQUEST_ID = 1L;
-            given(joinRequestCommandService.request(anyLong(), anyLong()))
+            given(joinRequestCommand.request(anyLong(), anyLong()))
                     .willReturn(APPLIED_JOIN_REQUEST_ID);
 
             final ResultActions result = mvc.perform(
@@ -1127,7 +1127,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(joinRequestCommandService).request(anyLong(), anyLong());
+                    .when(joinRequestCommand).request(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests", 9999L)
@@ -1145,7 +1145,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("이미 가입된 상태인 경우 AlreadyJoinedMemberException 발생")
         void alreadyJoinedFail() throws Exception {
             doThrow(new AlreadyJoinedMemberException())
-                    .when(joinRequestCommandService).request(anyLong(), anyLong());
+                    .when(joinRequestCommand).request(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests", 1L)
@@ -1163,7 +1163,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("이미 가입 요청을 했고, 해당 가입 요청의 상태가 대기중 경우 AlreadyRequestedException 발생")
         void joinRequestStatusFail() throws Exception {
             doThrow(new AlreadyRequestedException())
-                    .when(joinRequestCommandService).request(anyLong(), anyLong());
+                    .when(joinRequestCommand).request(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests", 1L)
@@ -1218,7 +1218,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new CommunityNotFoundException())
-                    .when(joinRequestCommandService).confirmUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).confirmUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/confirm", 9999L)
@@ -1239,7 +1239,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new NotJoinedMemberException())
-                    .when(joinRequestCommandService).confirmUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).confirmUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/confirm", 1L)
@@ -1260,7 +1260,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new NotOperatorException())
-                    .when(joinRequestCommandService).confirmUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).confirmUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/confirm", 1L)
@@ -1281,7 +1281,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new UnmatchedJoinRequestCommunityException())
-                    .when(joinRequestCommandService).confirmUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).confirmUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/confirm", 1L)
@@ -1302,7 +1302,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new AlreadyJoinedMemberException())
-                    .when(joinRequestCommandService).confirmUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).confirmUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/confirm", 1L)
@@ -1358,7 +1358,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new CommunityNotFoundException())
-                    .when(joinRequestCommandService).rejectUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).rejectUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/reject", 9999L)
@@ -1379,7 +1379,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new NotJoinedMemberException())
-                    .when(joinRequestCommandService).rejectUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).rejectUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/reject", 1L)
@@ -1400,7 +1400,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new NotOperatorException())
-                    .when(joinRequestCommandService).rejectUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).rejectUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/reject", 1L)
@@ -1421,7 +1421,7 @@ class CommunityApiControllerTest extends ControllerTest {
             JoinRequestIdsRequest request = new JoinRequestIdsRequest(List.of(1L));
 
             doThrow(new UnmatchedJoinRequestCommunityException())
-                    .when(joinRequestCommandService).rejectUsers(anyLong(), anyList(), anyLong());
+                    .when(joinRequestCommand).rejectUsers(anyLong(), anyList(), anyLong());
 
             final ResultActions result = mvc.perform(
                     post("/api/communities/{communityId}/requests/reject", 1L)
@@ -1445,7 +1445,7 @@ class CommunityApiControllerTest extends ControllerTest {
 
         Slice<SearchCommunityDto> communityPage = PageableUtil.getSlice(List.of(communityDto), PageRequest.of(0, 1));
 
-        given(communityQueryService.getSearchedCommunities(any(), any()))
+        given(communityQuery.getSearchedCommunities(any(), any()))
                 .willReturn(communityPage);
 
         final ResultActions result = mvc.perform(
@@ -1515,7 +1515,7 @@ class CommunityApiControllerTest extends ControllerTest {
             UserBasicProfileDto userDto = new UserBasicProfileDto(1L, "url", "#0001", "유저");
             MemberDto memberDto = new MemberDto(1L, MemberType.MANAGER, userDto);
 
-            given(memberQueryService.getJoinedMembersAll(anyLong(), anyLong()))
+            given(memberQuery.getJoinedMembersAll(anyLong(), anyLong()))
                     .willReturn(List.of(memberDto));
 
             final ResultActions result = mvc.perform(
@@ -1556,7 +1556,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 커뮤니티 ID로 요청한 경우 CommunityNotFoundException 발생")
         void notExistCommunityFail() throws Exception {
             doThrow(new CommunityNotFoundException())
-                    .when(memberQueryService).getJoinedMembersAll(anyLong(), anyLong());
+                    .when(memberQuery).getJoinedMembersAll(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/members/all", 9999L)
@@ -1574,7 +1574,7 @@ class CommunityApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티에 가입되지 않는 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(memberQueryService).getJoinedMembersAll(anyLong(), anyLong());
+                    .when(memberQuery).getJoinedMembersAll(anyLong(), anyLong());
 
             final ResultActions result = mvc.perform(
                     get("/api/communities/{communityId}/members/all", 1L)

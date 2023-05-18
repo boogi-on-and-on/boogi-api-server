@@ -52,7 +52,7 @@ class CommentApiControllerTest extends ControllerTest {
             final PaginationDto pageInfo = new PaginationDto(1, false);
             final UserCommentPageResponse response = new UserCommentPageResponse(List.of(commentDto), pageInfo);
 
-            given(commentQueryService.getUserComments(anyLong(), anyLong(), any(Pageable.class)))
+            given(commentQuery.getUserComments(anyLong(), anyLong(), any(Pageable.class)))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -91,7 +91,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 유저로 조회시 UserNotFoundException 발생")
         void notExistUserFail() throws Exception {
             doThrow(new UserNotFoundException())
-                    .when(commentQueryService).getUserComments(anyLong(), anyLong(), any(Pageable.class));
+                    .when(commentQuery).getUserComments(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/comments/users")
@@ -119,7 +119,7 @@ class CommentApiControllerTest extends ControllerTest {
 
             CreateCommentRequest request = new CreateCommentRequest(2L, null, "댓글", List.of());
 
-            given(commentCommandService.createComment(any(CreateCommentRequest.class), anyLong()))
+            given(commentCommand.createComment(any(CreateCommentRequest.class), anyLong()))
                     .willReturn(NEW_COMMENT_ID);
 
             ResultActions result = mvc.perform(
@@ -157,7 +157,7 @@ class CommentApiControllerTest extends ControllerTest {
                     new CreateCommentRequest(9999L, null, "댓글", List.of());
 
             doThrow(new PostNotFoundException())
-                    .when(commentCommandService).createComment(any(CreateCommentRequest.class), anyLong());
+                    .when(commentCommand).createComment(any(CreateCommentRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/")
@@ -179,7 +179,7 @@ class CommentApiControllerTest extends ControllerTest {
                     new CreateCommentRequest(1L, null, "댓글", List.of());
 
             doThrow(new NotJoinedMemberException())
-                    .when(commentCommandService).createComment(any(CreateCommentRequest.class), anyLong());
+                    .when(commentCommand).createComment(any(CreateCommentRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/")
@@ -201,7 +201,7 @@ class CommentApiControllerTest extends ControllerTest {
                     new CreateCommentRequest(1L, 9999L, "댓글", List.of());
 
             doThrow(new ParentCommentNotFoundException())
-                    .when(commentCommandService).createComment(any(CreateCommentRequest.class), anyLong());
+                    .when(commentCommand).createComment(any(CreateCommentRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/")
@@ -223,7 +223,7 @@ class CommentApiControllerTest extends ControllerTest {
                     new CreateCommentRequest(1L, 1L, "댓글", List.of());
 
             doThrow(new CommentMaxDepthOverException())
-                    .when(commentCommandService).createComment(any(CreateCommentRequest.class), anyLong());
+                    .when(commentCommand).createComment(any(CreateCommentRequest.class), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/")
@@ -247,7 +247,7 @@ class CommentApiControllerTest extends ControllerTest {
         void doCommentLikeSuccess() throws Exception {
             final long NEW_LIKE_ID = 2L;
 
-            given(likeCommandService.doCommentLike(anyLong(), anyLong()))
+            given(likeCommand.doCommentLike(anyLong(), anyLong()))
                     .willReturn(NEW_LIKE_ID);
 
             ResultActions result = mvc.perform(
@@ -274,7 +274,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 댓글 ID로 요청한 경우 CommentNotFoundException 발생")
         void notExistCommentFail() throws Exception {
             doThrow(new CommentNotFoundException())
-                    .when(likeCommandService).doCommentLike(anyLong(), anyLong());
+                    .when(likeCommand).doCommentLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/{commentId}/likes", 9999L)
@@ -292,7 +292,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("해당 커뮤니티의 멤버가 아닌 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(likeCommandService).doCommentLike(anyLong(), anyLong());
+                    .when(likeCommand).doCommentLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/{commentId}/likes", 1L)
@@ -310,7 +310,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("이미 해당 댓글에 좋아요를 한 경우 AlreadyDoCommentLikeException 발생")
         void alreadyDoLikeFail() throws Exception {
             doThrow(new AlreadyDoCommentLikeException())
-                    .when(likeCommandService).doCommentLike(anyLong(), anyLong());
+                    .when(likeCommand).doCommentLike(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     post("/api/comments/{commentId}/likes", 1L)
@@ -338,7 +338,7 @@ class CommentApiControllerTest extends ControllerTest {
                             .header(HeaderConst.AUTH_TOKEN, TOKEN)
             );
 
-            verify(commentCommandService, times(1)).deleteComment(anyLong(), anyLong());
+            verify(commentCommand, times(1)).deleteComment(anyLong(), anyLong());
 
             result
                     .andExpect(status().isOk())
@@ -351,7 +351,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 댓글 ID로 요청할 경우 CommentNotFoundException 발생")
         void notExistCommentFail() throws Exception {
             doThrow(new CommentNotFoundException())
-                    .when(commentCommandService).deleteComment(anyLong(), anyLong());
+                    .when(commentCommand).deleteComment(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/comments/{commentId}", 9999L)
@@ -369,7 +369,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("댓글이 달린 커뮤니티의 멤버가 아닌 경우 NotJoinedMemberException 발생")
         void notMemberFail() throws Exception {
             doThrow(new NotJoinedMemberException())
-                    .when(commentCommandService).deleteComment(anyLong(), anyLong());
+                    .when(commentCommand).deleteComment(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/comments/{commentId}", 1L)
@@ -387,7 +387,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("작성자 본인이거나 해당 커뮤니티의 관리자가 아닐 경우 CanNotDeleteCommentException 발생")
         void canNotDeletableMemberFail() throws Exception {
             doThrow(new CanNotDeleteCommentException())
-                    .when(commentCommandService).deleteComment(anyLong(), anyLong());
+                    .when(commentCommand).deleteComment(anyLong(), anyLong());
 
             ResultActions result = mvc.perform(
                     delete("/api/comments/{commentId}", 1L)
@@ -418,7 +418,7 @@ class CommentApiControllerTest extends ControllerTest {
 
             LikeMembersAtCommentResponse response =
                     new LikeMembersAtCommentResponse(List.of(userDto), paginationDto);
-            given(likeQueryService.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
+            given(likeQuery.getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class)))
                     .willReturn(response);
 
             ResultActions result = mvc.perform(
@@ -465,7 +465,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("존재하지 않는 댓글 ID로 요청한 경우 CommentNotFoundException 발생")
         void notExistCommentFail() throws Exception {
             doThrow(new CommentNotFoundException())
-                    .when(likeQueryService).getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class));
+                    .when(likeQuery).getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/comments/{commentId}/likes", 9999L)
@@ -485,7 +485,7 @@ class CommentApiControllerTest extends ControllerTest {
         @DisplayName("비공개 커뮤니티에 비가입 멤버로 요청할시 NotViewableMemberException 발생")
         void notViewableMemberFail() throws Exception {
             doThrow(new NotViewableMemberException())
-                    .when(likeQueryService).getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class));
+                    .when(likeQuery).getLikeMembersAtComment(anyLong(), anyLong(), any(Pageable.class));
 
             ResultActions result = mvc.perform(
                     get("/api/comments/{commentId}/likes", 1L)

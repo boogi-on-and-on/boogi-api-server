@@ -1,8 +1,8 @@
 package boogi.apiserver.domain.member.controller;
 
 import boogi.apiserver.domain.community.community.dto.request.DelegateMemberRequest;
-import boogi.apiserver.domain.member.application.MemberCommandService;
-import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberCommand;
+import boogi.apiserver.domain.member.application.MemberQuery;
 import boogi.apiserver.domain.member.dto.response.SearchMentionUsersResponse;
 import boogi.apiserver.domain.user.dto.dto.UserBasicProfileDto;
 import boogi.apiserver.global.argument_resolver.session.Session;
@@ -19,32 +19,32 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/members")
 public class MemberApiController {
 
-    private final MemberCommandService memberCommandService;
+    private final MemberCommand memberCommand;
 
-    private final MemberQueryService memberQueryService;
+    private final MemberQuery memberQuery;
 
     @GetMapping("/search/mention")
     public SearchMentionUsersResponse getMentionSearchMember(Pageable pageable,
                                                              @RequestParam Long communityId,
                                                              @RequestParam(required = false) String name) {
-        Slice<UserBasicProfileDto> slice = memberQueryService.getMentionSearchMembers(pageable, communityId, name);
+        Slice<UserBasicProfileDto> slice = memberQuery.getMentionSearchMembers(pageable, communityId, name);
         return SearchMentionUsersResponse.from(slice);
     }
 
     @PostMapping("/{memberId}/ban")
     public void banMember(@Session Long userId, @PathVariable Long memberId) {
-        memberCommandService.banMember(userId, memberId);
+        memberCommand.banMember(userId, memberId);
     }
 
     @PostMapping("/{memberId}/release")
     public void releaseBannedMember(@Session Long userId, @PathVariable Long memberId) {
-        memberCommandService.releaseMember(userId, memberId);
+        memberCommand.releaseMember(userId, memberId);
     }
 
     @PostMapping("/{memberId}/delegate")
     public void delegateMember(@Session Long userId,
                                @PathVariable Long memberId,
                                @Validated @RequestBody DelegateMemberRequest request) {
-        memberCommandService.delegateMember(userId, memberId, request.getType());
+        memberCommand.delegateMember(userId, memberId, request.getType());
     }
 }

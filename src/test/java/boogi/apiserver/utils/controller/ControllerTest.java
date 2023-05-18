@@ -1,38 +1,38 @@
 package boogi.apiserver.utils.controller;
 
-import boogi.apiserver.domain.alarm.alarm.application.AlarmCommandService;
-import boogi.apiserver.domain.alarm.alarm.application.AlarmQueryService;
+import boogi.apiserver.domain.alarm.alarm.application.AlarmCommand;
+import boogi.apiserver.domain.alarm.alarm.application.AlarmQuery;
 import boogi.apiserver.domain.alarm.alarm.controller.AlarmApiController;
-import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommandService;
-import boogi.apiserver.domain.comment.application.CommentCommandService;
-import boogi.apiserver.domain.comment.application.CommentQueryService;
+import boogi.apiserver.domain.alarm.alarmconfig.application.AlarmConfigCommand;
+import boogi.apiserver.domain.comment.application.CommentCommand;
+import boogi.apiserver.domain.comment.application.CommentQuery;
 import boogi.apiserver.domain.comment.controller.CommentApiController;
-import boogi.apiserver.domain.community.community.application.CommunityCommandService;
-import boogi.apiserver.domain.community.community.application.CommunityQueryService;
+import boogi.apiserver.domain.community.community.application.CommunityCommand;
+import boogi.apiserver.domain.community.community.application.CommunityQuery;
 import boogi.apiserver.domain.community.community.controller.CommunityApiController;
 import boogi.apiserver.domain.community.community.repository.CommunityRepository;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommandService;
-import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQueryService;
-import boogi.apiserver.domain.like.application.LikeCommandService;
-import boogi.apiserver.domain.like.application.LikeQueryService;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestCommand;
+import boogi.apiserver.domain.community.joinrequest.application.JoinRequestQuery;
+import boogi.apiserver.domain.like.application.LikeCommand;
+import boogi.apiserver.domain.like.application.LikeQuery;
 import boogi.apiserver.domain.like.controller.LikeApiController;
-import boogi.apiserver.domain.member.application.MemberCommandService;
-import boogi.apiserver.domain.member.application.MemberQueryService;
+import boogi.apiserver.domain.member.application.MemberCommand;
+import boogi.apiserver.domain.member.application.MemberQuery;
 import boogi.apiserver.domain.member.controller.MemberApiController;
-import boogi.apiserver.domain.message.block.application.MessageBlockCommandService;
-import boogi.apiserver.domain.message.block.application.MessageBlockQueryService;
-import boogi.apiserver.domain.message.message.application.MessageCommandService;
-import boogi.apiserver.domain.message.message.application.MessageQueryService;
+import boogi.apiserver.domain.message.block.application.MessageBlockCommand;
+import boogi.apiserver.domain.message.block.application.MessageBlockQuery;
+import boogi.apiserver.domain.message.message.application.MessageCommand;
+import boogi.apiserver.domain.message.message.application.MessageQuery;
 import boogi.apiserver.domain.message.message.controller.MessageApiController;
-import boogi.apiserver.domain.notice.application.NoticeCommandService;
-import boogi.apiserver.domain.notice.application.NoticeQueryService;
+import boogi.apiserver.domain.notice.application.NoticeCommand;
+import boogi.apiserver.domain.notice.application.NoticeQuery;
 import boogi.apiserver.domain.notice.controller.NoticeApiController;
-import boogi.apiserver.domain.post.post.application.PostCommandService;
-import boogi.apiserver.domain.post.post.application.PostQueryService;
+import boogi.apiserver.domain.post.post.application.PostCommand;
+import boogi.apiserver.domain.post.post.application.PostQuery;
 import boogi.apiserver.domain.post.post.controller.PostApiController;
-import boogi.apiserver.domain.report.application.ReportCommandService;
+import boogi.apiserver.domain.report.application.ReportCommand;
 import boogi.apiserver.domain.report.controller.ReportApiController;
-import boogi.apiserver.domain.user.application.UserQueryService;
+import boogi.apiserver.domain.user.application.UserQuery;
 import boogi.apiserver.domain.user.controller.UserApiController;
 import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.global.webclient.push.SendPushNotification;
@@ -73,73 +73,73 @@ public class ControllerTest {
     protected UserRepository userRepository;
 
     @MockBean
-    protected AlarmCommandService alarmCommandService;
+    protected AlarmCommand alarmCommand;
 
     @MockBean
-    protected AlarmQueryService alarmQueryService;
+    protected AlarmQuery alarmQuery;
 
     @MockBean
-    protected AlarmConfigCommandService alarmConfigCommandService;
+    protected AlarmConfigCommand alarmConfigCommand;
 
     @MockBean
-    protected CommentCommandService commentCommandService;
+    protected CommentCommand commentCommand;
 
     @MockBean
-    protected CommentQueryService commentQueryService;
+    protected CommentQuery commentQuery;
 
     @MockBean
-    protected LikeCommandService likeCommandService;
+    protected LikeCommand likeCommand;
 
     @MockBean
-    protected LikeQueryService likeQueryService;
+    protected LikeQuery likeQuery;
 
     @MockBean
-    protected ReportCommandService reportCommandService;
+    protected ReportCommand reportCommand;
 
     @MockBean
-    protected JoinRequestCommandService joinRequestCommandService;
+    protected JoinRequestCommand joinRequestCommand;
 
     @MockBean
-    protected JoinRequestQueryService joinRequestQueryService;
+    protected JoinRequestQuery joinRequestQuery;
 
     @MockBean
-    protected CommunityCommandService communityCommandService;
+    protected CommunityCommand communityCommand;
 
     @MockBean
-    protected CommunityQueryService communityQueryService;
+    protected CommunityQuery communityQuery;
 
     @MockBean
-    protected MemberCommandService memberCommandService;
+    protected MemberCommand memberCommand;
 
     @MockBean
-    protected MemberQueryService memberQueryService;
+    protected MemberQuery memberQuery;
 
     @MockBean
-    protected NoticeCommandService noticeCommandService;
+    protected NoticeCommand noticeCommand;
 
     @MockBean
-    protected NoticeQueryService noticeQueryService;
+    protected NoticeQuery noticeQuery;
 
     @MockBean
-    protected PostCommandService postCommandService;
+    protected PostCommand postCommand;
 
     @MockBean
-    protected PostQueryService postQueryService;
+    protected PostQuery postQuery;
 
     @MockBean
-    protected MessageCommandService messageCommandService;
+    protected MessageCommand messageCommand;
 
     @MockBean
-    protected MessageQueryService messageQueryService;
+    protected MessageQuery messageQuery;
 
     @MockBean
-    protected MessageBlockCommandService messageBlockCommandService;
+    protected MessageBlockCommand messageBlockCommand;
 
     @MockBean
-    protected MessageBlockQueryService messageBlockQueryService;
+    protected MessageBlockQuery messageBlockQuery;
 
     @MockBean
-    protected UserQueryService userQueryService;
+    protected UserQuery userQuery;
 
     @MockBean
     protected SendPushNotification sendPushNotification;
