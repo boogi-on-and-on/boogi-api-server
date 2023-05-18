@@ -1,19 +1,18 @@
 package boogi.apiserver.domain.comment.application;
 
-import boogi.apiserver.builder.*;
-import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.request.CreateCommentRequest;
 import boogi.apiserver.domain.comment.exception.CanNotDeleteCommentException;
 import boogi.apiserver.domain.comment.exception.CommentMaxDepthOverException;
+import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.like.application.LikeCommandService;
 import boogi.apiserver.domain.member.application.MemberQueryService;
 import boogi.apiserver.domain.member.domain.Member;
-import boogi.apiserver.domain.member.domain.MemberType;
-import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,6 +26,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static boogi.apiserver.utils.fixture.CommentFixture.COMMENT1;
+import static boogi.apiserver.utils.fixture.CommentFixture.COMMENT3;
+import static boogi.apiserver.utils.fixture.CommunityFixture.POCS;
+import static boogi.apiserver.utils.fixture.MemberFixture.*;
+import static boogi.apiserver.utils.fixture.PostFixture.POST1;
+import static boogi.apiserver.utils.fixture.UserFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
@@ -50,6 +55,19 @@ class CommentCommandServiceTest {
     @Mock
     LikeCommandService likeCommandService;
 
+    private User user;
+    private Community community;
+    private Member member;
+    private Post post;
+
+    @BeforeEach
+    void init() {
+        user = SUNDO.toUser(1L);
+        community = POCS.toCommunity(2L, List.of());
+        member = SUNDO_POCS.toMember(3L, user, community);
+        post = POST1.toPost(4L, member, community, List.of(), List.of());
+    }
+
     @Nested
     @DisplayName("댓글 생성시")
     class CreateCommentRequestTest {
@@ -60,19 +78,8 @@ class CommentCommandServiceTest {
         @Test
         @DisplayName("parentCommentId를 null로 주면 부모 댓글이 생성된다.")
         void createParentCommentSuccess() {
-            final Community community = TestCommunity.builder().id(1L).build();
-
-            final Member member = TestMember.builder().build();
-
-            final Post post = TestPost.builder()
-                    .id(2L)
-                    .community(community)
-                    .build();
-
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(post);
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(member);
+            given(postRepository.findPostById(anyLong())).willReturn(post);
+            given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(member);
 
             CreateCommentRequest request =
                     new CreateCommentRequest(2L, null, "hello", List.of());
@@ -82,42 +89,20 @@ class CommentCommandServiceTest {
             verify(commentRepository, times(1)).save(commentCaptor.capture());
 
             Comment newComment = commentCaptor.getValue();
-
             assertThat(newComment.getContent()).isEqualTo("hello");
             assertThat(newComment.getParent()).isNull();
             assertThat(newComment.getChild()).isFalse();
-            assertThat(post.getCommentCount()).isEqualTo(1);
+            assertThat(post.getCommentCount()).isEqualTo(2);
         }
 
         @Test
         @DisplayName("ParentCommentId에 부모 댓글의 Id값을 주면 자식 댓글이 생성된다.")
         void createChildCommentSuccess() {
-            final Community community = TestCommunity.builder().id(1L).build();
+            Comment parentComment = COMMENT1.toComment(4L, post, member, null);
 
-            final Post post = TestPost.builder()
-                    .id(2L)
-                    .community(community)
-                    .commentCount(1)
-                    .build();
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(post);
-
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .community(community)
-                    .build();
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(member);
-
-            final Comment parentComment = TestComment.builder()
-                    .id(4L)
-                    .member(member)
-                    .post(post)
-                    .parent(null)
-                    .content("부모댓글")
-                    .build();
-            given(commentRepository.findById(anyLong()))
-                    .willReturn(Optional.of(parentComment));
+            given(postRepository.findPostById(anyLong())).willReturn(post);
+            given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(member);
+            given(commentRepository.findById(anyLong())).willReturn(Optional.of(parentComment));
 
             CreateCommentRequest request =
                     new CreateCommentRequest(2L, 4L, "자식댓글", List.of());
@@ -137,38 +122,11 @@ class CommentCommandServiceTest {
         @Test
         @DisplayName("대대댓글 이상인 경우 CommentMaxDepthOverException 발생")
         void commentDepthOverFail() {
-            final Community community = TestCommunity.builder().id(1L).build();
-
-            final Post post = TestPost.builder()
-                    .id(2L)
-                    .community(community)
-                    .commentCount(2)
-                    .build();
-
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .community(community)
-                    .build();
-
-            final Comment firstDepthComment = TestComment.builder()
-                    .id(4L)
-                    .member(member)
-                    .post(post)
-                    .parent(null)
-                    .content("댓글")
-                    .build();
-
-            final Comment secondDepthComment = TestComment.builder()
-                    .id(5L)
-                    .member(member)
-                    .post(post)
-                    .parent(firstDepthComment)
-                    .content("대댓글")
-                    .build();
+            Comment firstDepthComment = COMMENT1.toComment(4L, post, member, null);
+            Comment secondDepthComment = COMMENT3.toComment(5L, post, member, firstDepthComment);
 
             given(postRepository.findPostById(anyLong())).willReturn(post);
             given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(member);
-
             given(commentRepository.findById(anyLong())).willReturn(Optional.of(secondDepthComment));
 
             CreateCommentRequest request =
@@ -186,117 +144,52 @@ class CommentCommandServiceTest {
         @Test
         @DisplayName("작성자 본인이 요청할때 댓글과 모든 좋아요를 삭제한다.")
         void commentorDeleteCommentSuccess() {
-            final User user = TestUser.builder().id(1L).build();
+            Comment comment = COMMENT1.toComment(5L, post, member, null);
 
-            final Community community = TestCommunity.builder().id(2L).build();
-
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
-
-            final Post post = TestPost.builder()
-                    .id(4L)
-                    .commentCount(1)
-                    .build();
-
-            final Comment comment = TestComment.builder()
-                    .id(5L)
-                    .member(member)
-                    .post(post)
-                    .content("댓글")
-                    .build();
-            given(commentRepository.findCommentById(anyLong()))
-                    .willReturn(comment);
+            given(commentRepository.findCommentById(anyLong())).willReturn(comment);
 
             commentCommandService.deleteComment(comment.getId(), user.getId());
 
+            verify(likeCommandService, times(1)).removeAllCommentLikes(comment.getId());
+
             assertThat(comment.getDeletedAt()).isNotNull();
             assertThat(comment.getPost().getCommentCount()).isZero();
-
-            verify(likeCommandService, times(1)).removeAllCommentLikes(comment.getId());
         }
 
         @Test
         @DisplayName("해당 커뮤니티 (부)관리자가 요청할때 댓글과 모든 좋아요를 삭제한다.")
         void managerDeleteCommentSuccess() {
-            final User user1 = TestUser.builder().id(1L).build();
-            final User user2 = TestUser.builder().id(2L).build();
+            User user2 = YONGJIN.toUser(2L);
 
-            final Community community = TestCommunity.builder().id(3L).build();
+            Member member = YONGJIN_POCS.toMember(4L, user2, community);
+            Member manager = SUNDO_POCS.toMember(5L, user, community);
 
-            final Member member1 = TestMember.builder()
-                    .id(4L)
-                    .user(user1)
-                    .community(community)
-                    .build();
-            final Member manager = TestMember.builder()
-                    .id(5L)
-                    .community(community)
-                    .memberType(MemberType.MANAGER)
-                    .build();
+            Post post = POST1.toPost(6L, member, community, List.of(), List.of());
 
-            final Post post = TestPost.builder()
-                    .id(6L)
-                    .community(community)
-                    .commentCount(1)
-                    .build();
+            Comment comment = COMMENT1.toComment(7L, post, member, null);
 
-            final Comment comment = TestComment.builder()
-                    .id(7L)
-                    .member(member1)
-                    .post(post)
-                    .content("댓글")
-                    .build();
-            given(commentRepository.findCommentById(anyLong()))
-                    .willReturn(comment);
+            given(commentRepository.findCommentById(anyLong())).willReturn(comment);
+            given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(manager);
 
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(manager);
+            commentCommandService.deleteComment(comment.getId(), user.getId());
 
-            commentCommandService.deleteComment(comment.getId(), user2.getId());
+            verify(likeCommandService, times(1)).removeAllCommentLikes(7L);
 
             assertThat(comment.getDeletedAt()).isNotNull();
             assertThat(comment.getPost().getCommentCount()).isZero();
-
-            verify(likeCommandService, times(1)).removeAllCommentLikes(7L);
         }
 
         @Test
         @DisplayName("권한이 없는 멤버가 삭제요청시 CanNotDeleteCommentException 발생")
         void canNotDeleteCommentFail() {
-            final User user = TestUser.builder().id(1L).build();
+            User user2 = DEOKHWAN.toUser(2L);
 
-            final Community community = TestCommunity.builder().id(2L).build();
+            Member normalMember = DEOKHWAN_POCS.toMember(4L, user2, community);
 
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
-            final Member normalMember = TestMember.builder()
-                    .id(4L)
-                    .memberType(MemberType.NORMAL)
-                    .build();
+            Comment comment = COMMENT1.toComment(5L, post, member, null);
 
-            final Post post = TestPost.builder()
-                    .id(4L)
-                    .community(community)
-                    .commentCount(1)
-                    .build();
-
-            final Comment comment = TestComment.builder()
-                    .id(5L)
-                    .member(member)
-                    .post(post)
-                    .content("댓글")
-                    .build();
-            given(commentRepository.findCommentById(anyLong()))
-                    .willReturn(comment);
-
-            given(memberQueryService.getMember(anyLong(), anyLong()))
-                    .willReturn(normalMember);
+            given(commentRepository.findCommentById(anyLong())).willReturn(comment);
+            given(memberQueryService.getMember(anyLong(), anyLong())).willReturn(normalMember);
 
             assertThatThrownBy(() -> commentCommandService.deleteComment(comment.getId(), 2L))
                     .isInstanceOf(CanNotDeleteCommentException.class);

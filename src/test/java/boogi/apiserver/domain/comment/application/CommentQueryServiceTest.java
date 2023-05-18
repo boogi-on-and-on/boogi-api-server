@@ -1,24 +1,24 @@
 package boogi.apiserver.domain.comment.application;
 
-import boogi.apiserver.builder.*;
-import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.comment.domain.Comment;
 import boogi.apiserver.domain.comment.dto.dto.UserCommentDto;
 import boogi.apiserver.domain.comment.dto.response.CommentsAtPostResponse;
 import boogi.apiserver.domain.comment.dto.response.UserCommentPageResponse;
+import boogi.apiserver.domain.comment.repository.CommentRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
-import boogi.apiserver.domain.like.repository.LikeRepository;
 import boogi.apiserver.domain.like.domain.Like;
+import boogi.apiserver.domain.like.repository.LikeRepository;
 import boogi.apiserver.domain.member.application.MemberQueryService;
-import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.domain.Member;
+import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.member.vo.NullMember;
-import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.post.post.domain.Post;
-import boogi.apiserver.domain.user.repository.UserRepository;
+import boogi.apiserver.domain.post.post.repository.PostRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.global.dto.PaginationDto;
 import boogi.apiserver.global.util.PageableUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,10 +29,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
 
+import static boogi.apiserver.utils.fixture.CommentFixture.*;
+import static boogi.apiserver.utils.fixture.CommunityFixture.POCS;
+import static boogi.apiserver.utils.fixture.MemberFixture.SUNDO_POCS;
+import static boogi.apiserver.utils.fixture.MemberFixture.YONGJIN_POCS;
+import static boogi.apiserver.utils.fixture.PostFixture.POST1;
+import static boogi.apiserver.utils.fixture.UserFixture.SUNDO;
+import static boogi.apiserver.utils.fixture.UserFixture.YONGJIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -62,6 +70,18 @@ class CommentQueryServiceTest {
     @Mock
     UserRepository userRepository;
 
+    private User user;
+    private Community community;
+    private Member member;
+    private Post post;
+
+    @BeforeEach
+    void init() {
+        user = SUNDO.toUser(1L);
+        community = POCS.toCommunity(2L, List.of());
+        member = SUNDO_POCS.toMember(3L, user, community);
+        post = POST1.toPost(4L, member, community, List.of(), List.of());
+    }
 
     @Nested
     @DisplayName("글에 작성된 댓글들 조회시")
@@ -70,57 +90,17 @@ class CommentQueryServiceTest {
         @Test
         @DisplayName("부모 댓글 개수를 기준으로 페이지네이션해서 가져온다.")
         void getCommentsAtPostSuccess() {
-            final User user = TestUser.builder().id(1L).build();
+            Comment pComment1 = COMMENT1.toComment(5L, post, member, null);
+            Comment pComment2 = COMMENT2.toComment(6L, post, member, null);
+            Comment cComment1 = COMMENT3.toComment(7L, post, member, pComment1);
+            Comment cComment2 = COMMENT3.toComment(8L, post, member, pComment2);
 
-            final Community community = TestCommunity.builder().id(2L).build();
+            Like like1 = Like.ofComment(pComment1, member);
+            ReflectionTestUtils.setField(like1, "id", 9L);
+            Like like2 = Like.ofComment(cComment1, member);
+            ReflectionTestUtils.setField(like2, "id", 10L);
 
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
-
-            final Post post = TestPost.builder()
-                    .id(4L)
-                    .community(community)
-                    .build();
-
-            final Comment pComment1 = TestComment.builder()
-                    .id(5L)
-                    .member(member)
-                    .post(post)
-                    .build();
-            final Comment pComment2 = TestComment.builder()
-                    .id(6L)
-                    .member(member)
-                    .post(post)
-                    .build();
-            final Comment cComment1 = TestComment.builder()
-                    .id(7L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment1)
-                    .build();
-            final Comment cComment2 = TestComment.builder()
-                    .id(8L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment2)
-                    .build();
-
-            final Like like1 = TestLike.builder()
-                    .id(9L)
-                    .member(member)
-                    .comment(pComment1)
-                    .build();
-            final Like like2 = TestLike.builder()
-                    .id(10L)
-                    .member(member)
-                    .comment(cComment1)
-                    .build();
-
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(post);
+            given(postRepository.findPostById(anyLong())).willReturn(post);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(member);
 
@@ -176,46 +156,12 @@ class CommentQueryServiceTest {
         @Test
         @DisplayName("공개 커뮤니티에 비가입된 유저가 요청하면 가져온 모든 댓글의 likeId가 null이다.")
         void notJoinedMemberGetCommentsAtPostSuccess() {
-            final User user = TestUser.builder().id(1L).build();
+            Comment pComment1 = COMMENT1.toComment(5L, post, member, null);
+            Comment pComment2 = COMMENT1.toComment(6L, post, member, null);
+            Comment cComment1 = COMMENT3.toComment(7L, post, member, pComment1);
+            Comment cComment2 = COMMENT3.toComment(8L, post, member, pComment2);
 
-            final Community community = TestCommunity.builder().id(2L).build();
-
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
-
-            final Post post = TestPost.builder()
-                    .id(4L)
-                    .community(community)
-                    .build();
-
-            final Comment pComment1 = TestComment.builder()
-                    .id(5L)
-                    .member(member)
-                    .post(post)
-                    .build();
-            final Comment pComment2 = TestComment.builder()
-                    .id(6L)
-                    .member(member)
-                    .post(post)
-                    .build();
-            final Comment cComment1 = TestComment.builder()
-                    .id(7L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment1)
-                    .build();
-            final Comment cComment2 = TestComment.builder()
-                    .id(8L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment2)
-                    .build();
-
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(post);
+            given(postRepository.findPostById(anyLong())).willReturn(post);
             given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
                     .willReturn(new NullMember());
 
@@ -246,48 +192,19 @@ class CommentQueryServiceTest {
         @Test
         @DisplayName("삭제된 부모 댓글에 자식 댓글이 존재하는 경우 부모 댓글 content에 '삭제된 댓글입니다'가 들어있다.")
         void testDeletedParentCommentWhenExistChildComment() {
-            final User user = TestUser.builder().id(1L).build();
+            Comment deletedComment = COMMENT4.toComment(5L, post, member, null);
+            Comment comment = COMMENT1.toComment(6L, post, member, deletedComment);
 
-            final Community community = TestCommunity.builder().id(2L).build();
-
-            final Member member = TestMember.builder()
-                    .id(3L)
-                    .user(user)
-                    .community(community)
-                    .build();
-
-            final Post post = TestPost.builder()
-                    .id(4L)
-                    .community(community)
-                    .commentCount(2)
-                    .build();
-
-            final Comment pComment1 = TestComment.builder()
-                    .id(5L)
-                    .member(member)
-                    .post(post)
-                    .build();
-            pComment1.deleteComment();
-
-            final Comment cComment1 = TestComment.builder()
-                    .id(6L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment1)
-                    .build();
-
-            given(postRepository.findPostById(anyLong()))
-                    .willReturn(post);
-            given(memberQueryService.getViewableMember(anyLong(), any(Community.class)))
-                    .willReturn(member);
+            given(postRepository.findPostById(anyLong())).willReturn(post);
+            given(memberQueryService.getViewableMember(anyLong(), any(Community.class))).willReturn(member);
 
             Pageable pageable = PageRequest.of(0, 2);
-            List<Comment> parentComments = List.of(pComment1);
+            List<Comment> parentComments = List.of(deletedComment);
             Slice<Comment> parentCommentPage = PageableUtil.getSlice(parentComments, pageable);
             given(commentRepository.findParentCommentsWithMemberByPostId(any(Pageable.class), anyLong()))
                     .willReturn(parentCommentPage);
 
-            List<Comment> childComments = List.of(cComment1);
+            List<Comment> childComments = List.of(comment);
             given(commentRepository.findChildCommentsWithMemberByParentCommentIds(anyList()))
                     .willReturn(childComments);
             Map<Long, Long> commentLikeCountMap = Map.of();
@@ -301,7 +218,7 @@ class CommentQueryServiceTest {
             CommentsAtPostResponse commentsAtPostResponse =
                     commentQueryService.getCommentsAtPost(post.getId(), 1L, pageable);
 
-            assertThat(commentsAtPostResponse.getComments().size()).isEqualTo(1);
+            assertThat(commentsAtPostResponse.getComments()).hasSize(1);
 
             CommentsAtPostResponse.ParentCommentInfo parentCommentInfo1 = commentsAtPostResponse.getComments().get(0);
             assertThat(parentCommentInfo1.getId()).isEqualTo(5L);
@@ -322,27 +239,8 @@ class CommentQueryServiceTest {
         @Test
         @DisplayName("댓글 작성한 유저 == 세션 유저, 해당 유저가 작성한 댓글들을 페이지네이션해서 가져온다.")
         void commenterAndSessionUserEqualSuccess() {
-            final User user = TestUser.builder().id(1L).build();
-
-            final Member member = TestMember.builder()
-                    .id(2L)
-                    .user(user)
-                    .build();
-
-            final Post post = TestPost.builder().id(3L).build();
-
-            final Comment pComment = TestComment.builder()
-                    .id(3L)
-                    .member(member)
-                    .post(post)
-                    .build();
-
-            final Comment cComment = TestComment.builder()
-                    .id(4L)
-                    .member(member)
-                    .post(post)
-                    .parent(pComment)
-                    .build();
+            Comment pComment = COMMENT1.toComment(5L, post, member, null);
+            Comment cComment = COMMENT1.toComment(6L, post, member, pComment);
 
             List<Long> findMemberIds = List.of(member.getId());
             given(memberRepository.findMemberIdsForQueryUserPost(anyLong()))
@@ -360,7 +258,7 @@ class CommentQueryServiceTest {
             List<UserCommentDto> commentsDto = userCommentDto.getComments();
             PaginationDto pageInfo = userCommentDto.getPageInfo();
 
-            assertThat(commentsDto.size()).isEqualTo(2);
+            assertThat(commentsDto).hasSize(2);
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
         }
@@ -368,35 +266,13 @@ class CommentQueryServiceTest {
         @Test
         @DisplayName("댓글 작성한 유저 != 세션 유저, 동시에 가입되지 않은 비공개 커뮤니티의 글에 작성된 댓글은 가져오지 않는다.")
         void commenterAndSessionUserNotEqualSuccess() {
-            final User user1 = TestUser.builder().id(1L).build();
-            final User user2 = TestUser.builder().id(2L).build();
+            User user2 = YONGJIN.toUser(2L);
+            Member member2 = YONGJIN_POCS.toMember(4L, user2, community);
 
-            final Member member1 = TestMember.builder()
-                    .id(3L)
-                    .user(user1)
-                    .build();
-            final Member member2 = TestMember.builder()
-                    .id(4L)
-                    .user(user2)
-                    .build();
+            Comment pComment = COMMENT1.toComment(5L, post, member, null);
+            Comment cComment = COMMENT3.toComment(6L, post, member2, pComment);
 
-            final Post post = TestPost.builder().id(7L).build();
-
-            final Comment pComment = TestComment.builder()
-                    .id(5L)
-                    .member(member1)
-                    .post(post)
-                    .build();
-
-            final Comment cComment = TestComment.builder()
-                    .id(6L)
-                    .member(member2)
-                    .post(post)
-                    .parent(pComment)
-                    .build();
-
-            given(userRepository.findUserById(anyLong()))
-                    .willReturn(user2);
+            given(userRepository.findUserById(anyLong())).willReturn(user2);
 
             List<Long> findMemberIds = List.of(member2.getId());
             given(memberRepository.findMemberIdsForQueryUserPost(anyLong(), anyLong()))
@@ -414,7 +290,7 @@ class CommentQueryServiceTest {
             PaginationDto pageInfo = userCommentDto.getPageInfo();
             List<UserCommentDto> commentsDto = userCommentDto.getComments();
 
-            assertThat(commentsDto.size()).isEqualTo(1);
+            assertThat(commentsDto).hasSize(1);
             assertThat(commentsDto.get(0).getPostId()).isEqualTo(post.getId());
             assertThat(pageInfo.getNextPage()).isEqualTo(1);
             assertThat(pageInfo.isHasNext()).isFalse();
