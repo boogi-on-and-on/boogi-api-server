@@ -1,12 +1,12 @@
 package boogi.apiserver.domain.alarm.alarmconfig.repository;
 
 
-import boogi.apiserver.builder.TestAlarmConfig;
-import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.alarm.alarmconfig.domain.AlarmConfig;
-import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.utils.RepositoryTest;
+import boogi.apiserver.utils.fixture.AlarmConfigFixture;
+import boogi.apiserver.utils.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,12 +31,10 @@ class AlarmConfigRepositoryTest extends RepositoryTest {
         @DisplayName("목록에 있는 경우 로우를 Optional에 넣어서 리턴한다.")
         void optionalAlarmConfig() {
             //given
-            final User user = TestUser.builder().build();
+            User user = UserFixture.YONGJIN.toUser();
             userRepository.save(user);
 
-            final AlarmConfig alarmConfig = TestAlarmConfig.builder()
-                    .user(user)
-                    .build();
+            AlarmConfig alarmConfig = AlarmConfigFixture.ALL_FALSE.toAlarmConfig(user);
             alarmConfigRepository.save(alarmConfig);
 
             cleanPersistenceContext();
@@ -56,7 +54,7 @@ class AlarmConfigRepositoryTest extends RepositoryTest {
             final Optional<AlarmConfig> optionalConfig = alarmConfigRepository.getAlarmConfigByUserId(1L);
 
             //then
-            assertThat(optionalConfig.isEmpty()).isTrue();
+            assertThat(optionalConfig).isEmpty();
         }
     }
 }
