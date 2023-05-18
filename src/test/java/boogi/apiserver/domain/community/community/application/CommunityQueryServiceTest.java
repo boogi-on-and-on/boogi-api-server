@@ -1,8 +1,5 @@
 package boogi.apiserver.domain.community.community.application;
 
-import boogi.apiserver.builder.TestCommunity;
-import boogi.apiserver.builder.TestMember;
-import boogi.apiserver.builder.TestPost;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityDetailInfoDto;
 import boogi.apiserver.domain.community.community.dto.dto.CommunityMetadataDto;
@@ -27,6 +24,7 @@ import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.utils.fixture.MemberFixture;
 import boogi.apiserver.utils.fixture.NoticeFixture;
 import boogi.apiserver.utils.fixture.UserFixture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,18 +67,34 @@ class CommunityQueryServiceTest {
     @InjectMocks
     CommunityQueryService communityQueryService;
 
+    private Community community;
+    private Member member;
+    private Post post1;
+    private User user;
+    private PostMedia postMedia;
+    private final String TAG = "태그1";
+
+    @BeforeEach
+    public void init() {
+        this.community = POCS.toCommunity(1L, List.of(TAG));
+        this.user = UserFixture.DEOKHWAN.toUser(2L);
+        this.member = MemberFixture.DEOKHWAN_POCS.toMember(3L, user, community);
+        this.post1 = POST1.toPost(4L, member, community, List.of(TAG), null);
+
+        this.postMedia = PostMedia.builder()
+                .mediaURL("url")
+                .post(post1)
+                .build();
+        post1.addPostMedias(List.of(postMedia));
+    }
 
     @Test
     @DisplayName("커뮤니티 상세 조회")
     void communityDetail() {
-        final String TAG = "태그1";
-
-        Community community = POCS.toCommunity(List.of(TAG));
+        //given
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
-        User user = UserFixture.DEOKHWAN.toUser();
-        Member member = MemberFixture.DEOKHWAN_POCS.toMember(user, community);
         given(memberQueryService.getMemberOrNullMember(anyLong(), any(Community.class)))
                 .willReturn(member);
 
@@ -88,14 +102,14 @@ class CommunityQueryServiceTest {
         given(noticeQueryService.getCommunityLatestNotice(anyLong()))
                 .willReturn(List.of(noticeDto));
 
-        Post post1 = POST1.toPost(1L, member, community, null, null);
         LatestCommunityPostDto postDto = LatestCommunityPostDto.of(post1);
-
         given(postQueryService.getLatestPostOfCommunity(any(Member.class), any(Community.class)))
                 .willReturn(List.of(postDto));
 
-        final CommunityDetailResponse response = communityQueryService.getCommunityDetail(1L, 1L);
+        //when
+        final CommunityDetailResponse response = communityQueryService.getCommunityDetail(user.getId(), community.getId());
 
+        //then
         assertThat(response.getSessionMemberType()).isEqualTo(MemberType.NORMAL);
 
         final CommunityDetailInfoDto communityDto = response.getCommunity();
@@ -109,95 +123,72 @@ class CommunityQueryServiceTest {
 
         assertThat(response.getPosts()).hasSize(1)
                 .extracting("id", "content", "createdAt")
-                .containsExactly(tuple(1L, POST1.content, POST1.createdAt));
+                .containsExactly(tuple(post1.getId(), POST1.content, POST1.createdAt));
     }
 
     @Test
     @DisplayName("커뮤니티 메타정보 조회")
     void communityMetadata() {
-        final Community community = TestCommunity.builder()
-                .communityName("커뮤니티 이름")
-                .description("커뮤니티 소개란입니다.")
-                .build();
-        community.addTags(List.of("태그1"));
-
+        //given
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
-        final CommunityMetadataDto dto = communityQueryService.getCommunityMetadata(1L, 1L);
+        //when
+        final CommunityMetadataDto dto = communityQueryService.getCommunityMetadata(user.getId(), community.getId());
 
+        //then
         then(memberQueryService).should(times(1)).getManager(anyLong(), anyLong());
 
-        assertThat(dto.getName()).isEqualTo("커뮤니티 이름");
-        assertThat(dto.getIntroduce()).isEqualTo("커뮤니티 소개란입니다.");
+        assertThat(dto.getName()).isEqualTo(POCS.communityName);
+        assertThat(dto.getIntroduce()).isEqualTo(POCS.description);
         assertThat(dto.getHashtags()).containsExactly("태그1");
     }
 
     @Test
     @DisplayName("커뮤니티 설정 조회")
     void communitySettingInfo() {
-        final Community community = TestCommunity.builder()
-                .autoApproval(true)
-                .isPrivate(false)
-                .build();
-
+        //given
         given(communityRepository.findCommunityById(anyLong()))
                 .willReturn(community);
 
-        CommunitySettingInfoDto dto = communityQueryService.getSetting(1L, 1L);
+        //when
+        CommunitySettingInfoDto dto = communityQueryService.getSetting(user.getId(), community.getId());
 
+        //then
         then(memberQueryService).should(times(1)).getManager(anyLong(), anyLong());
-        assertThat(dto.getIsAuto()).isTrue();
-        assertThat(dto.getIsSecret()).isFalse();
+        assertThat(dto.getIsAuto()).isEqualTo(POCS.autoApproval);
+        assertThat(dto.getIsSecret()).isEqualTo(POCS.isPrivate);
     }
 
     @Test
     @DisplayName("내가 가입한 커뮤니티의 최신글 조회")
     void joinedCommunitiesWithLatestPost() {
-        final Community community = TestCommunity.builder()
-                .id(1L)
-                .communityName("커뮤니티 이름")
-                .build();
-        final Member member = TestMember.builder()
-                .community(community)
-                .build();
-
+        //given
         given(memberRepository.findMembersWithCommunity(anyLong()))
                 .willReturn(List.of(member));
 
-        final Post post = TestPost.builder()
-                .id(1L)
-                .community(community)
-                .content("게시글 내용입니다.")
-                .likeCount(1)
-                .commentCount(1)
-                .build();
-        post.addTags(List.of("태그1"));
-
         given(postRepository.getLatestPostByCommunityIds(anySet()))
-                .willReturn(List.of(post));
+                .willReturn(List.of(post1));
 
-        final PostMedia postMedia = PostMedia.builder()
-                .mediaURL("url")
-                .post(post)
-                .build();
         given(postMediaRepository.getPostMediasByLatestPostIds(any()))
                 .willReturn(List.of(postMedia));
 
-        final JoinedCommunitiesDto dto = communityQueryService.getJoinedCommunitiesWithLatestPost(1L);
+        //when
+        final JoinedCommunitiesDto dto = communityQueryService.getJoinedCommunitiesWithLatestPost(user.getId());
 
+        //then
         then(userRepository).should(times(1)).findUserById(anyLong());
 
         final JoinedCommunitiesDto.CommunityInfo communityInfo = dto.getCommunities().get(0);
-        assertThat(communityInfo.getId()).isEqualTo(1L);
-        assertThat(communityInfo.getName()).isEqualTo("커뮤니티 이름");
+        assertThat(communityInfo.getId()).isEqualTo(community.getId());
+        assertThat(communityInfo.getName()).isEqualTo(POCS.communityName);
 
         final JoinedCommunitiesDto.PostInfo postInfo = communityInfo.getPost();
-        assertThat(postInfo.getId()).isEqualTo(1L);
-        assertThat(postInfo.getHashtags()).containsExactly("태그1");
-        assertThat(postInfo.getContent()).isEqualTo("게시글 내용입니다.");
-        assertThat(postInfo.getPostMediaUrl()).isEqualTo("url");
-        assertThat(postInfo.getLikeCount()).isEqualTo(1);
-        assertThat(postInfo.getCommentCount()).isEqualTo(1);
+        assertThat(postInfo.getId()).isEqualTo(post1.getId());
+        assertThat(postInfo.getHashtags()).containsExactly(TAG);
+        assertThat(postInfo.getContent()).isEqualTo(POST1.content);
+        assertThat(postInfo.getPostMediaUrl()).isEqualTo(postMedia.getMediaURL());
+        assertThat(postInfo.getLikeCount()).isEqualTo(POST1.likeCount);
+        assertThat(postInfo.getCommentCount()).isEqualTo(POST1.commentCount);
     }
 }

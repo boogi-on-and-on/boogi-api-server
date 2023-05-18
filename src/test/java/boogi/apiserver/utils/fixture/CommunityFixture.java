@@ -12,7 +12,7 @@ import static boogi.apiserver.utils.fixture.TimeFixture.STANDARD;
 
 public enum CommunityFixture {
     BASEBALL("야구 동아리", "우리는 야구를 좋아하는 사람들입니다.", false,
-            CommunityCategory.HOBBY, 10, null, true, STANDARD),
+            CommunityCategory.ACADEMIC, 10, null, true, STANDARD),
 
     POCS("컴퓨터공학과 학술 소모임", "우리는 컴퓨터 기술을 공부하는 동아리입니다", false,
             CommunityCategory.ACADEMIC, 20, null, false, STANDARD.minusDays(1)),
