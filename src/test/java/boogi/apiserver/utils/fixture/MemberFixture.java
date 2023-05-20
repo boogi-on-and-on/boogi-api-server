@@ -16,6 +16,7 @@ public enum MemberFixture {
     YONGJIN_POCS(SUB_MANAGER, null, STANDARD.minusDays(1)),
     DEOKHWAN_POCS(NORMAL, null, STANDARD.minusDays(2)),
     YONGJIN_ENGLISH(MANAGER, null, STANDARD.minusDays(3)),
+    DEOKHWAN_ENGLISH_BANNED(NORMAL, STANDARD, STANDARD.minusDays(4)),
     ;
 
 

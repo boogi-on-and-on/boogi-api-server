@@ -2,7 +2,6 @@ package boogi.apiserver.domain.member.application;
 
 import boogi.apiserver.builder.TestCommunity;
 import boogi.apiserver.builder.TestMember;
-import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.member.domain.Member;
@@ -11,6 +10,10 @@ import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.member.repository.MemberRepository;
 import boogi.apiserver.domain.user.domain.User;
 import boogi.apiserver.domain.user.repository.UserRepository;
+import boogi.apiserver.utils.fixture.CommunityFixture;
+import boogi.apiserver.utils.fixture.MemberFixture;
+import boogi.apiserver.utils.fixture.UserFixture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,7 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +50,23 @@ class MemberCommandTest {
     @Mock
     MemberQuery memberQuery;
 
+    private Member manager;
+    private Member normal;
+    private Community community;
+    private User newUser;
+
+    @BeforeEach
+    public void init() {
+        this.community = CommunityFixture.POCS.toCommunity(1L, null);
+
+        final User sundo = UserFixture.SUNDO.toUser(2L);
+        this.manager = MemberFixture.SUNDO_POCS.toMember(3L, sundo, community);
+
+        final User deokhwan = UserFixture.DEOKHWAN.toUser(4L);
+        this.normal = MemberFixture.DEOKHWAN_POCS.toMember(5L, deokhwan, community);
+
+        this.newUser = UserFixture.YONGJIN.toUser(6L);
+    }
 
     @Nested
     @DisplayName("멤버 가입 테스트")
@@ -56,35 +75,32 @@ class MemberCommandTest {
         @DisplayName("이미 가입한 멤버인 경우 AlreadyJoinedMemberException 리턴")
         @Test
         void alreadyJoined() {
-            final Member member = TestMember.builder()
-                    .user(
-                            TestUser.builder()
-                                    .id(1L)
-                                    .build()
-                    ).build();
-
+            //given
             given(memberRepository.findAlreadyJoinedMember(anyList(), anyLong()))
-                    .willReturn(List.of(member));
+                    .willReturn(List.of(manager));
 
+            //then
             assertThatThrownBy(() -> {
-                memberCommand.joinMember(member.getUser().getId(), 1L, MemberType.NORMAL);
+                //when
+                memberCommand.joinMember(manager.getUser().getId(), community.getId(), MemberType.NORMAL);
             }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
         @DisplayName("가입 성공")
         @Test
         void success() {
-            final User user = TestUser.builder().build();
+            //given
             given(userRepository.findUserById(anyLong()))
-                    .willReturn(user);
-
-            final Community community = TestCommunity.builder().build();
+                    .willReturn(newUser);
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
 
-            final Member member = memberCommand.joinMember(1L, 1L, MemberType.NORMAL);
+            //when
+            final Member member = memberCommand.joinMember(newUser.getId(), community.getId(), MemberType.NORMAL);
+
+            //then
             assertThat(member.getMemberType()).isEqualTo(MemberType.NORMAL);
-            assertThat(member.getUser()).isEqualTo(user);
+            assertThat(member.getUser()).isEqualTo(newUser);
 
             then(memberRepository).should(times(1))
                     .save(any(Member.class));
@@ -98,18 +114,11 @@ class MemberCommandTest {
         @DisplayName("이미 가입한 멤버가 있는경우 AlreadyJoinedMemberException")
         @Test
         void alreadyJoined() {
-            final Member member = TestMember.builder()
-                    .user(
-                            TestUser.builder()
-                                    .id(1L)
-                                    .build()
-                    ).build();
-
             given(memberRepository.findAlreadyJoinedMember(anyList(), anyLong()))
-                    .willReturn(List.of(member));
+                    .willReturn(List.of(manager));
 
             assertThatThrownBy(() -> {
-                memberCommand.joinMembers(List.of(1L, 2L), 1L, MemberType.NORMAL);
+                memberCommand.joinMembers(List.of(1L, 2L), community.getId(), MemberType.NORMAL);
             }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
@@ -128,35 +137,29 @@ class MemberCommandTest {
     @Test
     @DisplayName("멤버 차단 테스트")
     void ban() {
-
-        final Community community = TestCommunity.builder().id(1L).build();
-        final Member member = TestMember.builder()
-                .community(community)
-                .build();
-
+        //given
         given(memberRepository.findMemberById(anyLong()))
-                .willReturn(member);
+                .willReturn(manager);
 
-        memberCommand.banMember(2L, 1L);
+        //when
+        memberCommand.banMember(2L, manager.getId());
 
-        assertThat(member.getBannedAt()).isNotNull();
-
+        //then
+        assertThat(manager.getBannedAt()).isNotNull();
     }
 
     @Test
     @DisplayName("멤버 차단해제 테스트")
     void release() {
-        final Community community = TestCommunity.builder().id(1L).build();
-        final Member member = TestMember.builder()
-                .community(community)
-                .bannedAt(LocalDateTime.now())
-                .build();
-
+        //given
+        final Member member = MemberFixture.DEOKHWAN_ENGLISH_BANNED.toMember(newUser, community);
         given(memberRepository.findMemberById(anyLong()))
                 .willReturn(member);
 
+        //when
         memberCommand.releaseMember(2L, 1L);
 
+        //then
         assertThat(member.getBannedAt()).isNull();
     }
 
@@ -167,47 +170,36 @@ class MemberCommandTest {
         @DisplayName("매니저의 권한을 위임할 경우 매니저와 멤버 둘 다 변한다")
         @Test
         void managerAndNormalMemberType() {
-            final Community community = TestCommunity.builder().id(1L).build();
-            final Member member = TestMember.builder()
-                    .community(community)
-                    .build();
-
+            //given
             given(memberRepository.findMemberById(anyLong()))
-                    .willReturn(member);
-
-            final Member manager = TestMember.builder().build();
+                    .willReturn(normal);
 
             given(memberQuery.getManager(anyLong(), anyLong()))
                     .willReturn(manager);
 
+            //when
             memberCommand.delegateMember(2L, 1L, MemberType.MANAGER);
 
+            //then
             assertThat(manager.getMemberType()).isEqualTo(MemberType.NORMAL);
-            assertThat(member.getMemberType()).isEqualTo(MemberType.MANAGER);
+            assertThat(normal.getMemberType()).isEqualTo(MemberType.MANAGER);
         }
 
         @DisplayName("일반 멤버의 권한을 바꿔주는 경우 일반멤버의 권한만 변한다.")
         @Test
         void normalMemberType() {
-            final Community community = TestCommunity.builder().id(1L).build();
-            final Member member = TestMember.builder()
-                    .community(community)
-                    .build();
-
+            //given
             given(memberRepository.findMemberById(anyLong()))
-                    .willReturn(member);
-
-            final Member manager = TestMember.builder()
-                    .memberType(MemberType.MANAGER)
-                    .build();
+                    .willReturn(normal);
 
             given(memberQuery.getManager(anyLong(), anyLong()))
                     .willReturn(manager);
-
+            //when
             memberCommand.delegateMember(2L, 1L, MemberType.NORMAL);
 
+            //then
             assertThat(manager.getMemberType()).isEqualTo(MemberType.MANAGER);
-            assertThat(member.getMemberType()).isEqualTo(MemberType.NORMAL);
+            assertThat(normal.getMemberType()).isEqualTo(MemberType.NORMAL);
         }
     }
 }
