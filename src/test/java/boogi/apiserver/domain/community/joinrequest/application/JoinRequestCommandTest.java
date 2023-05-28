@@ -1,14 +1,10 @@
 package boogi.apiserver.domain.community.joinrequest.application;
 
-import boogi.apiserver.builder.TestCommunity;
-import boogi.apiserver.builder.TestJoinRequest;
 import boogi.apiserver.builder.TestMember;
-import boogi.apiserver.builder.TestUser;
 import boogi.apiserver.domain.community.community.repository.CommunityRepository;
 import boogi.apiserver.domain.community.community.domain.Community;
 import boogi.apiserver.domain.community.joinrequest.repository.JoinRequestRepository;
 import boogi.apiserver.domain.community.joinrequest.domain.JoinRequest;
-import boogi.apiserver.domain.community.joinrequest.domain.JoinRequestStatus;
 import boogi.apiserver.domain.community.joinrequest.exception.AlreadyRequestedException;
 import boogi.apiserver.domain.member.application.MemberCommand;
 import boogi.apiserver.domain.member.application.MemberQuery;
@@ -18,6 +14,10 @@ import boogi.apiserver.domain.member.exception.AlreadyJoinedMemberException;
 import boogi.apiserver.domain.member.vo.NullMember;
 import boogi.apiserver.domain.user.repository.UserRepository;
 import boogi.apiserver.domain.user.domain.User;
+import boogi.apiserver.utils.fixture.CommunityFixture;
+import boogi.apiserver.utils.fixture.MemberFixture;
+import boogi.apiserver.utils.fixture.UserFixture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,6 +62,17 @@ class JoinRequestCommandTest {
     @Mock
     UserRepository userRepository;
 
+    private User operatorUser;
+    private Member operatorMember;
+    private Community community;
+
+    @BeforeEach
+    public void init() {
+        this.community = CommunityFixture.ENGLISH.toCommunity(1L, null);
+        this.operatorUser = UserFixture.YONGJIN.toUser(2L);
+        this.operatorMember = MemberFixture.YONGJIN_ENGLISH.toMember(3L, operatorUser, community);
+    }
+
     @Nested
     @DisplayName("가입 요청하기")
     class RequestJoinRequest {
@@ -69,23 +80,25 @@ class JoinRequestCommandTest {
         @DisplayName("이미 가입한 경우")
         @Test
         void alreadyJoined() {
+            //given
             given(memberQuery.getMemberOrNullMember(anyLong(), any(Community.class)))
-                    .willReturn(TestMember.builder().build());
+                    .willReturn(operatorMember);
 
             given(communityRepository.findCommunityById(anyLong()))
-                    .willReturn(TestCommunity.builder().id(1L).build());
+                    .willReturn(community);
 
+            //then
             assertThatThrownBy(() -> {
-                joinRequestCommand.request(1L, 1L);
+                //when
+                joinRequestCommand.request(operatorUser.getId(), community.getId());
             }).isInstanceOf(AlreadyJoinedMemberException.class);
         }
 
         @DisplayName("이미 요청한 경우")
         @Test
         void alreadyRejected() {
-            final JoinRequest joinRequest = TestJoinRequest.builder()
-                    .status(JoinRequestStatus.PENDING)
-                    .build();
+            //given
+            final JoinRequest joinRequest = JoinRequest.of(operatorUser, community);
 
             given(memberQuery.getMemberOrNullMember(anyLong(), any()))
                     .willReturn(new NullMember());
@@ -93,32 +106,33 @@ class JoinRequestCommandTest {
             given(joinRequestRepository.getLatestJoinRequest(anyLong(), anyLong()))
                     .willReturn(Optional.of(joinRequest));
 
+            //then
             assertThatThrownBy(() -> {
-                joinRequestCommand.request(1L, 1L);
+                //when
+                joinRequestCommand.request(operatorUser.getId(), community.getId());
             }).isInstanceOf(AlreadyRequestedException.class);
         }
 
         @DisplayName("커뮤니티 자동승인인 경우")
         @Test
         void success_autoApproval() {
-            final Community community = TestCommunity.builder()
-                    .id(1L)
-                    .autoApproval(true)
-                    .build();
-
+            final Community autoCommunity = CommunityFixture.BASEBALL.toCommunity(1L, null);
+            //given
             given(communityRepository.findCommunityById(anyLong()))
-                    .willReturn(community);
+                    .willReturn(autoCommunity);
 
             given(memberQuery.getMemberOrNullMember(anyLong(), any()))
                     .willReturn(new NullMember());
 
-            joinRequestCommand.request(1L, community.getId());
+            //when
+            joinRequestCommand.request(operatorUser.getId(), autoCommunity.getId());
 
+            //then
             then(memberRepository).should(times(1))
                     .save(any(Member.class));
 
             then(memberRepository).should(times(1))
-                    .findManager(community.getId());
+                    .findManager(autoCommunity.getId());
 
             then(joinRequestRepository).should(times(1))
                     .save(any(JoinRequest.class));
@@ -127,19 +141,17 @@ class JoinRequestCommandTest {
         @DisplayName("자동승인이 아닌 경우")
         @Test
         void success() {
-            final Community community = TestCommunity.builder()
-                    .id(1L)
-                    .autoApproval(false)
-                    .build();
-
+            //given
             given(memberQuery.getMemberOrNullMember(anyLong(), any()))
                     .willReturn(new NullMember());
 
             given(communityRepository.findCommunityById(anyLong()))
                     .willReturn(community);
 
-            joinRequestCommand.request(1L, community.getId());
+            //when
+            joinRequestCommand.request(operatorUser.getId(), community.getId());
 
+            //then
             then(memberRepository).should(times(0))
                     .save(any(Member.class));
 
@@ -155,13 +167,11 @@ class JoinRequestCommandTest {
     @DisplayName("가입요청 여러개 승인하기")
     void confirmManyRequest() {
         //given
-        final Member operator = TestMember.builder().id(1L).build();
         given(memberQuery.getOperator(anyLong(), anyLong()))
-                .willReturn(operator);
+                .willReturn(operatorMember);
 
-        final User u1 = TestUser.builder().id(1L).build();
-        final User u2 = TestUser.builder().id(2L).build();
-
+        final User u1 = UserFixture.SUNDO.toUser(1L);
+        final User u2 = UserFixture.DEOKHWAN.toUser(2L);
 
         JoinRequest jr1 = mock(JoinRequest.class);
         given(jr1.getUser()).willReturn(u1);
@@ -180,11 +190,11 @@ class JoinRequestCommandTest {
                 .willReturn(List.of(m1, m2));
 
         //when
-        joinRequestCommand.confirmUsers(operator.getId(), List.of(1L, 2L), 1L);
+        joinRequestCommand.confirmUsers(operatorMember.getId(), List.of(u1.getId(), u2.getId()), community.getId());
 
         //then
-        then(jr1).should(times(1)).confirm(operator, m1);
-        then(jr2).should(times(1)).confirm(operator, m2);
+        then(jr1).should(times(1)).confirm(operatorMember, m1);
+        then(jr2).should(times(1)).confirm(operatorMember, m2);
     }
 
 
@@ -192,23 +202,19 @@ class JoinRequestCommandTest {
     @DisplayName("가입요청 여러개 거부하기")
     void rejectManyRequest() {
         //given
-        final Member operator = TestMember.builder().build();
         given(memberQuery.getOperator(anyLong(), anyLong()))
-                .willReturn(operator);
-
-        final Community community = TestCommunity.builder().id(3L).build();
+                .willReturn(operatorMember);
 
         JoinRequest jr1 = mock(JoinRequest.class);
-
         JoinRequest jr2 = mock(JoinRequest.class);
 
         given(joinRequestRepository.getRequestsByIds(any()))
                 .willReturn(List.of(jr1, jr2));
         //when
-        joinRequestCommand.rejectUsers(1L, List.of(1L, 2L), community.getId());
+        joinRequestCommand.rejectUsers(operatorUser.getId(), List.of(1L, 2L), community.getId());
 
         //then
-        then(jr1).should(times(1)).reject(operator);
-        then(jr2).should(times(1)).reject(operator);
+        then(jr1).should(times(1)).reject(operatorMember);
+        then(jr2).should(times(1)).reject(operatorMember);
     }
 }

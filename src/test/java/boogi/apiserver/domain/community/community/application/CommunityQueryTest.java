@@ -67,20 +67,15 @@ class CommunityQueryTest {
     @InjectMocks
     CommunityQuery communityQuery;
 
-    private Community community;
-    private Member member;
-    private Post post1;
-    private User user;
-    private PostMedia postMedia;
     private final String TAG = "태그1";
+    private Community community = POCS.toCommunity(1L, List.of(TAG));
+    private User user = UserFixture.DEOKHWAN.toUser(2L);
+    private Member member = MemberFixture.DEOKHWAN_POCS.toMember(3L, user, community);
+    private Post post1 = POST1.toPost(4L, member, community, List.of(TAG), null);
+    private PostMedia postMedia;
 
     @BeforeEach
     public void init() {
-        this.community = POCS.toCommunity(1L, List.of(TAG));
-        this.user = UserFixture.DEOKHWAN.toUser(2L);
-        this.member = MemberFixture.DEOKHWAN_POCS.toMember(3L, user, community);
-        this.post1 = POST1.toPost(4L, member, community, List.of(TAG), null);
-
         this.postMedia = PostMedia.builder()
                 .mediaURL("url")
                 .post(post1)
