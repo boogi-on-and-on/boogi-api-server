@@ -7,7 +7,7 @@
 
 
 ## 서버 아키텍쳐
-<img width="1092" alt="스크린샷 2022-11-14 오후 4 01 35" src="https://user-images.githubusercontent.com/42235949/201595589-b6517c75-9272-42c4-aab0-688972dfc707.png">
+<img width="1092" alt="스크린샷 2023-05-29 오후 10 41 55" src="https://github.com/sdcodebase/boogi-api-server/assets/42235949/2db8b3f3-d42f-42a9-a73f-c38f8facb39b">
 
 
 ## API 문서
