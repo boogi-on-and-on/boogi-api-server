@@ -24,9 +24,9 @@
 ### Repository
 * [boogi-api-server](https://github.com/boogi-on-and-on/boogi-api-server)
     * 메인 API 서버
-* [boogi-lambda-api](https://github.com/boogi-on-and-on/boogi-lambda-api)
+* boogi-lambda-api
     * 푸시 알람을 위한 AWS lambda 코드
-* [boogi-image-server](https://github.com/boogi-on-and-on/boogi-image-server)
+* boogi-image-server
     * 이미지 리사이징을 위한 서버
 
 
